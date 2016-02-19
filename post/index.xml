@@ -59,25 +59,30 @@ link: http://segmentfault.com/a/1190000000392586
     google-chrome stream-example.html		使用websocket在线观看
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;视频流解决方案&lt;/p&gt;
+&lt;h2 id=&#34;vlc视频流输出和vlc视频流播放:522c154dca6ec9c4e9be4965f54df0ed&#34;&gt;vlc视频流输出和vlc视频流播放&lt;/h2&gt;
 
-&lt;p&gt;1、vlc
-    &lt;a href=&#34;http://www.cnblogs.com/fx2008/p/4315416.html&#34;&gt;http://www.cnblogs.com/fx2008/p/4315416.html&lt;/a&gt;
-    a、关掉防火墙，至少将视频流端口开启
-    b、vlc &amp;ndash;ttl 12 -vvv &amp;ndash;color -I telnet &amp;ndash;telnet-password videolan &amp;ndash;rtsp-host 0.0.0.0 &amp;ndash;rtsp-port 5554
+&lt;pre&gt;&lt;code&gt;site: http://www.cnblogs.com/fx2008/p/4315416.html
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;    a、关掉防火墙，至少将视频流端口开启
+    b、vlc --ttl 12 -vvv --color -I telnet --telnet-password videolan --rtsp-host 0.0.0.0 --rtsp-port 5554
     c、通过telnet启动vlc的vlm管理中，telnet 127.0.0.1 4212，密码是刚才的videolan
     d、new Test vod enabled 新建一个vod，名字是Test
     e、setup Test input /path/video.file    给Test输入视频
-    f、vlc rtsp://127.0.0.1:5554/Test 启动vlc观看视频流，这里还差声音&lt;/p&gt;
+    f、vlc rtsp://127.0.0.1:5554/Test 启动vlc观看视频流，这里还差声音
+&lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;2、nginx的rtmp转播
-    &lt;a href=&#34;http://itony.me/619.html&#34;&gt;http://itony.me/619.html&lt;/a&gt;
-    &lt;a href=&#34;https://github.com/arut/nginx-rtmp-module&#34;&gt;https://github.com/arut/nginx-rtmp-module&lt;/a&gt;
-    openresty.org
-    &lt;a href=&#34;http://blog.csdn.net/leixiaohua1020/article/details/12029543&#34;&gt;http://blog.csdn.net/leixiaohua1020/article/details/12029543&lt;/a&gt;
-    &lt;a href=&#34;http://blog.csdn.net/leixiaohua1020/article/details/39803457&#34;&gt;http://blog.csdn.net/leixiaohua1020/article/details/39803457&lt;/a&gt;
-    &lt;a href=&#34;http://blog.csdn.net/fireroll/article/details/18899285&#34;&gt;http://blog.csdn.net/fireroll/article/details/18899285&lt;/a&gt;
-    a、安装openresty和rtmp模块
+&lt;h2 id=&#34;nginx的rtmp转播:522c154dca6ec9c4e9be4965f54df0ed&#34;&gt;nginx的rtmp转播&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;site: http://itony.me/619.html
+site: https://github.com/arut/nginx-rtmp-module
+site: http://openresty.org
+site: http://blog.csdn.net/leixiaohua1020/article/details/12029543
+site: http://blog.csdn.net/leixiaohua1020/article/details/39803457
+site: http://blog.csdn.net/fireroll/article/details/18899285
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;    a、安装openresty和rtmp模块
     b、配置nginx，rtmp配置块与http配置块平级
         rtmp {
             server {
@@ -88,34 +93,67 @@ link: http://segmentfault.com/a/1190000000392586
                 }
             }
         }
-    c、ffmpeg转发视频流  ffmpeg -re -i xxx.mp4 -c copy -f flv   rtmp://localhost:1935/live1/room1
+    c、ffmpeg转发视频流  
+        ffmpeg -re -i xxx.mp4 -c copy -f flv   rtmp://localhost:1935/live1/room1
         其中的live1是应用，room1是将来要打开的节点
-    d、在vlc中打开视频流： rtmp://localhost:1935/live1/room1
-    e、  ffmpeg -f video4linux2 -i /dev/video0 -c:v libx264 -an -f flv
-    rtmp://localhost:1935/live1/room1 试试摄像头&lt;/p&gt;
 
-&lt;p&gt;3、aliyun+nginx+rtmp在线转播&lt;/p&gt;
+    d、在vlc中打开视频流： 
+        rtmp://localhost:1935/live1/room1
 
-&lt;pre&gt;&lt;code&gt;http://blog.csdn.net/xdwyyan/article/details/43198985
-注意：在nginx中配置rtmp后，reload是不够的，需要kill掉重新启动nginx。通过sudo
-netstat -tlnp | grep 1935来观察nginx是否将端口打开
-
-sudo ffmpeg -i /dev/video0 -acodec acc -strict experimental -ar 44100 -ac 2 -b:a 96k -r 25 -b:v 500k -s 640*480 -f flv rtmp://101.200.124.174:1935/live1/room1
-vlc rtmp://101.200.124.174:1935/live1/room1
-
-ffmpeg -loglevel verbose -re -i xxx.mp4 -vcodec libx264 -vprofile baseline -acodec libmp3lame -ar 44100 -ac 1 -f flv rtmp://101.200.124.174:1935/hls/movie
-vlc http://101.200.124.174/hls/movie
-
-ffmpeg -f video4linux2 -s 320x240 -i /dev/video0 -vcodec libx264 -f flv  rtmp://101.200.124.174:1935/hls/movie
-vlc http://101.200.124.174/hls/movie
-手机浏览器打开也行
+    e、ffmpeg -f video4linux2 -i /dev/video0 -c:v libx264 -an -f flv rtmp://localhost:1935/live1/room1 试试摄像头
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;4、防火墙设置
-    usr/local/bin/ss-server -u -c ./fakang.json &amp;gt; /dev/null 2&amp;gt;&amp;amp;1 &amp;amp;
-    huang@vultr:~$ sudo iptables -A INPUT -m state &amp;ndash;state NEW -m tcp -p tcp &amp;ndash;dport 1985 -j ACCEPT&lt;/p&gt;
+&lt;h2 id=&#34;aliyun-nginx-rtmp在线转播:522c154dca6ec9c4e9be4965f54df0ed&#34;&gt;aliyun+nginx+rtmp在线转播&lt;/h2&gt;
 
-&lt;p&gt;5、ffmpeg的使用方法及参数&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;site: http://blog.csdn.net/xdwyyan/article/details/43198985
+注意：在nginx中配置rtmp后，reload是不够的，需要kill掉重新启动nginx。
+通过sudo netstat -tlnp | grep 1935来观察nginx是否将端口打开
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;    sudo ffmpeg -i /dev/video0 -acodec acc -strict experimental -ar 44100 -ac 2 -b:a 96k -r 25 -b:v 500k -s 640*480 -f flv rtmp://101.200.124.174:1935/live1/room1
+    vlc rtmp://101.200.124.174:1935/live1/room1
+
+    ffmpeg -loglevel verbose -re -i xxx.mp4 -vcodec libx264 -vprofile baseline -acodec libmp3lame -ar 44100 -ac 1 -f flv rtmp://101.200.124.174:1935/hls/movie
+    vlc http://101.200.124.174/hls/movie
+
+    #v4l2读取摄像头，进行x264编码并将视频流发送至阿里云，进而进行hls播放
+    ffmpeg -f video4linux2 -s 320x240 -i /dev/video0 -vcodec libx264 -f flv  rtmp://101.200.124.174:1935/hls/movie
+    vlc http://101.200.124.174/hls/movie
+    手机浏览器打开也行
+
+    #http config block
+    rtmp {
+        server {
+            listen 1935;
+            application live1 {
+                live on;
+                record off;
+            }
+            application hls{
+                live on;
+                hls on;
+                hls_path /tmp/hls;
+            }
+    
+        }
+    }
+
+    #server config block
+    location /hls {
+        types {
+            application/vnd.apple.mpegurl m3u8;
+            video/mp2t ts;
+        }
+        root /tmp;
+        add_header Cache-Control no-cache;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;extra-info:522c154dca6ec9c4e9be4965f54df0ed&#34;&gt;Extra Info&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;防火墙设置，配置1985端口可以被外网访问
+huang@vultr:~$ sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 1985 -j ACCEPT
+&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     

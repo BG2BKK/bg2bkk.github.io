@@ -1,186 +1,63 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<html lang="en-us">
+
 <head>
-  <link href="http://gmpg.org/xfn/11" rel="profile">
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
-  <meta name="generator" content="Hugo 0.15" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title> My New Hugo Site &middot; My New Hugo Site </title>
 
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 
-  <title> My New Hugo Site &middot; My New Hugo Site </title>
+<link rel="stylesheet" href="https://bg2bkk.github.io//css/slim.css">
+<link rel="stylesheet" href="https://bg2bkk.github.io//css/highlight.min.css">
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Source+Code+Pro' rel='stylesheet' type='text/css'>
 
-  
-  <link rel="stylesheet" href="https://bg2bkk.github.io/css/poole.css">
-  <link rel="stylesheet" href="https://bg2bkk.github.io/css/syntax.css">
-  <link rel="stylesheet" href="https://bg2bkk.github.io/css/hyde.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Sans:400,400italic,700|Abril+Fatface">
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+<link rel="shortcut icon" href="/favicon.ico">
 
-  
-  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
-  <link rel="shortcut icon" href="/favicon.png">
 
-  
-  <link href="https://bg2bkk.github.io/index.xml" rel="alternate" type="application/rss+xml" title="My New Hugo Site" />
+<link href="https://bg2bkk.github.io/index.xml" rel="alternate" type="application/rss+xml" title="My New Hugo Site" />
+
 </head>
 
-<body class="">
-
-<div class="sidebar">
-  <div class="container sidebar-sticky">
-    <div class="sidebar-about">
-      <a href="https://bg2bkk.github.io/"><h1>My New Hugo Site</h1></a>
-      <p class="lead">
-      An elegant open source and mobile first theme for <a href="http://hugo.spf13.com">hugo</a> made by <a href="http://twitter.com/mdo">@mdo</a>. Originally made for Jekyll.
-      </p>
-    </div>
-
-    <ul class="sidebar-nav">
-      <li><a href="/">Home</a> </li>
-      
+<body>
+  <div class="container">
+    <div class="header">
+  <h1 class="site-title"><a href="https://bg2bkk.github.io/">My New Hugo Site</a></h1>
+  <p class="site-tagline"></p>
+  <div class="nav">
+    <a class="nav-btn" href="#">
+      <span class="ci ci-burger"></span>
+    </a>
+    <ul class="nav-list">
+       
+	  <li class="spacer">&ac;</li>
+  
     </ul>
-
-    <p>&copy; 2016. All rights reserved. </p>
   </div>
 </div>
-
-
-    <div class="content container">
-<div class="posts">
-
-      
-  <div class="post">
-    <h1 class="post-title">
-      <a href="https://bg2bkk.github.io/post/livestream%E7%9A%84%E5%87%A0%E7%A7%8D%E5%88%9D%E6%AD%A5%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/">
-        livestream的几种初步解决方案
-      </a>
-    </h1>
-
-    <span class="post-date">Thu, Feb 18, 2016</span>
-
-    
-
-<h1 id="实时视频流解决方案:522c154dca6ec9c4e9be4965f54df0ed">实时视频流解决方案</h1>
-
-<h2 id="mjpg-streamer:522c154dca6ec9c4e9be4965f54df0ed">mjpg-streamer</h2>
-
-<pre><code>site: https://github.com/codewithpassion/mjpg-streamer/tree/master/mjpg-streamer
-
-    link: http://www.cnblogs.com/hnrainll/archive/2011/06/08/2074909.html
-    link: http://blog.163.com/chenhongswing@126/blog/static/1335924432011825104144612/
-</code></pre>
-
-<pre><code class="language-bash">    #提供一个可以直接使用的demo
-
-    git clone https://github.com/codewithpassion/mjpg-streamer/tree/master/mjpg-streamer
-
-    cd mjpg-streamer
-
-    ./mjpg_streamer -i &quot;input_uvc.so -d /dev/video0 -r 640x480 -y&quot; -o &quot;output_http.so -w ./www&quot;
-
-    127.0.0.1:8080访问主页，可以获得stream、static以及通过vlc和mplayer播放
-</code></pre>
-
-<h2 id="ffmpeg-websocket播放:522c154dca6ec9c4e9be4965f54df0ed">ffmpeg+websocket播放</h2>
-
-<pre><code>site: https://github.com/phoboslab/jsmpeg
-link: http://segmentfault.com/a/1190000000392586
-</code></pre>
-
-<pre><code class="language-bash">    #提供可以直接运行的demo
-
-    git clone https://github.com/phoboslab/jsmpeg
-
-    nodejs stream-server.js huang	监听随机端口
-        Listening for MPEG Stream on http://127.0.0.1:8082/&lt;secret&gt;/&lt;width&gt;/&lt;height&gt;
-        Awaiting WebSocket connections on ws://127.0.0.1:8084/
-        Stream Connected: 127.0.0.1:52460 size: 640x480
-        New WebSocket Connection (1 total)
-        Disconnected WebSocket (0 total)
-
-    ffmpeg -s 640x480 -f video4linux2 -i /dev/video0 -f mpeg1video -b 800k -r 30 http://localhost:8082/huang/640/480/		ffmpeg采集编码并发送视频流
-    google-chrome stream-example.html		使用websocket在线观看
-</code></pre>
-
-<p>视频流解决方案</p>
-
-<p>1、vlc
-    <a href="http://www.cnblogs.com/fx2008/p/4315416.html">http://www.cnblogs.com/fx2008/p/4315416.html</a>
-    a、关掉防火墙，至少将视频流端口开启
-    b、vlc &ndash;ttl 12 -vvv &ndash;color -I telnet &ndash;telnet-password videolan &ndash;rtsp-host 0.0.0.0 &ndash;rtsp-port 5554
-    c、通过telnet启动vlc的vlm管理中，telnet 127.0.0.1 4212，密码是刚才的videolan
-    d、new Test vod enabled 新建一个vod，名字是Test
-    e、setup Test input /path/video.file    给Test输入视频
-    f、vlc rtsp://127.0.0.1:5554/Test 启动vlc观看视频流，这里还差声音</p>
-
-<p>2、nginx的rtmp转播
-    <a href="http://itony.me/619.html">http://itony.me/619.html</a>
-    <a href="https://github.com/arut/nginx-rtmp-module">https://github.com/arut/nginx-rtmp-module</a>
-    openresty.org
-    <a href="http://blog.csdn.net/leixiaohua1020/article/details/12029543">http://blog.csdn.net/leixiaohua1020/article/details/12029543</a>
-    <a href="http://blog.csdn.net/leixiaohua1020/article/details/39803457">http://blog.csdn.net/leixiaohua1020/article/details/39803457</a>
-    <a href="http://blog.csdn.net/fireroll/article/details/18899285">http://blog.csdn.net/fireroll/article/details/18899285</a>
-    a、安装openresty和rtmp模块
-    b、配置nginx，rtmp配置块与http配置块平级
-        rtmp {
-            server {
-                listen 1935;
-                application live1 {
-                    live on;
-                    record off;
-                }
-            }
-        }
-    c、ffmpeg转发视频流  ffmpeg -re -i xxx.mp4 -c copy -f flv   rtmp://localhost:1935/live1/room1
-        其中的live1是应用，room1是将来要打开的节点
-    d、在vlc中打开视频流： rtmp://localhost:1935/live1/room1
-    e、  ffmpeg -f video4linux2 -i /dev/video0 -c:v libx264 -an -f flv
-    rtmp://localhost:1935/live1/room1 试试摄像头</p>
-
-<p>3、aliyun+nginx+rtmp在线转播</p>
-
-<pre><code>http://blog.csdn.net/xdwyyan/article/details/43198985
-注意：在nginx中配置rtmp后，reload是不够的，需要kill掉重新启动nginx。通过sudo
-netstat -tlnp | grep 1935来观察nginx是否将端口打开
-
-sudo ffmpeg -i /dev/video0 -acodec acc -strict experimental -ar 44100 -ac 2 -b:a 96k -r 25 -b:v 500k -s 640*480 -f flv rtmp://101.200.124.174:1935/live1/room1
-vlc rtmp://101.200.124.174:1935/live1/room1
-
-ffmpeg -loglevel verbose -re -i xxx.mp4 -vcodec libx264 -vprofile baseline -acodec libmp3lame -ar 44100 -ac 1 -f flv rtmp://101.200.124.174:1935/hls/movie
-vlc http://101.200.124.174/hls/movie
-
-ffmpeg -f video4linux2 -s 320x240 -i /dev/video0 -vcodec libx264 -f flv  rtmp://101.200.124.174:1935/hls/movie
-vlc http://101.200.124.174/hls/movie
-手机浏览器打开也行
-</code></pre>
-
-<p>4、防火墙设置
-    usr/local/bin/ss-server -u -c ./fakang.json &gt; /dev/null 2&gt;&amp;1 &amp;
-    huang@vultr:~$ sudo iptables -A INPUT -m state &ndash;state NEW -m tcp -p tcp &ndash;dport 1985 -j ACCEPT</p>
-
-<p>5、ffmpeg的使用方法及参数</p>
+    <div class="content">
+      <div class="posts">
+         
+        <div class="post">
+          <h2 class="post-title"><a href="https://bg2bkk.github.io/post/livestream%E7%9A%84%E5%87%A0%E7%A7%8D%E5%88%9D%E6%AD%A5%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/">livestream的几种初步解决方案</a></h2>
+          <span class="post-date">Feb 18, 2016</span>
+		  
+		  
+        </div>
+        
+      </div>
+      <div class="pagination">
+   
+</div>
+    </div>
+    <div class="footer">
+  <p>Powered by <a href="http://gohugo.io">Hugo</a>. This theme—Slim—is open sourced on <a href="https://github.com/zhe/hugo-theme-slim">Github</a>.</p>
+</div>
 
   </div>
+  <script src="https://bg2bkk.github.io//js/slim.js"></script>
   
-  <div class="post">
-    <h1 class="post-title">
-      <a href="https://bg2bkk.github.io/about/">
-        about
-      </a>
-    </h1>
 
-    <span class="post-date">Thu, Feb 18, 2016</span>
+</body>
 
-    
-
-<h1 id="黄振栋:6083a88ee3411b0d17ce02d738f69d47">黄振栋</h1>
-
-<p>未知太多</p>
-
-  </div>
-  
-</div>
-</div>
-
-  </body>
 </html>
