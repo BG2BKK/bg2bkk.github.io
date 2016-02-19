@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title> shell多线程实践 &middot; My New Hugo Site </title>
+
+
+<link rel="stylesheet" href="https://bg2bkk.github.io//css/slim.css">
+<link rel="stylesheet" href="https://bg2bkk.github.io//css/highlight.min.css">
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Source+Code+Pro' rel='stylesheet' type='text/css'>
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+<link rel="shortcut icon" href="/favicon.ico">
+
+
+<link href="" rel="alternate" type="application/rss+xml" title="My New Hugo Site" />
+
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+  <h1 class="site-title"><a href="https://bg2bkk.github.io/">My New Hugo Site</a></h1>
+  <p class="site-tagline"></p>
+  <div class="nav">
+    <a class="nav-btn" href="#">
+      <span class="ci ci-burger"></span>
+    </a>
+    <ul class="nav-list">
+       
+	  <li class="spacer">&ac;</li>
+  
+    </ul>
+  </div>
+</div>
+    <div class="content">
+      <div class="posts">
+        <div class="post">
+          <h2 class="post-title"><a href="https://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/">shell多线程实践</a></h2>
+          <span class="post-date">Feb 19, 2016 </span>
+          <div class="post-content">
+            
+
+<h1 id="shell脚本多线程应用:98445e76c0e56f8e093561726589792e">shell脚本多线程应用</h1>
+
+<h2 id="shell-cocurrency:98445e76c0e56f8e093561726589792e">shell&amp;cocurrency</h2>
+
+<p><a href="http://blog.sciencenet.cn/blog-548663-750136.html">http://blog.sciencenet.cn/blog-548663-750136.html</a>
+<a href="http://blog.chinaunix.net/uid-8478094-id-3995108.html">http://blog.chinaunix.net/uid-8478094-id-3995108.html</a></p>
+
+<h2 id="awk-sed:98445e76c0e56f8e093561726589792e">awk&amp;sed</h2>
+
+<p><a href="http://kodango.com/sed-and-awk-notes-part-1">http://kodango.com/sed-and-awk-notes-part-1</a>
+<a href="http://kodango.com/sed-and-awk-notes-part-2">http://kodango.com/sed-and-awk-notes-part-2</a>
+<a href="http://www.cnblogs.com/dong008259/archive/2011/12/06/2277287.html">http://www.cnblogs.com/dong008259/archive/2011/12/06/2277287.html</a></p>
+
+<pre><code class="language-bash">#!/bin/sh
+
+awk=/usr/bin/awk
+uniq=/usr/bin/uniq
+
+Nproc=24
+
+Pfifo=&quot;/tmp/$$.fifo&quot;
+mkfifo $Pfifo
+exec 999&lt;&gt;$Pfifo
+rm -f $Pfifo
+
+for((i=1; i&lt;=$Nproc; i++)); do
+    echo
+done &gt;&amp;999
+
+echo '' &gt; out
+echo '' &gt; ooo
+filenames=`ls *.log`
+for filename in $filenames; do
+    read -u999
+
+    {
+        `$awk -F',' '/did/ {for(i=1;i&lt;=NF;i++) if($i ~ /did/) print $i i}' $filename | $awk -F':' '{print $2}' | $awk -F'&quot;' '{print $2}'  | $uniq | $awk '{count[$1]++}END{for(name in count)print name &gt;&gt; &quot;out&quot;}'` &amp;&amp; {
+            echo &quot;$filename done&quot;
+        } || {
+            echo &quot;$filename error&quot;
+        }
+        sleep 1
+
+        echo &gt;&amp;999
+    }&amp;
+
+done
+
+wait 
+exec 999&gt;&amp;-
+
+echo `$awk '{count[$0]++}END{for(name in count)print name}' out &gt; ooo; awk 'END{print NR}' ooo`
+
+</code></pre>
+
+          </div>
+        </div>
+        <div class="pagination"> 
+          <a class="btn next " href="https://bg2bkk.github.io/post/livestream%E7%9A%84%E5%87%A0%E7%A7%8D%E5%88%9D%E6%AD%A5%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/"> Next</a> 
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer">
+  <p>Powered by <a href="http://gohugo.io">Hugo</a>. This theme—Slim—is open sourced on <a href="https://github.com/zhe/hugo-theme-slim">Github</a>.</p>
+</div>
+
+  </div>
+  <script src="https://bg2bkk.github.io//js/slim.js"></script>
+  <script src="https://bg2bkk.github.io//js/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad();
+  </script>
+  
+</body>
+
+</html>

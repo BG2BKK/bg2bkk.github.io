@@ -6,8 +6,73 @@
     <description>Recent content on My New Hugo Site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 18 Feb 2016 20:57:19 +0800</lastBuildDate>
+    <lastBuildDate>Fri, 19 Feb 2016 10:54:28 +0800</lastBuildDate>
     <atom:link href="https://bg2bkk.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>shell多线程实践</title>
+      <link>https://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/</link>
+      <pubDate>Fri, 19 Feb 2016 10:54:28 +0800</pubDate>
+      
+      <guid>https://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/</guid>
+      <description>
+
+&lt;h1 id=&#34;shell脚本多线程应用:98445e76c0e56f8e093561726589792e&#34;&gt;shell脚本多线程应用&lt;/h1&gt;
+
+&lt;h2 id=&#34;shell-cocurrency:98445e76c0e56f8e093561726589792e&#34;&gt;shell&amp;amp;cocurrency&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://blog.sciencenet.cn/blog-548663-750136.html&#34;&gt;http://blog.sciencenet.cn/blog-548663-750136.html&lt;/a&gt;
+&lt;a href=&#34;http://blog.chinaunix.net/uid-8478094-id-3995108.html&#34;&gt;http://blog.chinaunix.net/uid-8478094-id-3995108.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;awk-sed:98445e76c0e56f8e093561726589792e&#34;&gt;awk&amp;amp;sed&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://kodango.com/sed-and-awk-notes-part-1&#34;&gt;http://kodango.com/sed-and-awk-notes-part-1&lt;/a&gt;
+&lt;a href=&#34;http://kodango.com/sed-and-awk-notes-part-2&#34;&gt;http://kodango.com/sed-and-awk-notes-part-2&lt;/a&gt;
+&lt;a href=&#34;http://www.cnblogs.com/dong008259/archive/2011/12/06/2277287.html&#34;&gt;http://www.cnblogs.com/dong008259/archive/2011/12/06/2277287.html&lt;/a&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#!/bin/sh
+
+awk=/usr/bin/awk
+uniq=/usr/bin/uniq
+
+Nproc=24
+
+Pfifo=&amp;quot;/tmp/$$.fifo&amp;quot;
+mkfifo $Pfifo
+exec 999&amp;lt;&amp;gt;$Pfifo
+rm -f $Pfifo
+
+for((i=1; i&amp;lt;=$Nproc; i++)); do
+    echo
+done &amp;gt;&amp;amp;999
+
+echo &#39;&#39; &amp;gt; out
+echo &#39;&#39; &amp;gt; ooo
+filenames=`ls *.log`
+for filename in $filenames; do
+    read -u999
+
+    {
+        `$awk -F&#39;,&#39; &#39;/did/ {for(i=1;i&amp;lt;=NF;i++) if($i ~ /did/) print $i i}&#39; $filename | $awk -F&#39;:&#39; &#39;{print $2}&#39; | $awk -F&#39;&amp;quot;&#39; &#39;{print $2}&#39;  | $uniq | $awk &#39;{count[$1]++}END{for(name in count)print name &amp;gt;&amp;gt; &amp;quot;out&amp;quot;}&#39;` &amp;amp;&amp;amp; {
+            echo &amp;quot;$filename done&amp;quot;
+        } || {
+            echo &amp;quot;$filename error&amp;quot;
+        }
+        sleep 1
+
+        echo &amp;gt;&amp;amp;999
+    }&amp;amp;
+
+done
+
+wait 
+exec 999&amp;gt;&amp;amp;-
+
+echo `$awk &#39;{count[$0]++}END{for(name in count)print name}&#39; out &amp;gt; ooo; awk &#39;END{print NR}&#39; ooo`
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>livestream的几种初步解决方案</title>
