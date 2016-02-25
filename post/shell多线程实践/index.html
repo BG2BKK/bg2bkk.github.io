@@ -4,7 +4,7 @@
 <head>
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<title> shell多线程实践 &middot; My New Hugo Site </title>
+<title> shell多线程实践 &middot; BG2BKK Hugo Site </title>
 
 
 <link rel="stylesheet" href="https://bg2bkk.github.io//css/slim.css">
@@ -15,14 +15,14 @@
 <link rel="shortcut icon" href="/favicon.ico">
 
 
-<link href="" rel="alternate" type="application/rss+xml" title="My New Hugo Site" />
+<link href="" rel="alternate" type="application/rss+xml" title="BG2BKK Hugo Site" />
 
 </head>
 
 <body>
   <div class="container">
     <div class="header">
-  <h1 class="site-title"><a href="https://bg2bkk.github.io/">My New Hugo Site</a></h1>
+  <h1 class="site-title"><a href="https://bg2bkk.github.io/">BG2BKK Hugo Site</a></h1>
   <p class="site-tagline"></p>
   <div class="nav">
     <a class="nav-btn" href="#">
@@ -63,11 +63,15 @@ uniq=/usr/bin/uniq
 
 Nproc=24
 
+#$$是进程pid
 Pfifo=&quot;/tmp/$$.fifo&quot;
 mkfifo $Pfifo
+
+#以999为文件描述符打开管道,&lt;&gt;表示可读可写
 exec 999&lt;&gt;$Pfifo
 rm -f $Pfifo
 
+#向管道中写入Nproc行,作为令牌
 for((i=1; i&lt;=$Nproc; i++)); do
     echo
 done &gt;&amp;999
@@ -76,6 +80,7 @@ echo '' &gt; out
 echo '' &gt; ooo
 filenames=`ls *.log`
 for filename in $filenames; do
+#从管道中取出1行
     read -u999
 
     {
@@ -98,9 +103,20 @@ echo `$awk '{count[$0]++}END{for(name in count)print name}' out &gt; ooo; awk 'E
 
 </code></pre>
 
+<h2 id="linux-shell数据输入输出的重定向分析:98445e76c0e56f8e093561726589792e">linux shell数据输入输出的重定向分析</h2>
+
+<p><a href="http://www.cnblogs.com/chengmo/archive/2010/10/20/1855805.html">http://www.cnblogs.com/chengmo/archive/2010/10/20/1855805.html</a>
+<a href="http://www.cnblogs.com/GODYCA/archive/2013/01/05/2845618.html">http://www.cnblogs.com/GODYCA/archive/2013/01/05/2845618.html</a></p>
+
+<h2 id="lsof使用的一些tips:98445e76c0e56f8e093561726589792e">lsof使用的一些tips</h2>
+
+<p><a href="http://linuxtools-rst.readthedocs.org/zh_CN/latest/tool/lsof.html">http://linuxtools-rst.readthedocs.org/zh_CN/latest/tool/lsof.html</a>
+<a href="http://linuxtools-rst.readthedocs.org/zh_CN/latest/tool/pstack.html">http://linuxtools-rst.readthedocs.org/zh_CN/latest/tool/pstack.html</a></p>
+
           </div>
         </div>
-        <div class="pagination"> 
+        <div class="pagination">
+          <a class="btn previous " href="https://bg2bkk.github.io/post/tcp%20ip%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%9C%A8linux%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8%E4%B8%AD%E7%9A%84%E9%A1%BA%E5%BA%8F/"> Prev</a>  
           <a class="btn next " href="https://bg2bkk.github.io/post/livestream%E7%9A%84%E5%87%A0%E7%A7%8D%E5%88%9D%E6%AD%A5%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/"> Next</a> 
         </div>
       </div>
