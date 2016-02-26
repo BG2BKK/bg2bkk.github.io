@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title> openresty压测过程和systemtap工具使用中的一些问题 &middot; BG2BKK Hugo Site </title>
+
+
+<link rel="stylesheet" href="https://github.com/bg2bkk/bg2bkk.github.io.git//css/slim.css">
+<link rel="stylesheet" href="https://github.com/bg2bkk/bg2bkk.github.io.git//css/highlight.min.css">
+<link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Source+Code+Pro' rel='stylesheet' type='text/css'>
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+<link rel="shortcut icon" href="/favicon.ico">
+
+
+<link href="" rel="alternate" type="application/rss+xml" title="BG2BKK Hugo Site" />
+
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+  <h1 class="site-title"><a href="https://github.com/bg2bkk/bg2bkk.github.io.git/">BG2BKK Hugo Site</a></h1>
+  <p class="site-tagline"></p>
+  <div class="nav">
+    <a class="nav-btn" href="#">
+      <span class="ci ci-burger"></span>
+    </a>
+    <ul class="nav-list">
+       
+	  <li class="spacer">&ac;</li>
+  
+    </ul>
+  </div>
+</div>
+    <div class="content">
+      <div class="posts">
+        <div class="post">
+          <h2 class="post-title"><a href="https://github.com/bg2bkk/bg2bkk.github.io.git/post/openresty%E5%8E%8B%E6%B5%8B%E8%BF%87%E7%A8%8B%E5%92%8Csystemtap%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/">openresty压测过程和systemtap工具使用中的一些问题</a></h2>
+          <span class="post-date">Feb 22, 2016 </span>
+          <div class="post-content">
+            
+
+<h2 id="一-tegine编译-高版本的httpluamodule:dab12220e12920eb4ab0fdd954035a76">一、tegine编译+高版本的httpluamodule</h2>
+
+<ul>
+<li>tengine-2.1.0的ngx_lua模块随着tengine软件发布，和以往版本的tengine不一样。</li>
+<li>tengine自带的ngx_lua模块版本太老，与openresty相比要差几个版本，导致openresty里的一些好的软件工具不可用。
+
+<ul>
+<li>编译tengine+lua时需要手动指定ngx_lua模块和LuaJIT2.1
+
+<ul>
+<li>新版本ngx_lua能弥补openrestysystemtap在probe某些函数时的错误
+
+<ul>
+<li>关键脚本ngx-lua-exec-time.sxx中第58行@pfunc(ngx_http_lua_free_fake_request)函数找不到</li>
+</ul></li>
+<li>使用LuaJIT2.1能解决lua执行时的stap问题。</li>
+</ul></li>
+</ul></li>
+</ul>
+
+<pre><code class="language-bash">#关键脚本stapxx/samples/ngx-lua-exec-time.sxx中第58行@pfunc(ngx_http_lua_free_fake_request)函数找不到的问题：
+2&gt; sudo ./samples/ngx-lua-exec-time.sxx -x 11070
+semantic error: while resolving probe point: identifier 'process' at &lt;input&gt;:58:7
+        source:       process(&quot;/usr/local/nginx/sbin/nginx&quot;).function(&quot;ngx_http_lua_free_fake_request&quot;)
+                      ^
+
+semantic error: no match (similar functions: ngx_http_lua_get_request, ngx_http_create_request, ngx_http_free_request, ngx_http_lua_post_subrequest, ngx_http_scgi_create_request)
+Pass 2: analysis failed.  [man error::pass2]
+</code></pre>
+
+<pre><code class="language-bash">#tegine编译选项
+CFLAGS=&quot;-g -O2&quot; ./configure  --add-module=/path/ngx_openresty-1.7.10.1/bundle/ngx_lua-0.9.15/ --with-luajit-lib=/usr/local/lib/ --with-luajit-inc=/usr/local/include/luajit-2.1/ --with-ld-opt=-Wl,-rpath,/usr/local/lib
+
+make -j16
+
+#新版本ngx_lua在openresty的bundle的ngx_lua-0.9.15/里，也可以从https://github.com/openresty/lua-nginx-module获得
+
+#LuaJIT2.1的源代码也在bundle里，也可以从https://github.com/openresty/luajit2获得。
+
+LuaJIT2.1的编译选项是：
+make CCDEBUG=-g -B -j8
+make -j16
+</code></pre>
+
+<h2 id="二-axel下载工具和debuginfo-centos-org:dab12220e12920eb4ab0fdd954035a76">二、axel下载工具和debuginfo.centos.org</h2>
+
+<ul>
+<li>我们在安装kernel的debuginfo包的时候，由于只有debuginfo.centos.org上面有rpm包，所以yum源设置为它，但是在国内访问实在是慢，因此推荐使用axel或者mwget下载。mwget顾名思义是多线程的wget工具，下载rpm包非常快，值得推荐。</li>
+<li>当我们为了系统中的systemtap安装时，需要安装kernel-debuginfo，这时需要注意严格按照自己的kernel版本来，centos系的需要注意是否2.6.32-431.11.2.el6.toa.2.x86_64后面有toa之类的</li>
+</ul>
+
+<pre><code class="language-bash">#debian系的可以使用dpkg -l linux-image*命令，查看具体内核版本；
+
+huang@ThinkPad-X220:~$ dpkg -l linux-image*
+Desired=Unknown/Install/Remove/Purge/Hold
+| Status=Not/Inst/Conf-files/Unpacked/halF-conf/Half-inst/trig-aWait/Trig-pend
+|/ Err?=(none)/Reinst-required (Status,Err: uppercase=bad)
+||/ Name                   Version          Architecture     Description
++++-======================-================-================-==================================================
+un  linux-image            &lt;none&gt;           &lt;none&gt;           (no description available)
+un  linux-image-3.0        &lt;none&gt;           &lt;none&gt;           (no description available)
+ii  linux-image-3.13.0-24- 3.13.0-24.47     amd64            Linux kernel image for version 3.13.0 on 64 bit x8
+ii  linux-image-3.13.0-24- 3.13.0-24.47     amd64            Linux kernel debug image for version 3.13.0 on 64 
+ii  linux-image-extra-3.13 3.13.0-24.46     amd64            Linux kernel extra modules for version 3.13.0 on 6
+ii  linux-image-generic    3.13.0.24.28     amd64            Generic Linux kernel image
+
+#特别要注意的是3.13.0-24.46、 47、 48，小版本很重要的。
+</code></pre>
+
+<h2 id="三-centos6-4的gcc版本过低导致的问题:dab12220e12920eb4ab0fdd954035a76">三、centos6.4的gcc版本过低导致的问题</h2>
+
+<ul>
+<li>在使用stapxx的工具追踪nginx运行情况时，发现有如下情况，比如：</li>
+</ul>
+
+<pre><code class="language-bash">2&gt; sudo ./samples/ngx-rewrite-latency-distr.sxx -x 11070
+semantic error: not accessible at this address [man error::dwarf] (0x44a53b, dieoffset: 0x13a891): identifier '$r' at &lt;input&gt;:67:9
+        source:     r = $r
+                        ^
+
+Pass 2: analysis failed.  [man error::pass2]
+
+# 这个r是没有问题的，在nginx-systemtap-toolkit/ngx-active-reqs中有类似定义：
+my $c = '@cast(c, &quot;ngx_connection_t&quot;)';
+my $r = '@cast(r, &quot;ngx_http_request_t&quot;)';
+my $u = '@cast(u, &quot;ngx_http_upstream_t&quot;)';
+my $p = '@cast(p, &quot;ngx_event_pipe_t&quot;)';
+</code></pre>
+
+<ul>
+<li><p>产生原因</p>
+
+<ul>
+<li>tengine的DWARF信息不完整
+
+<ul>
+<li>低版本的gcc在O2时优化掉很多东西，而高版本gcc智能的多</li>
+</ul></li>
+</ul></li>
+
+<li><p>解决方法有两种</p>
+
+<ul>
+<li>一种方法是将gcc的编译优化选项降低为O0，以前是O2，则这个ngx_http_request_t的符号，即nginx的DWARF信息可以保留下来。</li>
+<li>另一种方法是升级gcc，考虑到在线上服务器升级gcc不太好，这里介绍一种<a href="http://ask.xmodulo.com/upgrade-gcc-centos.html">暂时升级gcc的办法</a></li>
+</ul></li>
+</ul>
+
+<pre><code class="language-bash">$ sudo wget http://people.centos.org/tru/devtools-1.1/devtools-1.1.repo -P /etc/yum.repos.d
+$ sudo sh -c 'echo &quot;enabled=1&quot; &gt;&gt; /etc/yum.repos.d/devtools-1.1.repo'
+$ sudo yum install devtoolset-1.1
+$ scl enable devtoolset-1.1 bash
+$ gcc --version
+# 通过devtoolset工具可以暂时提高gcc版本，而不更改之前服务器的配置，这个很有效果，高版本的gcc会智能保留symbol。
+</code></pre>
+
+<h2 id="四-apache的压测工具ab升级高版本:dab12220e12920eb4ab0fdd954035a76">四、apache的压测工具ab升级高版本</h2>
+
+<p>在压测过程中，我们想微观的通过tcpdump抓包分析通信过程。</p>
+
+<ul>
+<li>发现ab工具在发起keepalive请求时，在完成-n的请求数后额外的发出一个请求，随后又发出F包关闭连接，导致通信过程多出一次。</li>
+<li>已有的httpd 2.3自带的ab工具有这个bug，升级httpd2.4后这个问题修复。</li>
+</ul>
+
+<h2 id="五-tcpdump抓取fin包:dab12220e12920eb4ab0fdd954035a76">五、tcpdump抓取fin包</h2>
+
+<pre><code class="language-bash"># tcp包里有个flags字段表示包的类型，tcpdump可以根据该字段抓取相应类型的包：
+# tcp[13] 就是 TCP flags (URG,ACK,PSH,RST,SYN,FIN)
+# Unskilled 32
+# Attackers 16
+# Pester     8
+# Real       4
+# Security   2
+# Folks      1
+
+#抓取fin包：
+tcpdump -ni any port 9001 and 'tcp[13] &amp; 1 != 0 ' -s0  -w fin.cap -vvv
+#抓取syn+fin包：
+tcpdump -ni any port 9001 and 'tcp[13] &amp; 3 != 0 ' -s0  -w syn_fin.cap -vvv
+#抓取rst包：
+tcpdump -ni any port 9001 and 'tcp[13] &amp; 4 != 0 ' -s0  -w rst.cap -vvv
+</code></pre>
+
+<p><a href="http://babyhe.blog.51cto.com/1104064/1395489">参考链接</a></p>
+
+          </div>
+        </div>
+        <div class="pagination">
+          <a class="btn previous " href="https://github.com/bg2bkk/bg2bkk.github.io.git/post/tcp%20ip%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%9C%A8linux%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8%E4%B8%AD%E7%9A%84%E9%A1%BA%E5%BA%8F/"> Prev</a>  
+          <a class="btn next " href="https://github.com/bg2bkk/bg2bkk.github.io.git/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/"> Next</a> 
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer">
+  <p>Powered by <a href="http://gohugo.io">Hugo</a>. This theme—Slim—is open sourced on <a href="https://github.com/zhe/hugo-theme-slim">Github</a>.</p>
+</div>
+
+  </div>
+  <script src="https://github.com/bg2bkk/bg2bkk.github.io.git//js/slim.js"></script>
+  <script src="https://github.com/bg2bkk/bg2bkk.github.io.git//js/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad();
+  </script>
+  
+</body>
+
+</html>

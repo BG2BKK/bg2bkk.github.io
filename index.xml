@@ -2,19 +2,188 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>BG2BKK Hugo Site</title>
-    <link>https://bg2bkk.github.io/</link>
+    <link>https://github.com/bg2bkk/bg2bkk.github.io.git/</link>
     <description>Recent content on BG2BKK Hugo Site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 24 Feb 2016 23:13:13 +0800</lastBuildDate>
-    <atom:link href="https://bg2bkk.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 26 Feb 2016 16:15:31 +0800</lastBuildDate>
+    <atom:link href="https://github.com/bg2bkk/bg2bkk.github.io.git/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>redis主从复制学习笔记</title>
+      <link>https://github.com/bg2bkk/bg2bkk.github.io.git/post/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
+      <pubDate>Fri, 26 Feb 2016 16:15:31 +0800</pubDate>
+      
+      <guid>https://github.com/bg2bkk/bg2bkk.github.io.git/post/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;redis&lt;a href=&#34;http://qifuguang.me/2015/10/18/Redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/&#34;&gt;主从复制&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;在介绍REDIS的RDB持久化方式时，我们提到了主从复制的实现过程
+
+&lt;ul&gt;
+&lt;li&gt;第一次同步，slave发送sync命令开始同步，master生成快照全量发送给slave，快照生成之后的变更命令缓存起来，也一块发送给slave&lt;/li&gt;
+&lt;li&gt;第二次及以后的同步，master收到命令后修改数据，并将数据修改后的结果同步给slave；如果此时发生断开重连情况，则重新进行第一步操作；&lt;/li&gt;
+&lt;li&gt;redis-2.8版本后，如果发生断开重连，则进行增量传输，而不是全量传输&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;这里有两个值得介绍的地方
+
+&lt;ul&gt;
+&lt;li&gt;不论是否设置RDB持久化，主从复制都会产生快照&lt;/li&gt;
+&lt;li&gt;redis.conf中不设置save 900 1等配置时，只是不自动产生快照，如果执行save，还是会产生快照的&lt;/li&gt;
+&lt;li&gt;主从复制时，master执行完命令后会立刻将结果返回client，而不是等待同步给slave后再返回给client。这里可能会有一个不一致窗口，如果主从在master执行完指令和同步给client之间断开，这里会发生不一致现象，需要注意&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;主从复制的常见设计思路
+
+&lt;ul&gt;
+&lt;li&gt;用于保证数据持久化
+
+&lt;ul&gt;
+&lt;li&gt;master正常读写，不设置RDB或者AOF的持久化&lt;/li&gt;
+&lt;li&gt;slave设置RDB和AOF方式持久化，保证数据安全&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;基于实用目的的主从复制
+
+&lt;ul&gt;
+&lt;li&gt;master设置为只写模式，将结果同步给slave&lt;/li&gt;
+&lt;li&gt;slave设置为只读模式，作为系统缓存&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>redis持久化学习笔记</title>
+      <link>https://github.com/bg2bkk/bg2bkk.github.io.git/post/redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
+      <pubDate>Fri, 26 Feb 2016 14:56:41 +0800</pubDate>
+      
+      <guid>https://github.com/bg2bkk/bg2bkk.github.io.git/post/redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;虽然网络上关于redis持久化的相关内容数不胜数，但是一来作为我的学习笔记，好记性不如烂笔头；二来除去官方redis之外，很多有意义的修改或补充都非常值得讨论，所以我想做一下记录。&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;持久化用于重启后的数据恢复，而持久化的引入导致了redis可能产生的性能抖动&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;redis持久化的&lt;a href=&#34;http://www.cnblogs.com/zhoujinyi/archive/2013/05/26/3098508.html&#34;&gt; 两种方法 &lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;RDB方式&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;RDB方式是redis的默认持久化方式&lt;/li&gt;
+&lt;li&gt;快照RDB持久化过程:
+
+&lt;ul&gt;
+&lt;li&gt;redis调用fork，产生子进程&lt;/li&gt;
+&lt;li&gt;父进程继续接受用户请求；子进程负责将内存内容写入临时文件，写入完成后rename为dump文件，实现替换&lt;/li&gt;
+&lt;li&gt;在子进程写内存内容期间，父进程如果要修改内存数据，os将会通过写时复制为父进程创建副本，所以此时子进程写入的仍然是fork时刻的整个数据库内容&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;不足之处在于:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;如果redis出现问题崩溃了，此时的rdb文件可能不是最新的数据，从上次RDB文件生成到redis崩溃这段时间的数据全部丢掉。&lt;/li&gt;
+&lt;li&gt;产生快照时，redis最多将占用2倍于现有数据规模的内存，因此当内存占用过多时，RDB方式可能导致系统负载过高，甚至假死。（有个说法是，当redis的内存占用超过物理内存的3/5时，进行RDB主从复制就比较危险了）&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;主从复制过程&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;第一次同步
+
+&lt;ul&gt;
+&lt;li&gt;slave向master发送sync同步请求，master先dump出rdb文件，并将其全量传输给slave；master将产生rdb文件之后这段时间内的修改命令缓存起来，并发送给slave。首次同步完成。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;第二次及以后的同步实现方式：
+
+&lt;ul&gt;
+&lt;li&gt;master将变量的快照（有修改的变量）直接实时发送给slave。&lt;/li&gt;
+&lt;li&gt;如果发生断开重连，则重复第一步第二步&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;reids-2.8版本之后，重连后进行第一步时，不用全量更新了。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;AOF方式&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;AOF方式持久化过程&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Append Only File&lt;/li&gt;
+&lt;li&gt;Redis将每次收到的命令都追加到文件中，类似于mysql的binlog；当redis重启时重新执行文件中的所有命令来重建数据&lt;/li&gt;
+&lt;li&gt;如果将所有命令不加甄别的都写入文件中，持久化文件会越来越大，比如INCR test命令执行100次，效果与SET test 100一样。此时需要进行rewrite，合并命令。&lt;/li&gt;
+&lt;li&gt;Redis提供了bgrewriteaof命令，执行过程与产生RDB文件的机制类似，fork出的子进程将内存中的数据以命令的方式重写持久化文件。本质上讲，该命令是将数据库中所有数据内容以命令的方式重写进新的AOF文件&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;AOF方式之我的想法&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;AOF方式是redis在收到命名后将命令写入文件内，如果redis发送故障，重启时直接读取AOF文件重新执行命令即可恢复，可以克服RDB方式的缺点&lt;/li&gt;
+&lt;li&gt;bgrewriteaof指令是对AOF方式的一次优化，执行bgrewriteaof命令时是根据此时数据库内容来写入AOF文件，并替换旧的AOF文件。这个过程与RDB快照产生方式一样&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;RDB方式和AOF方式的对比&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;RDB方式恢复起来快，而AOF方式需要一条条命令执行&lt;/li&gt;
+&lt;li&gt;RDB文件不需要经过编码，是数据库内容的直接克隆，所以文件比较小；而AOF文件内是一条条命令，需要依次执行&lt;/li&gt;
+&lt;li&gt;RDB文件可能会丢失部分数据，而AOF则专门解决这个问题&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;选择哪种方式&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;官方推荐：
+
+&lt;ul&gt;
+&lt;li&gt;如果想要很高的数据保障，则同时使用两种方式&lt;/li&gt;
+&lt;li&gt;如果可以接受数据丢失，则仅使用RDB方式&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;通常的设计思路是
+
+&lt;ul&gt;
+&lt;li&gt;利用replication机制弥补持久化在性能和设计上的不足&lt;/li&gt;
+&lt;li&gt;master上不做RDB和AOF，保证读写性能&lt;/li&gt;
+&lt;li&gt;slave同时开启两种方式，保证数据安全性&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Redis数据恢复过程&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;AOF优先级高于RDB方式，如果同时配置了AOF和RDB，AOF生效&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;    void loadDataFromDisk(void) {
+        long long start = ustime();
+        if (server.aof_state == REDIS_AOF_ON) {
+            if (loadAppendOnlyFile(server.aof_filename) == REDIS_OK)
+                redisLog(REDIS_NOTICE,&amp;quot;DB loaded from append only file: %.3f seconds&amp;quot;,(float)(ustime()-start)/1000000);
+        } else {
+            if (rdbLoad(server.rdb_filename) == REDIS_OK) {
+                redisLog(REDIS_NOTICE,&amp;quot;DB loaded from disk: %.3f seconds&amp;quot;,
+                    (float)(ustime()-start)/1000000);
+            } else if (errno != ENOENT) {
+                redisLog(REDIS_WARNING,&amp;quot;Fatal error loading the DB: %s. Exiting.&amp;quot;,strerror(errno));
+                exit(1);
+            }
+        }
+    }
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>tcp ip协议栈在linux内核启动中的顺序</title>
-      <link>https://bg2bkk.github.io/post/tcp%20ip%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%9C%A8linux%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8%E4%B8%AD%E7%9A%84%E9%A1%BA%E5%BA%8F/</link>
+      <link>https://github.com/bg2bkk/bg2bkk.github.io.git/post/tcp%20ip%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%9C%A8linux%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8%E4%B8%AD%E7%9A%84%E9%A1%BA%E5%BA%8F/</link>
       <pubDate>Wed, 24 Feb 2016 23:13:13 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/tcp%20ip%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%9C%A8linux%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8%E4%B8%AD%E7%9A%84%E9%A1%BA%E5%BA%8F/</guid>
+      <guid>https://github.com/bg2bkk/bg2bkk.github.io.git/post/tcp%20ip%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%9C%A8linux%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8%E4%B8%AD%E7%9A%84%E9%A1%BA%E5%BA%8F/</guid>
       <description>
 
 &lt;p&gt;在我尝试从kernel中深入了解TCP IP协议栈时，遇到了难题。&lt;/p&gt;
@@ -574,11 +743,167 @@ Idx Name          Size      VMA       LMA       File off  Algn
     </item>
     
     <item>
+      <title>openresty压测过程和systemtap工具使用中的一些问题</title>
+      <link>https://github.com/bg2bkk/bg2bkk.github.io.git/post/openresty%E5%8E%8B%E6%B5%8B%E8%BF%87%E7%A8%8B%E5%92%8Csystemtap%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/</link>
+      <pubDate>Mon, 22 Feb 2016 11:15:36 +0800</pubDate>
+      
+      <guid>https://github.com/bg2bkk/bg2bkk.github.io.git/post/openresty%E5%8E%8B%E6%B5%8B%E8%BF%87%E7%A8%8B%E5%92%8Csystemtap%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/</guid>
+      <description>
+
+&lt;h2 id=&#34;一-tegine编译-高版本的httpluamodule:dab12220e12920eb4ab0fdd954035a76&#34;&gt;一、tegine编译+高版本的httpluamodule&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;tengine-2.1.0的ngx_lua模块随着tengine软件发布，和以往版本的tengine不一样。&lt;/li&gt;
+&lt;li&gt;tengine自带的ngx_lua模块版本太老，与openresty相比要差几个版本，导致openresty里的一些好的软件工具不可用。
+
+&lt;ul&gt;
+&lt;li&gt;编译tengine+lua时需要手动指定ngx_lua模块和LuaJIT2.1
+
+&lt;ul&gt;
+&lt;li&gt;新版本ngx_lua能弥补openrestysystemtap在probe某些函数时的错误
+
+&lt;ul&gt;
+&lt;li&gt;关键脚本ngx-lua-exec-time.sxx中第58行@pfunc(ngx_http_lua_free_fake_request)函数找不到&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;使用LuaJIT2.1能解决lua执行时的stap问题。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#关键脚本stapxx/samples/ngx-lua-exec-time.sxx中第58行@pfunc(ngx_http_lua_free_fake_request)函数找不到的问题：
+2&amp;gt; sudo ./samples/ngx-lua-exec-time.sxx -x 11070
+semantic error: while resolving probe point: identifier &#39;process&#39; at &amp;lt;input&amp;gt;:58:7
+        source:       process(&amp;quot;/usr/local/nginx/sbin/nginx&amp;quot;).function(&amp;quot;ngx_http_lua_free_fake_request&amp;quot;)
+                      ^
+
+semantic error: no match (similar functions: ngx_http_lua_get_request, ngx_http_create_request, ngx_http_free_request, ngx_http_lua_post_subrequest, ngx_http_scgi_create_request)
+Pass 2: analysis failed.  [man error::pass2]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#tegine编译选项
+CFLAGS=&amp;quot;-g -O2&amp;quot; ./configure  --add-module=/path/ngx_openresty-1.7.10.1/bundle/ngx_lua-0.9.15/ --with-luajit-lib=/usr/local/lib/ --with-luajit-inc=/usr/local/include/luajit-2.1/ --with-ld-opt=-Wl,-rpath,/usr/local/lib
+
+make -j16
+
+#新版本ngx_lua在openresty的bundle的ngx_lua-0.9.15/里，也可以从https://github.com/openresty/lua-nginx-module获得
+
+#LuaJIT2.1的源代码也在bundle里，也可以从https://github.com/openresty/luajit2获得。
+
+LuaJIT2.1的编译选项是：
+make CCDEBUG=-g -B -j8
+make -j16
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;二-axel下载工具和debuginfo-centos-org:dab12220e12920eb4ab0fdd954035a76&#34;&gt;二、axel下载工具和debuginfo.centos.org&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;我们在安装kernel的debuginfo包的时候，由于只有debuginfo.centos.org上面有rpm包，所以yum源设置为它，但是在国内访问实在是慢，因此推荐使用axel或者mwget下载。mwget顾名思义是多线程的wget工具，下载rpm包非常快，值得推荐。&lt;/li&gt;
+&lt;li&gt;当我们为了系统中的systemtap安装时，需要安装kernel-debuginfo，这时需要注意严格按照自己的kernel版本来，centos系的需要注意是否2.6.32-431.11.2.el6.toa.2.x86_64后面有toa之类的&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#debian系的可以使用dpkg -l linux-image*命令，查看具体内核版本；
+
+huang@ThinkPad-X220:~$ dpkg -l linux-image*
+Desired=Unknown/Install/Remove/Purge/Hold
+| Status=Not/Inst/Conf-files/Unpacked/halF-conf/Half-inst/trig-aWait/Trig-pend
+|/ Err?=(none)/Reinst-required (Status,Err: uppercase=bad)
+||/ Name                   Version          Architecture     Description
++++-======================-================-================-==================================================
+un  linux-image            &amp;lt;none&amp;gt;           &amp;lt;none&amp;gt;           (no description available)
+un  linux-image-3.0        &amp;lt;none&amp;gt;           &amp;lt;none&amp;gt;           (no description available)
+ii  linux-image-3.13.0-24- 3.13.0-24.47     amd64            Linux kernel image for version 3.13.0 on 64 bit x8
+ii  linux-image-3.13.0-24- 3.13.0-24.47     amd64            Linux kernel debug image for version 3.13.0 on 64 
+ii  linux-image-extra-3.13 3.13.0-24.46     amd64            Linux kernel extra modules for version 3.13.0 on 6
+ii  linux-image-generic    3.13.0.24.28     amd64            Generic Linux kernel image
+
+#特别要注意的是3.13.0-24.46、 47、 48，小版本很重要的。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;三-centos6-4的gcc版本过低导致的问题:dab12220e12920eb4ab0fdd954035a76&#34;&gt;三、centos6.4的gcc版本过低导致的问题&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;在使用stapxx的工具追踪nginx运行情况时，发现有如下情况，比如：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;2&amp;gt; sudo ./samples/ngx-rewrite-latency-distr.sxx -x 11070
+semantic error: not accessible at this address [man error::dwarf] (0x44a53b, dieoffset: 0x13a891): identifier &#39;$r&#39; at &amp;lt;input&amp;gt;:67:9
+        source:     r = $r
+                        ^
+
+Pass 2: analysis failed.  [man error::pass2]
+
+# 这个r是没有问题的，在nginx-systemtap-toolkit/ngx-active-reqs中有类似定义：
+my $c = &#39;@cast(c, &amp;quot;ngx_connection_t&amp;quot;)&#39;;
+my $r = &#39;@cast(r, &amp;quot;ngx_http_request_t&amp;quot;)&#39;;
+my $u = &#39;@cast(u, &amp;quot;ngx_http_upstream_t&amp;quot;)&#39;;
+my $p = &#39;@cast(p, &amp;quot;ngx_event_pipe_t&amp;quot;)&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;产生原因&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;tengine的DWARF信息不完整
+
+&lt;ul&gt;
+&lt;li&gt;低版本的gcc在O2时优化掉很多东西，而高版本gcc智能的多&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;解决方法有两种&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;一种方法是将gcc的编译优化选项降低为O0，以前是O2，则这个ngx_http_request_t的符号，即nginx的DWARF信息可以保留下来。&lt;/li&gt;
+&lt;li&gt;另一种方法是升级gcc，考虑到在线上服务器升级gcc不太好，这里介绍一种&lt;a href=&#34;http://ask.xmodulo.com/upgrade-gcc-centos.html&#34;&gt;暂时升级gcc的办法&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ sudo wget http://people.centos.org/tru/devtools-1.1/devtools-1.1.repo -P /etc/yum.repos.d
+$ sudo sh -c &#39;echo &amp;quot;enabled=1&amp;quot; &amp;gt;&amp;gt; /etc/yum.repos.d/devtools-1.1.repo&#39;
+$ sudo yum install devtoolset-1.1
+$ scl enable devtoolset-1.1 bash
+$ gcc --version
+# 通过devtoolset工具可以暂时提高gcc版本，而不更改之前服务器的配置，这个很有效果，高版本的gcc会智能保留symbol。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;四-apache的压测工具ab升级高版本:dab12220e12920eb4ab0fdd954035a76&#34;&gt;四、apache的压测工具ab升级高版本&lt;/h2&gt;
+
+&lt;p&gt;在压测过程中，我们想微观的通过tcpdump抓包分析通信过程。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;发现ab工具在发起keepalive请求时，在完成-n的请求数后额外的发出一个请求，随后又发出F包关闭连接，导致通信过程多出一次。&lt;/li&gt;
+&lt;li&gt;已有的httpd 2.3自带的ab工具有这个bug，升级httpd2.4后这个问题修复。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;五-tcpdump抓取fin包:dab12220e12920eb4ab0fdd954035a76&#34;&gt;五、tcpdump抓取fin包&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# tcp包里有个flags字段表示包的类型，tcpdump可以根据该字段抓取相应类型的包：
+# tcp[13] 就是 TCP flags (URG,ACK,PSH,RST,SYN,FIN)
+# Unskilled 32
+# Attackers 16
+# Pester     8
+# Real       4
+# Security   2
+# Folks      1
+
+#抓取fin包：
+tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 1 != 0 &#39; -s0  -w fin.cap -vvv
+#抓取syn+fin包：
+tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 3 != 0 &#39; -s0  -w syn_fin.cap -vvv
+#抓取rst包：
+tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.cap -vvv
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://babyhe.blog.51cto.com/1104064/1395489&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
       <title>shell多线程实践</title>
-      <link>https://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/</link>
+      <link>https://github.com/bg2bkk/bg2bkk.github.io.git/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/</link>
       <pubDate>Fri, 19 Feb 2016 10:54:28 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/</guid>
+      <guid>https://github.com/bg2bkk/bg2bkk.github.io.git/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/</guid>
       <description>
 
 &lt;h1 id=&#34;shell脚本多线程应用:98445e76c0e56f8e093561726589792e&#34;&gt;shell脚本多线程应用&lt;/h1&gt;
@@ -655,10 +980,10 @@ echo `$awk &#39;{count[$0]++}END{for(name in count)print name}&#39; out &amp;gt;
     
     <item>
       <title>livestream的几种初步解决方案</title>
-      <link>https://bg2bkk.github.io/post/livestream%E7%9A%84%E5%87%A0%E7%A7%8D%E5%88%9D%E6%AD%A5%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/</link>
+      <link>https://github.com/bg2bkk/bg2bkk.github.io.git/post/livestream%E7%9A%84%E5%87%A0%E7%A7%8D%E5%88%9D%E6%AD%A5%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/</link>
       <pubDate>Thu, 18 Feb 2016 20:57:19 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/livestream%E7%9A%84%E5%87%A0%E7%A7%8D%E5%88%9D%E6%AD%A5%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/</guid>
+      <guid>https://github.com/bg2bkk/bg2bkk.github.io.git/post/livestream%E7%9A%84%E5%87%A0%E7%A7%8D%E5%88%9D%E6%AD%A5%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/</guid>
       <description>
 
 &lt;h1 id=&#34;实时视频流解决方案:522c154dca6ec9c4e9be4965f54df0ed&#34;&gt;实时视频流解决方案&lt;/h1&gt;
@@ -803,10 +1128,10 @@ huang@vultr:~$ sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport
     
     <item>
       <title>about</title>
-      <link>https://bg2bkk.github.io/about/</link>
+      <link>https://github.com/bg2bkk/bg2bkk.github.io.git/about/</link>
       <pubDate>Thu, 18 Feb 2016 20:45:46 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/about/</guid>
+      <guid>https://github.com/bg2bkk/bg2bkk.github.io.git/about/</guid>
       <description>
 
 &lt;h1 id=&#34;黄振栋:6083a88ee3411b0d17ce02d738f69d47&#34;&gt;黄振栋&lt;/h1&gt;
