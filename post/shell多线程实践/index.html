@@ -4,7 +4,7 @@
 <head>
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
-<title> shell多线程实践 &middot; BG2BKK Hugo Site </title>
+<title> linux shell控制并发进程数实践 &middot; BG2BKK Hugo Site </title>
 
 
 <link rel="stylesheet" href="http://bg2bkk.github.io//css/slim.css">
@@ -38,23 +38,60 @@
     <div class="content">
       <div class="posts">
         <div class="post">
-          <h2 class="post-title"><a href="http://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/">shell多线程实践</a></h2>
+          <h2 class="post-title"><a href="http://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/">linux shell控制并发进程数实践</a></h2>
           <span class="post-date">Feb 19, 2016 </span>
           <div class="post-content">
             
 
 <h1 id="shell脚本多线程应用:98445e76c0e56f8e093561726589792e">shell脚本多线程应用</h1>
 
-<h2 id="shell-cocurrency:98445e76c0e56f8e093561726589792e">shell&amp;cocurrency</h2>
+<ul>
+<li>同事将新上线APP的一部分log交给我，让我统计下这些log中供出现了哪些deviceid
 
-<p><a href="http://blog.sciencenet.cn/blog-548663-750136.html">http://blog.sciencenet.cn/blog-548663-750136.html</a>
-<a href="http://blog.chinaunix.net/uid-8478094-id-3995108.html">http://blog.chinaunix.net/uid-8478094-id-3995108.html</a></p>
+<ul>
+<li>采用awk就可以实现这部分匹配和统计功能，还是比较简单的</li>
+<li>挑战在于，这批log文件非常多非常大，单进程工作处理起来非常的慢。因此我想到了多进程方式。</li>
+<li>以往需要使用shell来实现多进程时，采用以下模板</li>
+</ul></li>
+</ul>
 
-<h2 id="awk-sed:98445e76c0e56f8e093561726589792e">awk&amp;sed</h2>
+<pre><code class="language-bash">for seq; do
+    {
+        task
+    }&amp;
+done
+</code></pre>
 
-<p><a href="http://kodango.com/sed-and-awk-notes-part-1">http://kodango.com/sed-and-awk-notes-part-1</a>
-<a href="http://kodango.com/sed-and-awk-notes-part-2">http://kodango.com/sed-and-awk-notes-part-2</a>
-<a href="http://www.cnblogs.com/dong008259/archive/2011/12/06/2277287.html">http://www.cnblogs.com/dong008259/archive/2011/12/06/2277287.html</a></p>
+<pre><code>* 当任务较为简单，并发数不多时，这招很管用。然而现在log文件有好几K个，grep处理文件非常耗CPU，上述模板将会按文件数启动进程，系统的CPU Load一跃而起，泪目。
+* 此时的情况是，解决问题的思路和方向没有错，方式上还需要改进。关键在于：控制并发任务，合理使用CPU。
+* 如何在shell中控制并发进程数呢，我找到这样一个帖子
+* http://blog.sciencenet.cn/blog-548663-750136.html
+</code></pre>
+
+<ul>
+<li>shell脚本中控制并发任务数的大体方式是：
+
+<ul>
+<li>初始化token池，形成一定token空间，又能在为空时阻塞想拿token的进程
+
+<ul>
+<li>生成一个数组，执行任务前先从数组中获得一个元素，能够获得就继续执行，否则阻塞。数组大小最好为CPU核心数。任务执行完成后将元素放回，以供别的进程使用。</li>
+<li>生成一个阻塞访问的管道pipe，先向管道中写入若干行，任务执行前从管道中获取token，任务结束后放回。</li>
+</ul></li>
+</ul></li>
+<li>最终脚本如下所示
+
+<ul>
+<li>我在理解这个脚本的时候感到吃力，比如exec、read等既熟悉又陌生的指令，毕竟没写过shell脚本</li>
+<li>后来我发现，man bash和man sh是第一手消息资料
+
+<ul>
+<li>if -p $directory中，-p是什么意思，在man bash的CONDITIONAL EXPRESSIONS中</li>
+<li>read -u999中，-u又是什么意思，在man bash的 SHELL BUILTIN COMMANDS的read指令中</li>
+<li>exec 999&lt;&gt;$Pfifo中，man bash的REDIRECTION小节中</li>
+</ul></li>
+</ul></li>
+</ul>
 
 <pre><code class="language-bash">#!/bin/sh
 
@@ -80,38 +117,63 @@ echo '' &gt; out
 echo '' &gt; ooo
 filenames=`ls *.log`
 for filename in $filenames; do
-#从管道中取出1行
+#从管道中取出1行作为token，如果管道为空，read将会阻塞
+#man bash可以知道-u是从fd中读取一行
     read -u999
 
     {
+    #所要执行的任务
         `$awk -F',' '/did/ {for(i=1;i&lt;=NF;i++) if($i ~ /did/) print $i i}' $filename | $awk -F':' '{print $2}' | $awk -F'&quot;' '{print $2}'  | $uniq | $awk '{count[$1]++}END{for(name in count)print name &gt;&gt; &quot;out&quot;}'` &amp;&amp; {
             echo &quot;$filename done&quot;
         } || {
             echo &quot;$filename error&quot;
         }
         sleep 1
-
+    #归还token
         echo &gt;&amp;999
     }&amp;
 
 done
 
+#等待所有子进程结束
 wait 
+
+#关闭管道
 exec 999&gt;&amp;-
 
 echo `$awk '{count[$0]++}END{for(name in count)print name}' out &gt; ooo; awk 'END{print NR}' ooo`
-
 </code></pre>
 
-<h2 id="linux-shell数据输入输出的重定向分析:98445e76c0e56f8e093561726589792e">linux shell数据输入输出的重定向分析</h2>
+<ul>
+<li>单进程方式处理这些log需要3个小时，而控制并发进程数的话只需要10分钟不到。
 
-<p><a href="http://www.cnblogs.com/chengmo/archive/2010/10/20/1855805.html">http://www.cnblogs.com/chengmo/archive/2010/10/20/1855805.html</a>
-<a href="http://www.cnblogs.com/GODYCA/archive/2013/01/05/2845618.html">http://www.cnblogs.com/GODYCA/archive/2013/01/05/2845618.html</a></p>
+<ul>
+<li>可见大部分计算资源都浪费在CPU切换上了。</li>
+</ul></li>
+</ul>
 
-<h2 id="lsof使用的一些tips:98445e76c0e56f8e093561726589792e">lsof使用的一些tips</h2>
+<h1 id="参考链接:98445e76c0e56f8e093561726589792e">参考链接</h1>
 
-<p><a href="http://linuxtools-rst.readthedocs.org/zh_CN/latest/tool/lsof.html">http://linuxtools-rst.readthedocs.org/zh_CN/latest/tool/lsof.html</a>
-<a href="http://linuxtools-rst.readthedocs.org/zh_CN/latest/tool/pstack.html">http://linuxtools-rst.readthedocs.org/zh_CN/latest/tool/pstack.html</a></p>
+<h2 id="linux-shell-和-lsof-等工具使用的一些tips:98445e76c0e56f8e093561726589792e">linux shell 和 lsof 等工具使用的一些tips</h2>
+
+<p><a href="http://www.cnblogs.com/chengmo/archive/2010/10/20/1855805.html">linux shell数据输入输出的重定向分析</a><br />
+<a href="http://linuxtools-rst.readthedocs.org/zh_CN/latest/tool/lsof.html">lsof 一切皆文件</a></p>
+
+<h2 id="文件描述符与进程间通信:98445e76c0e56f8e093561726589792e">文件描述符与进程间通信</h2>
+
+<p><a href="http://adelphos.blog.51cto.com/2363901/1598570">IO重定向和文件描述符</a><br />
+<a href="http://www.cnblogs.com/GODYCA/archive/2013/01/05/2845618.html">文件描述符与进程间通信的关联</a></p>
+
+<h2 id="linux-shell-cocurrency并发控制:98445e76c0e56f8e093561726589792e">linux shell cocurrency并发控制</h2>
+
+<p><a href="http://blog.sciencenet.cn/blog-548663-750136.html">Bash脚本实现批量作业并行化</a>
+<a href="https://pebblesinthesand.wordpress.com/2008/05/22/a-srcipt-for-running-processes-in-parallel-in-bash/">A script for running processes in parallel in Bash</a></p>
+
+<h2 id="awk-sed:98445e76c0e56f8e093561726589792e">awk&amp;sed</h2>
+
+<p><a href="http://kodango.com/sed-and-awk-notes-part-1">sed&amp;awk入门 一</a><br />
+<a href="http://kodango.com/sed-and-awk-notes-part-2">sed&amp;awk入门 二</a><br />
+<a href="http://www.cnblogs.com/dong008259/archive/2011/12/06/2277287.html">awk用法汇总</a></p>
 
           </div>
         </div>
