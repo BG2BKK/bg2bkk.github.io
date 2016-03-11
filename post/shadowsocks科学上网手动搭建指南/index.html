@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title> shadowsocks科学上网手动搭建指南 &middot; BG2BKK Hugo Site </title>
+
+
+<link rel="stylesheet" href="https://bg2bkk.github.io//css/slim.css">
+<link rel="stylesheet" href="https://bg2bkk.github.io//css/highlight.min.css">
+
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+<link rel="shortcut icon" href="/favicon.ico">
+
+
+<link href="" rel="alternate" type="application/rss+xml" title="BG2BKK Hugo Site" />
+
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+  <h1 class="site-title"><a href="https://bg2bkk.github.io/">BG2BKK Hugo Site</a></h1>
+  <p class="site-tagline"></p>
+  <div class="nav">
+    <a class="nav-btn" href="#">
+      <span class="ci ci-burger"></span>
+    </a>
+    <ul class="nav-list">
+       
+	  <li class="spacer">&ac;</li>
+  
+    </ul>
+  </div>
+</div>
+    <div class="content">
+      <div class="posts">
+        <div class="post">
+          <h2 class="post-title"><a href="https://bg2bkk.github.io/post/shadowsocks%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%89%8B%E5%8A%A8%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97/">shadowsocks科学上网手动搭建指南</a></h2>
+          <span class="post-date">Mar 2, 2016 </span>
+          <div class="post-content">
+            <ul>
+<li><p>买VPS，vultr的设备，使用起来还是蛮简单的。信用卡一张，注册并扣费0.1美元会送50美元，两个月内用完。我开始部署了一个日本的最便宜的5美元一月的vps，使用起来还不错，youtube 480P没问题；但是我通过这送的50美元实验了以下几个配置的机器速度，洛杉矶机房20美元，洛杉矶机房5美元，日本机房5美元，日本机房10美元，发现ping vps-ip时美国机房都是170ms，日本机房是220ms，原因可能是即使日本离得近，去日本的路由也要绕道美国才到日本的，所以我们直接选择美国机房好了。位于西海岸的洛杉矶机房，让你打开youtube 1080P毫无压力，白天晚上都没问题。</p></li>
+
+<li><p>如何手动搭建shadowsocks服务呢，网上有太多的教程了</p>
+
+<ul>
+<li>python版shadowsocks
+
+<ul>
+<li>ss服务的鼻祖，支持多用户多端口配置</li>
+<li>参考教程：<a href="https://pypi.python.org/pypi/shadowsocks">py版ss服务</a></li>
+</ul></li>
+</ul></li>
+</ul>
+
+<pre><code class="language-bash">#Install
+
+#Debian / Ubuntu:
+apt-get install python-pip
+pip install shadowsocks
+
+#CentOS:
+yum install python-setuptools &amp;&amp; easy_install pip
+pip install shadowsocks
+</code></pre>
+
+<pre><code class="language-bash">#config.json
+{
+    &quot;server&quot;:&quot;0.0.0.0&quot;,
+    &quot;local_address&quot;: &quot;127.0.0.1&quot;,
+    &quot;local_port&quot;:1080,
+    &quot;port_password&quot;:{
+     &quot;port1&quot;:&quot;pwd1&quot;,
+     &quot;port2&quot;:&quot;pwd2&quot;
+    },
+    &quot;timeout&quot;:300,
+    &quot;method&quot;:&quot;aes-256-cfb&quot;
+}
+</code></pre>
+
+<pre><code>    * ssserver -c config.json -d start
+
+* libev版shadowsocks
+    * 性能最好的ss服务
+    * 参考教程：[一键安装教程](http://www.tennfy.com/2136.html)
+</code></pre>
+
+<pre><code class="language-bash">wget --no-check-certificate https://raw.githubusercontent.com/tennfy/shadowsocks-libev/master/debian_shadowsocks_tennfy.sh
+chmod a+x debian_shadowsocks_tennfy.sh
+
+sudo ./debian_shadowsocks_tennfy.sh
+</code></pre>
+
+<pre><code>    * /etc/init.d/shadowsocks-libev start
+</code></pre>
+
+<ul>
+<li><p>shadowsocks客户端</p>
+
+<ul>
+<li>全平台：windows、linux、OSX；android、ios；</li>
+
+<li><p><a href="https://shadowsocks.com/client.html">客户端</a></p></li>
+
+<li><p><a href="https://github.com/shadowsocks/shadowsocks-windows/releases">windows</a></p></li>
+
+<li><p><a href="https://github.com/shadowsocks/shadowsocks-qt5/wiki/Installation">linux</a></p>
+
+<ul>
+<li>ubuntu用户建议使用apt-get安装</li>
+<li>其他发行版用户。。。我还不知道</li>
+</ul></li>
+
+<li><p><a href="https://github.com/shadowsocks/shadowsocks-iOS/releases">OSX</a></p>
+
+<ul>
+<li>我没用过</li>
+</ul></li>
+
+<li><p><a href="http://pan.baidu.com/s/1YbQTg">android</a></p></li>
+
+<li><p><a href="http://www.iyingsuo.com/ios-shadowsocks-tutorials.html">ios</a></p></li>
+</ul></li>
+
+<li><p>如果您觉得shadowsocks很容易搭建起来，想试一下的话，可以通过的推荐链接来注册，这样会有一定奖励:<a href="http://www.vultr.com/?ref=6870148">http://www.vultr.com/?ref=6870148</a></p></li>
+</ul>
+
+          </div>
+        </div>
+        <div class="pagination"> 
+          <a class="btn next " href="https://bg2bkk.github.io/post/list%E9%93%BE%E8%A1%A8%E9%87%87%E7%94%A8%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E8%AE%BF%E9%97%AE%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9/"> Next</a> 
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer">
+  <p>Powered by <a href="http://gohugo.io">Hugo</a>. This theme—Slim—is open sourced on <a href="https://github.com/zhe/hugo-theme-slim">Github</a>.</p>
+</div>
+
+  </div>
+  <script src="https://bg2bkk.github.io//js/slim.js"></script>
+  <script src="https://bg2bkk.github.io//js/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad();
+  </script>
+  
+</body>
+
+</html>

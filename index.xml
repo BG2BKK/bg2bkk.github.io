@@ -6,8 +6,1292 @@
     <description>Recent content on BG2BKK Hugo Site</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 26 Feb 2016 16:15:31 +0800</lastBuildDate>
+    <lastBuildDate>Wed, 02 Mar 2016 23:02:07 +0800</lastBuildDate>
     <atom:link href="https://bg2bkk.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>shadowsocks科学上网手动搭建指南</title>
+      <link>https://bg2bkk.github.io/post/shadowsocks%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%89%8B%E5%8A%A8%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97/</link>
+      <pubDate>Wed, 02 Mar 2016 23:02:07 +0800</pubDate>
+      
+      <guid>https://bg2bkk.github.io/post/shadowsocks%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%89%8B%E5%8A%A8%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;买VPS，vultr的设备，使用起来还是蛮简单的。信用卡一张，注册并扣费0.1美元会送50美元，两个月内用完。我开始部署了一个日本的最便宜的5美元一月的vps，使用起来还不错，youtube 480P没问题；但是我通过这送的50美元实验了以下几个配置的机器速度，洛杉矶机房20美元，洛杉矶机房5美元，日本机房5美元，日本机房10美元，发现ping vps-ip时美国机房都是170ms，日本机房是220ms，原因可能是即使日本离得近，去日本的路由也要绕道美国才到日本的，所以我们直接选择美国机房好了。位于西海岸的洛杉矶机房，让你打开youtube 1080P毫无压力，白天晚上都没问题。&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;如何手动搭建shadowsocks服务呢，网上有太多的教程了&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;python版shadowsocks
+
+&lt;ul&gt;
+&lt;li&gt;ss服务的鼻祖，支持多用户多端口配置&lt;/li&gt;
+&lt;li&gt;参考教程：&lt;a href=&#34;https://pypi.python.org/pypi/shadowsocks&#34;&gt;py版ss服务&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#Install
+
+#Debian / Ubuntu:
+apt-get install python-pip
+pip install shadowsocks
+
+#CentOS:
+yum install python-setuptools &amp;amp;&amp;amp; easy_install pip
+pip install shadowsocks
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#config.json
+{
+    &amp;quot;server&amp;quot;:&amp;quot;0.0.0.0&amp;quot;,
+    &amp;quot;local_address&amp;quot;: &amp;quot;127.0.0.1&amp;quot;,
+    &amp;quot;local_port&amp;quot;:1080,
+    &amp;quot;port_password&amp;quot;:{
+     &amp;quot;port1&amp;quot;:&amp;quot;pwd1&amp;quot;,
+     &amp;quot;port2&amp;quot;:&amp;quot;pwd2&amp;quot;
+    },
+    &amp;quot;timeout&amp;quot;:300,
+    &amp;quot;method&amp;quot;:&amp;quot;aes-256-cfb&amp;quot;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;    * ssserver -c config.json -d start
+
+* libev版shadowsocks
+    * 性能最好的ss服务
+    * 参考教程：[一键安装教程](http://www.tennfy.com/2136.html)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;wget --no-check-certificate https://raw.githubusercontent.com/tennfy/shadowsocks-libev/master/debian_shadowsocks_tennfy.sh
+chmod a+x debian_shadowsocks_tennfy.sh
+
+sudo ./debian_shadowsocks_tennfy.sh
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;    * /etc/init.d/shadowsocks-libev start
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;shadowsocks客户端&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;全平台：windows、linux、OSX；android、ios；&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://shadowsocks.com/client.html&#34;&gt;客户端&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/shadowsocks/shadowsocks-windows/releases&#34;&gt;windows&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/shadowsocks/shadowsocks-qt5/wiki/Installation&#34;&gt;linux&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;ubuntu用户建议使用apt-get安装&lt;/li&gt;
+&lt;li&gt;其他发行版用户。。。我还不知道&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/shadowsocks/shadowsocks-iOS/releases&#34;&gt;OSX&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;我没用过&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://pan.baidu.com/s/1YbQTg&#34;&gt;android&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.iyingsuo.com/ios-shadowsocks-tutorials.html&#34;&gt;ios&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;如果您觉得shadowsocks很容易搭建起来，想试一下的话，可以通过的推荐链接来注册，这样会有一定奖励:&lt;a href=&#34;http://www.vultr.com/?ref=6870148&#34;&gt;http://www.vultr.com/?ref=6870148&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>采用二级指针实现单链表操作 单链表翻转 删除单链表结点</title>
+      <link>https://bg2bkk.github.io/post/list%E9%93%BE%E8%A1%A8%E9%87%87%E7%94%A8%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E8%AE%BF%E9%97%AE%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9/</link>
+      <pubDate>Tue, 01 Mar 2016 11:00:34 +0800</pubDate>
+      
+      <guid>https://bg2bkk.github.io/post/list%E9%93%BE%E8%A1%A8%E9%87%87%E7%94%A8%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E8%AE%BF%E9%97%AE%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;register_filesystem中的二级指针，刚开始没看懂。怒了，如果这个都没看懂，还搞什么C语言编程&lt;/li&gt;
+&lt;li&gt;leetcode中的反转链表，二级指针操作巨好用&lt;/li&gt;
+&lt;li&gt;先上代码吧&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#include&amp;lt;stdio.h&amp;gt;
+#include&amp;lt;stdlib.h&amp;gt;
+
+typedef struct ListNode{
+    int val;
+    struct ListNode *next;
+} ListNode;
+
+void printList(ListNode *head){
+    if(head){
+        printf(&amp;quot;%d\n&amp;quot;, head-&amp;gt;val);
+        printList(head-&amp;gt;next);
+    }
+}
+
+void printList_r(ListNode *head){
+    if(!head)
+        return;
+    if(head -&amp;gt; next)
+        printList_r(head-&amp;gt;next);
+    printf(&amp;quot;%d\n&amp;quot;, head-&amp;gt;val);
+}
+
+ListNode ** addToTail(ListNode **list){
+    ListNode **p ;
+    for( p = list; *p; p = &amp;amp; (*p)-&amp;gt;next);
+    return p;
+}
+
+void reverseList(ListNode **list){
+    ListNode *head = NULL;
+    ListNode **p = list;
+    while(*p){
+        ListNode *next = (*p)-&amp;gt;next;
+        (*p)-&amp;gt;next = head;
+        head = *p;
+        *p = next;
+    }
+    *list = head;
+}
+
+/* 
+ * delete first item whose val equals to val
+ *
+*/
+void deleteNodeAll(ListNode **l, int val){
+
+    while(*l){
+        if((*l)-&amp;gt;val == val){
+            ListNode *tmp = (*l)-&amp;gt;next;
+            free(*l);
+            *l = tmp;
+            break;
+        }
+        l = &amp;amp;(*l)-&amp;gt;next;
+    }
+}
+
+//delete all the items whose val equals to val
+void deleteNodeFirst(ListNode **l, int val){
+
+    while(*l){
+        if((*l)-&amp;gt;val == val){
+            ListNode *tmp = (*l)-&amp;gt;next;
+            free(*l);
+            *l = tmp;
+        }
+        else
+            l = &amp;amp;(*l)-&amp;gt;next;
+    }
+}
+
+int main()
+{
+    int a[] = {1, 2, 3, 2, 3 ,4};
+    int len = sizeof(a) / sizeof(int);
+    int i = 0;
+
+    static ListNode *list;
+
+    for( i = 0; i &amp;lt; len; i++)
+    {
+        ListNode *node = malloc(sizeof(struct ListNode));
+        node-&amp;gt;val = a[i];
+        ListNode **p = addToTail(&amp;amp;list);
+        *p = node;
+    }
+
+    printf(&amp;quot;--------print list in sequence------------\n&amp;quot;);
+    printList(list);
+
+    printf(&amp;quot;--------print list after reversed------------------\n&amp;quot;);
+    reverseList(&amp;amp;list);
+    printList(list);
+
+    printf(&amp;quot;--------delete first 1----------\n&amp;quot;);
+    deleteNodeFirst(&amp;amp;list, 1);
+    printList(list);
+
+    printf(&amp;quot;--------delete first 3----------------\n&amp;quot;);
+    deleteNodeFirst(&amp;amp;list, 3);
+    printList(list);
+
+    printf(&amp;quot;--------delete first 4-----------------\n&amp;quot;);
+    deleteNodeFirst(&amp;amp;list, 4);
+    printList(list);
+
+    printf(&amp;quot;--------delete non-existed item-------------\n&amp;quot;);
+    deleteNodeFirst(&amp;amp;list, 4);
+    printList(list);
+
+    printf(&amp;quot;--------delete the last item----------------\n&amp;quot;);
+    deleteNodeFirst(&amp;amp;list, 2);
+    printList(list);
+
+    printf(&amp;quot;--------reverse an empty list---------------\n&amp;quot;);
+    reverseList(&amp;amp;list);
+    printList(list);
+
+
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>VFS虚拟文件系统</title>
+      <link>https://bg2bkk.github.io/post/VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</link>
+      <pubDate>Mon, 29 Feb 2016 15:33:32 +0800</pubDate>
+      
+      <guid>https://bg2bkk.github.io/post/VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</guid>
+      <description>
+
+&lt;h1 id=&#34;虚拟文件系统:33c34adef684867bc26f32ab644d7c6f&#34;&gt;虚拟文件系统&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;虚拟文件系统为用户空间程序提供了文件和文件系统的接口&lt;/li&gt;
+&lt;li&gt;通过VFS，程序可以通过标准的UNIX系统调用操作不同的文件系统和介质，包括各种软硬件设备&lt;/li&gt;
+&lt;li&gt;Linux等现代操作系统引入VFS作为抽象层，极大方便系统调用&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;unix文件系统:33c34adef684867bc26f32ab644d7c6f&#34;&gt;Unix文件系统&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;UNIX系统使用了四种和文件系统相关的抽象概念: 文件、目录项、索引结点和挂载点。&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;将文件的相关信息和文件加以区分&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;&lt;em&gt;文件相关信息&lt;/em&gt;&lt;/strong&gt;单独存储在&lt;strong&gt;&lt;em&gt;索引结点&lt;/em&gt;&lt;/strong&gt;中，又称为元数据，包括文件的控制权限、文件大小、属主和创建与访问时间等&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;em&gt;文件相关信息&lt;/em&gt;&lt;/strong&gt;和&lt;strong&gt;&lt;em&gt;文件系统&lt;/em&gt;&lt;/strong&gt;的相关信息密不可分，后者存储在&lt;strong&gt;&lt;em&gt;超级块(super block)&lt;/em&gt;&lt;/strong&gt;中，超级块是包含文件系统信息的数据结构。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;em&gt;文件&lt;/em&gt;&lt;/strong&gt;按照索引结点存储在单独的块中，文件系统的控制信息存在超级块中&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;VFS中有四个主要对象类型&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;超级块对象，代表一个具体的已安装的文件系统&lt;/li&gt;
+&lt;li&gt;索引结点对象，代表一个具体文件
+
+&lt;ul&gt;
+&lt;li&gt;inode才代表具体文件&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;目录项对象，代表一个目录项，是路径的组成部分
+
+&lt;ul&gt;
+&lt;li&gt;目录项不是目录，而是一个文件。不存在目录对象&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;文件对象，代表由进程打开的文件
+
+&lt;ul&gt;
+&lt;li&gt;每个进程都有自己的打开文件列表，文件对象是一个动态生成动态销毁的对象&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;超级块&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;超级块对象 super block
+
+&lt;ul&gt;
+&lt;li&gt;用于存储特定文件系统的信息&lt;/li&gt;
+&lt;li&gt;通常放在磁盘的&lt;a href=&#34;https://support.microsoft.com/zh-cn/kb/100108&#34;&gt;特定扇区&lt;/a&gt;中，所以被称为超级块对象&lt;/li&gt;
+&lt;li&gt;并非基于磁盘的文件系统，内核会现场创建，并保存在内存中&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;超级块操作
+
+&lt;ul&gt;
+&lt;li&gt;super_operations&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;!--   * 超级块操作 super_operations
+        * inode的分配、销毁、读写
+        * 文件系统的挂载、删除--&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;索引结点&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;索引结点对象 inode
+
+&lt;ul&gt;
+&lt;li&gt;索引结点对象包含了内核在操作文件或目录时的所有信息&lt;/li&gt;
+&lt;li&gt;索引结点对象都是在内存中创建的，不会写回硬盘的&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;索引结点操作
+
+&lt;ul&gt;
+&lt;li&gt;inode_operations&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;目录项&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;目录项对象
+
+&lt;ul&gt;
+&lt;li&gt;VFS把目录当做文件对待，解析目录时，将路径中的每个组成部分都是一个索引结点对象，比如&amp;rdquo;/bin/ls&amp;rdquo;中的‘/’、‘bin’和‘ls’。进行路径查找和解析是比较耗时的，为了方便操作，VFS引入了目录项dentry的概念，每个dentry都是路径的组成部分&lt;/li&gt;
+&lt;li&gt;目录项对象都是根据字符串形式现场创建的，并没有保存在磁盘&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;目录项状态
+
+&lt;ul&gt;
+&lt;li&gt;被使用
+
+&lt;ul&gt;
+&lt;li&gt;被使用的dentry对应一个有效的inode，即dentry结构体中d_inode指向的inode&lt;/li&gt;
+&lt;li&gt;该对象的引用计数d_count为正，至少有一个使用者，不能随意丢弃&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;未被使用
+
+&lt;ul&gt;
+&lt;li&gt;未被使用的dentry，其d_inode也指向一个inode，但是d_count为0&lt;/li&gt;
+&lt;li&gt;此时该dentry仍然在缓存中，可能会再次使用。不会立刻被释放，但如果系统要回收内存的话，可以被释放回收&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;负状态
+
+&lt;ul&gt;
+&lt;li&gt;负状态的dentry没有对应的有效inode，原因可能是inode已被删除，或者路径不再正确&lt;/li&gt;
+&lt;li&gt;此时将其缓存起来仍然有些用处，比如一个守护进程一直读一个不存在的文件，缓存dentry不至于让进程总是去搜索&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;目录项缓存
+
+&lt;ul&gt;
+&lt;li&gt;遍历路径名中所有元素并逐个解析成dentry，是非常费时费力的，所以内核引入目录项缓存dcache，将目录项对象都缓存起来&lt;/li&gt;
+&lt;li&gt;目录项缓存包括
+
+&lt;ul&gt;
+&lt;li&gt;&amp;ldquo;被使用的&amp;rdquo;目录项链表
+
+&lt;ul&gt;
+&lt;li&gt;该链表通过inode中的i_dentry指针连接相关inode&lt;/li&gt;
+&lt;li&gt;一个给定的inode可能有多个链接（软硬链接），所有就有可能有多个目录项对象，因此用一个链表链接&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&amp;ldquo;最近使用的&amp;rdquo;双向链表
+
+&lt;ul&gt;
+&lt;li&gt;该链表包含所有 未被使用的 和 负状态的 dentry&lt;/li&gt;
+&lt;li&gt;总是在表头添加元素，所以回收dentry时从最后开始回收&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;哈希表和相应的哈希函数
+
+&lt;ul&gt;
+&lt;li&gt;快速将给定路径解析为相关目录项对象&lt;/li&gt;
+&lt;li&gt;哈希表由dentry_hashtable数组表示，每个元素都指向一个具有相同键值的目录项对象链表指针&lt;/li&gt;
+&lt;li&gt;哈希函数d_hash()&lt;/li&gt;
+&lt;li&gt;查找函数d_lookup()&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;目录项操作
+
+&lt;ul&gt;
+&lt;li&gt;dentry_operation&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;文件&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;文件对象
+
+&lt;ul&gt;
+&lt;li&gt;表示进程已经打开的文件。文件对象是已打开的文件（物理文件）在内存中的表示&lt;/li&gt;
+&lt;li&gt;多个进程可以打开同一个物理文件，所以一个物理文件会有多个文件对象&lt;/li&gt;
+&lt;li&gt;文件对象指向目录项对象，目录项对象指向索引结点inode&lt;/li&gt;
+&lt;li&gt;具体而言，是文件对象filep中的f_dentry指向目录项对象，目录项对象的d_inode指向索引结点inode&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;文件操作
+
+&lt;ul&gt;
+&lt;li&gt;file_operations&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;相关数据结构&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;file_system_type
+
+&lt;ul&gt;
+&lt;li&gt;用于描述各种特定文件系统类型，用于支持不同文件系统&lt;/li&gt;
+&lt;li&gt;struct file_system_type {}
+
+&lt;ul&gt;
+&lt;li&gt;get_sb()  从磁盘读取超级块，并在文件系统安装时在内存中组装超级块对象&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;每个文件系统只有一个&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;vfsmount
+
+&lt;ul&gt;
+&lt;li&gt;系统挂载时，将有一个vfsmount结构体在挂载点创建，代表文件系统的实例&lt;/li&gt;
+&lt;li&gt;struct vfsmount {}
+
+&lt;ul&gt;
+&lt;li&gt;各种链表&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;和进程相关的数据结构&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;每个进程都有自己的一组打开爱的文件，比如根文件系统、当前工作目录、挂载点等&lt;/li&gt;
+&lt;li&gt;struct files_struct {}
+
+&lt;ul&gt;
+&lt;li&gt;该结构提由进程描述符中的files指向，一般都是current-&amp;gt;files&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;struct fs_struct {}
+
+&lt;ul&gt;
+&lt;li&gt;包含文件系统和进程相关的信息，由fs域指向，一般是current-&amp;gt;fs&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;struct namespace {}&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;使得每个进程在系统中能看到唯一的安装文件系统，mm-&amp;gt;namespace&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;每个进程都有指向自己的fs_struct和files_struct，多个进程可能指向同一个，比如通过带有CLONE_FILES和CLONE_FS标志创建的进程（其实是线程），所以这两个struct都有引用计数，以防出错&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;而对于namespace来说，除非使用CLONE_NEWS标志创建进程，会创建新的namespace结构体，否则所有进程共享一个namespace&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>pipe在内核中的实现</title>
+      <link>https://bg2bkk.github.io/post/pipe%E5%9C%A8%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/</link>
+      <pubDate>Sat, 27 Feb 2016 09:49:41 +0800</pubDate>
+      
+      <guid>https://bg2bkk.github.io/post/pipe%E5%9C%A8%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;基于linux-2.4.20内核&lt;/li&gt;
+&lt;li&gt;new_inode()&lt;/li&gt;
+&lt;li&gt;register_filesystem()&lt;/li&gt;
+&lt;li&gt;get_empty_file&lt;/li&gt;
+&lt;li&gt;get_unused_fd()&lt;/li&gt;
+&lt;li&gt;do_pipe作为pipe系统调用函数，在/arch/i386/sys_i386.c中定义&lt;/li&gt;
+&lt;li&gt;pipe的module_init在initcall中调用，但是pipe.c是编译在fs.o中的，他的module_init是如何调用进去的，需要进一步查找&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;struct dentry在include/linux/dcache.h中定义&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;pipe文件系统初始化&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;注册pipefs
+
+&lt;ul&gt;
+&lt;li&gt;register_filesystems&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;pipe系统调用&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;pipe调用do_pipe&lt;/li&gt;
+&lt;li&gt;do_pipe()
+
+&lt;ul&gt;
+&lt;li&gt;f1&amp;amp;f2 get_empty_filep分配filep数据结构&lt;/li&gt;
+&lt;li&gt;inode = get_pipe_inode()从pipe文件系统获得inode
+
+&lt;ul&gt;
+&lt;li&gt;new_inode()&lt;/li&gt;
+&lt;li&gt;pipe_new()新建pipe
+
+&lt;ul&gt;
+&lt;li&gt;__get_free_pages(GFP_USER)为该pipe分配一页内存（4KB）&lt;/li&gt;
+&lt;li&gt;inode-&amp;gt;i_pipe = kmalloc(sizeof(struct pipe_inde_info), GFP_KERNEL)分配pipe信息结构&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;i&amp;amp;j = get_unused_fd()获取两个fd&lt;/li&gt;
+&lt;li&gt;dentry = d_alloc()从pipefs分配dentry&lt;/li&gt;
+&lt;li&gt;d_add(dentry, inode)将inode插入到dentry中&lt;/li&gt;
+&lt;li&gt;将f1设置成O_RDONLY，将f2设置成O_WRONLY&lt;/li&gt;
+&lt;li&gt;进程的files列表中，files[i] = f1, files[j] = f2&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;实现函数&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;pipe
+
+&lt;ul&gt;
+&lt;li&gt;pipe_read&lt;/li&gt;
+&lt;li&gt;pipe_write&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;tips&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;pipe不允许使用seek&lt;/li&gt;
+&lt;li&gt;低版本linux-2.4.20在pipe写的时候是固定大小，而高版本的是会按需分配直至64KB的。&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;高版本kernel内核中sysctl的配置参数&lt;strong&gt;&lt;em&gt;fs.pipe-max-size&lt;/em&gt;&lt;/strong&gt; 可以设置固定的pipe大小。但是也不能超过64KB大小，即使配置数据大于这个数字，pipe大小也会限制在64KB。&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://unix.stackexchange.com/questions/11946/how-big-is-the-pipe-buffer&#34;&gt;测试代码&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#!/bin/bash
+test $# -ge 1 || { echo &amp;quot;usage: $0 write-size [wait-time]&amp;quot;; exit 1; }
+test $# -ge 2 || set -- &amp;quot;$@&amp;quot; 1
+bytes_written=$(
+{
+    exec 3&amp;gt;&amp;amp;1
+    {
+        perl -e &#39;
+            $size = $ARGV[0];
+            $block = q(a) x $size;
+            $num_written = 0;
+            sub report { print STDERR $num_written * $size, qq(\n); }
+            report; while (defined syswrite STDOUT, $block) {
+                $num_written++; report;
+            }
+        &#39; &amp;quot;$1&amp;quot; 2&amp;gt;&amp;amp;3
+    } | (sleep &amp;quot;$2&amp;quot;; exec 0&amp;lt;&amp;amp;-);
+} | tail -1
+)
+printf &amp;quot;write size: %10d; bytes successfully before error: %d\n&amp;quot; \
+    &amp;quot;$1&amp;quot; &amp;quot;$bytes_written&amp;quot;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;* 测试结果
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;huang@ThinkPad-X220:~/workspace/cpp$ /bin/bash -c &#39;for p in {0..18}; do ./pipe.sh $((2 ** $p)) 0.5; done&#39;
+write size:          1; bytes successfully before error: 65536
+write size:          2; bytes successfully before error: 65536
+write size:          4; bytes successfully before error: 65536
+write size:          8; bytes successfully before error: 65536
+write size:         16; bytes successfully before error: 65536
+write size:         32; bytes successfully before error: 65536
+write size:         64; bytes successfully before error: 65536
+write size:        128; bytes successfully before error: 65536
+write size:        256; bytes successfully before error: 65536
+write size:        512; bytes successfully before error: 65536
+write size:       1024; bytes successfully before error: 65536
+write size:       2048; bytes successfully before error: 65536
+write size:       4096; bytes successfully before error: 65536
+write size:       8192; bytes successfully before error: 65536
+write size:      16384; bytes successfully before error: 65536
+write size:      32768; bytes successfully before error: 65536
+write size:      65536; bytes successfully before error: 65536
+write size:     131072; bytes successfully before error: 0
+write size:     262144; bytes successfully before error: 0
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;* 内核中64KB大小的限制，sysctl中fs.max_pipe_size的设置，以及ulimit -a中的&amp;quot;pipe size            (512 bytes, -p) 8&amp;quot;，到底都会发挥怎样的功能呢？这些还需要[进一步探讨](http://home.gna.org/pysfst/tests/pipe-limit.html)。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;函数分析
+
+&lt;ul&gt;
+&lt;li&gt;init_pipe_fs向文件系统注册pipe组件&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;static int __init init_pipe_fs(void)
+{
+	int err = register_filesystem(&amp;amp;pipe_fs_type);
+	if (!err) {
+		pipe_mnt = kern_mount(&amp;amp;pipe_fs_type);
+		err = PTR_ERR(pipe_mnt);
+		if (IS_ERR(pipe_mnt))
+			unregister_filesystem(&amp;amp;pipe_fs_type);
+		else
+			err = 0;
+	}
+	return err;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;static DECLARE_FSTYPE(pipe_fs_type, &amp;quot;pipefs&amp;quot;, pipefs_read_super, FS_NOMOUNT);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#define DECLARE_FSTYPE(var,type,read,flags) \
+struct file_system_type var = { \
+	name:		type, \
+	read_super:	read, \
+	fs_flags:	flags, \
+	owner:		THIS_MODULE, \
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;* pipe源码（2.4的实现中实在没什么可讲的，比较有价值的是pipe_write和pipe_read中处理缓冲队列源码可以参考）
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;/*
+ *  linux/fs/pipe.c
+ *
+ *  Copyright (C) 1991, 1992, 1999  Linus Torvalds
+ */
+
+#include &amp;lt;linux/mm.h&amp;gt;
+#include &amp;lt;linux/file.h&amp;gt;
+#include &amp;lt;linux/poll.h&amp;gt;
+#include &amp;lt;linux/slab.h&amp;gt;
+#include &amp;lt;linux/module.h&amp;gt;
+#include &amp;lt;linux/init.h&amp;gt;
+
+#include &amp;lt;asm/uaccess.h&amp;gt;
+#include &amp;lt;asm/ioctls.h&amp;gt;
+
+/*
+ * We use a start+len construction, which provides full use of the 
+ * allocated memory.
+ * -- Florian Coosmann (FGC)
+ * 
+ * Reads with count = 0 should always return 0.
+ * -- Julian Bradfield 1999-06-07.
+ */
+
+/* Drop the inode semaphore and wait for a pipe event, atomically */
+void pipe_wait(struct inode * inode)
+{
+	DECLARE_WAITQUEUE(wait, current);
+	current-&amp;gt;state = TASK_INTERRUPTIBLE;
+	add_wait_queue(PIPE_WAIT(*inode), &amp;amp;wait);
+	up(PIPE_SEM(*inode));
+	schedule();
+	remove_wait_queue(PIPE_WAIT(*inode), &amp;amp;wait);
+	current-&amp;gt;state = TASK_RUNNING;
+	down(PIPE_SEM(*inode));
+}
+
+static ssize_t
+pipe_read(struct file *filp, char *buf, size_t count, loff_t *ppos)
+{
+	struct inode *inode = filp-&amp;gt;f_dentry-&amp;gt;d_inode;
+	ssize_t size, read, ret;
+
+	/* Seeks are not allowed on pipes.  */
+	ret = -ESPIPE;
+	read = 0;
+	if (ppos != &amp;amp;filp-&amp;gt;f_pos)
+		goto out_nolock;
+
+	/* Always return 0 on null read.  */
+	ret = 0;
+	if (count == 0)
+		goto out_nolock;
+
+	/* Get the pipe semaphore */
+	ret = -ERESTARTSYS;
+	if (down_interruptible(PIPE_SEM(*inode)))
+		goto out_nolock;
+
+	if (PIPE_EMPTY(*inode)) {
+do_more_read:
+		ret = 0;
+		if (!PIPE_WRITERS(*inode))
+			goto out;
+
+		ret = -EAGAIN;
+		if (filp-&amp;gt;f_flags &amp;amp; O_NONBLOCK)
+			goto out;
+
+		for (;;) {
+			PIPE_WAITING_READERS(*inode)++;
+			pipe_wait(inode);
+			PIPE_WAITING_READERS(*inode)--;
+			ret = -ERESTARTSYS;
+			if (signal_pending(current))
+				goto out;
+			ret = 0;
+			if (!PIPE_EMPTY(*inode))
+				break;
+			if (!PIPE_WRITERS(*inode))
+				goto out;
+		}
+	}
+
+	/* Read what data is available.  */
+	ret = -EFAULT;
+	while (count &amp;gt; 0 &amp;amp;&amp;amp; (size = PIPE_LEN(*inode))) {
+		char *pipebuf = PIPE_BASE(*inode) + PIPE_START(*inode);
+		ssize_t chars = PIPE_MAX_RCHUNK(*inode);
+
+		if (chars &amp;gt; count)
+			chars = count;
+		if (chars &amp;gt; size)
+			chars = size;
+
+		if (copy_to_user(buf, pipebuf, chars))
+			goto out;
+
+		read += chars;
+		PIPE_START(*inode) += chars;
+		PIPE_START(*inode) &amp;amp;= (PIPE_SIZE - 1);
+		PIPE_LEN(*inode) -= chars;
+		count -= chars;
+		buf += chars;
+	}
+
+	/* Cache behaviour optimization */
+	if (!PIPE_LEN(*inode))
+		PIPE_START(*inode) = 0;
+
+	if (count &amp;amp;&amp;amp; PIPE_WAITING_WRITERS(*inode) &amp;amp;&amp;amp; !(filp-&amp;gt;f_flags &amp;amp; O_NONBLOCK)) {
+		/*
+		 * We know that we are going to sleep: signal
+		 * writers synchronously that there is more
+		 * room.
+		 */
+		wake_up_interruptible_sync(PIPE_WAIT(*inode));
+		if (!PIPE_EMPTY(*inode))
+			BUG();
+		goto do_more_read;
+	}
+	/* Signal writers asynchronously that there is more room.  */
+	wake_up_interruptible(PIPE_WAIT(*inode));
+
+	ret = read;
+out:
+	up(PIPE_SEM(*inode));
+out_nolock:
+	if (read)
+		ret = read;
+
+	UPDATE_ATIME(inode);
+	return ret;
+}
+
+static ssize_t
+pipe_write(struct file *filp, const char *buf, size_t count, loff_t *ppos)
+{
+	struct inode *inode = filp-&amp;gt;f_dentry-&amp;gt;d_inode;
+	ssize_t free, written, ret;
+
+	/* Seeks are not allowed on pipes.  */
+	ret = -ESPIPE;
+	written = 0;
+	if (ppos != &amp;amp;filp-&amp;gt;f_pos)
+		goto out_nolock;
+
+	/* Null write succeeds.  */
+	ret = 0;
+	if (count == 0)
+		goto out_nolock;
+
+	ret = -ERESTARTSYS;
+	if (down_interruptible(PIPE_SEM(*inode)))
+		goto out_nolock;
+
+	/* No readers yields SIGPIPE.  */
+	if (!PIPE_READERS(*inode))
+		goto sigpipe;
+
+	/* If count &amp;lt;= PIPE_BUF, we have to make it atomic.  */
+	free = (count &amp;lt;= PIPE_BUF ? count : 1);
+
+	/* Wait, or check for, available space.  */
+	if (filp-&amp;gt;f_flags &amp;amp; O_NONBLOCK) {
+		ret = -EAGAIN;
+		if (PIPE_FREE(*inode) &amp;lt; free)
+			goto out;
+	} else {
+		while (PIPE_FREE(*inode) &amp;lt; free) {
+			PIPE_WAITING_WRITERS(*inode)++;
+			pipe_wait(inode);
+			PIPE_WAITING_WRITERS(*inode)--;
+			ret = -ERESTARTSYS;
+			if (signal_pending(current))
+				goto out;
+
+			if (!PIPE_READERS(*inode))
+				goto sigpipe;
+		}
+	}
+
+	/* Copy into available space.  */
+	ret = -EFAULT;
+	while (count &amp;gt; 0) {
+		int space;
+		char *pipebuf = PIPE_BASE(*inode) + PIPE_END(*inode);
+		ssize_t chars = PIPE_MAX_WCHUNK(*inode);
+
+		if ((space = PIPE_FREE(*inode)) != 0) {
+			if (chars &amp;gt; count)
+				chars = count;
+			if (chars &amp;gt; space)
+				chars = space;
+
+			if (copy_from_user(pipebuf, buf, chars))
+				goto out;
+
+			written += chars;
+			PIPE_LEN(*inode) += chars;
+			count -= chars;
+			buf += chars;
+			space = PIPE_FREE(*inode);
+			continue;
+		}
+
+		ret = written;
+		if (filp-&amp;gt;f_flags &amp;amp; O_NONBLOCK)
+			break;
+
+		do {
+			/*
+			 * Synchronous wake-up: it knows that this process
+			 * is going to give up this CPU, so it doesn&#39;t have
+			 * to do idle reschedules.
+			 */
+			wake_up_interruptible_sync(PIPE_WAIT(*inode));
+			PIPE_WAITING_WRITERS(*inode)++;
+			pipe_wait(inode);
+			PIPE_WAITING_WRITERS(*inode)--;
+			if (signal_pending(current))
+				goto out;
+			if (!PIPE_READERS(*inode))
+				goto sigpipe;
+		} while (!PIPE_FREE(*inode));
+		ret = -EFAULT;
+	}
+
+	/* Signal readers asynchronously that there is more data.  */
+	wake_up_interruptible(PIPE_WAIT(*inode));
+
+	inode-&amp;gt;i_ctime = inode-&amp;gt;i_mtime = CURRENT_TIME;
+	mark_inode_dirty(inode);
+
+out:
+	up(PIPE_SEM(*inode));
+out_nolock:
+	if (written)
+		ret = written;
+	return ret;
+
+sigpipe:
+	if (written)
+		goto out;
+	up(PIPE_SEM(*inode));
+	send_sig(SIGPIPE, current, 0);
+	return -EPIPE;
+}
+
+static ssize_t
+bad_pipe_r(struct file *filp, char *buf, size_t count, loff_t *ppos)
+{
+	return -EBADF;
+}
+
+static ssize_t
+bad_pipe_w(struct file *filp, const char *buf, size_t count, loff_t *ppos)
+{
+	return -EBADF;
+}
+
+static int
+pipe_ioctl(struct inode *pino, struct file *filp,
+	   unsigned int cmd, unsigned long arg)
+{
+	switch (cmd) {
+		case FIONREAD:
+			return put_user(PIPE_LEN(*pino), (int *)arg);
+		default:
+			return -EINVAL;
+	}
+}
+
+/* No kernel lock held - fine */
+static unsigned int
+pipe_poll(struct file *filp, poll_table *wait)
+{
+	unsigned int mask;
+	struct inode *inode = filp-&amp;gt;f_dentry-&amp;gt;d_inode;
+
+	poll_wait(filp, PIPE_WAIT(*inode), wait);
+
+	/* Reading only -- no need for acquiring the semaphore.  */
+	mask = POLLIN | POLLRDNORM;
+	if (PIPE_EMPTY(*inode))
+		mask = POLLOUT | POLLWRNORM;
+	if (!PIPE_WRITERS(*inode) &amp;amp;&amp;amp; filp-&amp;gt;f_version != PIPE_WCOUNTER(*inode))
+		mask |= POLLHUP;
+	if (!PIPE_READERS(*inode))
+		mask |= POLLERR;
+
+	return mask;
+}
+
+/* FIXME: most Unices do not set POLLERR for fifos */
+#define fifo_poll pipe_poll
+
+static int
+pipe_release(struct inode *inode, int decr, int decw)
+{
+	down(PIPE_SEM(*inode));
+	PIPE_READERS(*inode) -= decr;
+	PIPE_WRITERS(*inode) -= decw;
+	if (!PIPE_READERS(*inode) &amp;amp;&amp;amp; !PIPE_WRITERS(*inode)) {
+		struct pipe_inode_info *info = inode-&amp;gt;i_pipe;
+		inode-&amp;gt;i_pipe = NULL;
+		free_page((unsigned long) info-&amp;gt;base);
+		kfree(info);
+	} else {
+		wake_up_interruptible(PIPE_WAIT(*inode));
+	}
+	up(PIPE_SEM(*inode));
+
+	return 0;
+}
+
+static int
+pipe_read_release(struct inode *inode, struct file *filp)
+{
+	return pipe_release(inode, 1, 0);
+}
+
+static int
+pipe_write_release(struct inode *inode, struct file *filp)
+{
+	return pipe_release(inode, 0, 1);
+}
+
+static int
+pipe_rdwr_release(struct inode *inode, struct file *filp)
+{
+	int decr, decw;
+
+	decr = (filp-&amp;gt;f_mode &amp;amp; FMODE_READ) != 0;
+	decw = (filp-&amp;gt;f_mode &amp;amp; FMODE_WRITE) != 0;
+	return pipe_release(inode, decr, decw);
+}
+
+static int
+pipe_read_open(struct inode *inode, struct file *filp)
+{
+	/* We could have perhaps used atomic_t, but this and friends
+	   below are the only places.  So it doesn&#39;t seem worthwhile.  */
+	down(PIPE_SEM(*inode));
+	PIPE_READERS(*inode)++;
+	up(PIPE_SEM(*inode));
+
+	return 0;
+}
+
+static int
+pipe_write_open(struct inode *inode, struct file *filp)
+{
+	down(PIPE_SEM(*inode));
+	PIPE_WRITERS(*inode)++;
+	up(PIPE_SEM(*inode));
+
+	return 0;
+}
+
+static int
+pipe_rdwr_open(struct inode *inode, struct file *filp)
+{
+	down(PIPE_SEM(*inode));
+	if (filp-&amp;gt;f_mode &amp;amp; FMODE_READ)
+		PIPE_READERS(*inode)++;
+	if (filp-&amp;gt;f_mode &amp;amp; FMODE_WRITE)
+		PIPE_WRITERS(*inode)++;
+	up(PIPE_SEM(*inode));
+
+	return 0;
+}
+
+/*
+ * The file_operations structs are not static because they
+ * are also used in linux/fs/fifo.c to do operations on FIFOs.
+ */
+struct file_operations read_fifo_fops = {
+	llseek:		no_llseek,
+	read:		pipe_read,
+	write:		bad_pipe_w,
+	poll:		fifo_poll,
+	ioctl:		pipe_ioctl,
+	open:		pipe_read_open,
+	release:	pipe_read_release,
+};
+
+struct file_operations write_fifo_fops = {
+	llseek:		no_llseek,
+	read:		bad_pipe_r,
+	write:		pipe_write,
+	poll:		fifo_poll,
+	ioctl:		pipe_ioctl,
+	open:		pipe_write_open,
+	release:	pipe_write_release,
+};
+
+struct file_operations rdwr_fifo_fops = {
+	llseek:		no_llseek,
+	read:		pipe_read,
+	write:		pipe_write,
+	poll:		fifo_poll,
+	ioctl:		pipe_ioctl,
+	open:		pipe_rdwr_open,
+	release:	pipe_rdwr_release,
+};
+
+struct file_operations read_pipe_fops = {
+	llseek:		no_llseek,
+	read:		pipe_read,
+	write:		bad_pipe_w,
+	poll:		pipe_poll,
+	ioctl:		pipe_ioctl,
+	open:		pipe_read_open,
+	release:	pipe_read_release,
+};
+
+struct file_operations write_pipe_fops = {
+	llseek:		no_llseek,
+	read:		bad_pipe_r,
+	write:		pipe_write,
+	poll:		pipe_poll,
+	ioctl:		pipe_ioctl,
+	open:		pipe_write_open,
+	release:	pipe_write_release,
+};
+
+struct file_operations rdwr_pipe_fops = {
+	llseek:		no_llseek,
+	read:		pipe_read,
+	write:		pipe_write,
+	poll:		pipe_poll,
+	ioctl:		pipe_ioctl,
+	open:		pipe_rdwr_open,
+	release:	pipe_rdwr_release,
+};
+
+struct inode* pipe_new(struct inode* inode)
+{
+	unsigned long page;
+
+	page = __get_free_page(GFP_USER);
+	if (!page)
+		return NULL;
+
+	inode-&amp;gt;i_pipe = kmalloc(sizeof(struct pipe_inode_info), GFP_KERNEL);
+	if (!inode-&amp;gt;i_pipe)
+		goto fail_page;
+
+	init_waitqueue_head(PIPE_WAIT(*inode));
+	PIPE_BASE(*inode) = (char*) page;
+	PIPE_START(*inode) = PIPE_LEN(*inode) = 0;
+	PIPE_READERS(*inode) = PIPE_WRITERS(*inode) = 0;
+	PIPE_WAITING_READERS(*inode) = PIPE_WAITING_WRITERS(*inode) = 0;
+	PIPE_RCOUNTER(*inode) = PIPE_WCOUNTER(*inode) = 1;
+
+	return inode;
+fail_page:
+	free_page(page);
+	return NULL;
+}
+
+static struct vfsmount *pipe_mnt;
+static int pipefs_delete_dentry(struct dentry *dentry)
+{
+	return 1;
+}
+static struct dentry_operations pipefs_dentry_operations = {
+	d_delete:	pipefs_delete_dentry,
+};
+
+static struct inode * get_pipe_inode(void)
+{
+	struct inode *inode = new_inode(pipe_mnt-&amp;gt;mnt_sb);
+
+	if (!inode)
+		goto fail_inode;
+
+	if(!pipe_new(inode))
+		goto fail_iput;
+	PIPE_READERS(*inode) = PIPE_WRITERS(*inode) = 1;
+	inode-&amp;gt;i_fop = &amp;amp;rdwr_pipe_fops;
+
+	/*
+	 * Mark the inode dirty from the very beginning,
+	 * that way it will never be moved to the dirty
+	 * list because &amp;quot;mark_inode_dirty()&amp;quot; will think
+	 * that it already _is_ on the dirty list.
+	 */
+	inode-&amp;gt;i_state = I_DIRTY;
+	inode-&amp;gt;i_mode = S_IFIFO | S_IRUSR | S_IWUSR;
+	inode-&amp;gt;i_uid = current-&amp;gt;fsuid;
+	inode-&amp;gt;i_gid = current-&amp;gt;fsgid;
+	inode-&amp;gt;i_atime = inode-&amp;gt;i_mtime = inode-&amp;gt;i_ctime = CURRENT_TIME;
+	inode-&amp;gt;i_blksize = PAGE_SIZE;
+	return inode;
+
+fail_iput:
+	iput(inode);
+fail_inode:
+	return NULL;
+}
+
+int do_pipe(int *fd)
+{
+	struct qstr this;
+	char name[32];
+	struct dentry *dentry;
+	struct inode * inode;
+	struct file *f1, *f2;
+	int error;
+	int i,j;
+
+	error = -ENFILE;
+	f1 = get_empty_filp();
+	if (!f1)
+		goto no_files;
+
+	f2 = get_empty_filp();
+	if (!f2)
+		goto close_f1;
+
+	inode = get_pipe_inode();
+	if (!inode)
+		goto close_f12;
+
+	error = get_unused_fd();
+	if (error &amp;lt; 0)
+		goto close_f12_inode;
+	i = error;
+
+	error = get_unused_fd();
+	if (error &amp;lt; 0)
+		goto close_f12_inode_i;
+	j = error;
+
+	error = -ENOMEM;
+	sprintf(name, &amp;quot;[%lu]&amp;quot;, inode-&amp;gt;i_ino);
+	this.name = name;
+	this.len = strlen(name);
+	this.hash = inode-&amp;gt;i_ino; /* will go */
+	dentry = d_alloc(pipe_mnt-&amp;gt;mnt_sb-&amp;gt;s_root, &amp;amp;this);
+	if (!dentry)
+		goto close_f12_inode_i_j;
+	dentry-&amp;gt;d_op = &amp;amp;pipefs_dentry_operations;
+	d_add(dentry, inode);
+	f1-&amp;gt;f_vfsmnt = f2-&amp;gt;f_vfsmnt = mntget(mntget(pipe_mnt));
+	f1-&amp;gt;f_dentry = f2-&amp;gt;f_dentry = dget(dentry);
+
+	/* read file */
+	f1-&amp;gt;f_pos = f2-&amp;gt;f_pos = 0;
+	f1-&amp;gt;f_flags = O_RDONLY;
+	f1-&amp;gt;f_op = &amp;amp;read_pipe_fops;
+	f1-&amp;gt;f_mode = 1;
+	f1-&amp;gt;f_version = 0;
+
+	/* write file */
+	f2-&amp;gt;f_flags = O_WRONLY;
+	f2-&amp;gt;f_op = &amp;amp;write_pipe_fops;
+	f2-&amp;gt;f_mode = 2;
+	f2-&amp;gt;f_version = 0;
+
+	fd_install(i, f1);
+	fd_install(j, f2);
+	fd[0] = i;
+	fd[1] = j;
+	return 0;
+
+close_f12_inode_i_j:
+	put_unused_fd(j);
+close_f12_inode_i:
+	put_unused_fd(i);
+close_f12_inode:
+	free_page((unsigned long) PIPE_BASE(*inode));
+	kfree(inode-&amp;gt;i_pipe);
+	inode-&amp;gt;i_pipe = NULL;
+	iput(inode);
+close_f12:
+	put_filp(f2);
+close_f1:
+	put_filp(f1);
+no_files:
+	return error;	
+}
+
+/*
+ * pipefs should _never_ be mounted by userland - too much of security hassle,
+ * no real gain from having the whole whorehouse mounted. So we don&#39;t need
+ * any operations on the root directory. However, we need a non-trivial
+ * d_name - pipe: will go nicely and kill the special-casing in procfs.
+ */
+static int pipefs_statfs(struct super_block *sb, struct statfs *buf)
+{
+	buf-&amp;gt;f_type = PIPEFS_MAGIC;
+	buf-&amp;gt;f_bsize = 1024;
+	buf-&amp;gt;f_namelen = 255;
+	return 0;
+}
+
+static struct super_operations pipefs_ops = {
+	statfs:		pipefs_statfs,
+};
+
+static struct super_block * pipefs_read_super(struct super_block *sb, void *data, int silent)
+{
+	struct inode *root = new_inode(sb);
+	if (!root)
+		return NULL;
+	root-&amp;gt;i_mode = S_IFDIR | S_IRUSR | S_IWUSR;
+	root-&amp;gt;i_uid = root-&amp;gt;i_gid = 0;
+	root-&amp;gt;i_atime = root-&amp;gt;i_mtime = root-&amp;gt;i_ctime = CURRENT_TIME;
+	sb-&amp;gt;s_blocksize = 1024;
+	sb-&amp;gt;s_blocksize_bits = 10;
+	sb-&amp;gt;s_magic = PIPEFS_MAGIC;
+	sb-&amp;gt;s_op	= &amp;amp;pipefs_ops;
+	sb-&amp;gt;s_root = d_alloc(NULL, &amp;amp;(const struct qstr) { &amp;quot;pipe:&amp;quot;, 5, 0 });
+	if (!sb-&amp;gt;s_root) {
+		iput(root);
+		return NULL;
+	}
+	sb-&amp;gt;s_root-&amp;gt;d_sb = sb;
+	sb-&amp;gt;s_root-&amp;gt;d_parent = sb-&amp;gt;s_root;
+	d_instantiate(sb-&amp;gt;s_root, root);
+	return sb;
+}
+
+static DECLARE_FSTYPE(pipe_fs_type, &amp;quot;pipefs&amp;quot;, pipefs_read_super, FS_NOMOUNT);
+
+static int __init init_pipe_fs(void)
+{
+	int err = register_filesystem(&amp;amp;pipe_fs_type);
+	if (!err) {
+		pipe_mnt = kern_mount(&amp;amp;pipe_fs_type);
+		err = PTR_ERR(pipe_mnt);
+		if (IS_ERR(pipe_mnt))
+			unregister_filesystem(&amp;amp;pipe_fs_type);
+		else
+			err = 0;
+	}
+	return err;
+}
+
+static void __exit exit_pipe_fs(void)
+{
+	unregister_filesystem(&amp;amp;pipe_fs_type);
+	mntput(pipe_mnt);
+}
+
+module_init(init_pipe_fs)
+module_exit(exit_pipe_fs)
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>redis主从复制学习笔记</title>
@@ -1029,7 +2313,7 @@ echo `$awk &#39;{count[$0]++}END{for(name in count)print name}&#39; out &amp;gt;
 
 &lt;h2 id=&#34;linux-shell-cocurrency并发控制:98445e76c0e56f8e093561726589792e&#34;&gt;linux shell cocurrency并发控制&lt;/h2&gt;
 
-&lt;p&gt;&lt;a href=&#34;http://blog.sciencenet.cn/blog-548663-750136.html&#34;&gt;Bash脚本实现批量作业并行化&lt;/a&gt;
+&lt;p&gt;&lt;a href=&#34;http://blog.sciencenet.cn/blog-548663-750136.html&#34;&gt;Bash脚本实现批量作业并行化&lt;/a&gt;&lt;br /&gt;
 &lt;a href=&#34;https://pebblesinthesand.wordpress.com/2008/05/22/a-srcipt-for-running-processes-in-parallel-in-bash/&#34;&gt;A script for running processes in parallel in Bash&lt;/a&gt;&lt;/p&gt;
 
 &lt;h2 id=&#34;awk-sed:98445e76c0e56f8e093561726589792e&#34;&gt;awk&amp;amp;sed&lt;/h2&gt;

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title> VFS虚拟文件系统 &middot; BG2BKK Hugo Site </title>
+
+
+<link rel="stylesheet" href="https://bg2bkk.github.io//css/slim.css">
+<link rel="stylesheet" href="https://bg2bkk.github.io//css/highlight.min.css">
+
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+<link rel="shortcut icon" href="/favicon.ico">
+
+
+<link href="" rel="alternate" type="application/rss+xml" title="BG2BKK Hugo Site" />
+
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+  <h1 class="site-title"><a href="https://bg2bkk.github.io/">BG2BKK Hugo Site</a></h1>
+  <p class="site-tagline"></p>
+  <div class="nav">
+    <a class="nav-btn" href="#">
+      <span class="ci ci-burger"></span>
+    </a>
+    <ul class="nav-list">
+       
+	  <li class="spacer">&ac;</li>
+  
+    </ul>
+  </div>
+</div>
+    <div class="content">
+      <div class="posts">
+        <div class="post">
+          <h2 class="post-title"><a href="https://bg2bkk.github.io/post/VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">VFS虚拟文件系统</a></h2>
+          <span class="post-date">Feb 29, 2016 </span>
+          <div class="post-content">
+            
+
+<h1 id="虚拟文件系统:33c34adef684867bc26f32ab644d7c6f">虚拟文件系统</h1>
+
+<ul>
+<li>虚拟文件系统为用户空间程序提供了文件和文件系统的接口</li>
+<li>通过VFS，程序可以通过标准的UNIX系统调用操作不同的文件系统和介质，包括各种软硬件设备</li>
+<li>Linux等现代操作系统引入VFS作为抽象层，极大方便系统调用</li>
+</ul>
+
+<h2 id="unix文件系统:33c34adef684867bc26f32ab644d7c6f">Unix文件系统</h2>
+
+<ul>
+<li>UNIX系统使用了四种和文件系统相关的抽象概念: 文件、目录项、索引结点和挂载点。</li>
+
+<li><p>将文件的相关信息和文件加以区分</p>
+
+<ul>
+<li><strong><em>文件相关信息</em></strong>单独存储在<strong><em>索引结点</em></strong>中，又称为元数据，包括文件的控制权限、文件大小、属主和创建与访问时间等</li>
+<li><strong><em>文件相关信息</em></strong>和<strong><em>文件系统</em></strong>的相关信息密不可分，后者存储在<strong><em>超级块(super block)</em></strong>中，超级块是包含文件系统信息的数据结构。</li>
+<li><strong><em>文件</em></strong>按照索引结点存储在单独的块中，文件系统的控制信息存在超级块中</li>
+</ul></li>
+
+<li><p>VFS中有四个主要对象类型</p>
+
+<ul>
+<li>超级块对象，代表一个具体的已安装的文件系统</li>
+<li>索引结点对象，代表一个具体文件
+
+<ul>
+<li>inode才代表具体文件</li>
+</ul></li>
+<li>目录项对象，代表一个目录项，是路径的组成部分
+
+<ul>
+<li>目录项不是目录，而是一个文件。不存在目录对象</li>
+</ul></li>
+<li>文件对象，代表由进程打开的文件
+
+<ul>
+<li>每个进程都有自己的打开文件列表，文件对象是一个动态生成动态销毁的对象</li>
+</ul></li>
+</ul></li>
+
+<li><p>超级块</p>
+
+<ul>
+<li>超级块对象 super block
+
+<ul>
+<li>用于存储特定文件系统的信息</li>
+<li>通常放在磁盘的<a href="https://support.microsoft.com/zh-cn/kb/100108">特定扇区</a>中，所以被称为超级块对象</li>
+<li>并非基于磁盘的文件系统，内核会现场创建，并保存在内存中</li>
+</ul></li>
+<li>超级块操作
+
+<ul>
+<li>super_operations</li>
+</ul></li>
+</ul></li>
+</ul>
+
+<p><!--   * 超级块操作 super_operations
+        * inode的分配、销毁、读写
+        * 文件系统的挂载、删除--></p>
+
+<ul>
+<li><p>索引结点</p>
+
+<ul>
+<li>索引结点对象 inode
+
+<ul>
+<li>索引结点对象包含了内核在操作文件或目录时的所有信息</li>
+<li>索引结点对象都是在内存中创建的，不会写回硬盘的</li>
+</ul></li>
+<li>索引结点操作
+
+<ul>
+<li>inode_operations</li>
+</ul></li>
+</ul></li>
+
+<li><p>目录项</p>
+
+<ul>
+<li>目录项对象
+
+<ul>
+<li>VFS把目录当做文件对待，解析目录时，将路径中的每个组成部分都是一个索引结点对象，比如&rdquo;/bin/ls&rdquo;中的‘/’、‘bin’和‘ls’。进行路径查找和解析是比较耗时的，为了方便操作，VFS引入了目录项dentry的概念，每个dentry都是路径的组成部分</li>
+<li>目录项对象都是根据字符串形式现场创建的，并没有保存在磁盘</li>
+</ul></li>
+<li>目录项状态
+
+<ul>
+<li>被使用
+
+<ul>
+<li>被使用的dentry对应一个有效的inode，即dentry结构体中d_inode指向的inode</li>
+<li>该对象的引用计数d_count为正，至少有一个使用者，不能随意丢弃</li>
+</ul></li>
+<li>未被使用
+
+<ul>
+<li>未被使用的dentry，其d_inode也指向一个inode，但是d_count为0</li>
+<li>此时该dentry仍然在缓存中，可能会再次使用。不会立刻被释放，但如果系统要回收内存的话，可以被释放回收</li>
+</ul></li>
+<li>负状态
+
+<ul>
+<li>负状态的dentry没有对应的有效inode，原因可能是inode已被删除，或者路径不再正确</li>
+<li>此时将其缓存起来仍然有些用处，比如一个守护进程一直读一个不存在的文件，缓存dentry不至于让进程总是去搜索</li>
+</ul></li>
+</ul></li>
+<li>目录项缓存
+
+<ul>
+<li>遍历路径名中所有元素并逐个解析成dentry，是非常费时费力的，所以内核引入目录项缓存dcache，将目录项对象都缓存起来</li>
+<li>目录项缓存包括
+
+<ul>
+<li>&ldquo;被使用的&rdquo;目录项链表
+
+<ul>
+<li>该链表通过inode中的i_dentry指针连接相关inode</li>
+<li>一个给定的inode可能有多个链接（软硬链接），所有就有可能有多个目录项对象，因此用一个链表链接</li>
+</ul></li>
+<li>&ldquo;最近使用的&rdquo;双向链表
+
+<ul>
+<li>该链表包含所有 未被使用的 和 负状态的 dentry</li>
+<li>总是在表头添加元素，所以回收dentry时从最后开始回收</li>
+</ul></li>
+<li>哈希表和相应的哈希函数
+
+<ul>
+<li>快速将给定路径解析为相关目录项对象</li>
+<li>哈希表由dentry_hashtable数组表示，每个元素都指向一个具有相同键值的目录项对象链表指针</li>
+<li>哈希函数d_hash()</li>
+<li>查找函数d_lookup()</li>
+</ul></li>
+</ul></li>
+</ul></li>
+<li>目录项操作
+
+<ul>
+<li>dentry_operation</li>
+</ul></li>
+</ul></li>
+
+<li><p>文件</p>
+
+<ul>
+<li>文件对象
+
+<ul>
+<li>表示进程已经打开的文件。文件对象是已打开的文件（物理文件）在内存中的表示</li>
+<li>多个进程可以打开同一个物理文件，所以一个物理文件会有多个文件对象</li>
+<li>文件对象指向目录项对象，目录项对象指向索引结点inode</li>
+<li>具体而言，是文件对象filep中的f_dentry指向目录项对象，目录项对象的d_inode指向索引结点inode</li>
+</ul></li>
+<li>文件操作
+
+<ul>
+<li>file_operations</li>
+</ul></li>
+</ul></li>
+
+<li><p>相关数据结构</p>
+
+<ul>
+<li>file_system_type
+
+<ul>
+<li>用于描述各种特定文件系统类型，用于支持不同文件系统</li>
+<li>struct file_system_type {}
+
+<ul>
+<li>get_sb()  从磁盘读取超级块，并在文件系统安装时在内存中组装超级块对象</li>
+</ul></li>
+<li>每个文件系统只有一个</li>
+</ul></li>
+<li>vfsmount
+
+<ul>
+<li>系统挂载时，将有一个vfsmount结构体在挂载点创建，代表文件系统的实例</li>
+<li>struct vfsmount {}
+
+<ul>
+<li>各种链表</li>
+</ul></li>
+</ul></li>
+</ul></li>
+
+<li><p>和进程相关的数据结构</p>
+
+<ul>
+<li>每个进程都有自己的一组打开爱的文件，比如根文件系统、当前工作目录、挂载点等</li>
+<li>struct files_struct {}
+
+<ul>
+<li>该结构提由进程描述符中的files指向，一般都是current-&gt;files</li>
+</ul></li>
+<li>struct fs_struct {}
+
+<ul>
+<li>包含文件系统和进程相关的信息，由fs域指向，一般是current-&gt;fs</li>
+</ul></li>
+
+<li><p>struct namespace {}</p>
+
+<ul>
+<li>使得每个进程在系统中能看到唯一的安装文件系统，mm-&gt;namespace</li>
+</ul></li>
+
+<li><p>每个进程都有指向自己的fs_struct和files_struct，多个进程可能指向同一个，比如通过带有CLONE_FILES和CLONE_FS标志创建的进程（其实是线程），所以这两个struct都有引用计数，以防出错</p></li>
+
+<li><p>而对于namespace来说，除非使用CLONE_NEWS标志创建进程，会创建新的namespace结构体，否则所有进程共享一个namespace</p></li>
+</ul></li>
+</ul>
+
+          </div>
+        </div>
+        <div class="pagination">
+          <a class="btn previous " href="https://bg2bkk.github.io/post/list%E9%93%BE%E8%A1%A8%E9%87%87%E7%94%A8%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E8%AE%BF%E9%97%AE%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9/"> Prev</a>  
+          <a class="btn next " href="https://bg2bkk.github.io/post/pipe%E5%9C%A8%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/"> Next</a> 
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer">
+  <p>Powered by <a href="http://gohugo.io">Hugo</a>. This theme—Slim—is open sourced on <a href="https://github.com/zhe/hugo-theme-slim">Github</a>.</p>
+</div>
+
+  </div>
+  <script src="https://bg2bkk.github.io//js/slim.js"></script>
+  <script src="https://bg2bkk.github.io//js/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad();
+  </script>
+  
+</body>
+
+</html>
