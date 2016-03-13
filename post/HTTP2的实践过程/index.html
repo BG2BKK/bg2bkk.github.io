@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title> HTTP2的实践过程 &middot; BG2BKK Hugo Site </title>
+
+
+<link rel="stylesheet" href="https://bg2bkk.github.io//css/slim.css">
+<link rel="stylesheet" href="https://bg2bkk.github.io//css/highlight.min.css">
+
+
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144-precomposed.png">
+<link rel="shortcut icon" href="/favicon.ico">
+
+
+<link href="" rel="alternate" type="application/rss+xml" title="BG2BKK Hugo Site" />
+
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+  <h1 class="site-title"><a href="https://bg2bkk.github.io/">BG2BKK Hugo Site</a></h1>
+  <p class="site-tagline"></p>
+  <div class="nav">
+    <a class="nav-btn" href="#">
+      <span class="ci ci-burger"></span>
+    </a>
+    <ul class="nav-list">
+       
+	  <li class="spacer">&ac;</li>
+  
+    </ul>
+  </div>
+</div>
+    <div class="content">
+      <div class="posts">
+        <div class="post">
+          <h2 class="post-title"><a href="https://bg2bkk.github.io/post/HTTP2%E7%9A%84%E5%AE%9E%E8%B7%B5%E8%BF%87%E7%A8%8B/">HTTP2的实践过程</a></h2>
+          <span class="post-date">Mar 12, 2016 </span>
+          <div class="post-content">
+            
+
+<h1 id="http-2实践过程:7c9d76473bce6d4e5d302b3b042a765b">HTTP/2实践过程</h1>
+
+<h2 id="目录:7c9d76473bce6d4e5d302b3b042a765b">目录</h2>
+
+<ul>
+<li>前言</li>
+<li>基于openssl自建证书
+
+<ul>
+<li>CentOS</li>
+<li>Ubuntu</li>
+</ul></li>
+<li>nginx的支持HTTP/2的patch</li>
+<li>nghttp2安装，配置，使用
+
+<ul>
+<li>nghttpd作为http2 server</li>
+<li>nghttp作为http2 client</li>
+<li>nghttpx作为proxy，转向nginx后端</li>
+<li>h2load作为压测工具</li>
+</ul></li>
+</ul>
+
+<h2 id="前言:7c9d76473bce6d4e5d302b3b042a765b">前言</h2>
+
+<ul>
+<li>在研究HTTP/2协议时，常常和https协议混在一起，而二者之间的关系是怎样的呢？</li>
+<li>现有的http2 server中，nginx基于1.9.*有HTTP/2协议的patch，还有nghttp2 server，已经有人运行在个人博客做前端。</li>
+</ul>
+
+<p>只说实践过程，作为记录。</p>
+
+<p>关于涉及到的概念等，需要在别的文档中写。</p>
+
+<h2 id="基于openssl自建证书:7c9d76473bce6d4e5d302b3b042a765b">基于openssl自建证书</h2>
+
+<p>在线上配置HTTPS时，需要从权威CA申请证书，在nginx中配置证书crt和私钥key。</p>
+
+<pre><code>    listen 8443 ssl;
+    ssl_certificate  /usr/lib/ssl/nginx.crt;
+    ssl_certificate_key /usr/lib/ssl/nginx.key;
+</code></pre>
+
+<p>而在线下调试时，如果需要配置https，则需要自建和签发证书。
+<a href="http://segmentfault.com/a/1190000002569859">基于openssl自建证书</a></p>
+
+<p>###在CentOS系统上自建证书
+1.自建CA，颁发证书</p>
+
+<pre><code class="language-bash">CA首先需要自建证书，作为颁发证书所用的根证书。CA的openssl配置文件/etc/pki/tls/openssl.cnf：
+
+####################################################################
+[ ca ]
+default_ca	= CA_default		# The default ca section
+
+####################################################################
+[ CA_default ]
+
+dir		= /etc/pki/CA		# Where everything is kept
+certs		= $dir/certs		# Where the issued certs are kept
+crl_dir		= $dir/crl		# Where the issued crl are kept
+database	= $dir/index.txt	# database index file.
+#unique_subject	= no			# Set to 'no' to allow creation of
+					# several ctificates with same subject.
+new_certs_dir	= $dir/newcerts		# default place for new certs.
+
+certificate	= $dir/cacert.pem 	# The CA certificate
+serial		= $dir/serial 		# The current serial number
+crlnumber	= $dir/crlnumber	# the current crl number
+					# must be commented out to leave a V1 CRL
+crl		= $dir/crl.pem 		# The current CRL
+private_key	= $dir/private/cakey.pem# The private key
+RANDFILE	= $dir/private/.rand	# private random number file
+
+x509_extensions	= usr_cert		# The extentions to add to the cert
+
+# Comment out the following two lines for the &quot;traditional&quot;
+# (and highly broken) format.
+name_opt 	= ca_default		# Subject Name options
+cert_opt 	= ca_default		# Certificate field options
+
+
+
+default_days	= 365			# how long to certify for
+default_crl_days= 30			# how long before next CRL
+default_md	= default		# use public key default MD
+preserve	= no			# keep passed DN ordering
+
+policy		= policy_match
+
+# For the CA policy
+[ policy_match ]
+countryName		= match
+stateOrProvinceName	= match
+organizationName	= match
+organizationalUnitName	= optional
+commonName		= supplied
+emailAddress		= optional
+...
+</code></pre>
+
+<p>其中我们可以看到根地址在/etc/pki/CA下，且指明了CA证书certificate是该目录下的cacert.pem，私钥在private/cakey.pem中，CA需要匹配countryName、stateOrProvinceName和organizationName，且commonName需要提供，这点比较重要。</p>
+
+<pre><code class="language-bash">在/etc/pki/CA下创建初始文件
+
+# touch serial index.txt
+# echo 01 &gt; serial
+</code></pre>
+
+<p>2.生成根密钥
+```bash	</p>
+
+<h1 id="cd-etc-pki-ca:7c9d76473bce6d4e5d302b3b042a765b">cd /etc/pki/CA</h1>
+
+<h1 id="openssl-genrsa-out-private-cakey-pem-2048:7c9d76473bce6d4e5d302b3b042a765b">openssl genrsa -out private/cakey.pem 2048</h1>
+
+<p>```	
+3.生成根证书</p>
+
+<p>```bash	
+使用req指令，通过私钥，生成自签证书</p>
+
+<h1 id="openssl-req-new-x509-key-private-cakey-pem-out-cacert-pem:7c9d76473bce6d4e5d302b3b042a765b">openssl req -new -x509 -key private/cakey.pem -out cacert.pem</h1>
+
+<p>You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,</p>
+
+<h2 id="if-you-enter-the-field-will-be-left-blank:7c9d76473bce6d4e5d302b3b042a765b">If you enter &lsquo;.&rsquo;, the field will be left blank.</h2>
+
+<p>Country Name (2 letter code) [XX]:CN
+State or Province Name (full name) []:BeiJing
+Locality Name (eg, city) [Default City]:
+Organization Name (eg, company) [Default Company Ltd]:
+Organizational Unit Name (eg, section) []:
+Common Name (eg, your name or your server&rsquo;s hostname) []:root
+Email Address []:
+```	
+4.为nginx server生成密钥</p>
+
+<pre><code class="language-bash"># mkdir /data/zhendong/nginx_ssl
+# openssl genrsa -out nginx.key 2048
+</code></pre>
+
+<p>5.为nginx生成 证书签署请求</p>
+
+<pre><code class="language-bash"># openssl req -new -key nginx.key -out nginx.csr
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [XX]:CN
+State or Province Name (full name) []:BeiJing
+Locality Name (eg, city) [Default City]:
+Organization Name (eg, company) [Default Company Ltd]:
+Organizational Unit Name (eg, section) []:
+Common Name (eg, your name or your server's hostname) []:localhost
+Email Address []:
+
+Please enter the following 'extra' attributes
+to be sent with your certificate request
+A challenge password []:
+An optional company name []:
+
+Common Name填成nginx server的server_name用来访问。
+在openssl.cnf中需要match的项目，一定要一样。
+</code></pre>
+
+<p>6.向CA请求证书</p>
+
+<pre><code class="language-bash"># openssl ca -in nginx.csr -out nginx.crt
+如果失败，可以尝试以下命令
+
+openssl x509 -req -in nginx.csr -CA /etc/pki/CA/cacert.pem -CAkey /etc/pki/CA/private/cakey.pem -CAcreateserial -out nginx.crt
+</code></pre>
+
+<p>7.配置nginx</p>
+
+<pre><code class="language-bash">        listen 8443 ssl ;
+        ssl_certificate  /data1/zhendong/nginx_ssl/nginx.crt;
+        ssl_certificate_key /data1/zhendong/nginx_ssl/nginx.key;
+</code></pre>
+
+<p>8.通过curl访问</p>
+
+<pre><code class="language-bash"># curl --cacert /etc/pki/CA/cacert.pem https://localhost:8443/
+this is abtesting server
+
+# curl --cacert /etc/pki/CA/cacert.pem https://127.0.0.1:8443/
+curl: (51) SSL: certificate subject name 'localhost' does not match target host name '127.0.0.1'
+</code></pre>
+
+<p>###在Ubuntu系统上自建证书
+Ubuntu系统与CentOS的不同之处在于软件包管理不同，当克服这部分不同后，就可以执行与CentOS系统一样的操作。</p>
+
+<p>首先Ubuntu的openssl目录在<strong>/usr/lib/ssl</strong>下，而实际上这是一个软链接。</p>
+
+<pre><code class="language-bash">huang@ThinkPad-X220:/usr/lib/ssl$ ll /usr/lib/ssl/ total 52
+drwxr-xr-x   3 root root  4096  8月 27 12:18 ./
+drwxr-xr-x 238 root root 40960  8月 26 11:18 ../
+lrwxrwxrwx   1 root root    14  2月  4  2015 certs -&gt; /etc/ssl/certs/
+drwxr-xr-x   2 root root  4096  7月  8 14:34 misc/
+lrwxrwxrwx   1 root root    20  6月 11 23:35 openssl.cnf -&gt; /etc/ssl/openssl.cnf
+lrwxrwxrwx   1 root root    16  2月  4  2015 private -&gt; /etc/ssl/private/
+</code></pre>
+
+<p>不管怎样，我们的工作将在<strong>/usr/lib/ssl</strong>进行。</p>
+
+<pre><code class="language-bash">/usr/lib/ssl/openssl.cnf内容如下：
+####################################################################
+[ ca ]
+default_ca	= CA_default		# The default ca section
+
+####################################################################
+[ CA_default ]
+
+dir		= ./demoCA		# Where everything is kept
+certs		= $dir/certs		# Where the issued certs are kept
+crl_dir		= $dir/crl		# Where the issued crl are kept
+database	= $dir/index.txt	# database index file.
+#unique_subject	= no			# Set to 'no' to allow creation of
+					# several ctificates with same subject.
+new_certs_dir	= $dir/newcerts		# default place for new certs.
+
+certificate	= $dir/cacert.pem 	# The CA certificate
+serial		= $dir/serial 		# The current serial number
+crlnumber	= $dir/crlnumber	# the current crl number
+					# must be commented out to leave a V1 CRL
+crl		= $dir/crl.pem 		# The current CRL
+private_key	= $dir/private/cakey.pem# The private key
+RANDFILE	= $dir/private/.rand	# private random number file
+
+x509_extensions	= usr_cert		# The extentions to add to the cert
+</code></pre>
+
+<p>从配置文件中看到，我们需要在<strong>/usr/lib/ssl</strong>下建立<strong>demoCA</strong>目录以及其他。</p>
+
+<pre><code class="language-bash"># cd /usr/lib/ssl
+# mkdir demoCA
+# mkdir demoCA/newcerts
+# mkdir demoCA/private
+</code></pre>
+
+<p>余下的操作将与在CentOS系统上没有区别。最后执行情况为：</p>
+
+<pre><code class="language-bash"># curl --cacert /usr/lib/ssl/demoCA/cacert.pem https://localhost:8443
+this is abtesting server
+</code></pre>
+
+<h2 id="nginx的支持http-2的patch:7c9d76473bce6d4e5d302b3b042a765b">nginx的支持HTTP/2的patch</h2>
+
+<p>nginx在8月份的时候从1.9.3版本推出了支持HTTP/2的<a href="http://nginx.org/patches/http2/">patch</a>，使用时与标准nginx并无区别。</p>
+
+<pre><code class="language-bash"># cd nginx-1.9.4/
+# patch -p1 &lt; patch.http2-v3_1.9.4.txt  
+# ./configure --with-http_v2_module --with-http_ssl_module
+# make
+# make install
+</code></pre>
+
+<p>支持http2的nginx关键配置为</p>
+
+<pre><code class="language-bash">	listen 8443 http2;
+</code></pre>
+
+<p>只需要在listen后加http2就可以了。目前curl在基于nghttp2提供的HTTP/2库后，可以支持访问http2的server，但是目前没有配置成功，所以对支持http2的nginx进行访问的工作，将在介绍完nghttp2后一并记录。</p>
+
+<h2 id="nghttp2安装-配置-使用:7c9d76473bce6d4e5d302b3b042a765b">nghttp2安装，配置，使用</h2>
+
+<p><a href="https://github.com/tatsuhiro-t/nghttp2">nghttp2</a>是由tatsuhiro开发的，之前的spdylay也是他开发的，一直走在http2.0的前列。nghttp2包括了HTTP/2.0的库，基于这个库tatsu实现了HTTP/2.0的server、client和压测工具h2load。</p>
+
+<p>由于nghttp2所依赖的库太新了，目前只在Ubuntu系统成功安装。安装过程：</p>
+
+<pre><code class="language-bash">	$ autoreconf -i
+	$ automake
+	$ autoconf
+	$ ./configure
+	$ make
+```	
+其中**./configure**的结果非常重要
+```bash
+    Version:        1.2.2-DEV shared 14:8:0
+    Host type:      x86_64-unknown-linux-gnu
+    Install prefix: /usr/local
+    C compiler:     gcc
+    CFLAGS:         -g -O2
+    WARNCFLAGS:     
+    LDFLAGS:        
+    LIBS:           
+    CPPFLAGS:       
+    C preprocessor: gcc -E
+    C++ compiler:   g++
+    CXXFLAGS:       -g -O2 -std=c++11
+    CXXCPP:         g++ -E
+    Library types:  Shared=yes, Static=yes
+    Python:
+      Python:         /usr/bin/python
+      PYTHON_VERSION: 2.7
+      pyexecdir:      ${exec_prefix}/lib/python2.7/dist-packages
+      Python-dev:     yes
+      PYTHON_CPPFLAGS:-I/usr/include/python2.7
+      PYTHON_LDFLAGS: -L/usr/lib -lpython2.7
+      Cython:         cython
+    Test:
+      CUnit:          yes
+      Failmalloc:     yes
+    Libs:
+      OpenSSL:        yes
+      Libxml2:        yes
+      Libev:          yes
+      Libevent(SSL):  yes
+      Spdylay:        yes
+      Jansson:        yes
+      Jemalloc:       yes
+      Zlib:           yes
+      Boost CPPFLAGS: 
+      Boost LDFLAGS:  
+      Boost::ASIO:    
+      Boost::System:  
+      Boost::Thread:  
+    Features:
+      Applications:   yes
+      HPACK tools:    yes
+      Libnghttp2_asio:no
+      Examples:       yes
+      Python bindings:yes
+      Threading:      yes
+      Third-party:    yes
+</code></pre>
+
+<p>编译帮助文档</p>
+
+<pre><code>make html
+</code></pre>
+
+<p>###nghttpd作为http2 server</p>
+
+<p>http2-no-tls</p>
+
+<pre><code>nghttpd -v 8080   -n 24 --no-tls -d ~/workspace/Nginx_ABTesting/utils/html/ 
+</code></pre>
+
+<p>http2-with-tls</p>
+
+<pre><code>nghttpd -v 8080 -n 24 /usr/lib/ssl/nginx.key /usr/lib/ssl/nginx.crt -d ~/workspace/Nginx_ABTesting/utils/html/  
+</code></pre>
+
+<p>关于nghttpd的选项，其实可以与nginx配置做到一一对照的。目前对nghttpd的源码及实现了解的比较少，因其日本人的过于C++代码的风格实在晦涩难懂，所以很少做调优。</p>
+
+<p>###nghttp作为http2 client</p>
+
+<p>http2-client-no-tls</p>
+
+<pre><code>nghttp http://127.0.0.1:8080
+</code></pre>
+
+<p>http2-client-with-tls</p>
+
+<pre><code>nghttp --cert /usr/lib/ssl/demoCA/cacert.pem https://127.0.0.1:8080
+
+nghttp https://127.0.0.1:8080
+</code></pre>
+
+<p>经过使用，nghttp也可以对nginx发出http2请求并成功返回。</p>
+
+<p>通过strace和阅读源码，nghttp（包括压测工具h2load）作为client时，会读取系统的证书/usr/lib/ssl/demoCA/cacert.pem，因此可以不用指定。
+###nghttpx作为proxy，转向nginx后端</p>
+
+<p>client ——&gt; http2-proxy-no-tls ——&gt; http1.1 upstream(nginx):</p>
+
+<pre><code># nghttpx -f127.0.0.1,8080 -b127.0.0.1,8022 --frontend-no-tls
+
+# curl 127.0.0.1:8022
+this is beta3 server
+
+# nghttp http://127.0.0.1:8080
+this is beta3 server
+</code></pre>
+
+<p>client ——&gt; http2-proxy-with-tls ——&gt; http1.1 upstream(nginx):</p>
+
+<pre><code># nghttpx -f127.0.0.1,8080 -b127.0.0.1,8022 /usr/lib/ssl/nginx.key /usr/lib/ssl/nginx.crt
+
+# nghttp https://127.0.0.1:8080
+this is beta3 server
+</code></pre>
+
+<p>采用nginx-http2作为proxy，使用方法与nginx-http1.1没有区别。</p>
+
+<p>###h2load作为压测工具</p>
+
+<pre><code class="language-bash"># h2load -n100 -c10 -t4  https://127.0.0.1:8080
+starting benchmark...
+spawning thread #0: 3 concurrent clients, 25 total requests
+spawning thread #1: 3 concurrent clients, 25 total requests
+spawning thread #2: 2 concurrent clients, 25 total requests
+spawning thread #3: 2 concurrent clients, 25 total requests
+Protocol: TLSv1.2
+Cipher: ECDHE-RSA-AES128-GCM-SHA256
+progress: 8% done
+progress: 16% done
+progress: 24% done
+progress: 32% done
+progress: 40% done
+progress: 48% done
+progress: 56% done
+progress: 64% done
+progress: 72% done
+progress: 80% done
+progress: 88% done
+progress: 96% done
+
+finished in 67.29ms, 1486 req/s, 111.02KB/s
+requests: 100 total, 100 started, 100 done, 100 succeeded, 0 failed, 0 errored
+status codes: 100 2xx, 0 3xx, 0 4xx, 0 5xx
+traffic: 7650 bytes total, 3450 bytes headers, 2100 bytes data
+                     min         max         mean         sd        +/- sd
+time for request:      343us      8.76ms      1.40ms      1.49ms    91.00%
+</code></pre>
+
+<p>h2load的使用与wrk没有区别，参数都是一样的。</p>
+
+<p>根据不同配置，我们有以下几种场景：</p>
+
+<pre><code class="language-bash">server/proxy			https
+
+nginx-http/1.1			with-tls
+nginx-http/2			no-tls
+nghttpd
+</code></pre>
+
+<p>相结合，压测场景比较多。幸运的是，不论server是nginx还是nghttpd，其参数和调优都可以指定，比如线程数；不论wrk还是h2load，参数也可以指定，使用起来区别不大。</p>
+
+          </div>
+        </div>
+        <div class="pagination"> 
+          <a class="btn next " href="https://bg2bkk.github.io/post/shadowsocks%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%89%8B%E5%8A%A8%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97/"> Next</a> 
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer">
+  <p>Powered by <a href="http://gohugo.io">Hugo</a>. This theme—Slim—is open sourced on <a href="https://github.com/zhe/hugo-theme-slim">Github</a>.</p>
+</div>
+
+  </div>
+  <script src="https://bg2bkk.github.io//js/slim.js"></script>
+  <script src="https://bg2bkk.github.io//js/highlight.min.js"></script>
+  <script>
+    hljs.initHighlightingOnLoad();
+  </script>
+  
+</body>
+
+</html>
