@@ -1,0 +1,3287 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on CoderZh Blog</title>
+    <link>http://bg2bkk.github.io/post/</link>
+    <description>Recent content in Posts on CoderZh Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <copyright>Copyright (c) 2015. All rights reserved.</copyright>
+    <lastBuildDate>Thu, 24 Mar 2016 16:36:33 +0800</lastBuildDate>
+    <atom:link href="http://bg2bkk.github.io/post/feed/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>effective tips in daily work</title>
+      <link>http://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</link>
+      <pubDate>Thu, 24 Mar 2016 16:36:33 +0800</pubDate>
+      
+      <guid>http://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</guid>
+      <description>
+
+&lt;h2 id=&#34;ubuntu操作-挂载-格式化sd卡:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;ubuntu操作、挂载、格式化SD卡&lt;/h2&gt;
+
+&lt;p&gt;玩树莓派等板子的时候，需要从host机器将os镜像烧进sd卡，然后启动。那么ubuntu如何操作呢？&lt;/p&gt;
+
+&lt;p&gt;fdisk -l命令可以用来查看系统中的存储硬件&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;
+
+Disk /dev/sda: 111.8 GiB, 120034123776 bytes, 234441648 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: gpt
+Disk identifier: C27256BB-CE04-48C2-96F4-8F79FAE2AE87
+
+Device     Start       End   Sectors   Size Type
+/dev/sda1   2048 234440703 234438656 111.8G Linux filesystem
+
+
+Disk /dev/sdb: 167.7 GiB, 180045766656 bytes, 351651888 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x42b438a2
+
+Device     Boot     Start       End   Sectors  Size Id Type
+/dev/sdb1  *         2048 105887743 105885696 50.5G  7 HPFS/NTFS/exFAT
+/dev/sdb2       105887744 187807665  81919922 39.1G 83 Linux
+/dev/sdb3       187807744 228767743  40960000 19.5G  7 HPFS/NTFS/exFAT
+/dev/sdb4       228769790 351649791 122880002 58.6G  f W95 Ext&#39;d (LBA)
+/dev/sdb5       228769792 351649791 122880000 58.6G  7 HPFS/NTFS/exFAT
+
+
+Disk /dev/sdc: 14.9 GiB, 16021192704 bytes, 31291392 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x00000000
+
+Device     Boot Start      End  Sectors  Size Id Type
+/dev/sdc1        8192 31291391 31283200 14.9G  c W95 FAT32 (LBA)
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如果sd卡（tf卡）通过usb 读卡器接入电脑，则会显示为 /dev/sdc&lt;/p&gt;
+
+&lt;p&gt;如果是标准sd卡（大卡），则会显示为 /dev/mmblck0&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;
+Disk /dev/mmcblk0: 14.9 GiB, 16021192704 bytes, 31291392 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x00000000
+
+Device         Boot Start      End  Sectors  Size Id Type
+/dev/mmcblk0p1       8192 31291391 31283200 14.9G  c W95 FAT32 (LBA)
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;推荐使用USB读卡器，速度较为快一些。&lt;/p&gt;
+
+&lt;h2 id=&#34;lua库文件的加载路径:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;Lua库文件的加载路径&lt;/h2&gt;
+
+&lt;p&gt;Lua 提供一个名为 &lt;a href=&#34;http://www.lua.org/manual/5.1/manual.html#pdf-require&#34;&gt;require&lt;/a&gt; 的函数来加载模块，使用也很简单，它只有一个参数，这个参数就是要指定加载的模块名，&lt;a href=&#34;http://dhq.me/lua-learning-notes-package-and-module&#34;&gt;例如&lt;/a&gt;：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-lua&#34;&gt;require(&amp;quot;&amp;lt;模块名&amp;gt;&amp;quot;)
+-- 或者是
+-- require &amp;quot;&amp;lt;模块名&amp;gt;&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;然后会返回一个由模块常量或函数组成的 table，并且还会定义一个包含该 table 的全局变量。&lt;/p&gt;
+
+&lt;p&gt;或者给加载的模块定义一个别名变量，方便调用：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-lua&#34;&gt;local m = require(&amp;quot;module&amp;quot;)
+print(m.constant)
+m.func3()
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;对于自定义的模块，模块文件不是放在哪个文件目录都行，函数 require 有它自己的文件路径加载策略，它会尝试从 Lua 文件或 C 程序库中加载模块。&lt;/p&gt;
+
+&lt;p&gt;require 用于搜索 Lua 文件的路径是存放在全局变量 package.path 中，当 Lua 启动后，会以环境变量 LUA_PATH 的值来初始这个环境变量。如果没有找到该环境变量，则使用一个编译时定义的默认路径来初始化。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;
+Lua 5.1.5  Copyright (C) 1994-2012 Lua.org, PUC-Rio
+&amp;gt;  print(package.path)
+~/lua/?.lua;/usr/local/share/lua/5.1/?.lua;/home/huang/workspace/luactor/?.lua;./?.lua;/usr/local/share/lua/5.1/?.lua;/usr/local/share/lua/5.1/?/init.lua;/usr/local/lib/lua/5.1/?.lua;/usr/local/lib/lua/5.1/?/init.lua;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如果没有 LUA_PATH 这个环境变量，也可以自定义设置&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;huang@ThinkPad-X220:~/workspace/luapkg/luasocket-2.0.2$ export LUA_PATH=&amp;quot;4;;&amp;quot;
+huang@ThinkPad-X220:~/workspace/luapkg/luasocket-2.0.2$ lua
+Lua 5.1.5  Copyright (C) 1994-2012 Lua.org, PUC-Rio
+&amp;gt;  print(package.path)
+4;./?.lua;/usr/local/share/lua/5.1/?.lua;/usr/local/share/lua/5.1/?/init.lua;/usr/local/lib/lua/5.1/?.lua;/usr/local/lib/lua/5.1/?/init.lua;
+&amp;gt; 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;可以看到，随便加的环境变量&amp;rdquo;4;&amp;ldquo;写在了package.path中。&lt;/p&gt;
+
+&lt;p&gt;而为什么4需要两个&amp;rsquo;；&amp;rsquo;号呢：文件路径以 &amp;ldquo;;&amp;rdquo; 号分隔，最后的 2 个 &amp;ldquo;;;&amp;rdquo; 表示新加的路径后面加上原来的默认路径。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;huang@ThinkPad-X220:~/workspace/luapkg/luasocket-2.0.2$ export LUA_PATH=&amp;quot;4;&amp;quot;
+huang@ThinkPad-X220:~/workspace/luapkg/luasocket-2.0.2$ lua
+Lua 5.1.5  Copyright (C) 1994-2012 Lua.org, PUC-Rio
+&amp;gt; print(package.path)
+4;
+&amp;gt; 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;可见如果只有一个；号，将只采用这个分号。&lt;/p&gt;
+
+&lt;p&gt;如果找过目标文件，则会调用 package.loadfile 来加载模块。否则，就会去找 C 程序库。搜索的文件路径是从全局变量 package.cpath 获取，而这个变量则是通过环境变量 LUA_CPATH 来初始。搜索的策略跟上面的一样，只不过现在换成搜索的是 so 或 dll 类型的文件。如果找得到，那么 require 就会通过 package.loadlib 来加载它。&lt;/p&gt;
+
+&lt;p&gt;我们也可以在lua代码中&lt;a href=&#34;https://github.com/rtsisyk/luafun&#34;&gt;动态修改package.path变量&lt;/a&gt;，&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;package.path = &amp;quot;../?.lua;&amp;quot;..package.path
+require &amp;quot;fun&amp;quot;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这点对于我们自己的lua project的设置来说无疑是很方便的。
+&lt;a href=&#34;http://www.runoob.com/lua/lua-modules-packages.html&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;cpp调用c函数:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;cpp调用c函数&lt;/h2&gt;
+
+&lt;p&gt;由于CPP在链接时与C不太一样，因此在调用C函数时，&lt;a href=&#34;http://www.cnblogs.com/skynet/archive/2010/07/10/1774964.html&#34;&gt;需要做一定处理。&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;将C函数的声明房子 &lt;strong&gt;&lt;em&gt;#ifdef __cplusplus&lt;/em&gt;&lt;/strong&gt; 块中&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#ifdef __cplusplus
+extern &amp;quot;C&amp;quot; {
+#endif
+ 
+/*.
+ * c functions declarations
+..*/
+
+#ifdef __cplusplus
+}
+#endif
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;多少人在猜你机器的密码呢:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;多少人在猜你机器的密码呢&lt;/h2&gt;
+
+&lt;p&gt;VPS在公网就是个待宰的肥肉，都想去登陆，那&lt;a href=&#34;https://plus.google.com/+AlbertSu2015/posts/Uu1vbeJY1Hw&#34;&gt;都谁猜我的IP了呢？&lt;/a&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;sudo grep &amp;quot;Failed password for root&amp;quot; /var/log/auth.log | awk &#39;{print $11}&#39; | sort | uniq -c | sort -nr | more
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;grep的简单使用-与-或-非:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;grep的简单使用，与 或 非&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;或操作&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;grep -E &#39;123|abc&#39; filename  // 找出文件（filename）中包含123或者包含abc的行
+egrep &#39;123|abc&#39; filename    // 用egrep同样可以实现
+awk &#39;/123|abc/&#39; filename   // awk 的实现方式
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;与操作&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;grep pattern1 files | grep pattern2 ：显示既匹配 pattern1 又匹配 pattern2 的行。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;其他操作&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;
+grep -i pattern files ：不区分大小写地搜索。默认情况区分大小写，
+grep -l pattern files ：只列出匹配的文件名，
+grep -L pattern files ：列出不匹配的文件名，
+grep -w pattern files ：只匹配整个单词，而不是字符串的一部分（如匹配‘magic’，而不是‘magical’），
+grep -v pattern files ：不匹配pattern
+grep -C number pattern files ：匹配的上下文分别显示[number]行，
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;iptables的简单使用:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;iptables的简单使用&lt;/h2&gt;
+
+&lt;p&gt;其实并不想写iptables相关的内容，因为用的不熟，但是一些常用的命令还是记一下吧&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://linux.cn/article-1586-1.html&#34;&gt;iptables的详细解释&lt;/a&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Linux系统中,防火墙(Firewall),网址转换(NAT),数据包(package)记录,流量统计,这些功能是由Netfilter子系统所提供的，而iptables是控制Netfilter的工具。iptables将许多复杂的规则组织成成容易控制的方式，以便管理员可以进行分组测试，或关闭、启动某组规则。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;https://blog.phpgao.com/vps_iptables.html
+http://www.tabyouto.com/bandwagon-vps-for-shadowsocks-was-hacked.html
+http://my.oschina.net/yqc/blog/82111?fromerr=VxVIazGW
+http://www.vpser.net/security/linux-iptables.html
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# 列出所有规则
+iptables -L -n
+
+# 更新iptables规则，规则写在/etc/iptables.rules
+iptables-restore &amp;lt; /etc/iptables.rules
+
+# 保存iptables规则，规则写在/etc/iptables.rules
+iptables-save &amp;gt; /etc/iptables.rules
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;需要注意的是Debian/Ubuntu上iptables是不会保存规则的。&lt;/p&gt;
+
+&lt;p&gt;需要按如下步骤进行，让网卡关闭是保存iptables规则，启动时加载iptables规则：&lt;/p&gt;
+
+&lt;p&gt;创建/etc/network/if-post-down.d/iptables 文件，添加如下内容：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#!/bin/bash
+iptables-save &amp;gt; /etc/iptables.rules
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;执行：chmod +x /etc/network/if-post-down.d/iptables 添加执行权限。&lt;/p&gt;
+
+&lt;p&gt;创建/etc/network/if-pre-up.d/iptables 文件，添加如下内容：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#!/bin/bash
+iptables-restore &amp;lt; /etc/iptables.rules
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;执行：chmod +x /etc/network/if-pre-up.d/iptables 添加执行权限。&lt;/p&gt;
+
+&lt;p&gt;iptables的一些常用规则：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#允许ping
+iptables -A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;vps简单的ssh登陆设置:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;VPS简单的ssh登陆设置&lt;/h2&gt;
+
+&lt;p&gt;初次使用VPS，不懂得安全的重要性，直到扣款时候才心疼，这个时候，弱口令，密码登陆什么的，还是都放弃吧，只用ssh登陆，并且换一个自己的端口。&lt;a href=&#34;https://imququ.com/post/bandwagon-vps-and-basicly-usage.html&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;简单来说，任何一台主机想登陆VPS的主机都需要有本身的ssh公钥私钥&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;cd ~/.ssh/
+ssh-keygen -t rsa -C &amp;quot;username@gmail.com&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;然后复制~/.ssh/id_rsa.pub中的内容，就是本机的公钥。&lt;/p&gt;
+
+&lt;p&gt;将公钥添加到VPS服务器的/home/username/.ssh/authorized_keys中，本机就能以username用户名登陆VPS了&lt;/p&gt;
+
+&lt;p&gt;然后在/etc/ssh/sshd_config中禁用禁用 VPS 的密码登录和 root 帐号登录，将以下两项改为no&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;PasswordAuthentication no
+PermitRootLogin no
+
+Port 11111
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;随后重启SSH服务&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;sudo service ssh restart
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;vim删除空行:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;vim删除空行&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;从网页上copy下代码后，发现很多情况下有不想要的空行，非常影响阅读，通过&lt;a href=&#34;http://bbs.chinaunix.net/thread-510754-1-1.html&#34;&gt;vim的正则&lt;/a&gt;可以解决
+
+&lt;ul&gt;
+&lt;li&gt;Delete all blank lines (^ is start of line; \s* is zero or more whitespace characters; $ is end of line)&lt;/li&gt;
+&lt;li&gt;删除所有空白行(^是行的开始，\s*是零个或者多个空白字符；$是行尾)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;:g/^\s*$/d
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;ubuntu通过命令设置系统时间:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;ubuntu通过命令设置系统时间&lt;/h2&gt;
+
+&lt;p&gt;在嵌入式开发中，在pcduino或者rpi板子上安装好linux后，系统时间是UTC时间1970年，对于有些软件来说可能影响安装，所以需要命令行修改date&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;sudo date -s &amp;quot;13 DEC 2015 20:43&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;ubuntu终端下中文设置:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;ubuntu终端下中文设置&lt;/h2&gt;
+
+&lt;p&gt;在安装完ubuntu系统后，我们发现中文支持的不好，主要体现在locale的错误，&lt;a href=&#34;http://www.linuxidc.com/Linux/2015-08/122501.htm&#34;&gt;解决方法：&lt;/a&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;perl: warning: Setting locale failed.
+perl: warning: Please check that your locale settings:
+	LANGUAGE = (unset),
+	LC_ALL = (unset),
+	LC_PAPER = &amp;quot;zh_CN.UTF-8&amp;quot;,
+	LC_ADDRESS = &amp;quot;zh_CN.UTF-8&amp;quot;,
+	LC_MONETARY = &amp;quot;zh_CN.UTF-8&amp;quot;,
+	LC_NUMERIC = &amp;quot;zh_CN.UTF-8&amp;quot;,
+	LC_TELEPHONE = &amp;quot;zh_CN.UTF-8&amp;quot;,
+	LC_IDENTIFICATION = &amp;quot;zh_CN.UTF-8&amp;quot;,
+	LC_MEASUREMENT = &amp;quot;zh_CN.UTF-8&amp;quot;,
+	LC_TIME = &amp;quot;zh_CN.UTF-8&amp;quot;,
+	LC_NAME = &amp;quot;zh_CN.UTF-8&amp;quot;,
+	LANG = &amp;quot;en_US.UTF-8&amp;quot;
+    are supported and installed on your system.
+perl: warning: Falling back to the standard locale (&amp;quot;C&amp;quot;).
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这是因为中文包没有安装好的缘故，如下命令就可以解决：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;添加简体中文支持
+sudo apt-get -y install language-pack-zh-hans language-pack-zh-hans-base
+
+添加繁体中文支持
+sudo apt-get -y install language-pack-zh-hant language-pack-zh-hant-base
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如果还不行，先观察下locale的配置&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;huang@localhost:~$ locale
+locale: Cannot set LC_CTYPE to default locale: No such file or directory
+locale: Cannot set LC_MESSAGES to default locale: No such file or directory
+locale: Cannot set LC_ALL to default locale: No such file or directory
+LANG=en_US.UTF-8
+LANGUAGE=
+LC_CTYPE=&amp;quot;en_US.UTF-8&amp;quot;
+LC_NUMERIC=zh_CN.UTF-8
+LC_TIME=zh_CN.UTF-8
+LC_COLLATE=&amp;quot;en_US.UTF-8&amp;quot;
+LC_MONETARY=zh_CN.UTF-8
+LC_MESSAGES=&amp;quot;en_US.UTF-8&amp;quot;
+LC_PAPER=zh_CN.UTF-8
+LC_NAME=zh_CN.UTF-8
+LC_ADDRESS=zh_CN.UTF-8
+LC_TELEPHONE=zh_CN.UTF-8
+LC_MEASUREMENT=zh_CN.UTF-8
+LC_IDENTIFICATION=zh_CN.UTF-8
+LC_ALL=
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;再重新配置下语言包&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;huang@localhost:~$  sudo locale-gen &amp;quot;en_US.UTF-8&amp;quot;
+Generating locales...
+  en_US.UTF-8... done
+Generation complete.
+huang@localhost:~$ sudo  pip install shadowsocks^C
+huang@localhost:~$  sudo locale-gen &amp;quot;zh_CN.UTF-8&amp;quot;
+Generating locales...
+  zh_CN.UTF-8... done
+Generation complete.
+huang@localhost:~$ sudo dpkg-reconfigure locales
+Generating locales...
+  en_US.UTF-8... done
+  zh_CN.UTF-8... up-to-date
+  zh_HK.UTF-8... done
+  zh_SG.UTF-8... done
+  zh_TW.UTF-8... done
+Generation complete.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;一般就都能解决&lt;/p&gt;
+
+&lt;h2 id=&#34;linux终端下的颜色设置输出:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;Linux终端下的颜色设置输出&lt;/h2&gt;
+
+&lt;p&gt;Linux终端下，如果有一个彩色的终端，可以明显提升人的阅读兴趣，通过printf的简单设置即可&lt;a href=&#34;http://www.w2bc.com/Article/39141&#34;&gt;实现彩色输出&lt;/a&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;\033[显示方式;前景色;背景色m
+
+    显示方式、前景色、背景色至少一个存在即可。
+    格式：\033[显示方式;前景色;背景色m
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;前景色  背景色  颜色
+30  40  黑色
+31  41  红色
+32  42  绿色
+33  43  黃色
+34  44  蓝色
+35  45  紫红色
+36  46  青蓝色
+37  47  白色
+
+
+显示方式    意义
+0   终端默认设置
+1   高亮显示
+4   使用下划线
+5   闪烁
+7   反白显示
+8   不可见
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;\033[1;31;40m    &amp;lt;!--1-高亮显示 31-前景色红色  40-背景色黑色--&amp;gt;
+\033[0m          &amp;lt;!--采用终端默认设置，即取消颜色设置--&amp;gt;
+
+printf(&amp;quot;\033[1;31;40m&amp;quot;);
+printf(&amp;quot;\033[0m&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;tsar监控系统负载和nginx运行情况:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;tsar监控系统负载和nginx运行情况&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/alibaba/tsar&#34;&gt;tsar&lt;/a&gt;是阿里巴巴发布的一款能够实时监控系统状态的命令行工具，并且支持第三方模块扩展，其中比较注明的是nginx模块。使用tsar时，可以将系统负载和nginx运行情况同步同时打出，可以用来定位系统瓶颈，所以广受好评。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;tsar -li1&lt;/em&gt;&lt;/strong&gt; 是其最经典的用法，可以将一般我们感兴趣的监控项每秒更新一次并输出&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;Time              ---cpu-- ---mem-- ---tcp-- -----traffic---- --sda---  ---load- 
+Time                util     util   retran    bytin  bytout     util     load1   
+25/03/16-19:03:30   0.08    10.22     0.00     1.4K    1.2K     0.00     0.33  
+25/03/16-19:03:31   0.08    10.21     0.00   424.00  468.00     0.00     0.33   
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如果想使能nginx模块，需要对其进行配置&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;1. mkdir /etc/tsar/conf.d
+2. touch /etc/tsar/conf.d/nginx.conf
+
+3. 写入如下内容并保存
+mod_nginx on
+
+####add it to tsar default output
+output_stdio_mod mod_nginx
+
+####add it to center db
+#output_db_mod mod_nginx
+
+####add it to nagios send
+####set nagios threshold for alert
+#output_nagios_mod mod_nginx
+
+#threshold nginx.value1;N;N;N;N;
+#threshold nginx.value2;N;N;N;N;
+#threshold nginx.value3;N;N;N;N;
+
+表示使能nginx模块，并使用stdio输出
+
+4. tsar -li1
+
+Time              ---cpu-- ---mem-- ---tcp-- -----traffic---- --sda---  ---load- ------------------nginx----------------- 
+Time                util     util   retran    bytin  bytout     util     load1      qps      rt  sslqps  spdyps  sslhst   
+25/03/16-19:06:19   0.08    11.40     7.14   302.00  546.00     0.00     0.02     1.00    0.00    0.00    0.00    0.00   
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;wrk在centos系统上的编译方法:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;wrk在CentOS系统上的编译方法&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/wg/wrk&#34;&gt;wrk&lt;/a&gt;作为一款可以内嵌lua脚本的，支持多线程的压测工具，受到了广泛欢迎。在高版本CentOS 7上，直接在wrk目录下执行make，可以首先编译deps/luajit，得到deps/luajit/libluajit.a，然而在低版本上，CentOS 6.5系统中，会报一些莫名奇妙的错误。&lt;/p&gt;
+
+&lt;p&gt;解决方法是，查看wrk的Makefile，发现wrk依赖于luajit，那么首先进入deps/luajit编译它，并且是静态编译&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;cd wrk
+cd deps/luajit
+make -j24 BUILDMODE=static
+
+cd ../..
+make -j24
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;rpmbuild环境的快速初始化:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;rpmbuild环境的快速初始化&lt;/h2&gt;
+
+&lt;p&gt;需要将代码打包为CentOS的RPM包时，可以先自己在本地新建一个环境&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;1. mkdir -p ~/rpmbuild/{SOURCES,BUILD,BUILDROOT,RPMS,SRPMS,SPECS}
+2. 将代打包的代码压缩包 software.tar.gz 放入SOURCES文件夹
+3. 将 software.spec 放入SPECS文件夹
+4. rpmbuild -ba path/to/software.spec 即可
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;git记住密码-不用每次都输密码才登入:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;git记住密码，不用每次都输密码才登入&lt;/h2&gt;
+
+&lt;p&gt;git有两种方式，一种是ssh方式，配置公钥私钥，对于新手而言还是比较麻烦的；另一种是http方式，这里有一个办法可以让git记住密码，避免每次都需要输入密码&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;1. touch ~/.git-credentials
+2. 将  https://{username}:{password}@github.com  写入该文件
+3. git config --global credential.helper store  就可以使得git记住密码了
+4. 此时查看 ~/.gitconfig，发现多了一项
+    
+    [credential] 
+    helper = store 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;centos系统上某些软件-比如gcc-python等版本过低的解决方案:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;centos系统上某些软件，比如gcc、python等版本过低的解决方案&lt;/h2&gt;
+
+&lt;p&gt;在CentOS Server上，经常会遇到某些软件依赖版本过低的问题，比如CentOS 6.5的python是2.7版本的，gcc是4.2版本的，那么我们如何获得一个干净的、与原版本无冲突的运行环境呢。CentOS系提供了一个叫SCL的工具，可以帮我们实现目的&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ sudo wget http://people.centos.org/tru/devtools-1.1/devtools-1.1.repo -P /etc/yum.repos.d
+$ sudo sh -c &#39;echo &amp;quot;enabled=1&amp;quot; &amp;gt;&amp;gt; /etc/yum.repos.d/devtools-1.1.repo&#39;
+$ sudo yum install devtoolset-1.1
+$ scl enable devtoolset-1.1 bash
+$ gcc --version
+# 通过devtoolset工具可以暂时提高gcc版本，而不更改之前服务器的配置，这个很有效果，高版本的gcc会智能保留symbol。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# CentOS 6.5
+sudo yum install centos-release-SCL
+sudo yum install python27
+scl enable python27 bash
+python --version
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;ubuntu系统上某些软件-比如gcc等版本过高的解决方案:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;ubuntu系统上某些软件，比如gcc等版本过高的解决方案&lt;/h2&gt;
+
+&lt;p&gt;与CentOS相反，debian系发行版的软件版本都很高，Ubuntu 16.04的gcc 版本已经到了5.2，然而编译一些早期linux内核的话，需要gcc-4.7左右的版本，这时候我们怎么办呢，有两个方法：
+* 通过apt安装低版本gcc
+    * sudo apt-get install gcc-4.7
+    * 在编译linux 内核时， make CC=gcc-4.7 即可
+* update-alternatives可以帮忙更改符号链接，指向不同版本的gcc
+    * &lt;a href=&#34;http://www.metsky.com/archives/607.html&#34;&gt;参考链接1&lt;/a&gt;
+    * &lt;a href=&#34;http://blog.csdn.net/zyxlinux888/article/details/6708775&#34;&gt;参考链接2&lt;/a&gt; &lt;a href=&#34;http://blog.csdn.net/zyxlinux888/article/details/6709036&#34;&gt;附赠&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;python的matplotlib库实现绘制图标:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;python的matplotlib库实现绘制图标&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;sudo apt-get install python-matplotlib&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://matplotlib.org/index.html&#34;&gt;参考链接&lt;/a&gt;
+&lt;a href=&#34;http://matplotlib.org/examples/index.html&#34;&gt;example&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;python使用requests库发送http请求:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;python使用requests库发送http请求&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://cn.python-requests.org/zh_CN/latest/user/quickstart.html#json&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;python解析命令行参数-argparse:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;python解析命令行参数：argparse&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://blog.xiayf.cn/2013/03/30/argparse/&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;git比较两次commit的差异:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;git比较两次commit的差异&lt;/h2&gt;
+
+&lt;p&gt;通过比较两次commit的代码差异，能够快速理解此次commit的目的，理解作者意图&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;git log&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;查看commit历史
+```bash
+commit 2279c3f4a8a42e696a0f34e6e9b6289487da92c1
+Author: bg2bkk &lt;a href=&#34;mailto:bg2bkk@gmail.com&#34;&gt;bg2bkk@gmail.com&lt;/a&gt;
+Date:   Sun Mar 13 09:12:26 2016 +0800&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;add SO_REUSEADDR和SO_REUSEPORT.md&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;commit 2b9d85f8427c5ca9e4f9c128c22acd280eb94405
+Author: bg2bkk &lt;a href=&#34;mailto:bg2bkk@gmail.com&#34;&gt;bg2bkk@gmail.com&lt;/a&gt;
+Date:   Sat Mar 12 01:16:00 2016 +0800&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;add 采用二级指针实现单链表操作 单链表翻转 删除单链表结点
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;
+* git diff commit 2279c3f4a8a42e696a0f34e6e9b6289487da92c1 2b9d85f8427c5ca9e4f9c128c22acd280eb94405
+    
+git返回强制返回某次提交
+----------------------------
+
+* git log
+* git reset 5f4769a98985b5acfea45462df27830e51a75145 --hard
+    * 可见commit号很重要
+
+iptables允许端口被外网访问
+------------------------------
+
+防火墙设置，配置1985端口可以被外网访问 
+
+* sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 1985 -j ACCEPT
+
+
+tcpdump过滤指定标志的packet
+------------------------------
+
+```bash
+# tcp包里有个flags字段表示包的类型，tcpdump可以根据该字段抓取相应类型的包：
+# tcp[13] 就是 TCP flags (URG,ACK,PSH,RST,SYN,FIN)
+# Unskilled 32
+# Attackers 16
+# Pester     8
+# Real       4
+# Security   2
+# Folks      1
+
+#抓取fin包：
+tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 1 != 0 &#39; -s0  -w fin.cap -vvv
+#抓取syn+fin包：
+tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 3 != 0 &#39; -s0  -w syn_fin.cap -vvv
+#抓取rst包：
+tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.cap -vvv
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://babyhe.blog.51cto.com/1104064/1395489&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;查看进程的内存占用情况:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;查看进程的内存占用情况&lt;/h2&gt;
+
+&lt;p&gt;用Ternary Search Tree代替Trie Tree后，我想知道我的进程内存占用有多大区别。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;ps -e -o &amp;lsquo;pid,comm,args,pcpu,rsz,vsz,stime,user,uid&amp;rsquo; | grep MyDict&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;rsz是实际占用内存，单位是KB&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;pmap -d pid&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Epoll在Linux Kernel中的新发展</title>
+      <link>http://bg2bkk.github.io/post/Epoll%E5%9C%A8Linux%20Kernel%E4%B8%AD%E7%9A%84%E6%96%B0%E5%8F%91%E5%B1%95/</link>
+      <pubDate>Tue, 22 Mar 2016 01:48:41 +0800</pubDate>
+      
+      <guid>http://bg2bkk.github.io/post/Epoll%E5%9C%A8Linux%20Kernel%E4%B8%AD%E7%9A%84%E6%96%B0%E5%8F%91%E5%B1%95/</guid>
+      <description>
+
+&lt;h1 id=&#34;epoll在linux-内核中的新发展:2c7275fd73bc5bd5e5fdeeeff68a33b3&#34;&gt;EPOLL在linux 内核中的新发展&lt;/h1&gt;
+
+&lt;p&gt;Epoll是linux专有的系统调用，用于快速地高效轮询大规模文件描述符fd。这个API在kernel-2.5版本时就已经合并，并使用至今。即使如此，epoll和其他接口一样，仍然有提升空间。现在有两个patch为epoll系列系统调用添加了新的功能。&lt;/p&gt;
+
+&lt;h2 id=&#34;epoll概述:2c7275fd73bc5bd5e5fdeeeff68a33b3&#34;&gt;epoll概述&lt;/h2&gt;
+
+&lt;p&gt;epoll的功能与select或者poll类似，但是epoll在应对轮询处理大规模文件描述符时拥有更灵活的选项和更高的性能。每次调用select和poll，都会将被轮询的fd集合复制，生成新的fd集合，所以内核需要检查每一个描述符是否合法，是否IO就绪，然后将执行监听的进程添加到相应的唤醒等待队列。但实际上，一般情况下，在两次select或者poll调用之间，有事件产生的fd并不多，所以对每个fd都进行前述流程实际上有很多不必要的重复性操作。Epoll将设置被监听fd和轮询fd是否就绪这两个任务分开，从而解决这一问题。&lt;/p&gt;
+
+&lt;p&gt;使用epoll的话，必须首先新建epoll fd用于轮询，新建epfd通过如下调用：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;    #include &amp;lt;sys/poll.h&amp;gt;
+
+    int epoll_create(int size);
+    int epoll_create1(int flags);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;两者都返回epoll fd，而epoll_create()的size参数已经不再有意义，epoll_create1()的flag参数可以设置epfd的CLOSE_ON_EXEC标志。&lt;/p&gt;
+
+&lt;p&gt;第二步是添加所有被监听的fd，通过调用：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;    int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;参数op是EPOLL_CTL_ADD时，fd将被添加进epfd轮询的fd集合中，event参数用于指定哪个类型的事件被轮询，读事件、写事件或者其他事件，详情参考&lt;a href=&#34;http://man7.org/linux/man-pages/man2/epoll_ctl.2.html&#34;&gt;man page&lt;/a&gt;。&lt;/p&gt;
+
+&lt;p&gt;最后，等待集合中fd是否就绪的工作由以下函数实现：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;    int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout);
+    int epoll_pwait(int epfd, struct epoll_event *events, int maxevents, 
+                                                int timeout, const sigset_t *sigmask);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;有事件发生时，epoll_wait将返回，产生的时间存在参数events中，最多maxevents个事件。如果timeout时间内没有事件发生，epoll_wait也将返回，timeout的单位是ms。epoll_pwait可以使用信号集sigmask来屏蔽特定信号，可以使应用程序安全的等待fd就绪或者捕获信号。二者的关系和select与pselect关系一样。&lt;/p&gt;
+
+&lt;h2 id=&#34;patch-1-epoll-ctl-batch-和-epoll-pwait1:2c7275fd73bc5bd5e5fdeeeff68a33b3&#34;&gt;patch 1：epoll_ctl_batch() 和 epoll_pwait1()&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://lwn.net/Articles/633195/&#34;&gt;Fam Zheng为epoll引入了两个新的系统调用&lt;/a&gt;。&lt;/p&gt;
+
+&lt;p&gt;Fam的第一个系统调用是&lt;strong&gt;&lt;em&gt;epoll_ctl_batch&lt;/em&gt;&lt;/strong&gt;，用来解决一个性能问题：每次调用epoll_ctl，都只能添加、修改和删除一个fd，如果有大量fd需要修改，那么需要调用相应次数的epoll_ctl来实现，这会导致大量系统调用发生，而这个场景却是经常发生的。Fam引入的epoll_ctl_batch()通过在一个系统调用中添加多个fd来解决这个问题：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;    int epoll_ctl_batch(int epfd, int flags, int ncmds, struct epoll_ctl_cmd *cmds);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;结构体epoll_ctl_cmd用于描述一个待添加的事件，可以看作是epoll_ctl参数的一次打包：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;struct epoll_ctl_cmd {
+      /* Reserved flags for future extension, must be 0. */
+      int flags;
+      /* The same as epoll_ctl() op parameter. */
+      int op;
+      /* The same as epoll_ctl() fd parameter. */
+      int fd;
+      /* The same as the &amp;quot;events&amp;quot; field in struct epoll_event. */
+      uint32_t events;
+      /* The same as the &amp;quot;data&amp;quot; field in struct epoll_event. */
+      uint64_t data;
+      /* Output field, will be set to the return code after this
+       * command is executed by kernel */
+      int result;
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;将一个epoll_ctl_cmd数组cmds传入，则epoll_ctl_batch可以在一次系统调用中添加多个fd。&lt;/p&gt;
+
+&lt;p&gt;Fam的第二个系统调用是&lt;strong&gt;&lt;em&gt;epoll_pwait1&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;    struct epoll_wait_params{
+        int clockid;
+        struct timespec timeout;
+        sigset_t *sigmask;
+        size_t sigsetsize;
+    }
+
+    int epoll_pwait(int epfd, int flags, struct epoll_event *events, int maxevents, 
+                                                struct epoll_wait_params *params);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;本版本的epoll_pwait1()添加了一个flags参数，但是并未定义任何flag值，所以flags置为0即可。其他参数，包括时间控制、信号屏蔽设置，都写在params参数中，目的是为应用程序提供更精细的时间控制。对于epoll_wait()来说，毫秒级的时钟分辨率已经被证明在一些场景中过于粗糙，新的系统供调用提供了纳秒级别的精度，解决了这个问题。&lt;/p&gt;
+
+&lt;h2 id=&#34;patch2-多线程环境下更好的性能-解决-惊群-问题:2c7275fd73bc5bd5e5fdeeeff68a33b3&#34;&gt;patch2: 多线程环境下更好的性能，解决“惊群”问题&lt;/h2&gt;
+
+&lt;p&gt;Jason Baron（Akamai公司）主要解决一个相对来说不那么常见的场景下，epoll现有的一个问题。通常情况下，一个给定的fd只被一个进程轮询，但是在Jason的场景中，会有多个进程轮询同一个fd集合。在这个场景设定下，一个fd有事件产生时将会唤醒所有监听进程，即使最后只有一个进程能够得到处理该事件的机会，这就是所谓的“惊群”问题。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://lwn.net/Articles/632590/&#34;&gt;Jason的解决方案&lt;/a&gt;是通过epoll_ctl向被轮询的fd再添加两个新的flag，第一个是&lt;strong&gt;&lt;em&gt;EPOLLEXCLUSIVE&lt;/em&gt;&lt;/strong&gt;，保证只有一个进程能被唤醒然后处理事件。该flag使得，有事件发生时，简单的用add_wait_queue_exclusive()代替add_wait_queue()，互斥的将进程放入等待队列中。很明显，所有轮询同一个fd的进程都要使用互斥模式来实现只有一个进程唤醒的效果。&lt;/p&gt;
+
+&lt;p&gt;不过，这个变化没有完全解决问题，因为这会导致当有事件发生时，唤醒的都是同一个进程。由于Epoll存在的一个原因是，在两次epoll_wait()调用之间,，进程能留在epfd的等待唤醒队列中，处于等待队列头部的进程仍然在队列头部，所以这个进程将被唤醒并处理所有互斥模式的fd（这句翻译我有疑问）。但是我们的目的是，多个进程轮询同一fd集合时，能够散开执行，而每次都唤醒的是同一个进程与此相悖。为解决这个问题，Jason添加了另一个flag，叫做 EPOLLROUNDROBIN，使得内核按顺序处理唤醒每个进程。&lt;/p&gt;
+
+&lt;p&gt;引入一个新的等待队列函数用来支持实现这种方式&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;    void add_wait_queue_rr(wait_queue_head_t *q, wait_queue_t *wait);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;使用该函数后，当wait返回时，只有一个进程被唤醒，效果和add_wait_queue_exclusive()一样。但是，这个被唤醒的进程，将被从队列头移到队列尾，直到它前面的所有进程都得到唤醒机会后，才能再次被唤醒。&lt;/p&gt;
+
+&lt;p&gt;Jason的提交patch的同时也提交了一个用于压测的程序，压测结果显示，互斥模式使得执行时间降低了50%，当有大量的唤醒发生时，“惊群”效应带来的性能损耗就不会发生了。&lt;/p&gt;
+
+&lt;h2 id=&#34;结语:2c7275fd73bc5bd5e5fdeeeff68a33b3&#34;&gt;结语&lt;/h2&gt;
+
+&lt;p&gt;以上提到的两个patch已经被多次review和comments，Fam的patch自从&lt;a href=&#34;https://lwn.net/Articles/630097/&#34;&gt;1月份提出&lt;/a&gt;后进行了多次修改。现在的编辑们对API相关的patch投入了越来越多的关注和审视，这是对的，因为API将会长期有效，(API lives forever),甚至是永远有效。所以最好在向用户推出之前就搞定所有bug，以提供永久支持的态度提交。这些patch目前看来已经接近就绪，可能将会在下一个窗口中合并。&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>HTTP2的实践过程</title>
+      <link>http://bg2bkk.github.io/post/HTTP2%E7%9A%84%E5%AE%9E%E8%B7%B5%E8%BF%87%E7%A8%8B/</link>
+      <pubDate>Sat, 12 Mar 2016 16:17:52 +0800</pubDate>
+      
+      <guid>http://bg2bkk.github.io/post/HTTP2%E7%9A%84%E5%AE%9E%E8%B7%B5%E8%BF%87%E7%A8%8B/</guid>
+      <description>
+
+&lt;h1 id=&#34;http-2实践过程:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;HTTP/2实践过程&lt;/h1&gt;
+
+&lt;h2 id=&#34;目录:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;目录&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;前言&lt;/li&gt;
+&lt;li&gt;基于openssl自建证书
+
+&lt;ul&gt;
+&lt;li&gt;CentOS&lt;/li&gt;
+&lt;li&gt;Ubuntu&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;nginx的支持HTTP/2的patch&lt;/li&gt;
+&lt;li&gt;nghttp2安装，配置，使用
+
+&lt;ul&gt;
+&lt;li&gt;nghttpd作为http2 server&lt;/li&gt;
+&lt;li&gt;nghttp作为http2 client&lt;/li&gt;
+&lt;li&gt;nghttpx作为proxy，转向nginx后端&lt;/li&gt;
+&lt;li&gt;h2load作为压测工具&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;前言:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;前言&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;在研究HTTP/2协议时，常常和https协议混在一起，而二者之间的关系是怎样的呢？&lt;/li&gt;
+&lt;li&gt;现有的http2 server中，nginx基于1.9.*有HTTP/2协议的patch，还有nghttp2 server，已经有人运行在个人博客做前端。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;只说实践过程，作为记录。&lt;/p&gt;
+
+&lt;p&gt;关于涉及到的概念等，需要在别的文档中写。&lt;/p&gt;
+
+&lt;h2 id=&#34;基于openssl自建证书:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;基于openssl自建证书&lt;/h2&gt;
+
+&lt;p&gt;在线上配置HTTPS时，需要从权威CA申请证书，在nginx中配置证书crt和私钥key。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;    listen 8443 ssl;
+    ssl_certificate  /usr/lib/ssl/nginx.crt;
+    ssl_certificate_key /usr/lib/ssl/nginx.key;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;而在线下调试时，如果需要配置https，则需要自建和签发证书。
+&lt;a href=&#34;http://segmentfault.com/a/1190000002569859&#34;&gt;基于openssl自建证书&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;###在CentOS系统上自建证书
+1.自建CA，颁发证书&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;CA首先需要自建证书，作为颁发证书所用的根证书。CA的openssl配置文件/etc/pki/tls/openssl.cnf：
+
+####################################################################
+[ ca ]
+default_ca	= CA_default		# The default ca section
+
+####################################################################
+[ CA_default ]
+
+dir		= /etc/pki/CA		# Where everything is kept
+certs		= $dir/certs		# Where the issued certs are kept
+crl_dir		= $dir/crl		# Where the issued crl are kept
+database	= $dir/index.txt	# database index file.
+#unique_subject	= no			# Set to &#39;no&#39; to allow creation of
+					# several ctificates with same subject.
+new_certs_dir	= $dir/newcerts		# default place for new certs.
+
+certificate	= $dir/cacert.pem 	# The CA certificate
+serial		= $dir/serial 		# The current serial number
+crlnumber	= $dir/crlnumber	# the current crl number
+					# must be commented out to leave a V1 CRL
+crl		= $dir/crl.pem 		# The current CRL
+private_key	= $dir/private/cakey.pem# The private key
+RANDFILE	= $dir/private/.rand	# private random number file
+
+x509_extensions	= usr_cert		# The extentions to add to the cert
+
+# Comment out the following two lines for the &amp;quot;traditional&amp;quot;
+# (and highly broken) format.
+name_opt 	= ca_default		# Subject Name options
+cert_opt 	= ca_default		# Certificate field options
+
+
+
+default_days	= 365			# how long to certify for
+default_crl_days= 30			# how long before next CRL
+default_md	= default		# use public key default MD
+preserve	= no			# keep passed DN ordering
+
+policy		= policy_match
+
+# For the CA policy
+[ policy_match ]
+countryName		= match
+stateOrProvinceName	= match
+organizationName	= match
+organizationalUnitName	= optional
+commonName		= supplied
+emailAddress		= optional
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;其中我们可以看到根地址在/etc/pki/CA下，且指明了CA证书certificate是该目录下的cacert.pem，私钥在private/cakey.pem中，CA需要匹配countryName、stateOrProvinceName和organizationName，且commonName需要提供，这点比较重要。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;在/etc/pki/CA下创建初始文件
+
+# touch serial index.txt
+# echo 01 &amp;gt; serial
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;2.生成根密钥
+```bash	&lt;/p&gt;
+
+&lt;h1 id=&#34;cd-etc-pki-ca:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;cd /etc/pki/CA&lt;/h1&gt;
+
+&lt;h1 id=&#34;openssl-genrsa-out-private-cakey-pem-2048:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;openssl genrsa -out private/cakey.pem 2048&lt;/h1&gt;
+
+&lt;p&gt;```	
+3.生成根证书&lt;/p&gt;
+
+&lt;p&gt;```bash	
+使用req指令，通过私钥，生成自签证书&lt;/p&gt;
+
+&lt;h1 id=&#34;openssl-req-new-x509-key-private-cakey-pem-out-cacert-pem:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;openssl req -new -x509 -key private/cakey.pem -out cacert.pem&lt;/h1&gt;
+
+&lt;p&gt;You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,&lt;/p&gt;
+
+&lt;h2 id=&#34;if-you-enter-the-field-will-be-left-blank:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;If you enter &amp;lsquo;.&amp;rsquo;, the field will be left blank.&lt;/h2&gt;
+
+&lt;p&gt;Country Name (2 letter code) [XX]:CN
+State or Province Name (full name) []:BeiJing
+Locality Name (eg, city) [Default City]:
+Organization Name (eg, company) [Default Company Ltd]:
+Organizational Unit Name (eg, section) []:
+Common Name (eg, your name or your server&amp;rsquo;s hostname) []:root
+Email Address []:
+```	
+4.为nginx server生成密钥&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# mkdir /data/zhendong/nginx_ssl
+# openssl genrsa -out nginx.key 2048
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;5.为nginx生成 证书签署请求&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# openssl req -new -key nginx.key -out nginx.csr
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter &#39;.&#39;, the field will be left blank.
+-----
+Country Name (2 letter code) [XX]:CN
+State or Province Name (full name) []:BeiJing
+Locality Name (eg, city) [Default City]:
+Organization Name (eg, company) [Default Company Ltd]:
+Organizational Unit Name (eg, section) []:
+Common Name (eg, your name or your server&#39;s hostname) []:localhost
+Email Address []:
+
+Please enter the following &#39;extra&#39; attributes
+to be sent with your certificate request
+A challenge password []:
+An optional company name []:
+
+Common Name填成nginx server的server_name用来访问。
+在openssl.cnf中需要match的项目，一定要一样。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;6.向CA请求证书&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# openssl ca -in nginx.csr -out nginx.crt
+如果失败，可以尝试以下命令
+
+openssl x509 -req -in nginx.csr -CA /etc/pki/CA/cacert.pem -CAkey /etc/pki/CA/private/cakey.pem -CAcreateserial -out nginx.crt
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;7.配置nginx&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;        listen 8443 ssl ;
+        ssl_certificate  /data1/zhendong/nginx_ssl/nginx.crt;
+        ssl_certificate_key /data1/zhendong/nginx_ssl/nginx.key;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;8.通过curl访问&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# curl --cacert /etc/pki/CA/cacert.pem https://localhost:8443/
+this is abtesting server
+
+# curl --cacert /etc/pki/CA/cacert.pem https://127.0.0.1:8443/
+curl: (51) SSL: certificate subject name &#39;localhost&#39; does not match target host name &#39;127.0.0.1&#39;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;###在Ubuntu系统上自建证书
+Ubuntu系统与CentOS的不同之处在于软件包管理不同，当克服这部分不同后，就可以执行与CentOS系统一样的操作。&lt;/p&gt;
+
+&lt;p&gt;首先Ubuntu的openssl目录在&lt;strong&gt;/usr/lib/ssl&lt;/strong&gt;下，而实际上这是一个软链接。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;huang@ThinkPad-X220:/usr/lib/ssl$ ll /usr/lib/ssl/ total 52
+drwxr-xr-x   3 root root  4096  8月 27 12:18 ./
+drwxr-xr-x 238 root root 40960  8月 26 11:18 ../
+lrwxrwxrwx   1 root root    14  2月  4  2015 certs -&amp;gt; /etc/ssl/certs/
+drwxr-xr-x   2 root root  4096  7月  8 14:34 misc/
+lrwxrwxrwx   1 root root    20  6月 11 23:35 openssl.cnf -&amp;gt; /etc/ssl/openssl.cnf
+lrwxrwxrwx   1 root root    16  2月  4  2015 private -&amp;gt; /etc/ssl/private/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;不管怎样，我们的工作将在&lt;strong&gt;/usr/lib/ssl&lt;/strong&gt;进行。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;/usr/lib/ssl/openssl.cnf内容如下：
+####################################################################
+[ ca ]
+default_ca	= CA_default		# The default ca section
+
+####################################################################
+[ CA_default ]
+
+dir		= ./demoCA		# Where everything is kept
+certs		= $dir/certs		# Where the issued certs are kept
+crl_dir		= $dir/crl		# Where the issued crl are kept
+database	= $dir/index.txt	# database index file.
+#unique_subject	= no			# Set to &#39;no&#39; to allow creation of
+					# several ctificates with same subject.
+new_certs_dir	= $dir/newcerts		# default place for new certs.
+
+certificate	= $dir/cacert.pem 	# The CA certificate
+serial		= $dir/serial 		# The current serial number
+crlnumber	= $dir/crlnumber	# the current crl number
+					# must be commented out to leave a V1 CRL
+crl		= $dir/crl.pem 		# The current CRL
+private_key	= $dir/private/cakey.pem# The private key
+RANDFILE	= $dir/private/.rand	# private random number file
+
+x509_extensions	= usr_cert		# The extentions to add to the cert
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;从配置文件中看到，我们需要在&lt;strong&gt;/usr/lib/ssl&lt;/strong&gt;下建立&lt;strong&gt;demoCA&lt;/strong&gt;目录以及其他。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# cd /usr/lib/ssl
+# mkdir demoCA
+# mkdir demoCA/newcerts
+# mkdir demoCA/private
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;余下的操作将与在CentOS系统上没有区别。最后执行情况为：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# curl --cacert /usr/lib/ssl/demoCA/cacert.pem https://localhost:8443
+this is abtesting server
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;nginx的支持http-2的patch:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;nginx的支持HTTP/2的patch&lt;/h2&gt;
+
+&lt;p&gt;nginx在8月份的时候从1.9.3版本推出了支持HTTP/2的&lt;a href=&#34;http://nginx.org/patches/http2/&#34;&gt;patch&lt;/a&gt;，使用时与标准nginx并无区别。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# cd nginx-1.9.4/
+# patch -p1 &amp;lt; patch.http2-v3_1.9.4.txt  
+# ./configure --with-http_v2_module --with-http_ssl_module
+# make
+# make install
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;支持http2的nginx关键配置为&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;	listen 8443 http2;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;只需要在listen后加http2就可以了。目前curl在基于nghttp2提供的HTTP/2库后，可以支持访问http2的server，但是目前没有配置成功，所以对支持http2的nginx进行访问的工作，将在介绍完nghttp2后一并记录。&lt;/p&gt;
+
+&lt;h2 id=&#34;nghttp2安装-配置-使用:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;nghttp2安装，配置，使用&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/tatsuhiro-t/nghttp2&#34;&gt;nghttp2&lt;/a&gt;是由tatsuhiro开发的，之前的spdylay也是他开发的，一直走在http2.0的前列。nghttp2包括了HTTP/2.0的库，基于这个库tatsu实现了HTTP/2.0的server、client和压测工具h2load。&lt;/p&gt;
+
+&lt;p&gt;由于nghttp2所依赖的库太新了，目前只在Ubuntu系统成功安装。安装过程：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;	$ autoreconf -i
+	$ automake
+	$ autoconf
+	$ ./configure
+	$ make
+```	
+其中**./configure**的结果非常重要
+```bash
+    Version:        1.2.2-DEV shared 14:8:0
+    Host type:      x86_64-unknown-linux-gnu
+    Install prefix: /usr/local
+    C compiler:     gcc
+    CFLAGS:         -g -O2
+    WARNCFLAGS:     
+    LDFLAGS:        
+    LIBS:           
+    CPPFLAGS:       
+    C preprocessor: gcc -E
+    C++ compiler:   g++
+    CXXFLAGS:       -g -O2 -std=c++11
+    CXXCPP:         g++ -E
+    Library types:  Shared=yes, Static=yes
+    Python:
+      Python:         /usr/bin/python
+      PYTHON_VERSION: 2.7
+      pyexecdir:      ${exec_prefix}/lib/python2.7/dist-packages
+      Python-dev:     yes
+      PYTHON_CPPFLAGS:-I/usr/include/python2.7
+      PYTHON_LDFLAGS: -L/usr/lib -lpython2.7
+      Cython:         cython
+    Test:
+      CUnit:          yes
+      Failmalloc:     yes
+    Libs:
+      OpenSSL:        yes
+      Libxml2:        yes
+      Libev:          yes
+      Libevent(SSL):  yes
+      Spdylay:        yes
+      Jansson:        yes
+      Jemalloc:       yes
+      Zlib:           yes
+      Boost CPPFLAGS: 
+      Boost LDFLAGS:  
+      Boost::ASIO:    
+      Boost::System:  
+      Boost::Thread:  
+    Features:
+      Applications:   yes
+      HPACK tools:    yes
+      Libnghttp2_asio:no
+      Examples:       yes
+      Python bindings:yes
+      Threading:      yes
+      Third-party:    yes
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;编译帮助文档&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;make html
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;###nghttpd作为http2 server&lt;/p&gt;
+
+&lt;p&gt;http2-no-tls&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;nghttpd -v 8080   -n 24 --no-tls -d ~/workspace/Nginx_ABTesting/utils/html/ 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;http2-with-tls&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;nghttpd -v 8080 -n 24 /usr/lib/ssl/nginx.key /usr/lib/ssl/nginx.crt -d ~/workspace/Nginx_ABTesting/utils/html/  
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;关于nghttpd的选项，其实可以与nginx配置做到一一对照的。目前对nghttpd的源码及实现了解的比较少，因其日本人的过于C++代码的风格实在晦涩难懂，所以很少做调优。&lt;/p&gt;
+
+&lt;p&gt;###nghttp作为http2 client&lt;/p&gt;
+
+&lt;p&gt;http2-client-no-tls&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;nghttp http://127.0.0.1:8080
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;http2-client-with-tls&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;nghttp --cert /usr/lib/ssl/demoCA/cacert.pem https://127.0.0.1:8080
+
+nghttp https://127.0.0.1:8080
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;经过使用，nghttp也可以对nginx发出http2请求并成功返回。&lt;/p&gt;
+
+&lt;p&gt;通过strace和阅读源码，nghttp（包括压测工具h2load）作为client时，会读取系统的证书/usr/lib/ssl/demoCA/cacert.pem，因此可以不用指定。
+###nghttpx作为proxy，转向nginx后端&lt;/p&gt;
+
+&lt;p&gt;client ——&amp;gt; http2-proxy-no-tls ——&amp;gt; http1.1 upstream(nginx):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# nghttpx -f127.0.0.1,8080 -b127.0.0.1,8022 --frontend-no-tls
+
+# curl 127.0.0.1:8022
+this is beta3 server
+
+# nghttp http://127.0.0.1:8080
+this is beta3 server
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;client ——&amp;gt; http2-proxy-with-tls ——&amp;gt; http1.1 upstream(nginx):&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;# nghttpx -f127.0.0.1,8080 -b127.0.0.1,8022 /usr/lib/ssl/nginx.key /usr/lib/ssl/nginx.crt
+
+# nghttp https://127.0.0.1:8080
+this is beta3 server
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;采用nginx-http2作为proxy，使用方法与nginx-http1.1没有区别。&lt;/p&gt;
+
+&lt;p&gt;###h2load作为压测工具&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# h2load -n100 -c10 -t4  https://127.0.0.1:8080
+starting benchmark...
+spawning thread #0: 3 concurrent clients, 25 total requests
+spawning thread #1: 3 concurrent clients, 25 total requests
+spawning thread #2: 2 concurrent clients, 25 total requests
+spawning thread #3: 2 concurrent clients, 25 total requests
+Protocol: TLSv1.2
+Cipher: ECDHE-RSA-AES128-GCM-SHA256
+progress: 8% done
+progress: 16% done
+progress: 24% done
+progress: 32% done
+progress: 40% done
+progress: 48% done
+progress: 56% done
+progress: 64% done
+progress: 72% done
+progress: 80% done
+progress: 88% done
+progress: 96% done
+
+finished in 67.29ms, 1486 req/s, 111.02KB/s
+requests: 100 total, 100 started, 100 done, 100 succeeded, 0 failed, 0 errored
+status codes: 100 2xx, 0 3xx, 0 4xx, 0 5xx
+traffic: 7650 bytes total, 3450 bytes headers, 2100 bytes data
+                     min         max         mean         sd        +/- sd
+time for request:      343us      8.76ms      1.40ms      1.49ms    91.00%
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;h2load的使用与wrk没有区别，参数都是一样的。&lt;/p&gt;
+
+&lt;p&gt;根据不同配置，我们有以下几种场景：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;server/proxy			https
+
+nginx-http/1.1			with-tls
+nginx-http/2			no-tls
+nghttpd
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;相结合，压测场景比较多。幸运的是，不论server是nginx还是nghttpd，其参数和调优都可以指定，比如线程数；不论wrk还是h2load，参数也可以指定，使用起来区别不大。&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>shadowsocks科学上网手动搭建指南</title>
+      <link>http://bg2bkk.github.io/post/shadowsocks%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%89%8B%E5%8A%A8%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97/</link>
+      <pubDate>Wed, 02 Mar 2016 23:02:07 +0800</pubDate>
+      
+      <guid>http://bg2bkk.github.io/post/shadowsocks%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%89%8B%E5%8A%A8%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;买VPS，vultr的设备，使用起来还是蛮简单的。信用卡一张，注册并扣费0.1美元会送50美元，两个月内用完。我开始部署了一个日本的最便宜的5美元一月的vps，使用起来还不错，youtube 480P没问题；但是我通过这送的50美元实验了以下几个配置的机器速度，洛杉矶机房20美元，洛杉矶机房5美元，日本机房5美元，日本机房10美元，发现ping vps-ip时美国机房都是170ms，日本机房是220ms，原因可能是即使日本离得近，去日本的路由也要绕道美国才到日本的，所以我们直接选择美国机房好了。位于西海岸的洛杉矶机房，让你打开youtube 1080P毫无压力，白天晚上都没问题。&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;如何手动搭建shadowsocks服务呢，网上有太多的教程了&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;python版shadowsocks
+
+&lt;ul&gt;
+&lt;li&gt;ss服务的鼻祖，支持多用户多端口配置&lt;/li&gt;
+&lt;li&gt;参考教程：&lt;a href=&#34;https://pypi.python.org/pypi/shadowsocks&#34;&gt;py版ss服务&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#Install
+
+#Debian / Ubuntu:
+apt-get install python-pip
+pip install shadowsocks
+
+#CentOS:
+yum install python-setuptools &amp;amp;&amp;amp; easy_install pip
+pip install shadowsocks
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#config.json
+{
+    &amp;quot;server&amp;quot;:&amp;quot;0.0.0.0&amp;quot;,
+    &amp;quot;local_address&amp;quot;: &amp;quot;127.0.0.1&amp;quot;,
+    &amp;quot;local_port&amp;quot;:1080,
+    &amp;quot;port_password&amp;quot;:{
+     &amp;quot;port1&amp;quot;:&amp;quot;pwd1&amp;quot;,
+     &amp;quot;port2&amp;quot;:&amp;quot;pwd2&amp;quot;
+    },
+    &amp;quot;timeout&amp;quot;:300,
+    &amp;quot;method&amp;quot;:&amp;quot;aes-256-cfb&amp;quot;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;    * ssserver -c config.json -d start
+
+* libev版shadowsocks
+    * 性能最好的ss服务
+    * 参考教程：[一键安装教程](http://www.tennfy.com/2136.html)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;wget --no-check-certificate https://raw.githubusercontent.com/tennfy/shadowsocks-libev/master/debian_shadowsocks_tennfy.sh
+chmod a+x debian_shadowsocks_tennfy.sh
+
+sudo ./debian_shadowsocks_tennfy.sh
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;    * /etc/init.d/shadowsocks-libev start
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;shadowsocks客户端&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;全平台：windows、linux、OSX；android、ios；&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://shadowsocks.com/client.html&#34;&gt;客户端&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/shadowsocks/shadowsocks-windows/releases&#34;&gt;windows&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/shadowsocks/shadowsocks-qt5/wiki/Installation&#34;&gt;linux&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;ubuntu用户建议使用apt-get安装&lt;/li&gt;
+&lt;li&gt;其他发行版用户。。。我还不知道&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/shadowsocks/shadowsocks-iOS/releases&#34;&gt;OSX&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;我没用过&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://pan.baidu.com/s/1YbQTg&#34;&gt;android&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.iyingsuo.com/ios-shadowsocks-tutorials.html&#34;&gt;ios&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;如果您觉得shadowsocks很容易搭建起来，想试一下的话，可以通过的推荐链接来注册，这样会有一定奖励:&lt;a href=&#34;http://www.vultr.com/?ref=6870148&#34;&gt;http://www.vultr.com/?ref=6870148&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>采用二级指针实现单链表操作 单链表翻转 删除单链表结点</title>
+      <link>http://bg2bkk.github.io/post/list%E9%93%BE%E8%A1%A8%E9%87%87%E7%94%A8%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E8%AE%BF%E9%97%AE%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9/</link>
+      <pubDate>Tue, 01 Mar 2016 11:00:34 +0800</pubDate>
+      
+      <guid>http://bg2bkk.github.io/post/list%E9%93%BE%E8%A1%A8%E9%87%87%E7%94%A8%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E8%AE%BF%E9%97%AE%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;register_filesystem中的二级指针，刚开始没看懂。怒了，如果这个都没看懂，还搞什么C语言编程&lt;/li&gt;
+&lt;li&gt;leetcode中的反转链表，二级指针操作巨好用&lt;/li&gt;
+&lt;li&gt;先上代码吧&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#include&amp;lt;stdio.h&amp;gt;
+#include&amp;lt;stdlib.h&amp;gt;
+
+typedef struct ListNode{
+    int val;
+    struct ListNode *next;
+} ListNode;
+
+void printList(ListNode *head){
+    if(head){
+        printf(&amp;quot;%d\n&amp;quot;, head-&amp;gt;val);
+        printList(head-&amp;gt;next);
+    }
+}
+
+void printList_r(ListNode *head){
+    if(!head)
+        return;
+    if(head -&amp;gt; next)
+        printList_r(head-&amp;gt;next);
+    printf(&amp;quot;%d\n&amp;quot;, head-&amp;gt;val);
+}
+
+ListNode ** addToTail(ListNode **list){
+    ListNode **p ;
+    for( p = list; *p; p = &amp;amp; (*p)-&amp;gt;next);
+    return p;
+}
+
+void reverseList(ListNode **list){
+    ListNode *head = NULL;
+    ListNode **p = list;
+    while(*p){
+        ListNode *next = (*p)-&amp;gt;next;
+        (*p)-&amp;gt;next = head;
+        head = *p;
+        *p = next;
+    }
+    *list = head;
+}
+
+/* 
+ * delete first item whose val equals to val
+ *
+*/
+void deleteNodeAll(ListNode **l, int val){
+
+    while(*l){
+        if((*l)-&amp;gt;val == val){
+            ListNode *tmp = (*l)-&amp;gt;next;
+            free(*l);
+            *l = tmp;
+            break;
+        }
+        l = &amp;amp;(*l)-&amp;gt;next;
+    }
+}
+
+//delete all the items whose val equals to val
+void deleteNodeFirst(ListNode **l, int val){
+
+    while(*l){
+        if((*l)-&amp;gt;val == val){
+            ListNode *tmp = (*l)-&amp;gt;next;
+            free(*l);
+            *l = tmp;
+        }
+        else
+            l = &amp;amp;(*l)-&amp;gt;next;
+    }
+}
+
+int main()
+{
+    int a[] = {1, 2, 3, 2, 3 ,4};
+    int len = sizeof(a) / sizeof(int);
+    int i = 0;
+
+    static ListNode *list;
+
+    for( i = 0; i &amp;lt; len; i++)
+    {
+        ListNode *node = malloc(sizeof(struct ListNode));
+        node-&amp;gt;val = a[i];
+        ListNode **p = addToTail(&amp;amp;list);
+        *p = node;
+    }
+
+    printf(&amp;quot;--------print list in sequence------------\n&amp;quot;);
+    printList(list);
+
+    printf(&amp;quot;--------print list after reversed------------------\n&amp;quot;);
+    reverseList(&amp;amp;list);
+    printList(list);
+
+    printf(&amp;quot;--------delete first 1----------\n&amp;quot;);
+    deleteNodeFirst(&amp;amp;list, 1);
+    printList(list);
+
+    printf(&amp;quot;--------delete first 3----------------\n&amp;quot;);
+    deleteNodeFirst(&amp;amp;list, 3);
+    printList(list);
+
+    printf(&amp;quot;--------delete first 4-----------------\n&amp;quot;);
+    deleteNodeFirst(&amp;amp;list, 4);
+    printList(list);
+
+    printf(&amp;quot;--------delete non-existed item-------------\n&amp;quot;);
+    deleteNodeFirst(&amp;amp;list, 4);
+    printList(list);
+
+    printf(&amp;quot;--------delete the last item----------------\n&amp;quot;);
+    deleteNodeFirst(&amp;amp;list, 2);
+    printList(list);
+
+    printf(&amp;quot;--------reverse an empty list---------------\n&amp;quot;);
+    reverseList(&amp;amp;list);
+    printList(list);
+
+
+}
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>VFS虚拟文件系统</title>
+      <link>http://bg2bkk.github.io/post/VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</link>
+      <pubDate>Mon, 29 Feb 2016 15:33:32 +0800</pubDate>
+      
+      <guid>http://bg2bkk.github.io/post/VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</guid>
+      <description>
+
+&lt;h1 id=&#34;虚拟文件系统:33c34adef684867bc26f32ab644d7c6f&#34;&gt;虚拟文件系统&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;虚拟文件系统为用户空间程序提供了文件和文件系统的接口&lt;/li&gt;
+&lt;li&gt;通过VFS，程序可以通过标准的UNIX系统调用操作不同的文件系统和介质，包括各种软硬件设备&lt;/li&gt;
+&lt;li&gt;Linux等现代操作系统引入VFS作为抽象层，极大方便系统调用&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;unix文件系统:33c34adef684867bc26f32ab644d7c6f&#34;&gt;Unix文件系统&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;UNIX系统使用了四种和文件系统相关的抽象概念: 文件、目录项、索引结点和挂载点。&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;将文件的相关信息和文件加以区分&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;&lt;em&gt;文件相关信息&lt;/em&gt;&lt;/strong&gt;单独存储在&lt;strong&gt;&lt;em&gt;索引结点&lt;/em&gt;&lt;/strong&gt;中，又称为元数据，包括文件的控制权限、文件大小、属主和创建与访问时间等&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;em&gt;文件相关信息&lt;/em&gt;&lt;/strong&gt;和&lt;strong&gt;&lt;em&gt;文件系统&lt;/em&gt;&lt;/strong&gt;的相关信息密不可分，后者存储在&lt;strong&gt;&lt;em&gt;超级块(super block)&lt;/em&gt;&lt;/strong&gt;中，超级块是包含文件系统信息的数据结构。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;em&gt;文件&lt;/em&gt;&lt;/strong&gt;按照索引结点存储在单独的块中，文件系统的控制信息存在超级块中&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;VFS中有四个主要对象类型&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;超级块对象，代表一个具体的已安装的文件系统&lt;/li&gt;
+&lt;li&gt;索引结点对象，代表一个具体文件
+
+&lt;ul&gt;
+&lt;li&gt;inode才代表具体文件&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;目录项对象，代表一个目录项，是路径的组成部分
+
+&lt;ul&gt;
+&lt;li&gt;目录项不是目录，而是一个文件。不存在目录对象&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;文件对象，代表由进程打开的文件
+
+&lt;ul&gt;
+&lt;li&gt;每个进程都有自己的打开文件列表，文件对象是一个动态生成动态销毁的对象&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;超级块&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;超级块对象 super block
+
+&lt;ul&gt;
+&lt;li&gt;用于存储特定文件系统的信息&lt;/li&gt;
+&lt;li&gt;通常放在磁盘的&lt;a href=&#34;https://support.microsoft.com/zh-cn/kb/100108&#34;&gt;特定扇区&lt;/a&gt;中，所以被称为超级块对象&lt;/li&gt;
+&lt;li&gt;并非基于磁盘的文件系统，内核会现场创建，并保存在内存中&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;超级块操作
+
+&lt;ul&gt;
+&lt;li&gt;super_operations&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;!--   * 超级块操作 super_operations
+        * inode的分配、销毁、读写
+        * 文件系统的挂载、删除--&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;索引结点&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;索引结点对象 inode
+
+&lt;ul&gt;
+&lt;li&gt;索引结点对象包含了内核在操作文件或目录时的所有信息&lt;/li&gt;
+&lt;li&gt;索引结点对象都是在内存中创建的，不会写回硬盘的&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;索引结点操作
+
+&lt;ul&gt;
+&lt;li&gt;inode_operations&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;目录项&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;目录项对象
+
+&lt;ul&gt;
+&lt;li&gt;VFS把目录当做文件对待，解析目录时，将路径中的每个组成部分都是一个索引结点对象，比如&amp;rdquo;/bin/ls&amp;rdquo;中的‘/’、‘bin’和‘ls’。进行路径查找和解析是比较耗时的，为了方便操作，VFS引入了目录项dentry的概念，每个dentry都是路径的组成部分&lt;/li&gt;
+&lt;li&gt;目录项对象都是根据字符串形式现场创建的，并没有保存在磁盘&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;目录项状态
+
+&lt;ul&gt;
+&lt;li&gt;被使用
+
+&lt;ul&gt;
+&lt;li&gt;被使用的dentry对应一个有效的inode，即dentry结构体中d_inode指向的inode&lt;/li&gt;
+&lt;li&gt;该对象的引用计数d_count为正，至少有一个使用者，不能随意丢弃&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;未被使用
+
+&lt;ul&gt;
+&lt;li&gt;未被使用的dentry，其d_inode也指向一个inode，但是d_count为0&lt;/li&gt;
+&lt;li&gt;此时该dentry仍然在缓存中，可能会再次使用。不会立刻被释放，但如果系统要回收内存的话，可以被释放回收&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;负状态
+
+&lt;ul&gt;
+&lt;li&gt;负状态的dentry没有对应的有效inode，原因可能是inode已被删除，或者路径不再正确&lt;/li&gt;
+&lt;li&gt;此时将其缓存起来仍然有些用处，比如一个守护进程一直读一个不存在的文件，缓存dentry不至于让进程总是去搜索&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;目录项缓存
+
+&lt;ul&gt;
+&lt;li&gt;遍历路径名中所有元素并逐个解析成dentry，是非常费时费力的，所以内核引入目录项缓存dcache，将目录项对象都缓存起来&lt;/li&gt;
+&lt;li&gt;目录项缓存包括
+
+&lt;ul&gt;
+&lt;li&gt;&amp;ldquo;被使用的&amp;rdquo;目录项链表
+
+&lt;ul&gt;
+&lt;li&gt;该链表通过inode中的i_dentry指针连接相关inode&lt;/li&gt;
+&lt;li&gt;一个给定的inode可能有多个链接（软硬链接），所有就有可能有多个目录项对象，因此用一个链表链接&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&amp;ldquo;最近使用的&amp;rdquo;双向链表
+
+&lt;ul&gt;
+&lt;li&gt;该链表包含所有 未被使用的 和 负状态的 dentry&lt;/li&gt;
+&lt;li&gt;总是在表头添加元素，所以回收dentry时从最后开始回收&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;哈希表和相应的哈希函数
+
+&lt;ul&gt;
+&lt;li&gt;快速将给定路径解析为相关目录项对象&lt;/li&gt;
+&lt;li&gt;哈希表由dentry_hashtable数组表示，每个元素都指向一个具有相同键值的目录项对象链表指针&lt;/li&gt;
+&lt;li&gt;哈希函数d_hash()&lt;/li&gt;
+&lt;li&gt;查找函数d_lookup()&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;目录项操作
+
+&lt;ul&gt;
+&lt;li&gt;dentry_operation&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;文件&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;文件对象
+
+&lt;ul&gt;
+&lt;li&gt;表示进程已经打开的文件。文件对象是已打开的文件（物理文件）在内存中的表示&lt;/li&gt;
+&lt;li&gt;多个进程可以打开同一个物理文件，所以一个物理文件会有多个文件对象&lt;/li&gt;
+&lt;li&gt;文件对象指向目录项对象，目录项对象指向索引结点inode&lt;/li&gt;
+&lt;li&gt;具体而言，是文件对象filep中的f_dentry指向目录项对象，目录项对象的d_inode指向索引结点inode&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;文件操作
+
+&lt;ul&gt;
+&lt;li&gt;file_operations&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;相关数据结构&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;file_system_type
+
+&lt;ul&gt;
+&lt;li&gt;用于描述各种特定文件系统类型，用于支持不同文件系统&lt;/li&gt;
+&lt;li&gt;struct file_system_type {}
+
+&lt;ul&gt;
+&lt;li&gt;get_sb()  从磁盘读取超级块，并在文件系统安装时在内存中组装超级块对象&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;每个文件系统只有一个&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;vfsmount
+
+&lt;ul&gt;
+&lt;li&gt;系统挂载时，将有一个vfsmount结构体在挂载点创建，代表文件系统的实例&lt;/li&gt;
+&lt;li&gt;struct vfsmount {}
+
+&lt;ul&gt;
+&lt;li&gt;各种链表&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;和进程相关的数据结构&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;每个进程都有自己的一组打开爱的文件，比如根文件系统、当前工作目录、挂载点等&lt;/li&gt;
+&lt;li&gt;struct files_struct {}
+
+&lt;ul&gt;
+&lt;li&gt;该结构提由进程描述符中的files指向，一般都是current-&amp;gt;files&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;struct fs_struct {}
+
+&lt;ul&gt;
+&lt;li&gt;包含文件系统和进程相关的信息，由fs域指向，一般是current-&amp;gt;fs&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;struct namespace {}&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;使得每个进程在系统中能看到唯一的安装文件系统，mm-&amp;gt;namespace&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;每个进程都有指向自己的fs_struct和files_struct，多个进程可能指向同一个，比如通过带有CLONE_FILES和CLONE_FS标志创建的进程（其实是线程），所以这两个struct都有引用计数，以防出错&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;而对于namespace来说，除非使用CLONE_NEWS标志创建进程，会创建新的namespace结构体，否则所有进程共享一个namespace&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>pipe在内核中的实现</title>
+      <link>http://bg2bkk.github.io/post/pipe%E5%9C%A8%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/</link>
+      <pubDate>Sat, 27 Feb 2016 09:49:41 +0800</pubDate>
+      
+      <guid>http://bg2bkk.github.io/post/pipe%E5%9C%A8%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/</guid>
+      <description>
+
+&lt;h2 id=&#34;pipe在linux内核中的实现:eef8af46b03027cdd30025ef9f062910&#34;&gt;pipe在linux内核中的实现&lt;/h2&gt;
+
+&lt;p&gt;在之前关于linux shell多线程并发数控制的&lt;a href=&#34;https://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/&#34;&gt;博文&lt;/a&gt;中，我们使用了fifo作为token池，通过读写fifo实现token分发控制，进而实现了控制线程数的目的。
+我对pipe这个*** *NIX ***系统中最常用的组件（|）产生了兴趣&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;fifo和pipe是什么关系？&lt;/li&gt;
+&lt;li&gt;fifo或者pipe的使用方法？&lt;/li&gt;
+&lt;li&gt;pipe在linux kernel中的实现是怎样的？&lt;/li&gt;
+&lt;li&gt;fifo或者pipe的容量有多大，可以配置吗？&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;先说结论吧&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;fifo和pipe的区别
+
+&lt;ul&gt;
+&lt;li&gt;pipe是匿名管道，没有名字，只能用于两个拥有pipe读写两端fd的进程通信；&lt;/li&gt;
+&lt;li&gt;fifo在文件系统中有自己的名称，操作fifo与操作普通文件几无差别，可以用于两个没有关系的进程间通信&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;fifo和pipe在kernel层面上都实现在fs/pipe.c中，所以本质上二者是一个东西。&lt;/li&gt;
+&lt;li&gt;pipe作为linux文件系统的一部分，与epoll一样，都是在向kernel注册了自己的文件系统，可以使用VFS提供的通用接口，比如open、read和write等操作&lt;/li&gt;
+&lt;li&gt;pipe的容量不是无限大的，早期linux版本（kernel-2.4）中pipe容量只能是4KB大小，新版本可以在运行时根据需要扩大到64KB&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;本文主要基于linux-2.4.20内核中的pipe实现进行分析，理由是该版本的pipe实现与新版本kernel并没有太大差别，但是代码可读性要强很多，可以快速了解pipe的实际实现；从2.4.20内核中对pipe的架构有整体了解后，再阅读新版本(4.4.1)中的新feature，会比较顺遂。&lt;/p&gt;
+
+&lt;h3 id=&#34;pipe在fs-pipe-c中一些函数:eef8af46b03027cdd30025ef9f062910&#34;&gt;pipe在fs/pipe.c中一些函数&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;- new_inode()
+- register_filesystem()
+- get_empty_file
+- get_unused_fd()
+- do_pipe作为pipe系统调用函数，在/arch/i386/sys_i386.c中定义
+- pipe的module_init在initcall中调用，但是pipe.c是编译在fs.o中的，他的module_init是如何调用进去的，需要进一步查找
+- struct dentry在include/linux/dcache.h中定义
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;具体实现:eef8af46b03027cdd30025ef9f062910&#34;&gt;具体实现&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;* pipe文件系统初始化
+    * 注册pipefs
+        * register_filesystems
+
+* pipe系统调用
+    * pipe调用do_pipe
+    * do_pipe()
+        * f1&amp;amp;f2 get_empty_filep分配filep数据结构
+        * inode = get_pipe_inode()从pipe文件系统获得inode
+            * new_inode()
+            * pipe_new()新建pipe
+                * __get_free_pages(GFP_USER)为该pipe分配一页内存（4KB）
+                * inode-&amp;gt;i_pipe = kmalloc(sizeof(struct pipe_inde_info), GFP_KERNEL)分配pipe信息结构
+        * i&amp;amp;j = get_unused_fd()获取两个fd
+        * dentry = d_alloc()从pipefs分配dentry
+        * d_add(dentry, inode)将inode插入到dentry中
+        * 将f1设置成O_RDONLY，将f2设置成O_WRONLY
+        * 进程的files列表中，files[i] = f1, files[j] = f2
+
+* 实现函数
+    * pipe
+        * pipe_read
+        * pipe_write
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;tips&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;pipe不允许使用seek&lt;/li&gt;
+&lt;li&gt;低版本linux-2.4.20在pipe写的时候是固定大小，而高版本的是会按需分配直至64KB的。&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;高版本kernel内核中sysctl的配置参数&lt;strong&gt;&lt;em&gt;fs.pipe-max-size&lt;/em&gt;&lt;/strong&gt; 可以设置固定的pipe大小。但是也不能超过64KB大小，即使配置数据大于这个数字，pipe大小也会限制在64KB。&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://unix.stackexchange.com/questions/11946/how-big-is-the-pipe-buffer&#34;&gt;测试代码&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#!/bin/bash
+test $# -ge 1 || { echo &amp;quot;usage: $0 write-size [wait-time]&amp;quot;; exit 1; }
+test $# -ge 2 || set -- &amp;quot;$@&amp;quot; 1
+bytes_written=$(
+{
+    exec 3&amp;gt;&amp;amp;1
+    {
+        perl -e &#39;
+            $size = $ARGV[0];
+            $block = q(a) x $size;
+            $num_written = 0;
+            sub report { print STDERR $num_written * $size, qq(\n); }
+            report; while (defined syswrite STDOUT, $block) {
+                $num_written++; report;
+            }
+        &#39; &amp;quot;$1&amp;quot; 2&amp;gt;&amp;amp;3
+    } | (sleep &amp;quot;$2&amp;quot;; exec 0&amp;lt;&amp;amp;-);
+} | tail -1
+)
+printf &amp;quot;write size: %10d; bytes successfully before error: %d\n&amp;quot; \
+    &amp;quot;$1&amp;quot; &amp;quot;$bytes_written&amp;quot;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;* 测试结果
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;huang@ThinkPad-X220:~/workspace/cpp$ /bin/bash -c &#39;for p in {0..18}; do ./pipe.sh $((2 ** $p)) 0.5; done&#39;
+write size:          1; bytes successfully before error: 65536
+write size:          2; bytes successfully before error: 65536
+write size:          4; bytes successfully before error: 65536
+write size:          8; bytes successfully before error: 65536
+write size:         16; bytes successfully before error: 65536
+write size:         32; bytes successfully before error: 65536
+write size:         64; bytes successfully before error: 65536
+write size:        128; bytes successfully before error: 65536
+write size:        256; bytes successfully before error: 65536
+write size:        512; bytes successfully before error: 65536
+write size:       1024; bytes successfully before error: 65536
+write size:       2048; bytes successfully before error: 65536
+write size:       4096; bytes successfully before error: 65536
+write size:       8192; bytes successfully before error: 65536
+write size:      16384; bytes successfully before error: 65536
+write size:      32768; bytes successfully before error: 65536
+write size:      65536; bytes successfully before error: 65536
+write size:     131072; bytes successfully before error: 0
+write size:     262144; bytes successfully before error: 0
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;* 内核中64KB大小的限制在哪里设置的？(TO DO)
+    * 只有在高版本的pipe实现中才有64KB大小，低版本都是4KB的。
+    * ulimit -a 的结果中，&amp;quot;pipe size (512 bytes, -p) 8&amp;quot;，表示一个pipe拥有8个512KB的buffer，总共是4KB
+    * 在include/linux/fs_pipe_i.h中，#define PIPE_DEF_BUFFERS   16, 这里是[按buffer的数量分配的](http://home.gna.org/pysfst/tests/pipe-limit.html)。
+    * 在fs/pipe.c中，pipe_write和pipe_read是在运行时按页大小分配的
+    * sysctl中fs.max_pipe_size的设置，fs.pipe-max-size = 1048576，又会起什么作用
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;函数分析
+
+&lt;ul&gt;
+&lt;li&gt;init_pipe_fs向文件系统注册pipe组件&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;static int __init init_pipe_fs(void)
+{
+	int err = register_filesystem(&amp;amp;pipe_fs_type);
+	if (!err) {
+		pipe_mnt = kern_mount(&amp;amp;pipe_fs_type);
+		err = PTR_ERR(pipe_mnt);
+		if (IS_ERR(pipe_mnt))
+			unregister_filesystem(&amp;amp;pipe_fs_type);
+		else
+			err = 0;
+	}
+	return err;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;static DECLARE_FSTYPE(pipe_fs_type, &amp;quot;pipefs&amp;quot;, pipefs_read_super, FS_NOMOUNT);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#define DECLARE_FSTYPE(var,type,read,flags) \
+struct file_system_type var = { \
+	name:		type, \
+	read_super:	read, \
+	fs_flags:	flags, \
+	owner:		THIS_MODULE, \
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;* pipe源码（2.4的实现中实在没什么可讲的，比较有价值的是pipe_write和pipe_read中处理缓冲队列源码可以参考）
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;/*
+ * We use a start+len construction, which provides full use of the 
+ * allocated memory.
+ * -- Florian Coosmann (FGC)
+ * 
+ * Reads with count = 0 should always return 0.
+ * -- Julian Bradfield 1999-06-07.
+ */
+
+/* Drop the inode semaphore and wait for a pipe event, atomically */
+void pipe_wait(struct inode * inode)
+{
+	DECLARE_WAITQUEUE(wait, current);
+	current-&amp;gt;state = TASK_INTERRUPTIBLE;
+	add_wait_queue(PIPE_WAIT(*inode), &amp;amp;wait);
+	up(PIPE_SEM(*inode));
+	schedule();
+	remove_wait_queue(PIPE_WAIT(*inode), &amp;amp;wait);
+	current-&amp;gt;state = TASK_RUNNING;
+	down(PIPE_SEM(*inode));
+}
+
+static ssize_t
+pipe_read(struct file *filp, char *buf, size_t count, loff_t *ppos)
+{
+	struct inode *inode = filp-&amp;gt;f_dentry-&amp;gt;d_inode;
+	ssize_t size, read, ret;
+
+	/* Seeks are not allowed on pipes.  */
+	ret = -ESPIPE;
+	read = 0;
+	if (ppos != &amp;amp;filp-&amp;gt;f_pos)
+		goto out_nolock;
+
+	/* Always return 0 on null read.  */
+	ret = 0;
+	if (count == 0)
+		goto out_nolock;
+
+	/* Get the pipe semaphore */
+	ret = -ERESTARTSYS;
+	if (down_interruptible(PIPE_SEM(*inode)))
+		goto out_nolock;
+
+	if (PIPE_EMPTY(*inode)) {
+do_more_read:
+		ret = 0;
+		if (!PIPE_WRITERS(*inode))
+			goto out;
+
+		ret = -EAGAIN;
+		if (filp-&amp;gt;f_flags &amp;amp; O_NONBLOCK)
+			goto out;
+
+		for (;;) {
+			PIPE_WAITING_READERS(*inode)++;
+			pipe_wait(inode);
+			PIPE_WAITING_READERS(*inode)--;
+			ret = -ERESTARTSYS;
+			if (signal_pending(current))
+				goto out;
+			ret = 0;
+			if (!PIPE_EMPTY(*inode))
+				break;
+			if (!PIPE_WRITERS(*inode))
+				goto out;
+		}
+	}
+
+	/* Read what data is available.  */
+	ret = -EFAULT;
+	while (count &amp;gt; 0 &amp;amp;&amp;amp; (size = PIPE_LEN(*inode))) {
+		char *pipebuf = PIPE_BASE(*inode) + PIPE_START(*inode);
+		ssize_t chars = PIPE_MAX_RCHUNK(*inode);
+
+		if (chars &amp;gt; count)
+			chars = count;
+		if (chars &amp;gt; size)
+			chars = size;
+
+		if (copy_to_user(buf, pipebuf, chars))
+			goto out;
+
+		read += chars;
+		PIPE_START(*inode) += chars;
+		PIPE_START(*inode) &amp;amp;= (PIPE_SIZE - 1);
+		PIPE_LEN(*inode) -= chars;
+		count -= chars;
+		buf += chars;
+	}
+
+	/* Cache behaviour optimization */
+	if (!PIPE_LEN(*inode))
+		PIPE_START(*inode) = 0;
+
+	if (count &amp;amp;&amp;amp; PIPE_WAITING_WRITERS(*inode) &amp;amp;&amp;amp; !(filp-&amp;gt;f_flags &amp;amp; O_NONBLOCK)) {
+		/*
+		 * We know that we are going to sleep: signal
+		 * writers synchronously that there is more
+		 * room.
+		 */
+		wake_up_interruptible_sync(PIPE_WAIT(*inode));
+		if (!PIPE_EMPTY(*inode))
+			BUG();
+		goto do_more_read;
+	}
+	/* Signal writers asynchronously that there is more room.  */
+	wake_up_interruptible(PIPE_WAIT(*inode));
+
+	ret = read;
+out:
+	up(PIPE_SEM(*inode));
+out_nolock:
+	if (read)
+		ret = read;
+
+	UPDATE_ATIME(inode);
+	return ret;
+}
+
+static ssize_t
+pipe_write(struct file *filp, const char *buf, size_t count, loff_t *ppos)
+{
+	struct inode *inode = filp-&amp;gt;f_dentry-&amp;gt;d_inode;
+	ssize_t free, written, ret;
+
+	/* Seeks are not allowed on pipes.  */
+	ret = -ESPIPE;
+	written = 0;
+	if (ppos != &amp;amp;filp-&amp;gt;f_pos)
+		goto out_nolock;
+
+	/* Null write succeeds.  */
+	ret = 0;
+	if (count == 0)
+		goto out_nolock;
+
+	ret = -ERESTARTSYS;
+	if (down_interruptible(PIPE_SEM(*inode)))
+		goto out_nolock;
+
+	/* No readers yields SIGPIPE.  */
+	if (!PIPE_READERS(*inode))
+		goto sigpipe;
+
+	/* If count &amp;lt;= PIPE_BUF, we have to make it atomic.  */
+	free = (count &amp;lt;= PIPE_BUF ? count : 1);
+
+	/* Wait, or check for, available space.  */
+	if (filp-&amp;gt;f_flags &amp;amp; O_NONBLOCK) {
+		ret = -EAGAIN;
+		if (PIPE_FREE(*inode) &amp;lt; free)
+			goto out;
+	} else {
+		while (PIPE_FREE(*inode) &amp;lt; free) {
+			PIPE_WAITING_WRITERS(*inode)++;
+			pipe_wait(inode);
+			PIPE_WAITING_WRITERS(*inode)--;
+			ret = -ERESTARTSYS;
+			if (signal_pending(current))
+				goto out;
+
+			if (!PIPE_READERS(*inode))
+				goto sigpipe;
+		}
+	}
+
+	/* Copy into available space.  */
+	ret = -EFAULT;
+	while (count &amp;gt; 0) {
+		int space;
+		char *pipebuf = PIPE_BASE(*inode) + PIPE_END(*inode);
+		ssize_t chars = PIPE_MAX_WCHUNK(*inode);
+
+		if ((space = PIPE_FREE(*inode)) != 0) {
+			if (chars &amp;gt; count)
+				chars = count;
+			if (chars &amp;gt; space)
+				chars = space;
+
+			if (copy_from_user(pipebuf, buf, chars))
+				goto out;
+
+			written += chars;
+			PIPE_LEN(*inode) += chars;
+			count -= chars;
+			buf += chars;
+			space = PIPE_FREE(*inode);
+			continue;
+		}
+
+		ret = written;
+		if (filp-&amp;gt;f_flags &amp;amp; O_NONBLOCK)
+			break;
+
+		do {
+			/*
+			 * Synchronous wake-up: it knows that this process
+			 * is going to give up this CPU, so it doesn&#39;t have
+			 * to do idle reschedules.
+			 */
+			wake_up_interruptible_sync(PIPE_WAIT(*inode));
+			PIPE_WAITING_WRITERS(*inode)++;
+			pipe_wait(inode);
+			PIPE_WAITING_WRITERS(*inode)--;
+			if (signal_pending(current))
+				goto out;
+			if (!PIPE_READERS(*inode))
+				goto sigpipe;
+		} while (!PIPE_FREE(*inode));
+		ret = -EFAULT;
+	}
+
+	/* Signal readers asynchronously that there is more data.  */
+	wake_up_interruptible(PIPE_WAIT(*inode));
+
+	inode-&amp;gt;i_ctime = inode-&amp;gt;i_mtime = CURRENT_TIME;
+	mark_inode_dirty(inode);
+
+out:
+	up(PIPE_SEM(*inode));
+out_nolock:
+	if (written)
+		ret = written;
+	return ret;
+
+sigpipe:
+	if (written)
+		goto out;
+	up(PIPE_SEM(*inode));
+	send_sig(SIGPIPE, current, 0);
+	return -EPIPE;
+}
+
+
+/* No kernel lock held - fine */
+static unsigned int
+pipe_poll(struct file *filp, poll_table *wait)
+{
+	unsigned int mask;
+	struct inode *inode = filp-&amp;gt;f_dentry-&amp;gt;d_inode;
+
+	poll_wait(filp, PIPE_WAIT(*inode), wait);
+
+	/* Reading only -- no need for acquiring the semaphore.  */
+	mask = POLLIN | POLLRDNORM;
+	if (PIPE_EMPTY(*inode))
+		mask = POLLOUT | POLLWRNORM;
+	if (!PIPE_WRITERS(*inode) &amp;amp;&amp;amp; filp-&amp;gt;f_version != PIPE_WCOUNTER(*inode))
+		mask |= POLLHUP;
+	if (!PIPE_READERS(*inode))
+		mask |= POLLERR;
+
+	return mask;
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>redis主从复制学习笔记</title>
+      <link>http://bg2bkk.github.io/post/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
+      <pubDate>Fri, 26 Feb 2016 16:15:31 +0800</pubDate>
+      
+      <guid>http://bg2bkk.github.io/post/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;redis&lt;a href=&#34;http://qifuguang.me/2015/10/18/Redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/&#34;&gt;主从复制&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;在介绍REDIS的RDB持久化方式时，我们提到了主从复制的实现过程
+
+&lt;ul&gt;
+&lt;li&gt;第一次同步，slave发送sync命令开始同步，master生成快照全量发送给slave，快照生成之后的变更命令缓存起来，也一块发送给slave&lt;/li&gt;
+&lt;li&gt;第二次及以后的同步，master收到命令后修改数据，并将数据修改后的结果同步给slave；如果此时发生断开重连情况，则重新进行第一步操作；&lt;/li&gt;
+&lt;li&gt;redis-2.8版本后，如果发生断开重连，则进行增量传输，而不是全量传输&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;这里有两个值得介绍的地方
+
+&lt;ul&gt;
+&lt;li&gt;不论是否设置RDB持久化，主从复制都会产生快照&lt;/li&gt;
+&lt;li&gt;redis.conf中不设置save 900 1等配置时，只是不自动产生快照，如果执行save，还是会产生快照的&lt;/li&gt;
+&lt;li&gt;主从复制时，master执行完命令后会立刻将结果返回client，而不是等待同步给slave后再返回给client。这里可能会有一个不一致窗口，如果主从在master执行完指令和同步给client之间断开，这里会发生不一致现象，需要注意&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;主从复制的常见设计思路
+
+&lt;ul&gt;
+&lt;li&gt;用于保证数据持久化
+
+&lt;ul&gt;
+&lt;li&gt;master正常读写，不设置RDB或者AOF的持久化&lt;/li&gt;
+&lt;li&gt;slave设置RDB和AOF方式持久化，保证数据安全&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;基于实用目的的主从复制
+
+&lt;ul&gt;
+&lt;li&gt;master设置为只写模式，将结果同步给slave&lt;/li&gt;
+&lt;li&gt;slave设置为只读模式，作为系统缓存&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>redis持久化学习笔记</title>
+      <link>http://bg2bkk.github.io/post/redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
+      <pubDate>Fri, 26 Feb 2016 14:56:41 +0800</pubDate>
+      
+      <guid>http://bg2bkk.github.io/post/redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;虽然网络上关于redis持久化的相关内容数不胜数，但是一来作为我的学习笔记，好记性不如烂笔头；二来除去官方redis之外，很多有意义的修改或补充都非常值得讨论，所以我想做一下记录。&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;持久化用于重启后的数据恢复，而持久化的引入导致了redis可能产生的性能抖动&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;redis持久化的&lt;a href=&#34;http://www.cnblogs.com/zhoujinyi/archive/2013/05/26/3098508.html&#34;&gt; 两种方法 &lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;RDB方式&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;RDB方式是redis的默认持久化方式&lt;/li&gt;
+&lt;li&gt;快照RDB持久化过程:
+
+&lt;ul&gt;
+&lt;li&gt;redis调用fork，产生子进程&lt;/li&gt;
+&lt;li&gt;父进程继续接受用户请求；子进程负责将内存内容写入临时文件，写入完成后rename为dump文件，实现替换&lt;/li&gt;
+&lt;li&gt;在子进程写内存内容期间，父进程如果要修改内存数据，os将会通过写时复制为父进程创建副本，所以此时子进程写入的仍然是fork时刻的整个数据库内容&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;不足之处在于:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;如果redis出现问题崩溃了，此时的rdb文件可能不是最新的数据，从上次RDB文件生成到redis崩溃这段时间的数据全部丢掉。&lt;/li&gt;
+&lt;li&gt;产生快照时，redis最多将占用2倍于现有数据规模的内存，因此当内存占用过多时，RDB方式可能导致系统负载过高，甚至假死。（有个说法是，当redis的内存占用超过物理内存的3/5时，进行RDB主从复制就比较危险了）&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;主从复制过程&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;第一次同步
+
+&lt;ul&gt;
+&lt;li&gt;slave向master发送sync同步请求，master先dump出rdb文件，并将其全量传输给slave；master将产生rdb文件之后这段时间内的修改命令缓存起来，并发送给slave。首次同步完成。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;第二次及以后的同步实现方式：
+
+&lt;ul&gt;
+&lt;li&gt;master将变量的快照（有修改的变量）直接实时发送给slave。&lt;/li&gt;
+&lt;li&gt;如果发生断开重连，则重复第一步第二步&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;reids-2.8版本之后，重连后进行第一步时，不用全量更新了。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;AOF方式&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;AOF方式持久化过程&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Append Only File&lt;/li&gt;
+&lt;li&gt;Redis将每次收到的命令都追加到文件中，类似于mysql的binlog；当redis重启时重新执行文件中的所有命令来重建数据&lt;/li&gt;
+&lt;li&gt;如果将所有命令不加甄别的都写入文件中，持久化文件会越来越大，比如INCR test命令执行100次，效果与SET test 100一样。此时需要进行rewrite，合并命令。&lt;/li&gt;
+&lt;li&gt;Redis提供了bgrewriteaof命令，执行过程与产生RDB文件的机制类似，fork出的子进程将内存中的数据以命令的方式重写持久化文件。本质上讲，该命令是将数据库中所有数据内容以命令的方式重写进新的AOF文件&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;AOF方式之我的想法&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;AOF方式是redis在收到命名后将命令写入文件内，如果redis发送故障，重启时直接读取AOF文件重新执行命令即可恢复，可以克服RDB方式的缺点&lt;/li&gt;
+&lt;li&gt;bgrewriteaof指令是对AOF方式的一次优化，执行bgrewriteaof命令时是根据此时数据库内容来写入AOF文件，并替换旧的AOF文件。这个过程与RDB快照产生方式一样&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;RDB方式和AOF方式的对比&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;RDB方式恢复起来快，而AOF方式需要一条条命令执行&lt;/li&gt;
+&lt;li&gt;RDB文件不需要经过编码，是数据库内容的直接克隆，所以文件比较小；而AOF文件内是一条条命令，需要依次执行&lt;/li&gt;
+&lt;li&gt;RDB文件可能会丢失部分数据，而AOF则专门解决这个问题&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;选择哪种方式&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;官方推荐：
+
+&lt;ul&gt;
+&lt;li&gt;如果想要很高的数据保障，则同时使用两种方式&lt;/li&gt;
+&lt;li&gt;如果可以接受数据丢失，则仅使用RDB方式&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;通常的设计思路是
+
+&lt;ul&gt;
+&lt;li&gt;利用replication机制弥补持久化在性能和设计上的不足&lt;/li&gt;
+&lt;li&gt;master上不做RDB和AOF，保证读写性能&lt;/li&gt;
+&lt;li&gt;slave同时开启两种方式，保证数据安全性&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Redis数据恢复过程&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;AOF优先级高于RDB方式，如果同时配置了AOF和RDB，AOF生效&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;    void loadDataFromDisk(void) {
+        long long start = ustime();
+        if (server.aof_state == REDIS_AOF_ON) {
+            if (loadAppendOnlyFile(server.aof_filename) == REDIS_OK)
+                redisLog(REDIS_NOTICE,&amp;quot;DB loaded from append only file: %.3f seconds&amp;quot;,(float)(ustime()-start)/1000000);
+        } else {
+            if (rdbLoad(server.rdb_filename) == REDIS_OK) {
+                redisLog(REDIS_NOTICE,&amp;quot;DB loaded from disk: %.3f seconds&amp;quot;,
+                    (float)(ustime()-start)/1000000);
+            } else if (errno != ENOENT) {
+                redisLog(REDIS_WARNING,&amp;quot;Fatal error loading the DB: %s. Exiting.&amp;quot;,strerror(errno));
+                exit(1);
+            }
+        }
+    }
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>tcp ip协议栈在linux内核启动中的顺序</title>
+      <link>http://bg2bkk.github.io/post/tcp%20ip%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%9C%A8linux%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8%E4%B8%AD%E7%9A%84%E9%A1%BA%E5%BA%8F/</link>
+      <pubDate>Wed, 24 Feb 2016 23:13:13 +0800</pubDate>
+      
+      <guid>http://bg2bkk.github.io/post/tcp%20ip%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%9C%A8linux%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8%E4%B8%AD%E7%9A%84%E9%A1%BA%E5%BA%8F/</guid>
+      <description>
+
+&lt;p&gt;在我尝试从kernel中深入了解TCP IP协议栈时，遇到了难题。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;我选择的是linux-2.4.20 kernel，理由如下：
+
+1. 首先是&amp;lt;TCP/IP Architecture, Design, And Implementation In Linux&amp;gt;一书采用的是该版本，会有按图索骥的效果。
+2. 第二个理由，正如书中所说的，TCP/IP协议栈在2.4内核中就已经基本成型，而根据我实际对比，2.4.20内核与4.4.1内核在TCP/IP实现的框架上大体是相同的，区别是2.6 kernel以后完全将VFS中的各组件namespace化，另外是一些高版本内核引入的措施（比如对比net/socket.c中sock_create函数）。
+3. 第三个理由是，linux-2.4 kernel的代码还没有开始爆炸，适合初学者入门，也适合我这样学力不足的人。
+
+采用linux-2.4 kernel的不足之处在于，版本较老，想亲自动手实验，需要做一些兼容性的准备。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;我搜到了这样一篇帖子，&lt;a href=&#34;http://www.skyfree.org/linux/kernel_network/startup.html，&#34;&gt;http://www.skyfree.org/linux/kernel_network/startup.html，&lt;/a&gt; 收益颇深。解决了我的疑问，用我最能接受的方式，先从kernel启动的函数说起，然后调用到我能看到的net/socket.c中的函数；然后又通过修改kernel源码添加标记，打印运行log来标志函数执行；然后通过讲解module_init注册的静态模块是如何加进内核可执行文件里的，然后编译出linux.map文件，进一步确定函数执行顺序。这个方式让我非常容易接受，也很感慨写博客的人功力之深，通篇干货没有废话；更感慨的是，这个帖子写于2001左右，当时进行kernel修改还是比较容易的事情，现在的kernel代码越来越庞大，初学者为此望而却步，很难入手；新人难以入门的问题，近年来也多有讨论。&lt;/p&gt;
+
+&lt;p&gt;那我就先把原作者的文章翻译过来，再继续下一步工作吧。&lt;/p&gt;
+
+&lt;h2 id=&#34;先说结论:45e9e7b94f065f59195b43c12d821283&#34;&gt;先说结论&lt;/h2&gt;
+
+&lt;ol&gt;
+&lt;li&gt;kernel启动时，第一个与network有关的函数是sock_init()，用来向kernel注册sock文件系统并挂载，以及加载其他模块，比如netfilter&lt;/li&gt;
+&lt;li&gt;loopback设备随后被初始化，因为该设备比较简单。&lt;strong&gt;&lt;em&gt;drivers/net/loopback.c&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;dummy 和 Ethernet 设备随后被初始化&lt;/li&gt;
+&lt;li&gt;TCP/IP协议栈是在inet_init()中初始化的&lt;/li&gt;
+&lt;li&gt;Unix Domain Socket是在af_unix_init()中初始化的。1~5步按时间顺序排列。&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&#34;linux-kernel-2-4的入口函数:45e9e7b94f065f59195b43c12d821283&#34;&gt;Linux Kernel 2.4的入口函数&lt;/h2&gt;
+
+&lt;p&gt;1.经过基本硬件设置后，启动代码(定义在head.S中)调用 /init/main.c 的 start_kernel()函数&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#arch/i386/kernel/head.S
+...
+    call SYMBOL_NAME(start_kernel)
+...
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;2.sock_init()调用过程，向系统注册sock文件系统并挂载&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;sock_init()将向系统注册sock文件系统
+do_initcalls()中循环调用所有MODULE_INIT()的模块，包括系统中的inet_init和af_unix_init，至于如何关联起来的，稍后会有介绍。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-c&#34;&gt;asmlinkage void __init start_kernel(void)
+{
+...
+        printk(linux_banner);	// &amp;quot;linux_banner&amp;quot; is defined in init/version.c (W.N.).
+...
+...     // Dozens of initialize routines
+...
+        kernel_thread(init, NULL, CLONE_FS | CLONE_FILES | CLONE_SIGNAL);
+...
+        cpu_idle();
+}
+
+static int init(void * unused)
+{
+...
+        do_basic_setup();
+...
+        execve(&amp;quot;/sbin/init&amp;quot;,argv_init,envp_init);
+...
+}
+
+static void __init do_basic_setup(void)
+{
+...
+        sock_init();		// net/socket.c (SEE BELOW)
+...
+        do_initcalls();
+...
+}
+
+static void __init do_initcalls(void)
+{
+        initcall_t *call;
+
+        call = &amp;amp;__initcall_start;
+        do {
+                (*call)();
+                call++;
+        } while (call &amp;lt; &amp;amp;__initcall_end);
+...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;3.sock_init()的内容&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;欢迎信息printk()
+清空协议栈数组，此时系统中没有任何协议
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;...
+
+/*
+ *      The protocol list. Each protocol is registered in here.
+ */
+
+static struct net_proto_family *net_families[NPROTO];	// Current NPROTO is defined as 32
+																// in &amp;lt;linux/net.h&amp;gt; (W.N.).
+...
+
+void __init sock_init(void)
+{
+        int i;
+
+        printk(KERN_INFO &amp;quot;Linux NET4.0 for Linux 2.4\n&amp;quot;);
+        printk(KERN_INFO &amp;quot;Based upon Swansea University Computer Society NET3.039\n&amp;quot;);
+
+        /*
+         *      Initialize all address (protocol) families.
+         */
+
+        #清空所有协议
+        for (i = 0; i &amp;lt; NPROTO; i++)
+                net_families[i] = NULL;
+...
+        /*
+         *      Initialize the protocols module.
+         */
+
+        #注册文件系统并挂载，sock_fs_type之前被初始化
+        register_filesystem(&amp;amp;sock_fs_type);
+        sock_mnt = kern_mount(&amp;amp;sock_fs_type);
+
+        /* The real protocol initialization is performed when
+         *  do_initcalls is run.
+         */
+...
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;4.do_initcalls()中的调用函数&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#init/main.c
+
+static void __init do_initcalls(void)
+{
+        initcall_t *call;
+
+        call = &amp;amp;__initcall_start;
+        do {
+                #添加打印语句，dmesg命令可以输出启动结果
+                printk(KERN_INFO &amp;quot;+++ do_initcall: %08X\n&amp;quot;, call);	// Dump the entry address of initializer (W.N.).
+
+                (*call)();
+                call++;
+        } while (call &amp;lt; &amp;amp;__initcall_end);
+
+        /* Make sure there is no pending stuff from the initcall sequence */
+        flush_scheduled_tasks();
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;同时也修改loopback_init函数&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#drivers/net/loopback.c
+
+int __init loopback_init(struct net_device *dev)
+{
+        #添加打印语句
+        printk(KERN_INFO &amp;quot;=== Executing loopback_init ===\n&amp;quot;);
+
+        dev-&amp;gt;mtu                = PAGE_SIZE - LOOPBACK_OVERHEAD;
+        dev-&amp;gt;hard_start_xmit    = loopback_xmit;
+        dev-&amp;gt;hard_header        = eth_header;
+        dev-&amp;gt;hard_header_cache  = eth_header_cache;
+        dev-&amp;gt;header_cache_update= eth_header_cache_update;
+        dev-&amp;gt;hard_header_len    = ETH_HLEN;             /* 14                   */
+        dev-&amp;gt;addr_len           = ETH_ALEN;             /* 6                    */
+...
+};
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;重新编译内核，替换并重启，dmesg的输出结果为：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;Linux version 2.4.3 (root@mebius) (gcc version 2.95.3 20010315 (Debian release)) #9 Tue Apr 3 17:37:
+44 JST 2001
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 000000000009f800 (usable)
+ BIOS-e820: 000000000009f800 - 00000000000a0000 (reserved)
+ BIOS-e820: 00000000000ebc00 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 0000000007ff0000 (usable)
+ BIOS-e820: 0000000007ff0000 - 0000000007fffc00 (ACPI data)
+ BIOS-e820: 0000000007fffc00 - 0000000008000000 (ACPI NVS)
+ BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
+On node 0 totalpages: 32752
+zone(0): 4096 pages.
+zone(1): 28656 pages.
+zone(2): 0 pages.
+Kernel command line: root=/dev/hda1 mem=131008K
+Initializing CPU#0
+Detected 333.350 MHz processor.
+Console: colour VGA+ 80x25
+Calibrating delay loop... 665.19 BogoMIPS
+Memory: 126564k/131008k available (1076k kernel code, 4056k reserved, 387k data, 184k init, 0k highm
+em)
+Dentry-cache hash table entries: 16384 (order: 5, 131072 bytes)
+Buffer-cache hash table entries: 4096 (order: 2, 16384 bytes)
+Page-cache hash table entries: 32768 (order: 5, 131072 bytes)
+Inode-cache hash table entries: 8192 (order: 4, 65536 bytes)
+CPU: Before vendor init, caps: 0183f9ff 00000000 00000000, vendor = 0
+CPU: L1 I cache: 16K, L1 D cache: 16K
+CPU: L2 cache: 256K
+Intel machine check architecture supported.
+Intel machine check reporting enabled on CPU#0.
+CPU: After vendor init, caps: 0183f9ff 00000000 00000000 00000000
+CPU: After generic, caps: 0183f9ff 00000000 00000000 00000000
+CPU: Common caps: 0183f9ff 00000000 00000000 00000000
+CPU: Intel Mobile Pentium II stepping 0a
+Enabling fast FPU save and restore... done.
+Checking &#39;hlt&#39; instruction... OK.
+POSIX conformance testing by UNIFIX
+PCI: PCI BIOS revision 2.10 entry at 0xfd9be, last bus=0
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+PCI: Using IRQ router PIIX [8086/7110] at 00:07.0
+  got res[10000000:10000fff] for resource 0 of Ricoh Co Ltd RL5c475
+Limiting direct PCI/PCI transfers.
+
+#sock_init()的运行log
+Linux NET4.0 for Linux 2.4				// Message from sock_init()
+Based upon Swansea University Computer Society NET3.039
+#sock_init()运行结束
+
+#do_initcalls()中的每个initcall
++++ do_initcall: C029F4E8				// do_initcalls() START
++++ do_initcall: C029F4EC
++++ do_initcall: C029F4F0				// apm_init() in arch/i386/kernel/kernel.o
+apm: BIOS version 1.2 Flags 0x03 (Driver version 1.14)
++++ do_initcall: C029F4F4
++++ do_initcall: C029F4F8
++++ do_initcall: C029F4FC				// kswapd_init() in mm/mm.o
+Starting kswapd v1.8
++++ do_initcall: C029F500
++++ do_initcall: C029F504
++++ do_initcall: C029F508
++++ do_initcall: C029F50C
++++ do_initcall: C029F510
++++ do_initcall: C029F514
++++ do_initcall: C029F518
++++ do_initcall: C029F51C
++++ do_initcall: C029F520
++++ do_initcall: C029F524
++++ do_initcall: C029F528				// partition_setup() in fs/fs.o
+pty: 256 Unix98 ptys configured
+block: queued sectors max/low 84058kB/28019kB, 256 slots per queue
+RAMDISK driver initialized: 16 RAM disks of 8000K size 1024 blocksize
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+PIIX4: IDE controller on PCI bus 00 dev 39
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xfc90-0xfc97, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xfc98-0xfc9f, BIOS settings: hdc:pio, hdd:pio
+hda: TOSHIBA MK8113MAT, ATA DISK drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hda: 16006410 sectors (8195 MB), CHS=996/255/63, UDMA(33)
+Partition check:
+ hda: hda1 hda2 hda3 hda4 &amp;lt; hda5 hda6 hda7 hda8 hda9 hda10 &amp;gt;
+Floppy drive(s): fd0 is 1.44M
+FDC 0 is a National Semiconductor PC87306
+
+#在loopback_init()中添加printk函数的结果
+=== Executing loopback_init ===			// loopback initialization is here!
+
++++ do_initcall: C029F52C				// ext2_fs() in fs/fs.o
++++ do_initcall: C029F530
++++ do_initcall: C029F534
++++ do_initcall: C029F538
++++ do_initcall: C029F53C
++++ do_initcall: C029F540
+loop: loaded (max 8 devices)
++++ do_initcall: C029F544
+Serial driver version 5.05 (2000-12-13) with MANY_PORTS SHARE_IRQ SERIAL_PCI enabled
+ttyS00 at 0x03f8 (irq = 4) is a 16550A
++++ do_initcall: C029F548				// dummy_init_module() in drivers/net/net.o
++++ do_initcall: C029F54C				// rtl8139_init_module() in drivers/net/net.o
+8139too Fast Ethernet driver 0.9.15c loaded
+PCI: Found IRQ 9 for device 00:03.0
+PCI: The same IRQ used for device 00:07.2
+eth0: RealTek RTL8139 Fast Ethernet at 0xc8800c00, 08:00:1f:06:79:20, IRQ 9
+eth0:  Identified 8139 chip type &#39;RTL-8139B&#39;
++++ do_initcall: C029F550
++++ do_initcall: C029F554
++++ do_initcall: C029F558
++++ do_initcall: C029F55C
++++ do_initcall: C029F560
+
+#inet_init()的initcall结果
++++ do_initcall: C029F564				// inet_init() in net/network.o
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP
+IP: routing cache hash table of 512 buckets, 4Kbytes
+TCP: Hash tables configured (established 8192 bind 8192)
+
+#af_unix_inet()的initcall结果
++++ do_initcall: C029F568				// af_unix_init() in net/network.o
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
++++ do_initcall: C029F56C
++++ do_initcall: C029F570
++++ do_initcall: C029F574				// atalk_init() in net/network.o
+NET4: AppleTalk 0.18a for Linux NET4.0	// do_initcalls() END
+fatfs: bogus cluster size
+reiserfs: checking transaction log (device 03:01) ...
+Using r5 hash to sort names
+ReiserFS version 3.6.25
+VFS: Mounted root (reiserfs filesystem) readonly.
+Freeing unused kernel memory: 184k freed
+Adding Swap: 128516k swap-space (priority -1)
+eth0: Setting half-duplex based on auto-negotiated partner ability 0000.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;5.initcalls的实现机制&lt;/p&gt;
+
+&lt;p&gt;首先我们可以看到每个module都有使用module_init宏。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#net/ipv4/af_inet.c
+
+static int __init inet_init(void)
+{
+...
+        printk(KERN_INFO &amp;quot;NET4: Linux TCP/IP 1.0 for NET4.0\n&amp;quot;);
+...
+}
+
+module_init(inet_init);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;__init宏和 module_init宏在 &lt;em&gt;include/linux/init.h&lt;/em&gt; 中定义&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#ifndef MODULE
+#ifndef __ASSEMBLY__
+...
+typedef int (*initcall_t)(void);
+...
+extern initcall_t __initcall_start, __initcall_end;
+#define __initcall(fn)                                                          \
+        static initcall_t __initcall_##fn __init_call = fn
+...
+#endif /* __ASSEMBLY__ */
+
+/*
+ * Mark functions and data as being only used at initialization
+ * or exit time.
+ */
+#define __init          __attribute__ ((__section__ (&amp;quot;.text.init&amp;quot;)))
+...
+#define __init_call     __attribute__ ((unused,__section__ (&amp;quot;.initcall.init&amp;quot;)))
+...
+/**
+ * module_init() - driver initialization entry point
+ * @x: function to be run at kernel boot time or module insertion
+ *
+ * module_init() will add the driver initialization routine in
+ * the &amp;quot;__initcall.int&amp;quot; code segment if the driver is checked as
+ * &amp;quot;y&amp;quot; or static, or else it will wrap the driver initialization
+ * routine with init_module() which is used by insmod and
+ * modprobe when the driver is used as a module.
+ */
+#define module_init(x)  __initcall(x);
+...
+#else // MODULE
+...
+#define __init
+...
+#define __initcall(fn)
+...
+#define module_init(x) \
+        int init_module(void) __attribute__((alias(#x))); \
+        extern inline __init_module_func_t __init_module_inline(void) \
+        { return x; }
+...
+#endif // MODULE
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;* init.h中的#define MODULE是在Makefile中的 -DMODULE 设置的，表示可以动态添加MODULE
+* 目前 CONFIG_INET (/arch/i386/defconfig) 不是 可选module （M），而是静态编译进内核的（y）。静态模块由init.h中的#ifndef MODULE块预处理，而可动态加载的模块（M）则会调用 #else //MODULE 后的初始化代码
+* 所以经过预编译后，inet_init()函数将由上述代码的#ifndef MODULE 预处理为
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;    #include/linux/init.h
+    static int __attribute__ ((__section__ (&amp;quot;.text.init&amp;quot;))) inet_init(void)
+    {
+    ...
+            printk(KERN_INFO &amp;quot;NET4: Linux TCP/IP 1.0 for NET4.0\n&amp;quot;);
+    ...
+    }
+    
+    initcall_t __initcall_inet_init  __attribute__ ((unused,__section__ (&amp;quot;.initcall.init&amp;quot;))) = inet_init;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;这个扩展过程意味着：
+
+&lt;ul&gt;
+&lt;li&gt;inet_init()函数的代码段text code将编译进kernel可执行文件的&lt;strong&gt;&lt;em&gt;.text.init&lt;/em&gt;&lt;/strong&gt;段中，这种机制的目的是kernel启动，注册模块后能够释放所占用的内存&lt;/li&gt;
+&lt;li&gt;预处理后的&lt;strong&gt;&lt;em&gt;__initcall_inet_init&lt;/em&gt;&lt;/strong&gt;作为inet_init()函数的入口，将被存储在kernel可执行文件的 &lt;strong&gt;&lt;em&gt;.initcall.init&lt;/em&gt;&lt;/strong&gt; 段中。
+
+&lt;ul&gt;
+&lt;li&gt;注意这个宏定义是static类型的，所以我们并不能确定这个宏定义的结果是否在kernel的全局符号表中。（只有全局变量才在符号表中）&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;为了能够一探究竟，&lt;strong&gt;&lt;em&gt;移除该宏定义的static标志&lt;/em&gt;&lt;/strong&gt;，然后&lt;strong&gt;&lt;em&gt;_&lt;em&gt;initcall&lt;/em&gt;&lt;/em&gt;&lt;/strong&gt; ***这些入口就是全局变量了，然后我们就能在内核编译后的符号表中看到这些入口函数。
+
+&lt;ul&gt;
+&lt;li&gt;注意如果这些入口函数不是static作用域后，会导致一些链接错误，原因是命名冲突，比如netfilter中有类似命名&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Let&amp;rsquo;s hack the kernel!!!&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;5.如何从内部观察linux kernel&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;* linux kernel只是一个ELF可执行目标文件，和/bin/ls之类的可执行文件没有区别
+* 所以作为kernel ELF文件，vmlinux可以通过nm、objdump和readelf等工具观察
+* 默认情况下，linux kernel的顶层Makefile编译成功后将生成System.map文件，以方便调试，而这个文件不过是一个符号表。所以我向这个编译添加&amp;quot;--cref -Map linux.map&amp;quot;选项，可以生成一个包含更多信息的符号表
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#Makefile
+#添加 --cref -Map linux.map 选项
+vmlinux: $(CONFIGURATION) init/main.o init/version.o linuxsubdirs
+        $(LD) $(LINKFLAGS) $(HEAD) init/main.o init/version.o \
+                --start-group \
+                $(CORE_FILES) \
+                $(DRIVERS) \
+                $(NETWORKS) \
+                $(LIBS) \
+                --end-group \
+                --cref -Map linux.map \
+                -o vmlinux
+        $(NM) vmlinux | grep -v &#39;\(compiled\)\|\(\.o$$\)\|\( [aUw] \)\|\(\.\.ng$$\)\|\(LASH[RL]DI\)&#39;
+ | sort &amp;gt; System.map
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;* make vmlinux编译kernle源码，生成vmlinux和linux.map，通过objdump -h vmlinux查看各段信息
+* 可以看到***.text.init***段和***.initcall.init***段
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#objdump -h vmlinux
+vmlinux:     file format elf32-i386
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         0010bf68  c0100000  c0100000  00001000  2**4
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .text.lock    00001130  c020bf68  c020bf68  0010cf68  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .rodata       0004407c  c020d0a0  c020d0a0  0010e0a0  2**5
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  3 .kstrtab      000062fe  c0251120  c0251120  00152120  2**5
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  4 __ex_table    00001418  c0257420  c0257420  00158420  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  5 __ksymtab     00001d68  c0258838  c0258838  00159838  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  6 .data         00013abc  c025a5a0  c025a5a0  0015b5a0  2**5
+                  CONTENTS, ALLOC, LOAD, DATA
+  7 .data.init_task 00002000  c0270000  c0270000  00170000  2**5
+                  CONTENTS, ALLOC, LOAD, DATA
+  8 .text.init    0000f56c  c0272000  c0272000  00172000  2**4
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  9 .data.init    0001de60  c0281580  c0281580  00181580  2**5
+                  CONTENTS, ALLOC, LOAD, DATA
+ 10 .setup.init   00000108  c029f3e0  c029f3e0  0019f3e0  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+ 11 .initcall.init 00000090  c029f4e8  c029f4e8  0019f4e8  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+ 12 .data.page_aligned 00000800  c02a0000  c02a0000  001a0000  2**5
+                  CONTENTS, ALLOC, LOAD, DATA
+ 13 .data.cacheline_aligned 00001fe0  c02a0800  c02a0800  001a0800  2**5
+                  CONTENTS, ALLOC, LOAD, DATA
+ 14 .bss          0002b3d8  c02a27e0  c02a27e0  001a27e0  2**5
+                  ALLOC
+ 15 .comment      00003bc9  00000000  00000000  001a27e0  2**0
+                  CONTENTS, READONLY
+ 16 .note         00001a90  00000000  00000000  001a63a9  2**0
+                  CONTENTS, READONLY
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;* 如下是linux.map的文件内容
+* __initcall_start 和 __initcall_end 定义了***.initcall.init***段的起始和结束，并出现在do_initcalls()函数中
+* 之前将__initcall()宏的static关键字去掉了，所以__initcall_***这些入口函数地址，比如__initcall_inet_init就全局可见了，我们可以在文件中看到内核启动过程
+* 内核开发者们总是喜欢用grep等工具来找某个函数在哪个文件中，而我们在linux.map中可以看到每个函数在哪个模块中，只需要less linux.map就可以了
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;     0xc029f4e8                __initcall_start=.
+
+.initcall.init  0xc029f4e8       0x90
+ *(.initcall.init)
+ .initcall.init
+                0xc029f4e8        0xc arch/i386/kernel/kernel.o
+                0xc029f4e8                __initcall_dmi_scan_machine
+                0xc029f4ec                __initcall_cpuid_init
+                0xc029f4f0                __initcall_apm_init
+ .initcall.init
+                0xc029f4f4        0x4 kernel/kernel.o
+                0xc029f4f4                __initcall_uid_cache_init
+ .initcall.init
+                0xc029f4f8        0xc mm/mm.o
+                0xc029f4f8                __initcall_kmem_cpucache_init
+                0xc029f4fc                __initcall_kswapd_init
+                0xc029f500                __initcall_init_shmem_fs
+ .initcall.init
+                0xc029f504       0x3c fs/fs.o
+                0xc029f504                __initcall_bdflush_init
+                0xc029f508                __initcall_init_pipe_fs
+                0xc029f50c                __initcall_fasync_init
+                0xc029f510                __initcall_filelock_init
+                0xc029f514                __initcall_dnotify_init
+                0xc029f518                __initcall_init_misc_binfmt
+                0xc029f51c                __initcall_init_script_binfmt
+                0xc029f520                __initcall_init_elf_binfmt
+                0xc029f524                __initcall_init_proc_fs
+                0xc029f528                __initcall_partition_setup
+                0xc029f52c                __initcall_init_ext2_fs
+                0xc029f530                __initcall_init_fat_fs
+                0xc029f534                __initcall_init_msdos_fs
+                0xc029f538                __initcall_init_iso9660_fs
+                0xc029f53c                __initcall_init_reiserfs_fs
+ .initcall.init
+                0xc029f540        0x4 drivers/block/block.o
+                0xc029f540                __initcall_loop_init
+ .initcall.init
+                0xc029f544        0x4 drivers/char/char.o
+                0xc029f544                __initcall_rs_init
+ .initcall.init
+                0xc029f548        0x8 drivers/net/net.o
+                0xc029f548                __initcall_dummy_init_module
+                0xc029f54c                __initcall_rtl8139_init_module
+ .initcall.init
+                0xc029f550        0x4 drivers/ide/idedriver.o
+                0xc029f550                __initcall_ide_cdrom_init
+ .initcall.init
+                0xc029f554        0x4 drivers/cdrom/driver.o
+                0xc029f554                __initcall_cdrom_init
+ .initcall.init
+                0xc029f558        0x4 drivers/pci/driver.o
+                0xc029f558                __initcall_pci_proc_init
+ .initcall.init
+                0xc029f55c       0x1c net/network.o
+                0xc029f55c                __initcall_p8022_init
+                0xc029f560                __initcall_snap_init
+                0xc029f564                __initcall_inet_init
+                0xc029f568                __initcall_af_unix_init
+                0xc029f56c                __initcall_netlink_proto_init
+                0xc029f570                __initcall_packet_init
+                0xc029f574                __initcall_atalk_init
+                0xc029f578                __initcall_end=.
+                0xc02a0000                .=ALIGN(0x1000)
+                0xc029f578                __init_end=.
+                0xc02a0000                .=ALIGN(0x1000)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;linux.map中的信息可以帮助我们和dmesg的输出信息对照起来，可以看到内核中每个我们感兴趣的静态模块的加载顺序。&lt;br /&gt;
+以上工作都是基于linux-2.4内核实现的，新版本内核该如何实现呢？&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>openresty压测过程和systemtap工具使用中的一些问题</title>
+      <link>http://bg2bkk.github.io/post/openresty%E5%8E%8B%E6%B5%8B%E8%BF%87%E7%A8%8B%E5%92%8Csystemtap%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/</link>
+      <pubDate>Mon, 22 Feb 2016 11:15:36 +0800</pubDate>
+      
+      <guid>http://bg2bkk.github.io/post/openresty%E5%8E%8B%E6%B5%8B%E8%BF%87%E7%A8%8B%E5%92%8Csystemtap%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/</guid>
+      <description>
+
+&lt;h2 id=&#34;一-tegine编译-高版本的httpluamodule:dab12220e12920eb4ab0fdd954035a76&#34;&gt;一、tegine编译+高版本的httpluamodule&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;tengine-2.1.0的ngx_lua模块随着tengine软件发布，和以往版本的tengine不一样。&lt;/li&gt;
+&lt;li&gt;tengine自带的ngx_lua模块版本太老，与openresty相比要差几个版本，导致openresty里的一些好的软件工具不可用。
+
+&lt;ul&gt;
+&lt;li&gt;编译tengine+lua时需要手动指定ngx_lua模块和LuaJIT2.1
+
+&lt;ul&gt;
+&lt;li&gt;新版本ngx_lua能弥补openrestysystemtap在probe某些函数时的错误
+
+&lt;ul&gt;
+&lt;li&gt;关键脚本ngx-lua-exec-time.sxx中第58行@pfunc(ngx_http_lua_free_fake_request)函数找不到&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;使用LuaJIT2.1能解决lua执行时的stap问题。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#关键脚本stapxx/samples/ngx-lua-exec-time.sxx中第58行@pfunc(ngx_http_lua_free_fake_request)函数找不到的问题：
+2&amp;gt; sudo ./samples/ngx-lua-exec-time.sxx -x 11070
+semantic error: while resolving probe point: identifier &#39;process&#39; at &amp;lt;input&amp;gt;:58:7
+        source:       process(&amp;quot;/usr/local/nginx/sbin/nginx&amp;quot;).function(&amp;quot;ngx_http_lua_free_fake_request&amp;quot;)
+                      ^
+
+semantic error: no match (similar functions: ngx_http_lua_get_request, ngx_http_create_request, ngx_http_free_request, ngx_http_lua_post_subrequest, ngx_http_scgi_create_request)
+Pass 2: analysis failed.  [man error::pass2]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#tegine编译选项
+CFLAGS=&amp;quot;-g -O2&amp;quot; ./configure  --add-module=/path/ngx_openresty-1.7.10.1/bundle/ngx_lua-0.9.15/ --with-luajit-lib=/usr/local/lib/ --with-luajit-inc=/usr/local/include/luajit-2.1/ --with-ld-opt=-Wl,-rpath,/usr/local/lib
+
+make -j16
+
+#新版本ngx_lua在openresty的bundle的ngx_lua-0.9.15/里，也可以从https://github.com/openresty/lua-nginx-module获得
+
+#LuaJIT2.1的源代码也在bundle里，也可以从https://github.com/openresty/luajit2获得。
+
+LuaJIT2.1的编译选项是：
+make CCDEBUG=-g -B -j8
+make -j16
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;二-axel下载工具和debuginfo-centos-org:dab12220e12920eb4ab0fdd954035a76&#34;&gt;二、axel下载工具和debuginfo.centos.org&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;我们在安装kernel的debuginfo包的时候，由于只有debuginfo.centos.org上面有rpm包，所以yum源设置为它，但是在国内访问实在是慢，因此推荐使用axel或者mwget下载。mwget顾名思义是多线程的wget工具，下载rpm包非常快，值得推荐。&lt;/li&gt;
+&lt;li&gt;当我们为了系统中的systemtap安装时，需要安装kernel-debuginfo，这时需要注意严格按照自己的kernel版本来，centos系的需要注意是否2.6.32-431.11.2.el6.toa.2.x86_64后面有toa之类的&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#debian系的可以使用dpkg -l linux-image*命令，查看具体内核版本；
+
+huang@ThinkPad-X220:~$ dpkg -l linux-image*
+Desired=Unknown/Install/Remove/Purge/Hold
+| Status=Not/Inst/Conf-files/Unpacked/halF-conf/Half-inst/trig-aWait/Trig-pend
+|/ Err?=(none)/Reinst-required (Status,Err: uppercase=bad)
+||/ Name                   Version          Architecture     Description
++++-======================-================-================-==================================================
+un  linux-image            &amp;lt;none&amp;gt;           &amp;lt;none&amp;gt;           (no description available)
+un  linux-image-3.0        &amp;lt;none&amp;gt;           &amp;lt;none&amp;gt;           (no description available)
+ii  linux-image-3.13.0-24- 3.13.0-24.47     amd64            Linux kernel image for version 3.13.0 on 64 bit x8
+ii  linux-image-3.13.0-24- 3.13.0-24.47     amd64            Linux kernel debug image for version 3.13.0 on 64 
+ii  linux-image-extra-3.13 3.13.0-24.46     amd64            Linux kernel extra modules for version 3.13.0 on 6
+ii  linux-image-generic    3.13.0.24.28     amd64            Generic Linux kernel image
+
+#特别要注意的是3.13.0-24.46、 47、 48，小版本很重要的。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;三-centos6-4的gcc版本过低导致的问题:dab12220e12920eb4ab0fdd954035a76&#34;&gt;三、centos6.4的gcc版本过低导致的问题&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;在使用stapxx的工具追踪nginx运行情况时，发现有如下情况，比如：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;2&amp;gt; sudo ./samples/ngx-rewrite-latency-distr.sxx -x 11070
+semantic error: not accessible at this address [man error::dwarf] (0x44a53b, dieoffset: 0x13a891): identifier &#39;$r&#39; at &amp;lt;input&amp;gt;:67:9
+        source:     r = $r
+                        ^
+
+Pass 2: analysis failed.  [man error::pass2]
+
+# 这个r是没有问题的，在nginx-systemtap-toolkit/ngx-active-reqs中有类似定义：
+my $c = &#39;@cast(c, &amp;quot;ngx_connection_t&amp;quot;)&#39;;
+my $r = &#39;@cast(r, &amp;quot;ngx_http_request_t&amp;quot;)&#39;;
+my $u = &#39;@cast(u, &amp;quot;ngx_http_upstream_t&amp;quot;)&#39;;
+my $p = &#39;@cast(p, &amp;quot;ngx_event_pipe_t&amp;quot;)&#39;;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;产生原因&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;tengine的DWARF信息不完整
+
+&lt;ul&gt;
+&lt;li&gt;低版本的gcc在O2时优化掉很多东西，而高版本gcc智能的多&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;解决方法有两种&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;一种方法是将gcc的编译优化选项降低为O0，以前是O2，则这个ngx_http_request_t的符号，即nginx的DWARF信息可以保留下来。&lt;/li&gt;
+&lt;li&gt;另一种方法是升级gcc，考虑到在线上服务器升级gcc不太好，这里介绍一种&lt;a href=&#34;http://ask.xmodulo.com/upgrade-gcc-centos.html&#34;&gt;暂时升级gcc的办法&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ sudo wget http://people.centos.org/tru/devtools-1.1/devtools-1.1.repo -P /etc/yum.repos.d
+$ sudo sh -c &#39;echo &amp;quot;enabled=1&amp;quot; &amp;gt;&amp;gt; /etc/yum.repos.d/devtools-1.1.repo&#39;
+$ sudo yum install devtoolset-1.1
+$ scl enable devtoolset-1.1 bash
+$ gcc --version
+# 通过devtoolset工具可以暂时提高gcc版本，而不更改之前服务器的配置，这个很有效果，高版本的gcc会智能保留symbol。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;四-apache的压测工具ab升级高版本:dab12220e12920eb4ab0fdd954035a76&#34;&gt;四、apache的压测工具ab升级高版本&lt;/h2&gt;
+
+&lt;p&gt;在压测过程中，我们想微观的通过tcpdump抓包分析通信过程。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;发现ab工具在发起keepalive请求时，在完成-n的请求数后额外的发出一个请求，随后又发出F包关闭连接，导致通信过程多出一次。&lt;/li&gt;
+&lt;li&gt;已有的httpd 2.3自带的ab工具有这个bug，升级httpd2.4后这个问题修复。&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;五-tcpdump抓取fin包:dab12220e12920eb4ab0fdd954035a76&#34;&gt;五、tcpdump抓取fin包&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# tcp包里有个flags字段表示包的类型，tcpdump可以根据该字段抓取相应类型的包：
+# tcp[13] 就是 TCP flags (URG,ACK,PSH,RST,SYN,FIN)
+# Unskilled 32
+# Attackers 16
+# Pester     8
+# Real       4
+# Security   2
+# Folks      1
+
+#抓取fin包：
+tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 1 != 0 &#39; -s0  -w fin.cap -vvv
+#抓取syn+fin包：
+tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 3 != 0 &#39; -s0  -w syn_fin.cap -vvv
+#抓取rst包：
+tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.cap -vvv
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://babyhe.blog.51cto.com/1104064/1395489&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;六-redis内部监测工具-redis-faina:dab12220e12920eb4ab0fdd954035a76&#34;&gt;六、redis内部监测工具 redis-faina&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/facebookarchive/redis-faina&#34;&gt;redis-faina&lt;/a&gt;是facebook出品的，用于监控redis内部情况统计的一个工具。使用方法是：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;redis-cli  -p 6379 MONITOR | head -n 100000 | ./redis-faina/redis-faina.py
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;七、压测过程中发现lua获取用户特征时，如果用户特征不存在，比如headers中的UID参数，事实上它是处于ngx.req.get_headers()函数返回值(table类型)中，如果lua提取用户特征时，找不到UID，则会扩大范围去上一级里找，此时性能会大大下降&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>linux shell控制并发进程数实践</title>
+      <link>http://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/</link>
+      <pubDate>Fri, 19 Feb 2016 10:54:28 +0800</pubDate>
+      
+      <guid>http://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/</guid>
+      <description>
+
+&lt;h1 id=&#34;shell脚本多线程应用:98445e76c0e56f8e093561726589792e&#34;&gt;shell脚本多线程应用&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;同事将新上线APP的一部分log交给我，让我统计下这些log中供出现了哪些deviceid
+
+&lt;ul&gt;
+&lt;li&gt;采用awk就可以实现这部分匹配和统计功能，还是比较简单的&lt;/li&gt;
+&lt;li&gt;挑战在于，这批log文件非常多非常大，单进程工作处理起来非常的慢。因此我想到了多进程方式。&lt;/li&gt;
+&lt;li&gt;以往需要使用shell来实现多进程时，采用以下模板&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;for seq; do
+    {
+        task
+    }&amp;amp;
+done
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;* 当任务较为简单，并发数不多时，这招很管用。然而现在log文件有好几K个，grep处理文件非常耗CPU，上述模板将会按文件数启动进程，系统的CPU Load一跃而起，泪目。
+* 此时的情况是，解决问题的思路和方向没有错，方式上还需要改进。关键在于：控制并发任务，合理使用CPU。
+* 如何在shell中控制并发进程数呢，我找到这样一个帖子
+* http://blog.sciencenet.cn/blog-548663-750136.html
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;shell脚本中控制并发任务数的大体方式是：
+
+&lt;ul&gt;
+&lt;li&gt;初始化token池，形成一定token空间，又能在为空时阻塞想拿token的进程
+
+&lt;ul&gt;
+&lt;li&gt;生成一个数组，执行任务前先从数组中获得一个元素，能够获得就继续执行，否则阻塞。数组大小最好为CPU核心数。任务执行完成后将元素放回，以供别的进程使用。&lt;/li&gt;
+&lt;li&gt;生成一个阻塞访问的管道pipe，先向管道中写入若干行，任务执行前从管道中获取token，任务结束后放回。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;最终脚本如下所示
+
+&lt;ul&gt;
+&lt;li&gt;我在理解这个脚本的时候感到吃力，比如exec、read等既熟悉又陌生的指令，毕竟没写过shell脚本&lt;/li&gt;
+&lt;li&gt;后来我发现，man bash和man sh是第一手消息资料
+
+&lt;ul&gt;
+&lt;li&gt;if -p $directory中，-p是什么意思，在man bash的CONDITIONAL EXPRESSIONS中&lt;/li&gt;
+&lt;li&gt;read -u999中，-u又是什么意思，在man bash的 SHELL BUILTIN COMMANDS的read指令中&lt;/li&gt;
+&lt;li&gt;exec 999&amp;lt;&amp;gt;$Pfifo中，man bash的REDIRECTION小节中&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#!/bin/sh
+
+awk=/usr/bin/awk
+uniq=/usr/bin/uniq
+
+Nproc=24
+
+#$$是进程pid
+Pfifo=&amp;quot;/tmp/$$.fifo&amp;quot;
+mkfifo $Pfifo
+
+#以999为文件描述符打开管道,&amp;lt;&amp;gt;表示可读可写
+exec 999&amp;lt;&amp;gt;$Pfifo
+rm -f $Pfifo
+
+#向管道中写入Nproc行,作为令牌
+for((i=1; i&amp;lt;=$Nproc; i++)); do
+    echo
+done &amp;gt;&amp;amp;999
+
+echo &#39;&#39; &amp;gt; out
+echo &#39;&#39; &amp;gt; ooo
+filenames=`ls *.log`
+for filename in $filenames; do
+#从管道中取出1行作为token，如果管道为空，read将会阻塞
+#man bash可以知道-u是从fd中读取一行
+    read -u999
+
+    {
+    #所要执行的任务
+        `$awk -F&#39;,&#39; &#39;/did/ {for(i=1;i&amp;lt;=NF;i++) if($i ~ /did/) print $i i}&#39; $filename | $awk -F&#39;:&#39; &#39;{print $2}&#39; | $awk -F&#39;&amp;quot;&#39; &#39;{print $2}&#39;  | $uniq | $awk &#39;{count[$1]++}END{for(name in count)print name &amp;gt;&amp;gt; &amp;quot;out&amp;quot;}&#39;` &amp;amp;&amp;amp; {
+            echo &amp;quot;$filename done&amp;quot;
+        } || {
+            echo &amp;quot;$filename error&amp;quot;
+        }
+        sleep 1
+    #归还token
+        echo &amp;gt;&amp;amp;999
+    }&amp;amp;
+
+done
+
+#等待所有子进程结束
+wait 
+
+#关闭管道
+exec 999&amp;gt;&amp;amp;-
+
+echo `$awk &#39;{count[$0]++}END{for(name in count)print name}&#39; out &amp;gt; ooo; awk &#39;END{print NR}&#39; ooo`
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;单进程方式处理这些log需要3个小时，而控制并发进程数的话只需要10分钟不到。
+
+&lt;ul&gt;
+&lt;li&gt;可见大部分计算资源都浪费在CPU切换上了。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h1 id=&#34;参考链接:98445e76c0e56f8e093561726589792e&#34;&gt;参考链接&lt;/h1&gt;
+
+&lt;h2 id=&#34;linux-shell-和-lsof-等工具使用的一些tips:98445e76c0e56f8e093561726589792e&#34;&gt;linux shell 和 lsof 等工具使用的一些tips&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://www.cnblogs.com/chengmo/archive/2010/10/20/1855805.html&#34;&gt;linux shell数据输入输出的重定向分析&lt;/a&gt;&lt;br /&gt;
+&lt;a href=&#34;http://linuxtools-rst.readthedocs.org/zh_CN/latest/tool/lsof.html&#34;&gt;lsof 一切皆文件&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;文件描述符与进程间通信:98445e76c0e56f8e093561726589792e&#34;&gt;文件描述符与进程间通信&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://adelphos.blog.51cto.com/2363901/1598570&#34;&gt;IO重定向和文件描述符&lt;/a&gt;&lt;br /&gt;
+&lt;a href=&#34;http://www.cnblogs.com/GODYCA/archive/2013/01/05/2845618.html&#34;&gt;文件描述符与进程间通信的关联&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;linux-shell-cocurrency并发控制:98445e76c0e56f8e093561726589792e&#34;&gt;linux shell cocurrency并发控制&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://blog.sciencenet.cn/blog-548663-750136.html&#34;&gt;Bash脚本实现批量作业并行化&lt;/a&gt;&lt;br /&gt;
+&lt;a href=&#34;https://pebblesinthesand.wordpress.com/2008/05/22/a-srcipt-for-running-processes-in-parallel-in-bash/&#34;&gt;A script for running processes in parallel in Bash&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;awk-sed:98445e76c0e56f8e093561726589792e&#34;&gt;awk&amp;amp;sed&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://kodango.com/sed-and-awk-notes-part-1&#34;&gt;sed&amp;amp;awk入门 一&lt;/a&gt;&lt;br /&gt;
+&lt;a href=&#34;http://kodango.com/sed-and-awk-notes-part-2&#34;&gt;sed&amp;amp;awk入门 二&lt;/a&gt;&lt;br /&gt;
+&lt;a href=&#34;http://www.cnblogs.com/dong008259/archive/2011/12/06/2277287.html&#34;&gt;awk用法汇总&lt;/a&gt;&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>livestream的几种初步解决方案</title>
+      <link>http://bg2bkk.github.io/post/livestream%E7%9A%84%E5%87%A0%E7%A7%8D%E5%88%9D%E6%AD%A5%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/</link>
+      <pubDate>Thu, 18 Feb 2016 20:57:19 +0800</pubDate>
+      
+      <guid>http://bg2bkk.github.io/post/livestream%E7%9A%84%E5%87%A0%E7%A7%8D%E5%88%9D%E6%AD%A5%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/</guid>
+      <description>
+
+&lt;h1 id=&#34;实时视频流解决方案:522c154dca6ec9c4e9be4965f54df0ed&#34;&gt;实时视频流解决方案&lt;/h1&gt;
+
+&lt;h2 id=&#34;mjpg-streamer:522c154dca6ec9c4e9be4965f54df0ed&#34;&gt;mjpg-streamer&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;site: https://github.com/codewithpassion/mjpg-streamer/tree/master/mjpg-streamer
+
+    link: http://www.cnblogs.com/hnrainll/archive/2011/06/08/2074909.html
+    link: http://blog.163.com/chenhongswing@126/blog/static/1335924432011825104144612/
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;    #提供一个可以直接使用的demo
+
+    git clone https://github.com/codewithpassion/mjpg-streamer/tree/master/mjpg-streamer
+
+    cd mjpg-streamer
+
+    ./mjpg_streamer -i &amp;quot;input_uvc.so -d /dev/video0 -r 640x480 -y&amp;quot; -o &amp;quot;output_http.so -w ./www&amp;quot;
+
+    127.0.0.1:8080访问主页，可以获得stream、static以及通过vlc和mplayer播放
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;ffmpeg-websocket播放:522c154dca6ec9c4e9be4965f54df0ed&#34;&gt;ffmpeg+websocket播放&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;site: https://github.com/phoboslab/jsmpeg
+link: http://segmentfault.com/a/1190000000392586
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;    #提供可以直接运行的demo
+
+    git clone https://github.com/phoboslab/jsmpeg
+
+    nodejs stream-server.js huang	监听随机端口
+        Listening for MPEG Stream on http://127.0.0.1:8082/&amp;lt;secret&amp;gt;/&amp;lt;width&amp;gt;/&amp;lt;height&amp;gt;
+        Awaiting WebSocket connections on ws://127.0.0.1:8084/
+        Stream Connected: 127.0.0.1:52460 size: 640x480
+        New WebSocket Connection (1 total)
+        Disconnected WebSocket (0 total)
+
+    ffmpeg -s 640x480 -f video4linux2 -i /dev/video0 -f mpeg1video -b 800k -r 30 http://localhost:8082/huang/640/480/		ffmpeg采集编码并发送视频流
+    google-chrome stream-example.html		使用websocket在线观看
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;vlc视频流输出和vlc视频流播放:522c154dca6ec9c4e9be4965f54df0ed&#34;&gt;vlc视频流输出和vlc视频流播放&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;site: http://www.cnblogs.com/fx2008/p/4315416.html
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;    a、关掉防火墙，至少将视频流端口开启
+    b、vlc --ttl 12 -vvv --color -I telnet --telnet-password videolan --rtsp-host 0.0.0.0 --rtsp-port 5554
+    c、通过telnet启动vlc的vlm管理中，telnet 127.0.0.1 4212，密码是刚才的videolan
+    d、new Test vod enabled 新建一个vod，名字是Test
+    e、setup Test input /path/video.file    给Test输入视频
+    f、vlc rtsp://127.0.0.1:5554/Test 启动vlc观看视频流，这里还差声音
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;nginx的rtmp转播:522c154dca6ec9c4e9be4965f54df0ed&#34;&gt;nginx的rtmp转播&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;site: http://itony.me/619.html
+site: https://github.com/arut/nginx-rtmp-module
+site: http://openresty.org
+site: http://blog.csdn.net/leixiaohua1020/article/details/12029543
+site: http://blog.csdn.net/leixiaohua1020/article/details/39803457
+site: http://blog.csdn.net/fireroll/article/details/18899285
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;    a、安装openresty和rtmp模块
+    b、配置nginx，rtmp配置块与http配置块平级
+        rtmp {
+            server {
+                listen 1935;
+                application live1 {
+                    live on;
+                    record off;
+                }
+            }
+        }
+    c、ffmpeg转发视频流  
+        ffmpeg -re -i xxx.mp4 -c copy -f flv   rtmp://localhost:1935/live1/room1
+        其中的live1是应用，room1是将来要打开的节点
+
+    d、在vlc中打开视频流： 
+        rtmp://localhost:1935/live1/room1
+
+    e、ffmpeg -f video4linux2 -i /dev/video0 -c:v libx264 -an -f flv rtmp://localhost:1935/live1/room1 试试摄像头
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;aliyun-nginx-rtmp在线转播:522c154dca6ec9c4e9be4965f54df0ed&#34;&gt;aliyun+nginx+rtmp在线转播&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;site: http://blog.csdn.net/xdwyyan/article/details/43198985
+注意：在nginx中配置rtmp后，reload是不够的，需要kill掉重新启动nginx。
+通过sudo netstat -tlnp | grep 1935来观察nginx是否将端口打开
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;    sudo ffmpeg -i /dev/video0 -acodec acc -strict experimental -ar 44100 -ac 2 -b:a 96k -r 25 -b:v 500k -s 640*480 -f flv rtmp://101.200.124.174:1935/live1/room1
+    vlc rtmp://101.200.124.174:1935/live1/room1
+
+    ffmpeg -loglevel verbose -re -i xxx.mp4 -vcodec libx264 -vprofile baseline -acodec libmp3lame -ar 44100 -ac 1 -f flv rtmp://101.200.124.174:1935/hls/movie
+    vlc http://101.200.124.174/hls/movie
+
+    #v4l2读取摄像头，进行x264编码并将视频流发送至阿里云，进而进行hls播放
+    ffmpeg -f video4linux2 -s 320x240 -i /dev/video0 -vcodec libx264 -f flv  rtmp://101.200.124.174:1935/hls/movie
+    vlc http://101.200.124.174/hls/movie
+    手机浏览器打开也行
+
+    #http config block
+    rtmp {
+        server {
+            listen 1935;
+            application live1 {
+                live on;
+                record off;
+            }
+            application hls{
+                live on;
+                hls on;
+                hls_path /tmp/hls;
+            }
+    
+        }
+    }
+
+    #server config block
+    location /hls {
+        types {
+            application/vnd.apple.mpegurl m3u8;
+            video/mp2t ts;
+        }
+        root /tmp;
+        add_header Cache-Control no-cache;
+    }
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;extra-info:522c154dca6ec9c4e9be4965f54df0ed&#34;&gt;Extra Info&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;防火墙设置，配置1985端口可以被外网访问
+huang@vultr:~$ sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 1985 -j ACCEPT
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Source Code on CoderZh Blog</title>
+    <link>http://bg2bkk.github.io/categories/source-code/</link>
+    <description>Recent content in Source Code on CoderZh Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>zh-CN</language>
+    <copyright>Copyright (c) 2015. All rights reserved.</copyright>
+    <lastBuildDate>Mon, 29 Feb 2016 15:33:32 +0800</lastBuildDate>
+    <atom:link href="http://bg2bkk.github.io/categories/source-code/feed/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>VFS虚拟文件系统</title>
+      <link>http://bg2bkk.github.io/post/VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</link>
+      <pubDate>Mon, 29 Feb 2016 15:33:32 +0800</pubDate>
+      
+      <guid>http://bg2bkk.github.io/post/VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</guid>
+      <description>
+
+&lt;h1 id=&#34;虚拟文件系统:33c34adef684867bc26f32ab644d7c6f&#34;&gt;虚拟文件系统&lt;/h1&gt;
+
+&lt;ul&gt;
+&lt;li&gt;虚拟文件系统为用户空间程序提供了文件和文件系统的接口&lt;/li&gt;
+&lt;li&gt;通过VFS，程序可以通过标准的UNIX系统调用操作不同的文件系统和介质，包括各种软硬件设备&lt;/li&gt;
+&lt;li&gt;Linux等现代操作系统引入VFS作为抽象层，极大方便系统调用&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;unix文件系统:33c34adef684867bc26f32ab644d7c6f&#34;&gt;Unix文件系统&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;UNIX系统使用了四种和文件系统相关的抽象概念: 文件、目录项、索引结点和挂载点。&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;将文件的相关信息和文件加以区分&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;&lt;em&gt;文件相关信息&lt;/em&gt;&lt;/strong&gt;单独存储在&lt;strong&gt;&lt;em&gt;索引结点&lt;/em&gt;&lt;/strong&gt;中，又称为元数据，包括文件的控制权限、文件大小、属主和创建与访问时间等&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;em&gt;文件相关信息&lt;/em&gt;&lt;/strong&gt;和&lt;strong&gt;&lt;em&gt;文件系统&lt;/em&gt;&lt;/strong&gt;的相关信息密不可分，后者存储在&lt;strong&gt;&lt;em&gt;超级块(super block)&lt;/em&gt;&lt;/strong&gt;中，超级块是包含文件系统信息的数据结构。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;em&gt;文件&lt;/em&gt;&lt;/strong&gt;按照索引结点存储在单独的块中，文件系统的控制信息存在超级块中&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;VFS中有四个主要对象类型&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;超级块对象，代表一个具体的已安装的文件系统&lt;/li&gt;
+&lt;li&gt;索引结点对象，代表一个具体文件
+
+&lt;ul&gt;
+&lt;li&gt;inode才代表具体文件&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;目录项对象，代表一个目录项，是路径的组成部分
+
+&lt;ul&gt;
+&lt;li&gt;目录项不是目录，而是一个文件。不存在目录对象&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;文件对象，代表由进程打开的文件
+
+&lt;ul&gt;
+&lt;li&gt;每个进程都有自己的打开文件列表，文件对象是一个动态生成动态销毁的对象&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;超级块&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;超级块对象 super block
+
+&lt;ul&gt;
+&lt;li&gt;用于存储特定文件系统的信息&lt;/li&gt;
+&lt;li&gt;通常放在磁盘的&lt;a href=&#34;https://support.microsoft.com/zh-cn/kb/100108&#34;&gt;特定扇区&lt;/a&gt;中，所以被称为超级块对象&lt;/li&gt;
+&lt;li&gt;并非基于磁盘的文件系统，内核会现场创建，并保存在内存中&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;超级块操作
+
+&lt;ul&gt;
+&lt;li&gt;super_operations&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;!--   * 超级块操作 super_operations
+        * inode的分配、销毁、读写
+        * 文件系统的挂载、删除--&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;索引结点&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;索引结点对象 inode
+
+&lt;ul&gt;
+&lt;li&gt;索引结点对象包含了内核在操作文件或目录时的所有信息&lt;/li&gt;
+&lt;li&gt;索引结点对象都是在内存中创建的，不会写回硬盘的&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;索引结点操作
+
+&lt;ul&gt;
+&lt;li&gt;inode_operations&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;目录项&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;目录项对象
+
+&lt;ul&gt;
+&lt;li&gt;VFS把目录当做文件对待，解析目录时，将路径中的每个组成部分都是一个索引结点对象，比如&amp;rdquo;/bin/ls&amp;rdquo;中的‘/’、‘bin’和‘ls’。进行路径查找和解析是比较耗时的，为了方便操作，VFS引入了目录项dentry的概念，每个dentry都是路径的组成部分&lt;/li&gt;
+&lt;li&gt;目录项对象都是根据字符串形式现场创建的，并没有保存在磁盘&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;目录项状态
+
+&lt;ul&gt;
+&lt;li&gt;被使用
+
+&lt;ul&gt;
+&lt;li&gt;被使用的dentry对应一个有效的inode，即dentry结构体中d_inode指向的inode&lt;/li&gt;
+&lt;li&gt;该对象的引用计数d_count为正，至少有一个使用者，不能随意丢弃&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;未被使用
+
+&lt;ul&gt;
+&lt;li&gt;未被使用的dentry，其d_inode也指向一个inode，但是d_count为0&lt;/li&gt;
+&lt;li&gt;此时该dentry仍然在缓存中，可能会再次使用。不会立刻被释放，但如果系统要回收内存的话，可以被释放回收&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;负状态
+
+&lt;ul&gt;
+&lt;li&gt;负状态的dentry没有对应的有效inode，原因可能是inode已被删除，或者路径不再正确&lt;/li&gt;
+&lt;li&gt;此时将其缓存起来仍然有些用处，比如一个守护进程一直读一个不存在的文件，缓存dentry不至于让进程总是去搜索&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;目录项缓存
+
+&lt;ul&gt;
+&lt;li&gt;遍历路径名中所有元素并逐个解析成dentry，是非常费时费力的，所以内核引入目录项缓存dcache，将目录项对象都缓存起来&lt;/li&gt;
+&lt;li&gt;目录项缓存包括
+
+&lt;ul&gt;
+&lt;li&gt;&amp;ldquo;被使用的&amp;rdquo;目录项链表
+
+&lt;ul&gt;
+&lt;li&gt;该链表通过inode中的i_dentry指针连接相关inode&lt;/li&gt;
+&lt;li&gt;一个给定的inode可能有多个链接（软硬链接），所有就有可能有多个目录项对象，因此用一个链表链接&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&amp;ldquo;最近使用的&amp;rdquo;双向链表
+
+&lt;ul&gt;
+&lt;li&gt;该链表包含所有 未被使用的 和 负状态的 dentry&lt;/li&gt;
+&lt;li&gt;总是在表头添加元素，所以回收dentry时从最后开始回收&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;哈希表和相应的哈希函数
+
+&lt;ul&gt;
+&lt;li&gt;快速将给定路径解析为相关目录项对象&lt;/li&gt;
+&lt;li&gt;哈希表由dentry_hashtable数组表示，每个元素都指向一个具有相同键值的目录项对象链表指针&lt;/li&gt;
+&lt;li&gt;哈希函数d_hash()&lt;/li&gt;
+&lt;li&gt;查找函数d_lookup()&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;目录项操作
+
+&lt;ul&gt;
+&lt;li&gt;dentry_operation&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;文件&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;文件对象
+
+&lt;ul&gt;
+&lt;li&gt;表示进程已经打开的文件。文件对象是已打开的文件（物理文件）在内存中的表示&lt;/li&gt;
+&lt;li&gt;多个进程可以打开同一个物理文件，所以一个物理文件会有多个文件对象&lt;/li&gt;
+&lt;li&gt;文件对象指向目录项对象，目录项对象指向索引结点inode&lt;/li&gt;
+&lt;li&gt;具体而言，是文件对象filep中的f_dentry指向目录项对象，目录项对象的d_inode指向索引结点inode&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;文件操作
+
+&lt;ul&gt;
+&lt;li&gt;file_operations&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;相关数据结构&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;file_system_type
+
+&lt;ul&gt;
+&lt;li&gt;用于描述各种特定文件系统类型，用于支持不同文件系统&lt;/li&gt;
+&lt;li&gt;struct file_system_type {}
+
+&lt;ul&gt;
+&lt;li&gt;get_sb()  从磁盘读取超级块，并在文件系统安装时在内存中组装超级块对象&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;每个文件系统只有一个&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;vfsmount
+
+&lt;ul&gt;
+&lt;li&gt;系统挂载时，将有一个vfsmount结构体在挂载点创建，代表文件系统的实例&lt;/li&gt;
+&lt;li&gt;struct vfsmount {}
+
+&lt;ul&gt;
+&lt;li&gt;各种链表&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;和进程相关的数据结构&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;每个进程都有自己的一组打开爱的文件，比如根文件系统、当前工作目录、挂载点等&lt;/li&gt;
+&lt;li&gt;struct files_struct {}
+
+&lt;ul&gt;
+&lt;li&gt;该结构提由进程描述符中的files指向，一般都是current-&amp;gt;files&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;struct fs_struct {}
+
+&lt;ul&gt;
+&lt;li&gt;包含文件系统和进程相关的信息，由fs域指向，一般是current-&amp;gt;fs&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;struct namespace {}&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;使得每个进程在系统中能看到唯一的安装文件系统，mm-&amp;gt;namespace&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;每个进程都有指向自己的fs_struct和files_struct，多个进程可能指向同一个，比如通过带有CLONE_FILES和CLONE_FS标志创建的进程（其实是线程），所以这两个struct都有引用计数，以防出错&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;而对于namespace来说，除非使用CLONE_NEWS标志创建进程，会创建新的namespace结构体，否则所有进程共享一个namespace&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>

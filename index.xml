@@ -5,8 +5,71 @@
     <link>http://bg2bkk.github.io/</link>
     <description>Recent content on BG2BKK Site</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Thu, 24 Mar 2016 16:36:33 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 11 Apr 2016 00:33:17 +0800</lastBuildDate>
     <atom:link href="http://bg2bkk.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>shadowsocks go through the Fuck GFW</title>
+      <link>http://bg2bkk.github.io/post/shadowsocks%20go%20through%20the%20F%2A%2Ak%20GFW/</link>
+      <pubDate>Mon, 11 Apr 2016 00:33:17 +0800</pubDate>
+      
+      <guid>http://bg2bkk.github.io/post/shadowsocks%20go%20through%20the%20F%2A%2Ak%20GFW/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;买VPS，vultr的设备，使用起来还是蛮简单的。信用卡一张，注册并扣费0.1美元会送50美元，两个月内用完。我开始部署了一个日本的最便宜的5美元一月的vps，使用起来还不错，youtube 480P没问题；但是我通过这送的50美元实验了以下几个配置的机器速度，洛杉矶机房20美元，洛杉矶机房5美元，日本机房5美元，日本机房10美元，发现ping vps-ip时美国机房都是170ms，日本机房是220ms，原因可能是即使日本离得近，去日本的路由也要绕道美国才到日本的，所以我们直接选择美国机房好了。位于西海岸的洛杉矶机房，让你打开youtube 1080P毫无压力，白天晚上都没问题。&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;如何手动搭建shadowsocks服务呢，网上有太多的教程了&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;python版shadowsocks
+
+&lt;ul&gt;
+&lt;li&gt;ss服务的鼻祖，支持多用户多端口配置&lt;/li&gt;
+&lt;li&gt;参考教程：&lt;a href=&#34;https://pypi.python.org/pypi/shadowsocks&#34;&gt;py版ss服务&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;wget --no-check-certificate https://raw.githubusercontent.com/tennfy/shadowsocks-libev/master/debian_shadowsocks_tennfy.sh
+chmod a+x debian_shadowsocks_tennfy.sh
+
+sudo ./debian_shadowsocks_tennfy.sh
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;    * /etc/init.d/shadowsocks-libev start
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;shadowsocks客户端&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;全平台：windows、linux、OSX；android、ios；&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://shadowsocks.com/client.html&#34;&gt;客户端&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/shadowsocks/shadowsocks-windows/releases&#34;&gt;windows&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/shadowsocks/shadowsocks-qt5/wiki/Installation&#34;&gt;linux&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;ubuntu用户建议使用apt-get安装&lt;/li&gt;
+&lt;li&gt;其他发行版用户。。。我还不知道&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/shadowsocks/shadowsocks-iOS/releases&#34;&gt;OSX&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;我没用过&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://pan.baidu.com/s/1YbQTg&#34;&gt;android&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.iyingsuo.com/ios-shadowsocks-tutorials.html&#34;&gt;ios&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;如果您觉得shadowsocks很容易搭建起来，想试一下的话，可以通过的推荐链接来注册，这样会有一定奖励:&lt;a href=&#34;http://www.vultr.com/?ref=6870148&#34;&gt;http://www.vultr.com/?ref=6870148&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>effective tips in daily work</title>
@@ -632,18 +695,18 @@ tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.ca
     </item>
     
     <item>
-      <title>Epoll在Linux Kernel中的新发展</title>
-      <link>http://bg2bkk.github.io/post/Epoll%E5%9C%A8Linux%20Kernel%E4%B8%AD%E7%9A%84%E6%96%B0%E5%8F%91%E5%B1%95/</link>
+      <title>New evolvement of Epoll</title>
+      <link>http://bg2bkk.github.io/post/New%20Evolvement%20of%20Epoll/</link>
       <pubDate>Tue, 22 Mar 2016 01:48:41 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/Epoll%E5%9C%A8Linux%20Kernel%E4%B8%AD%E7%9A%84%E6%96%B0%E5%8F%91%E5%B1%95/</guid>
+      <guid>http://bg2bkk.github.io/post/New%20Evolvement%20of%20Epoll/</guid>
       <description>
 
-&lt;h1 id=&#34;epoll在linux-内核中的新发展:2c7275fd73bc5bd5e5fdeeeff68a33b3&#34;&gt;EPOLL在linux 内核中的新发展&lt;/h1&gt;
+&lt;h2 id=&#34;epoll在linux-内核中的新发展:b489f0f2178b22438ad2d1ac9c25dd2c&#34;&gt;EPOLL在linux 内核中的新发展&lt;/h2&gt;
 
 &lt;p&gt;Epoll是linux专有的系统调用，用于快速地高效轮询大规模文件描述符fd。这个API在kernel-2.5版本时就已经合并，并使用至今。即使如此，epoll和其他接口一样，仍然有提升空间。现在有两个patch为epoll系列系统调用添加了新的功能。&lt;/p&gt;
 
-&lt;h2 id=&#34;epoll概述:2c7275fd73bc5bd5e5fdeeeff68a33b3&#34;&gt;epoll概述&lt;/h2&gt;
+&lt;h2 id=&#34;epoll概述:b489f0f2178b22438ad2d1ac9c25dd2c&#34;&gt;epoll概述&lt;/h2&gt;
 
 &lt;p&gt;epoll的功能与select或者poll类似，但是epoll在应对轮询处理大规模文件描述符时拥有更灵活的选项和更高的性能。每次调用select和poll，都会将被轮询的fd集合复制，生成新的fd集合，所以内核需要检查每一个描述符是否合法，是否IO就绪，然后将执行监听的进程添加到相应的唤醒等待队列。但实际上，一般情况下，在两次select或者poll调用之间，有事件产生的fd并不多，所以对每个fd都进行前述流程实际上有很多不必要的重复性操作。Epoll将设置被监听fd和轮询fd是否就绪这两个任务分开，从而解决这一问题。&lt;/p&gt;
 
@@ -673,7 +736,7 @@ tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.ca
 
 &lt;p&gt;有事件发生时，epoll_wait将返回，产生的时间存在参数events中，最多maxevents个事件。如果timeout时间内没有事件发生，epoll_wait也将返回，timeout的单位是ms。epoll_pwait可以使用信号集sigmask来屏蔽特定信号，可以使应用程序安全的等待fd就绪或者捕获信号。二者的关系和select与pselect关系一样。&lt;/p&gt;
 
-&lt;h2 id=&#34;patch-1-epoll-ctl-batch-和-epoll-pwait1:2c7275fd73bc5bd5e5fdeeeff68a33b3&#34;&gt;patch 1：epoll_ctl_batch() 和 epoll_pwait1()&lt;/h2&gt;
+&lt;h2 id=&#34;patch-1-epoll-ctl-batch-和-epoll-pwait1:b489f0f2178b22438ad2d1ac9c25dd2c&#34;&gt;patch 1：epoll_ctl_batch() 和 epoll_pwait1()&lt;/h2&gt;
 
 &lt;p&gt;&lt;a href=&#34;https://lwn.net/Articles/633195/&#34;&gt;Fam Zheng为epoll引入了两个新的系统调用&lt;/a&gt;。&lt;/p&gt;
 
@@ -718,7 +781,7 @@ tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.ca
 
 &lt;p&gt;本版本的epoll_pwait1()添加了一个flags参数，但是并未定义任何flag值，所以flags置为0即可。其他参数，包括时间控制、信号屏蔽设置，都写在params参数中，目的是为应用程序提供更精细的时间控制。对于epoll_wait()来说，毫秒级的时钟分辨率已经被证明在一些场景中过于粗糙，新的系统供调用提供了纳秒级别的精度，解决了这个问题。&lt;/p&gt;
 
-&lt;h2 id=&#34;patch2-多线程环境下更好的性能-解决-惊群-问题:2c7275fd73bc5bd5e5fdeeeff68a33b3&#34;&gt;patch2: 多线程环境下更好的性能，解决“惊群”问题&lt;/h2&gt;
+&lt;h2 id=&#34;patch2-多线程环境下更好的性能-解决-惊群-问题:b489f0f2178b22438ad2d1ac9c25dd2c&#34;&gt;patch2: 多线程环境下更好的性能，解决“惊群”问题&lt;/h2&gt;
 
 &lt;p&gt;Jason Baron（Akamai公司）主要解决一个相对来说不那么常见的场景下，epoll现有的一个问题。通常情况下，一个给定的fd只被一个进程轮询，但是在Jason的场景中，会有多个进程轮询同一个fd集合。在这个场景设定下，一个fd有事件产生时将会唤醒所有监听进程，即使最后只有一个进程能够得到处理该事件的机会，这就是所谓的“惊群”问题。&lt;/p&gt;
 
@@ -735,7 +798,7 @@ tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.ca
 
 &lt;p&gt;Jason的提交patch的同时也提交了一个用于压测的程序，压测结果显示，互斥模式使得执行时间降低了50%，当有大量的唤醒发生时，“惊群”效应带来的性能损耗就不会发生了。&lt;/p&gt;
 
-&lt;h2 id=&#34;结语:2c7275fd73bc5bd5e5fdeeeff68a33b3&#34;&gt;结语&lt;/h2&gt;
+&lt;h2 id=&#34;结语:b489f0f2178b22438ad2d1ac9c25dd2c&#34;&gt;结语&lt;/h2&gt;
 
 &lt;p&gt;以上提到的两个patch已经被多次review和comments，Fam的patch自从&lt;a href=&#34;https://lwn.net/Articles/630097/&#34;&gt;1月份提出&lt;/a&gt;后进行了多次修改。现在的编辑们对API相关的patch投入了越来越多的关注和审视，这是对的，因为API将会长期有效，(API lives forever),甚至是永远有效。所以最好在向用户推出之前就搞定所有bug，以提供永久支持的态度提交。这些patch目前看来已经接近就绪，可能将会在下一个窗口中合并。&lt;/p&gt;
 </description>
@@ -748,8 +811,6 @@ tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.ca
       
       <guid>http://bg2bkk.github.io/post/HTTP2%E7%9A%84%E5%AE%9E%E8%B7%B5%E8%BF%87%E7%A8%8B/</guid>
       <description>
-
-&lt;h1 id=&#34;http-2实践过程:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;HTTP/2实践过程&lt;/h1&gt;
 
 &lt;h2 id=&#34;目录:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;目录&lt;/h2&gt;
 
@@ -1190,101 +1251,6 @@ nghttpd
     </item>
     
     <item>
-      <title>shadowsocks科学上网手动搭建指南</title>
-      <link>http://bg2bkk.github.io/post/shadowsocks%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%89%8B%E5%8A%A8%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97/</link>
-      <pubDate>Wed, 02 Mar 2016 23:02:07 +0800</pubDate>
-      
-      <guid>http://bg2bkk.github.io/post/shadowsocks%E7%A7%91%E5%AD%A6%E4%B8%8A%E7%BD%91%E6%89%8B%E5%8A%A8%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;买VPS，vultr的设备，使用起来还是蛮简单的。信用卡一张，注册并扣费0.1美元会送50美元，两个月内用完。我开始部署了一个日本的最便宜的5美元一月的vps，使用起来还不错，youtube 480P没问题；但是我通过这送的50美元实验了以下几个配置的机器速度，洛杉矶机房20美元，洛杉矶机房5美元，日本机房5美元，日本机房10美元，发现ping vps-ip时美国机房都是170ms，日本机房是220ms，原因可能是即使日本离得近，去日本的路由也要绕道美国才到日本的，所以我们直接选择美国机房好了。位于西海岸的洛杉矶机房，让你打开youtube 1080P毫无压力，白天晚上都没问题。&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;如何手动搭建shadowsocks服务呢，网上有太多的教程了&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;python版shadowsocks
-
-&lt;ul&gt;
-&lt;li&gt;ss服务的鼻祖，支持多用户多端口配置&lt;/li&gt;
-&lt;li&gt;参考教程：&lt;a href=&#34;https://pypi.python.org/pypi/shadowsocks&#34;&gt;py版ss服务&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#Install
-
-#Debian / Ubuntu:
-apt-get install python-pip
-pip install shadowsocks
-
-#CentOS:
-yum install python-setuptools &amp;amp;&amp;amp; easy_install pip
-pip install shadowsocks
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#config.json
-{
-    &amp;quot;server&amp;quot;:&amp;quot;0.0.0.0&amp;quot;,
-    &amp;quot;local_address&amp;quot;: &amp;quot;127.0.0.1&amp;quot;,
-    &amp;quot;local_port&amp;quot;:1080,
-    &amp;quot;port_password&amp;quot;:{
-     &amp;quot;port1&amp;quot;:&amp;quot;pwd1&amp;quot;,
-     &amp;quot;port2&amp;quot;:&amp;quot;pwd2&amp;quot;
-    },
-    &amp;quot;timeout&amp;quot;:300,
-    &amp;quot;method&amp;quot;:&amp;quot;aes-256-cfb&amp;quot;
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code&gt;    * ssserver -c config.json -d start
-
-* libev版shadowsocks
-    * 性能最好的ss服务
-    * 参考教程：[一键安装教程](http://www.tennfy.com/2136.html)
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;wget --no-check-certificate https://raw.githubusercontent.com/tennfy/shadowsocks-libev/master/debian_shadowsocks_tennfy.sh
-chmod a+x debian_shadowsocks_tennfy.sh
-
-sudo ./debian_shadowsocks_tennfy.sh
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code&gt;    * /etc/init.d/shadowsocks-libev start
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;shadowsocks客户端&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;全平台：windows、linux、OSX；android、ios；&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://shadowsocks.com/client.html&#34;&gt;客户端&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/shadowsocks/shadowsocks-windows/releases&#34;&gt;windows&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/shadowsocks/shadowsocks-qt5/wiki/Installation&#34;&gt;linux&lt;/a&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;ubuntu用户建议使用apt-get安装&lt;/li&gt;
-&lt;li&gt;其他发行版用户。。。我还不知道&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/shadowsocks/shadowsocks-iOS/releases&#34;&gt;OSX&lt;/a&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;我没用过&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://pan.baidu.com/s/1YbQTg&#34;&gt;android&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.iyingsuo.com/ios-shadowsocks-tutorials.html&#34;&gt;ios&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;如果您觉得shadowsocks很容易搭建起来，想试一下的话，可以通过的推荐链接来注册，这样会有一定奖励:&lt;a href=&#34;http://www.vultr.com/?ref=6870148&#34;&gt;http://www.vultr.com/?ref=6870148&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
       <title>采用二级指针实现单链表操作 单链表翻转 删除单链表结点</title>
       <link>http://bg2bkk.github.io/post/list%E9%93%BE%E8%A1%A8%E9%87%87%E7%94%A8%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E8%AE%BF%E9%97%AE%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9/</link>
       <pubDate>Tue, 01 Mar 2016 11:00:34 +0800</pubDate>
@@ -1429,7 +1395,7 @@ int main()
       <guid>http://bg2bkk.github.io/post/VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</guid>
       <description>
 
-&lt;h1 id=&#34;虚拟文件系统:33c34adef684867bc26f32ab644d7c6f&#34;&gt;虚拟文件系统&lt;/h1&gt;
+&lt;h2 id=&#34;虚拟文件系统:33c34adef684867bc26f32ab644d7c6f&#34;&gt;虚拟文件系统&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;虚拟文件系统为用户空间程序提供了文件和文件系统的接口&lt;/li&gt;
