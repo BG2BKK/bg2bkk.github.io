@@ -7,24 +7,24 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-        <meta property="og:title" content=" linux shell控制并发进程数实践 &middot;  BG2BKK Site" />
+        <meta property="og:title" content=" openresty学习过程中的一些tips &middot;  BG2BKK Site" />
         <meta property="og:site_name" content="BG2BKK Site" />
-        <meta property="og:url" content="http://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/" />
+        <meta property="og:url" content="http://bg2bkk.github.io/post/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/" />
 
     
         <meta property="og:type" content="article" />
-        <meta property="og:article:published_time" content="2016-02-19T10:54:28&#43;08:00" />
+        <meta property="og:article:published_time" content="2016-03-14T16:36:14&#43;08:00" />
         
 
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:site" content="@" />
         <meta name="twitter:creator" content="@" />
-        <meta name="twitter:title" content="linux shell控制并发进程数实践" />
+        <meta name="twitter:title" content="openresty学习过程中的一些tips" />
         <meta name="twitter:description" content="" />
-        <meta name="twitter:url" content="http://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/" />
+        <meta name="twitter:url" content="http://bg2bkk.github.io/post/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/" />
     
 
-        <title> linux shell控制并发进程数实践 &middot;  BG2BKK Site</title>
+        <title> openresty学习过程中的一些tips &middot;  BG2BKK Site</title>
 
     
         <meta name="description" content="" />
@@ -43,21 +43,21 @@
     
 
     
-        <link rel="canonical" href="http://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/" />
+        <link rel="canonical" href="http://bg2bkk.github.io/post/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/" />
 
     
     <script type="application/ld+json">
     { 
         "@context": "http://schema.org",
         "@type": "Article",
-        "headline": "linux shell控制并发进程数实践",
+        "headline": "openresty学习过程中的一些tips",
         "author": {
             "@type": "Person",
             "name": "http://profiles.google.com/?rel=author"
         },
-        "datePublished": "2016-02-19",
+        "datePublished": "2016-03-14",
         "description": "",
-        "wordCount":  190 
+        "wordCount":  254 
     }
     </script>
     
@@ -87,152 +87,145 @@
 
 <article id="" class="post">
     <div class="post-stamp">
-        <time datetime="2016-02-19T10:54:28&#43;08:00">
-            19 Feb 2016
+        <time datetime="2016-03-14T16:36:14&#43;08:00">
+            14 Mar 2016
         </time>
         <span class="taglist">
         
         </span>
     </div>
-    <h1 class="post-title">linux shell控制并发进程数实践</h1>
+    <h1 class="post-title">openresty学习过程中的一些tips</h1>
     
 
-<h1 id="shell脚本多线程应用:98445e76c0e56f8e093561726589792e">shell脚本多线程应用</h1>
+<h2 id="ngx-lua中判断table为空:d90c926ba9cb9e1e62be5d1b7a7aa7fb">ngx_lua中判断table为空</h2>
 
 <ul>
-<li>同事将新上线APP的一部分log交给我，让我统计下这些log中供出现了哪些deviceid
-
-<ul>
-<li>采用awk就可以实现这部分匹配和统计功能，还是比较简单的</li>
-<li>挑战在于，这批log文件非常多非常大，单进程工作处理起来非常的慢。因此我想到了多进程方式。</li>
-<li>以往需要使用shell来实现多进程时，采用以下模板</li>
-</ul></li>
+<li>lua的table中，有两类kv，一类是以数字为index，比如{&lsquo;abc&rsquo;, &lsquo;efg&rsquo;}中，{k=1, v=abc}, {k=2, v=efg}，另一类以自己kv存储，比如{[&lsquo;abc&rsquo;] = &lsquo;efg&rsquo;}，k为abc的元素，v为efg</li>
+<li>#table中，#标识符是返回以数字为index的key，从1开始算，连续的key的数量</li>
 </ul>
 
-<pre><code class="language-bash">for seq; do
-    {
-        task
-    }&amp;
-done
-</code></pre>
+<pre><code class="language-lua">local t = {}
+t[1] = 'a'
+t[2] = 'b'
+t[20] = 'c'
 
-<pre><code>* 当任务较为简单，并发数不多时，这招很管用。然而现在log文件有好几K个，grep处理文件非常耗CPU，上述模板将会按文件数启动进程，系统的CPU Load一跃而起，泪目。
-* 此时的情况是，解决问题的思路和方向没有错，方式上还需要改进。关键在于：控制并发任务，合理使用CPU。
-* 如何在shell中控制并发进程数呢，我找到这样一个帖子
-* http://blog.sciencenet.cn/blog-548663-750136.html
+print(#t)
+2
 </code></pre>
 
 <ul>
-<li>shell脚本中控制并发任务数的大体方式是：
-
-<ul>
-<li>初始化token池，形成一定token空间，又能在为空时阻塞想拿token的进程
-
-<ul>
-<li>生成一个数组，执行任务前先从数组中获得一个元素，能够获得就继续执行，否则阻塞。数组大小最好为CPU核心数。任务执行完成后将元素放回，以供别的进程使用。</li>
-<li>生成一个阻塞访问的管道pipe，先向管道中写入若干行，任务执行前从管道中获取token，任务结束后放回。</li>
-</ul></li>
-</ul></li>
-<li>最终脚本如下所示
-
-<ul>
-<li>我在理解这个脚本的时候感到吃力，比如exec、read等既熟悉又陌生的指令，毕竟没写过shell脚本</li>
-<li>后来我发现，man bash和man sh是第一手消息资料
-
-<ul>
-<li>if -p $directory中，-p是什么意思，在man bash的CONDITIONAL EXPRESSIONS中</li>
-<li>read -u999中，-u又是什么意思，在man bash的 SHELL BUILTIN COMMANDS的read指令中</li>
-<li>exec 999&lt;&gt;$Pfifo中，man bash的REDIRECTION小节中</li>
-</ul></li>
-</ul></li>
+<li>因此#号不能获得table的真实大小，也不能用于判断table是否为空</li>
+<li>table.maxn(tab)，maxn返回table中以数字为key的元素中，数字最大的那个</li>
 </ul>
 
-<pre><code class="language-bash">#!/bin/sh
+<pre><code class="language-lua">local t = {}
+t[1] = 'a'
+t[2] = 'b'
+t[20] = 'c'
 
-awk=/usr/bin/awk
-uniq=/usr/bin/uniq
-
-Nproc=24
-
-#$$是进程pid
-Pfifo=&quot;/tmp/$$.fifo&quot;
-mkfifo $Pfifo
-
-#以999为文件描述符打开管道,&lt;&gt;表示可读可写
-exec 999&lt;&gt;$Pfifo
-rm -f $Pfifo
-
-#向管道中写入Nproc行,作为令牌
-for((i=1; i&lt;=$Nproc; i++)); do
-    echo
-done &gt;&amp;999
-
-echo '' &gt; out
-echo '' &gt; ooo
-filenames=`ls *.log`
-for filename in $filenames; do
-#从管道中取出1行作为token，如果管道为空，read将会阻塞
-#man bash可以知道-u是从fd中读取一行
-    read -u999
-
-    {
-    #所要执行的任务
-        `$awk -F',' '/did/ {for(i=1;i&lt;=NF;i++) if($i ~ /did/) print $i i}' $filename | $awk -F':' '{print $2}' | $awk -F'&quot;' '{print $2}'  | $uniq | $awk '{count[$1]++}END{for(name in count)print name &gt;&gt; &quot;out&quot;}'` &amp;&amp; {
-            echo &quot;$filename done&quot;
-        } || {
-            echo &quot;$filename error&quot;
-        }
-        sleep 1
-    #归还token
-        echo &gt;&amp;999
-    }&amp;
-
-done
-
-#等待所有子进程结束
-wait 
-
-#关闭管道
-exec 999&gt;&amp;-
-
-echo `$awk '{count[$0]++}END{for(name in count)print name}' out &gt; ooo; awk 'END{print NR}' ooo`
+print(table.maxn(t))
+20
 </code></pre>
 
 <ul>
-<li>单进程方式处理这些log需要3个小时，而控制并发进程数的话只需要10分钟不到。
+<li><p>next就是pairs遍历table时用来取下一个内容的函数，因此next(tab)可以用来判断table是否为空，如果next(tab)返回为nil的话，说明第一个元素不存在，所以该table为空</p></li>
 
-<ul>
-<li>可见大部分计算资源都浪费在CPU切换上了。</li>
-</ul></li>
+<li><p><a href="https://moonbingbing.gitbooks.io/openresty-best-practices/content/lua/not_nill.html">参考链接</a></p></li>
 </ul>
 
-<h1 id="参考链接:98445e76c0e56f8e093561726589792e">参考链接</h1>
+<h2 id="ngx-lua中的参数获得:d90c926ba9cb9e1e62be5d1b7a7aa7fb">ngx_lua中的参数获得</h2>
 
-<h2 id="linux-shell-和-lsof-等工具使用的一些tips:98445e76c0e56f8e093561726589792e">linux shell 和 lsof 等工具使用的一些tips</h2>
+<p>ngx_lua中获得req参数有如下几个方法：</p>
 
-<p><a href="http://www.cnblogs.com/chengmo/archive/2010/10/20/1855805.html">linux shell数据输入输出的重定向分析</a><br />
-<a href="http://linuxtools-rst.readthedocs.org/zh_CN/latest/tool/lsof.html">lsof 一切皆文件</a></p>
+<ul>
+<li><p>ngx.var.arg_city 获取city参数</p>
 
-<h2 id="文件描述符与进程间通信:98445e76c0e56f8e093561726589792e">文件描述符与进程间通信</h2>
+<ul>
+<li>host:port/uri?city=abc    <strong><em>ngx.var.arg_city = abc</em></strong></li>
+<li>host:port/uri?city=       <strong><em>ngx.var.arg_city = &ldquo;</em></strong>, and its length is 0</li>
+<li>host:port/uri?city        <strong><em>ngx.var.arg_city = nil</em></strong>，cause it doesn&rsquo;t exist yet</li>
+</ul></li>
 
-<p><a href="http://adelphos.blog.51cto.com/2363901/1598570">IO重定向和文件描述符</a><br />
-<a href="http://www.cnblogs.com/GODYCA/archive/2013/01/05/2845618.html">文件描述符与进程间通信的关联</a></p>
+<li><p>ngx.req.get_headers()[&lsquo;city&rsquo;]，获取http请求头中的city参数</p>
 
-<h2 id="linux-shell-cocurrency并发控制:98445e76c0e56f8e093561726589792e">linux shell cocurrency并发控制</h2>
+<ul>
+<li>host:port/uri -H &lsquo;city:abc&rsquo;   <strong><em>结果为abc</em></strong></li>
+<li>host:port/uri -H &lsquo;city:&rsquo;      <strong><em>结果为nil</em></strong></li>
+</ul></li>
 
-<p><a href="http://blog.sciencenet.cn/blog-548663-750136.html">Bash脚本实现批量作业并行化</a><br />
-<a href="https://pebblesinthesand.wordpress.com/2008/05/22/a-srcipt-for-running-processes-in-parallel-in-bash/">A script for running processes in parallel in Bash</a></p>
+<li><p><a href="https://groups.google.com/forum/#!topic/openresty/fQvG_TvDAvU">thread</a></p>
 
-<h2 id="awk-sed:98445e76c0e56f8e093561726589792e">awk&amp;sed</h2>
+<ul>
+<li>虽然init_worker_by_lua阶段不能使用cosocket，不过可以先通过一个timer（定时时间为0让其立即调用）来发出对外的socket io操作，以实现一些初始化的目的。</li>
+<li>openresty的两个缓存中，ngx shared dict是跨worker共享的，是一个单纯的kv缓存；预计接下来会有patch能够支持lpush等redis操作；lua-resty-lrucache是每个worker的Lua VM空间内缓存，不能跨worker共享，优点是可以存储所有lua对象，比如table，而不需要序列化和反序列化</li>
+</ul></li>
 
-<p><a href="http://kodango.com/sed-and-awk-notes-part-1">sed&amp;awk入门 一</a><br />
-<a href="http://kodango.com/sed-and-awk-notes-part-2">sed&amp;awk入门 二</a><br />
-<a href="http://www.cnblogs.com/dong008259/archive/2011/12/06/2277287.html">awk用法汇总</a></p>
+<li><p>worker 启动时，upstream 是空的，即 _M.data={}，所以这个时候是不能提供服务的。所以每次 reload config 都会导致一段时间内服务不可访问。</p>
+
+<ul>
+<li>在 init_worker_by_lua 执行 cosocket 相关的 API 是不允许的（后期可能会添加支持），但可以调用标准 SOCKET 完成初始化加载，例如借助 luasocket 完成数据源获取并初始化 _M 。</li>
+</ul></li>
+
+<li><p>不清楚 init_worker_by_lua 里是否可以进行文件操作？</p>
+
+<ul>
+<li>是可以的，这个确定。</li>
+</ul></li>
+
+<li><p>在ngx lua性能分析方面，agentzh提出一系列的工具，主要是nginx-systemtap-toolkit和stapxx两个工程。我们使用的脚本，<a href="https://groups.google.com/forum/#!topic/openresty/bOwgPymXQzg">说明文档</a></p></li>
+</ul>
+
+<pre><code class="language-bash">引用：
+	我们有一整套的基于 systemtap 的工具链可以用于在线或者离线的性能分析。 
+	你的 nginx 进程的 CPU 使用率如果很高的话，可以使用 C 级别的 on-CPU 时间火焰图工具对你最忙的 nginx worker 进程进行采样： 
+	    https://github.com/agentzh/nginx-systemtap-toolkit#sample-bt 
+	如果你的 nginx 进程的 CPU 很低，但请求延时很高，则有两种可能： 
+	1. 你的 nginx 阻塞在了某些阻塞的 IO 操作（比如文件 IO）或者系统的同步锁上，此时你可以使用 C 级别的 off-CPU 
+	时间火焰图工具对某个典型的 nginx worker 进程进行采样： 
+	   https://github.com/agentzh/nginx-systemtap-toolkit#sample-bt-off-cpu 
+	如果你发现 Lua 代码占用了大部分的 CPU 时间，则可以进一步使用 ngx-lua-exec-time 工具加以确认： 
+	    https://github.com/agentzh/stapxx#ngx-lua-exec-time 
+	进一步地，你可以使用 Lua 代码级别的 on-CPU 火焰图工具在 Lua 层面上分析 CPU 时间的分布。如果你使用的是 LuaJIT 
+	2.0.x，则可以使用下面这个工具进行采样： 
+	    https://github.com/agentzh/nginx-systemtap-toolkit#ngx-sample-lua-bt 
+	如果你使用的是 LuaJIT 2.1，则可以使用 lj-lua-stacks 工具进行采样： 
+	    https://github.com/agentzh/stapxx#lj-lua-stacks 
+	2. 你的 nginx 通过 ngx_lua 的 cosocket 或者 ngx_proxy 这样的 upstream 
+	模块和上游服务进行通信时，上游服务的延时过大。此时你可以分别使用 
+	ngx-lua-tcp-recv-time、ngx-lua-udp-recv-time 以及 ngx-single-req-latency 
+	工具进行分析： 
+	    https://github.com/agentzh/stapxx#ngx-lua-tcp-recv-time 
+	    https://github.com/agentzh/stapxx#ngx-lua-udp-recv-time 
+	    https://github.com/agentzh/stapxx#ngx-single-req-latency  
+
+
+
+    - 我们主要使用四个工具来生成火焰图以分析性能，sample-bt、sample-bt-off-cpu、ngx-sample-lua-bt 和 lj-lua-stacks。
+    - 实际使用中命令：
+</code></pre>
+
+<pre><code class="language-bash">1、sudo ./sample-bt -p 8736 -t 20 -u -a '-DMAXSKIPPED=10000' &gt; a.bt
+2、sudo ./sample-bt-off-cpu -p 8736 -t 20 -u &gt; b.bt
+3、sudo ./ngx-sample-lua-bt --luajit20 -p 44252 -t 20 &gt; c.bt
+4、sudo ./samples/lj-lua-stacks.sxx --skip-badvars -x 44250 -I tapset/ &gt; d.bt
+</code></pre>
+
+<pre><code>- 通过a.bt生成火焰图
+</code></pre>
+
+<pre><code class="language-bash">	../FlameGraph/stackcollapse-stap.pl a.bt | ../FlameGraph/flamegraph.pl &gt; a.svg
+</code></pre>
+
+<pre><code>- 通过脚本ngx-lua-conn-pools来追踪ngx lua connection pool的工作情况。        
+</code></pre>
+
+<pre><code class="language-bash">    sudo ./ngx-lua-conn-pools  --luajit20 -p 28261
+</code></pre>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
-          <a href="mailto:?subject=linux%20shell%e6%8e%a7%e5%88%b6%e5%b9%b6%e5%8f%91%e8%bf%9b%e7%a8%8b%e6%95%b0%e5%ae%9e%e8%b7%b5&amp;body=http://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/">
+          <a href="mailto:?subject=openresty%e5%ad%a6%e4%b9%a0%e8%bf%87%e7%a8%8b%e4%b8%ad%e7%9a%84%e4%b8%80%e4%ba%9btips&amp;body=http://bg2bkk.github.io/post/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path transform="scale(0.014,-0.014) translate(0,-1670)" d="M1792 826v-794q0 -66 -47 -113t-113 -47h-1472q-66 0 -113 47t-47 113v794q44 -49 101 -87q362 -246 497 -345q57 -42 92.5 -65.5t94.5 -48t110 -24.5h1h1q51 0 110 24.5t94.5 48t92.5 65.5q170 123 498 345q57 39 100 87zM1792 1120q0 -79 -49 -151t-122 -123 q-376 -261 -468 -325q-10 -7 -42.5 -30.5t-54 -38t-52 -32.5t-57.5 -27t-50 -9h-1h-1q-23 0 -50 9t-57.5 27t-52 32.5t-54 38t-42.5 30.5q-91 64 -262 182.5t-205 142.5q-62 42 -117 115.5t-55 136.5q0 78 41.5 130t118.5 52h1472q65 0 112.5 -47t47.5 -113z"/>
@@ -242,7 +235,7 @@ echo `$awk '{count[$0]++}END{for(name in count)print name}' out &gt; ooo; awk 'E
           </a>
       </li>
       <li class="facebook">
-          <a href="https://www.facebook.com/sharer/sharer.php?u=http://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/" class="popup">
+          <a href="https://www.facebook.com/sharer/sharer.php?u=http://bg2bkk.github.io/post/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/" class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M27.825,4.783c0-2.427-2.182-4.608-4.608-4.608H4.783c-2.422,0-4.608,2.182-4.608,4.608v18.434 c0,2.427,2.181,4.608,4.608,4.608H14V17.379h-3.379v-4.608H14v-1.795c0-3.089,2.335-5.885,5.192-5.885h3.718v4.608h-3.726 c-0.408,0-0.884,0.492-0.884,1.236v1.836h4.609v4.608h-4.609v10.446h4.916c2.422,0,4.608-2.188,4.608-4.608V4.783z"/>
@@ -252,7 +245,7 @@ echo `$awk '{count[$0]++}END{for(name in count)print name}' out &gt; ooo; awk 'E
           </a>
       </li>
 			<li class="twitter">
-          <a href="http://twitter.com/home?status=linux%20shell%e6%8e%a7%e5%88%b6%e5%b9%b6%e5%8f%91%e8%bf%9b%e7%a8%8b%e6%95%b0%e5%ae%9e%e8%b7%b5%20http://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/" class="popup">
+          <a href="http://twitter.com/home?status=openresty%e5%ad%a6%e4%b9%a0%e8%bf%87%e7%a8%8b%e4%b8%ad%e7%9a%84%e4%b8%80%e4%ba%9btips%20http://bg2bkk.github.io/post/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/" class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
 		                  <path d="M24.253,8.756C24.689,17.08,18.297,24.182,9.97,24.62c-3.122,0.162-6.219-0.646-8.861-2.32 c2.703,0.179,5.376-0.648,7.508-2.321c-2.072-0.247-3.818-1.661-4.489-3.638c0.801,0.128,1.62,0.076,2.399-0.155 C4.045,15.72,2.215,13.6,2.115,11.077c0.688,0.275,1.426,0.407,2.168,0.386c-2.135-1.65-2.729-4.621-1.394-6.965 C5.575,7.816,9.54,9.84,13.803,10.071c-0.842-2.739,0.694-5.64,3.434-6.482c2.018-0.623,4.212,0.044,5.546,1.683 c1.186-0.213,2.318-0.662,3.329-1.317c-0.385,1.256-1.247,2.312-2.399,2.942c1.048-0.106,2.069-0.394,3.019-0.851 C26.275,7.229,25.39,8.196,24.253,8.756z"/>
@@ -262,7 +255,7 @@ echo `$awk '{count[$0]++}END{for(name in count)print name}' out &gt; ooo; awk 'E
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=http://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/&amp;title=linux%20shell%e6%8e%a7%e5%88%b6%e5%b9%b6%e5%8f%91%e8%bf%9b%e7%a8%8b%e6%95%b0%e5%ae%9e%e8%b7%b5&amp;summary=shell%e8%84%9a%e6%9c%ac%e5%a4%9a%e7%ba%bf%e7%a8%8b%e5%ba%94%e7%94%a8%20%e5%90%8c%e4%ba%8b%e5%b0%86%e6%96%b0%e4%b8%8a%e7%ba%bfAPP%e7%9a%84%e4%b8%80%e9%83%a8%e5%88%86log%e4%ba%a4%e7%bb%99%e6%88%91%ef%bc%8c%e8%ae%a9%e6%88%91%e7%bb%9f%e8%ae%a1%e4%b8%8b%e8%bf%99%e4%ba%9blog%e4%b8%ad%e4%be%9b%e5%87%ba%e7%8e%b0%e4%ba%86%e5%93%aa%e4%ba%9bdeviceid%20%e9%87%87%e7%94%a8awk%e5%b0%b1%e5%8f%af%e4%bb%a5%e5%ae%9e%e7%8e%b0%e8%bf%99%e9%83%a8%e5%88%86%e5%8c%b9%e9%85%8d%e5%92%8c%e7%bb%9f%e8%ae%a1%e5%8a%9f%e8%83%bd%ef%bc%8c%e8%bf%98%e6%98%af%e6%af%94%e8%be%83%e7%ae%80%e5%8d%95%e7%9a%84%20%e6%8c%91%e6%88%98%e5%9c%a8%e4%ba%8e%ef%bc%8c%e8%bf%99%e6%89%b9log%e6%96%87%e4%bb%b6%e9%9d%9e%e5%b8%b8%e5%a4%9a%e9%9d%9e%e5%b8%b8%e5%a4%a7%ef%bc%8c%e5%8d%95%e8%bf%9b%e7%a8%8b%e5%b7%a5%e4%bd%9c%e5%a4%84%e7%90%86%e8%b5%b7%e6%9d%a5%e9%9d%9e%e5%b8%b8%e7%9a%84%e6%85%a2%e3%80%82%e5%9b%a0%e6%ad%a4%e6%88%91%e6%83%b3%e5%88%b0%e4%ba%86%e5%a4%9a%e8%bf%9b%e7%a8%8b%e6%96%b9%e5%bc%8f%e3%80%82%20%e4%bb%a5%e5%be%80%e9%9c%80%e8%a6%81%e4%bd%bf%e7%94%a8shell%e6%9d%a5%e5%ae%9e%e7%8e%b0%e5%a4%9a%e8%bf%9b%e7%a8%8b%e6%97%b6%ef%bc%8c%e9%87%87%e7%94%a8%e4%bb%a5%e4%b8%8b%e6%a8%a1%e6%9d%bf%20for%20seq%3b%20do%20%7b%20task%20%7d%26amp%3b%20done%20%2a%20%e5%bd%93%e4%bb%bb%e5%8a%a1%e8%be%83%e4%b8%ba%e7%ae%80%e5%8d%95%ef%bc%8c%e5%b9%b6%e5%8f%91%e6%95%b0%e4%b8%8d%e5%a4%9a%e6%97%b6%ef%bc%8c%e8%bf%99%e6%8b%9b%e5%be%88%e7%ae%a1%e7%94%a8%e3%80%82%e7%84%b6%e8%80%8c%e7%8e%b0%e5%9c%a8log%e6%96%87%e4%bb%b6%e6%9c%89%e5%a5%bd%e5%87%a0K%e4%b8%aa%ef%bc%8cgrep%e5%a4%84%e7%90%86%e6%96%87%e4%bb%b6%e9%9d%9e%e5%b8%b8%e8%80%97CPU%ef%bc%8c%e4%b8%8a%e8%bf%b0%e6%a8%a1%e6%9d%bf%e5%b0%86%e4%bc%9a%e6%8c%89%e6%96%87%e4%bb%b6%e6%95%b0%e5%90%af%e5%8a%a8%e8%bf%9b%e7%a8%8b%ef%bc%8c%e7%b3%bb%e7%bb%9f%e7%9a%84CPU%20Load%e4%b8%80%e8%b7%83%e8%80%8c%e8%b5%b7%ef%bc%8c%e6%b3%aa%e7%9b%ae%e3%80%82%20%2a%20%e6%ad%a4%e6%97%b6%e7%9a%84%e6%83%85%e5%86%b5%e6%98%af%ef%bc%8c%e8%a7%a3%e5%86%b3%e9%97%ae%e9%a2%98%e7%9a%84%e6%80%9d%e8%b7%af%e5%92%8c%e6%96%b9%e5%90%91%e6%b2%a1%e6%9c%89%e9%94%99%ef%bc%8c%e6%96%b9%e5%bc%8f%e4%b8%8a%e8%bf%98%e9%9c%80%e8%a6%81%e6%94%b9%e8%bf%9b%e3%80%82%e5%85%b3%e9%94%ae%e5%9c%a8%e4%ba%8e%ef%bc%9a%e6%8e%a7%e5%88%b6%e5%b9%b6%e5%8f%91%e4%bb%bb%e5%8a%a1%ef%bc%8c%e5%90%88%e7%90%86%e4%bd%bf%e7%94%a8CPU%e3%80%82%20%2a%20%e5%a6%82%e4%bd%95%e5%9c%a8shell%e4%b8%ad%e6%8e%a7%e5%88%b6%e5%b9%b6%e5%8f%91%e8%bf%9b%e7%a8%8b%e6%95%b0%e5%91%a2%ef%bc%8c%e6%88%91%e6%89%be%e5%88%b0%e8%bf%99%e6%a0%b7%e4%b8%80%e4%b8%aa%e5%b8%96%e5%ad%90%20%2a%20http%3a%2f%2fblog.sciencenet.cn%2fblog-548663-750136.html%20shell%e8%84%9a%e6%9c%ac%e4%b8%ad%e6%8e%a7%e5%88%b6%e5%b9%b6%e5%8f%91%e4%bb%bb%e5%8a%a1%e6%95%b0%e7%9a%84%e5%a4%a7%e4%bd%93%e6%96%b9%e5%bc%8f%e6%98%af%ef%bc%9a%20%e5%88%9d%e5%a7%8b%e5%8c%96token%e6%b1%a0%ef%bc%8c%e5%bd%a2%e6%88%90%e4%b8%80%e5%ae%9atoken%e7%a9%ba%e9%97%b4%ef%bc%8c%e5%8f%88%e8%83%bd%e5%9c%a8%e4%b8%ba%e7%a9%ba%e6%97%b6%e9%98%bb%e5%a1%9e%e6%83%b3%e6%8b%bftoken%e7%9a%84%e8%bf%9b%e7%a8%8b%20%e7%94%9f%e6%88%90%e4%b8%80%e4%b8%aa%e6%95%b0%e7%bb%84%ef%bc%8c%e6%89%a7%e8%a1%8c%e4%bb%bb%e5%8a%a1%e5%89%8d%e5%85%88%e4%bb%8e%e6%95%b0%e7%bb%84%e4%b8%ad%e8%8e%b7%e5%be%97%e4%b8%80%e4%b8%aa%e5%85%83%e7%b4%a0%ef%bc%8c%e8%83%bd%e5%a4%9f%e8%8e%b7%e5%be%97%e5%b0%b1%e7%bb%a7%e7%bb%ad%e6%89%a7%e8%a1%8c%ef%bc%8c%e5%90%a6%e5%88%99%e9%98%bb%e5%a1%9e%e3%80%82%e6%95%b0%e7%bb%84%e5%a4%a7%e5%b0%8f%e6%9c%80%e5%a5%bd%e4%b8%baCPU%e6%a0%b8%e5%bf%83%e6%95%b0%e3%80%82%e4%bb%bb%e5%8a%a1%e6%89%a7%e8%a1%8c%e5%ae%8c%e6%88%90%e5%90%8e%e5%b0%86%e5%85%83%e7%b4%a0%e6%94%be%e5%9b%9e%ef%bc%8c%e4%bb%a5%e4%be%9b%e5%88%ab%e7%9a%84%e8%bf%9b%e7%a8%8b%e4%bd%bf%e7%94%a8%e3%80%82%20%e7%94%9f%e6%88%90%e4%b8%80%e4%b8%aa%e9%98%bb%e5%a1%9e%e8%ae%bf%e9%97%ae%e7%9a%84%e7%ae%a1%e9%81%93pipe%ef%bc%8c%e5%85%88%e5%90%91%e7%ae%a1%e9%81%93%e4%b8%ad%e5%86%99%e5%85%a5%e8%8b%a5%e5%b9%b2%e8%a1%8c%ef%bc%8c%e4%bb%bb%e5%8a%a1%e6%89%a7%e8%a1%8c%e5%89%8d%e4%bb%8e%e7%ae%a1%e9%81%93%e4%b8%ad%e8%8e%b7%e5%8f%96token%ef%bc%8c%e4%bb%bb%e5%8a%a1%e7%bb%93%e6%9d%9f%e5%90%8e%e6%94%be%e5%9b%9e%e3%80%82%20%e6%9c%80%e7%bb%88%e8%84%9a%e6%9c%ac%e5%a6%82%e4%b8%8b%e6%89%80%e7%a4%ba%20%e6%88%91%e5%9c%a8%e7%90%86%e8%a7%a3%e8%bf%99%e4%b8%aa%e8%84%9a%e6%9c%ac%e7%9a%84%e6%97%b6%e5%80%99%e6%84%9f%e5%88%b0%e5%90%83%e5%8a%9b%ef%bc%8c%e6%af%94%e5%a6%82exec%e3%80%81read%e7%ad%89%e6%97%a2%e7%86%9f%e6%82%89%e5%8f%88%e9%99%8c%e7%94%9f%e7%9a%84%e6%8c%87%e4%bb%a4%ef%bc%8c%e6%af%95%e7%ab%9f%e6%b2%a1%e5%86%99%e8%bf%87shell%e8%84%9a%e6%9c%ac%20%e5%90%8e%e6%9d%a5%e6%88%91%e5%8f%91%e7%8e%b0%ef%bc%8cman%20bash%e5%92%8cman%20sh%e6%98%af%e7%ac%ac%e4%b8%80%e6%89%8b%e6%b6%88%e6%81%af%e8%b5%84%e6%96%99%20if%20-p%20%24directory%e4%b8%ad%ef%bc%8c-p%e6%98%af%e4%bb%80%e4%b9%88%e6%84%8f%e6%80%9d%ef%bc%8c%e5%9c%a8man%20bash%e7%9a%84CONDITIONAL%20EXPRESSIONS%e4%b8%ad%20read%20-u999%e4%b8%ad%ef%bc%8c-u%e5%8f%88%e6%98%af%e4%bb%80%e4%b9%88%e6%84%8f%e6%80%9d%ef%bc%8c%e5%9c%a8man%20bash%e7%9a%84%20SHELL%20BUILTIN%20COMMANDS%e7%9a%84read%e6%8c%87%e4%bb%a4%e4%b8%ad%20exec%20999%26lt%3b%26gt%3b%24Pfifo%e4%b8%ad%ef%bc%8cman%20bash%e7%9a%84REDIRECTION%e5%b0%8f%e8%8a%82%e4%b8%ad%20%23%21%2fbin%2fsh%20awk%3d%2fusr%2fbin%2fawk%20uniq%3d%2fusr%2fbin%2funiq%20Nproc%3d24%20%23%24%24%e6%98%af%e8%bf%9b%e7%a8%8bpid%20Pfifo%3d%26quot%3b%2ftmp%2f%24%24.fifo%26quot%3b%20mkfifo%20%24Pfifo%20%23%e4%bb%a5999%e4%b8%ba%e6%96%87%e4%bb%b6%e6%8f%8f%e8%bf%b0%e7%ac%a6%e6%89%93%e5%bc%80%e7%ae%a1%e9%81%93%2c%26lt%3b%26gt%3b%e8%a1%a8%e7%a4%ba%e5%8f%af%e8%af%bb%e5%8f%af%e5%86%99%20exec%20999%26lt%3b%26gt%3b%24Pfifo%20rm%20-f%20%24Pfifo%20%23%e5%90%91%e7%ae%a1%e9%81%93%e4%b8%ad%e5%86%99%e5%85%a5Nproc%e8%a1%8c%2c%e4%bd%9c%e4%b8%ba%e4%bb%a4%e7%89%8c%20for%28%28i%3d1%3b%20i%26lt%3b%3d%24Nproc%3b%20i%2b%2b%29%29%3b%20do%20echo%20done%20%26gt%3b%26amp%3b999%20echo%20%27%27%20%26gt%3b%20out..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=http://bg2bkk.github.io/post/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/&amp;title=openresty%e5%ad%a6%e4%b9%a0%e8%bf%87%e7%a8%8b%e4%b8%ad%e7%9a%84%e4%b8%80%e4%ba%9btips&amp;summary=ngx_lua%e4%b8%ad%e5%88%a4%e6%96%adtable%e4%b8%ba%e7%a9%ba%20lua%e7%9a%84table%e4%b8%ad%ef%bc%8c%e6%9c%89%e4%b8%a4%e7%b1%bbkv%ef%bc%8c%e4%b8%80%e7%b1%bb%e6%98%af%e4%bb%a5%e6%95%b0%e5%ad%97%e4%b8%baindex%ef%bc%8c%e6%af%94%e5%a6%82%7b%26lsquo%3babc%26rsquo%3b%2c%20%26lsquo%3befg%26rsquo%3b%7d%e4%b8%ad%ef%bc%8c%7bk%3d1%2c%20v%3dabc%7d%2c%20%7bk%3d2%2c%20v%3defg%7d%ef%bc%8c%e5%8f%a6%e4%b8%80%e7%b1%bb%e4%bb%a5%e8%87%aa%e5%b7%b1kv%e5%ad%98%e5%82%a8%ef%bc%8c%e6%af%94%e5%a6%82%7b%5b%26lsquo%3babc%26rsquo%3b%5d%20%3d%20%26lsquo%3befg%26rsquo%3b%7d%ef%bc%8ck%e4%b8%baabc%e7%9a%84%e5%85%83%e7%b4%a0%ef%bc%8cv%e4%b8%baefg%20%23table%e4%b8%ad%ef%bc%8c%23%e6%a0%87%e8%af%86%e7%ac%a6%e6%98%af%e8%bf%94%e5%9b%9e%e4%bb%a5%e6%95%b0%e5%ad%97%e4%b8%baindex%e7%9a%84key%ef%bc%8c%e4%bb%8e1%e5%bc%80%e5%a7%8b%e7%ae%97%ef%bc%8c%e8%bf%9e%e7%bb%ad%e7%9a%84key%e7%9a%84%e6%95%b0%e9%87%8f%20local%20t%20%3d%20%7b%7d%20t%5b1%5d%20%3d%20%27a%27%20t%5b2%5d%20%3d%20%27b%27%20t%5b20%5d%20%3d%20%27c%27%20print%28%23t%29%202%20%e5%9b%a0%e6%ad%a4%23%e5%8f%b7%e4%b8%8d%e8%83%bd%e8%8e%b7%e5%be%97table%e7%9a%84%e7%9c%9f%e5%ae%9e%e5%a4%a7%e5%b0%8f%ef%bc%8c%e4%b9%9f%e4%b8%8d%e8%83%bd%e7%94%a8%e4%ba%8e%e5%88%a4%e6%96%adtable%e6%98%af%e5%90%a6%e4%b8%ba%e7%a9%ba%20table.maxn%28tab%29%ef%bc%8cmaxn%e8%bf%94%e5%9b%9etable%e4%b8%ad%e4%bb%a5%e6%95%b0%e5%ad%97%e4%b8%bakey%e7%9a%84%e5%85%83%e7%b4%a0%e4%b8%ad%ef%bc%8c%e6%95%b0%e5%ad%97%e6%9c%80%e5%a4%a7%e7%9a%84%e9%82%a3%e4%b8%aa%20local%20t%20%3d%20%7b%7d%20t%5b1%5d%20%3d%20%27a%27%20t%5b2%5d%20%3d%20%27b%27%20t%5b20%5d%20%3d%20%27c%27%20print%28table.maxn%28t%29%29%2020%20next%e5%b0%b1%e6%98%afpairs%e9%81%8d%e5%8e%86table%e6%97%b6%e7%94%a8%e6%9d%a5%e5%8f%96%e4%b8%8b%e4%b8%80%e4%b8%aa%e5%86%85%e5%ae%b9%e7%9a%84%e5%87%bd%e6%95%b0%ef%bc%8c%e5%9b%a0%e6%ad%a4next%28tab%29%e5%8f%af%e4%bb%a5%e7%94%a8%e6%9d%a5%e5%88%a4%e6%96%adtable%e6%98%af%e5%90%a6%e4%b8%ba%e7%a9%ba%ef%bc%8c%e5%a6%82%e6%9e%9cnext%28tab%29%e8%bf%94%e5%9b%9e%e4%b8%banil%e7%9a%84%e8%af%9d%ef%bc%8c%e8%af%b4%e6%98%8e%e7%ac%ac%e4%b8%80%e4%b8%aa%e5%85%83%e7%b4%a0%e4%b8%8d%e5%ad%98%e5%9c%a8%ef%bc%8c%e6%89%80%e4%bb%a5%e8%af%a5table%e4%b8%ba%e7%a9%ba%20%e5%8f%82%e8%80%83%e9%93%be%e6%8e%a5%20ngx_lua%e4%b8%ad%e7%9a%84%e5%8f%82%e6%95%b0%e8%8e%b7%e5%be%97%20ngx_lua%e4%b8%ad%e8%8e%b7%e5%be%97req%e5%8f%82%e6%95%b0%e6%9c%89%e5%a6%82%e4%b8%8b%e5%87%a0%e4%b8%aa%e6%96%b9%e6%b3%95%ef%bc%9a%20ngx.var.arg_city%20%e8%8e%b7%e5%8f%96city%e5%8f%82%e6%95%b0%20host%3aport%2furi%3fcity%3dabc%20ngx.var.arg_city%20%3d%20abc%20host%3aport%2furi%3fcity%3d%20ngx.var.arg_city%20%3d%20%26ldquo%3b%2c%20and%20its%20length%20is%200%20host%3aport%2furi%3fcity%20ngx.var.arg_city%20%3d%20nil%ef%bc%8ccause%20it%20doesn%26rsquo%3bt%20exist%20yet%20ngx.req.get_headers%28%29%5b%26lsquo%3bcity%26rsquo%3b%5d%ef%bc%8c%e8%8e%b7%e5%8f%96http%e8%af%b7%e6%b1%82%e5%a4%b4%e4%b8%ad%e7%9a%84city%e5%8f%82%e6%95%b0%20host%3aport%2furi%20-H%20%26lsquo%3bcity%3aabc%26rsquo%3b%20%e7%bb%93%e6%9e%9c%e4%b8%baabc%20host%3aport%2furi%20-H%20%26lsquo%3bcity%3a%26rsquo%3b%20%e7%bb%93%e6%9e%9c%e4%b8%banil%20thread%20%e8%99%bd%e7%84%b6init_worker_by_lua%e9%98%b6%e6%ae%b5%e4%b8%8d%e8%83%bd%e4%bd%bf%e7%94%a8cosocket%ef%bc%8c%e4%b8%8d%e8%bf%87%e5%8f%af%e4%bb%a5%e5%85%88%e9%80%9a%e8%bf%87%e4%b8%80%e4%b8%aatimer%ef%bc%88%e5%ae%9a%e6%97%b6%e6%97%b6%e9%97%b4%e4%b8%ba0%e8%ae%a9%e5%85%b6%e7%ab%8b%e5%8d%b3%e8%b0%83%e7%94%a8%ef%bc%89%e6%9d%a5%e5%8f%91%e5%87%ba%e5%af%b9%e5%a4%96%e7%9a%84socket%20io%e6%93%8d%e4%bd%9c%ef%bc%8c%e4%bb%a5%e5%ae%9e%e7%8e%b0%e4%b8%80%e4%ba%9b%e5%88%9d%e5%a7%8b%e5%8c%96%e7%9a%84%e7%9b%ae%e7%9a%84%e3%80%82%20openresty%e7%9a%84%e4%b8%a4%e4%b8%aa%e7%bc%93%e5%ad%98%e4%b8%ad%ef%bc%8cngx%20shared%20dict%e6%98%af%e8%b7%a8worker%e5%85%b1%e4%ba%ab%e7%9a%84%ef%bc%8c%e6%98%af%e4%b8%80%e4%b8%aa%e5%8d%95%e7%ba%af%e7%9a%84kv%e7%bc%93%e5%ad%98%ef%bc%9b%e9%a2%84%e8%ae%a1%e6%8e%a5%e4%b8%8b%e6%9d%a5%e4%bc%9a%e6%9c%89patch%e8%83%bd%e5%a4%9f%e6%94%af%e6%8c%81lpush%e7%ad%89redis%e6%93%8d%e4%bd%9c%ef%bc%9blua-resty-lrucache%e6%98%af%e6%af%8f%e4%b8%aaworker%e7%9a%84Lua%20VM%e7%a9%ba%e9%97%b4%e5%86%85%e7%bc%93%e5%ad%98%ef%bc%8c%e4%b8%8d%e8%83%bd%e8%b7%a8worker%e5%85%b1%e4%ba%ab%ef%bc%8c%e4%bc%98%e7%82%b9%e6%98%af%e5%8f%af%e4%bb%a5%e5%ad%98%e5%82%a8%e6%89%80%e6%9c%89lua%e5%af%b9%e8%b1%a1%ef%bc%8c%e6%af%94%e5%a6%82table%ef%bc%8c%e8%80%8c%e4%b8%8d%e9%9c%80%e8%a6%81%e5%ba%8f%e5%88%97%e5%8c%96%e5%92%8c%e5%8f%8d%e5%ba%8f%e5%88%97%e5%8c%96%20worker%20%e5%90%af%e5%8a%a8%e6%97%b6%ef%bc%8cupstream%20%e6%98%af%e7%a9%ba%e7%9a%84%ef%bc%8c%e5%8d%b3%20_M.data%3d%7b%7d%ef%bc%8c%e6%89%80%e4%bb%a5%e8%bf%99%e4%b8%aa%e6%97%b6%e5%80%99%e6%98%af%e4%b8%8d%e8%83%bd%e6%8f%90%e4%be%9b%e6%9c%8d%e5%8a%a1%e7%9a%84%e3%80%82%e6%89%80%e4%bb%a5%e6%af%8f%e6%ac%a1%20reload%20config%20%e9%83%bd%e4%bc%9a%e5%af%bc%e8%87%b4%e4%b8%80%e6%ae%b5%e6%97%b6%e9%97%b4%e5%86%85%e6%9c%8d%e5%8a%a1%e4%b8%8d%e5%8f%af%e8%ae%bf%e9%97%ae%e3%80%82%20%e5%9c%a8%20init_worker_by_lua%20%e6%89%a7%e8%a1%8c%20cosocket%20%e7%9b%b8%e5%85%b3%e7%9a%84%20API%20%e6%98%af%e4%b8%8d%e5%85%81%e8%ae%b8%e7%9a%84%ef%bc%88%e5%90%8e%e6%9c%9f%e5%8f%af%e8%83%bd%e4%bc%9a%e6%b7%bb%e5%8a%a0%e6%94%af%e6%8c%81%ef%bc%89%ef%bc%8c%e4%bd%86%e5%8f%af%e4%bb%a5%e8%b0%83%e7%94%a8%e6%a0%87%e5%87%86%20SOCKET%20%e5%ae%8c%e6%88%90%e5%88%9d%e5%a7%8b%e5%8c%96%e5%8a%a0%e8%bd%bd%ef%bc%8c%e4%be%8b%e5%a6%82%e5%80%9f%e5%8a%a9%20luasocket%20%e5%ae%8c%e6%88%90%e6%95%b0%e6%8d%ae%e6%ba%90%e8%8e%b7%e5%8f%96%e5%b9%b6%e5%88%9d%e5%a7%8b%e5%8c%96%20_M%20%e3%80%82%20%e4%b8%8d%e6%b8%85%e6%a5%9a%20init_worker_by_lua%20%e9%87%8c%e6%98%af%e5%90%a6%e5%8f%af%e4%bb%a5%e8%bf%9b%e8%a1%8c%e6%96%87%e4%bb%b6%e6%93%8d%e4%bd%9c%ef%bc%9f%20%e6%98%af%e5%8f%af%e4%bb%a5%e7%9a%84%ef%bc%8c%e8%bf%99%e4%b8%aa%e7%a1%ae%e5%ae%9a%e3%80%82%20%e5%9c%a8ngx%20lua%e6%80%a7%e8%83%bd%e5%88%86%e6%9e%90%e6%96%b9%e9%9d%a2%ef%bc%8cagentzh%e6%8f%90%e5%87%ba%e4%b8%80%e7%b3%bb%e5%88%97%e7%9a%84%e5%b7%a5%e5%85%b7%ef%bc%8c%e4%b8%bb%e8%a6%81%e6%98%afnginx-systemtap-toolkit%e5%92%8cstapxx%e4%b8%a4%e4%b8%aa%e5%b7%a5%e7%a8%8b%e3%80%82%e6%88%91%e4%bb%ac%e4%bd%bf%e7%94%a8%e7%9a%84%e8%84%9a%e6%9c%ac%ef%bc%8c%e8%af%b4%e6%98%8e%e6%96%87%e6%a1%a3%20%e5%bc%95%e7%94%a8%ef%bc%9a%20%e6%88%91%e4%bb%ac%e6%9c%89%e4%b8%80%e6%95%b4%e5%a5%97%e7%9a%84%e5%9f%ba%e4%ba%8e%20systemtap%20%e7%9a%84%e5%b7%a5%e5%85%b7%e9%93%be%e5%8f%af%e4%bb%a5%e7%94%a8%e4%ba%8e%e5%9c%a8%e7%ba%bf%e6%88%96%e8%80%85%e7%a6%bb%e7%ba%bf%e7%9a%84%e6%80%a7%e8%83%bd%e5%88%86%e6%9e%90%e3%80%82%20%e4%bd%a0%e7%9a%84%20nginx%20%e8%bf%9b%e7%a8%8b%e7%9a%84%20CPU%20%e4%bd%bf%e7%94%a8%e7%8e%87%e5%a6%82%e6%9e%9c%e5%be%88%e9%ab%98%e7%9a%84%e8%af%9d%ef%bc%8c%e5%8f%af%e4%bb%a5%e4%bd%bf%e7%94%a8%20C%20%e7%ba%a7%e5%88%ab%e7%9a%84%20on-CPU%20%e6%97%b6%e9%97%b4%e7%81%ab%e7%84%b0%e5%9b%be%e5%b7%a5%e5%85%b7%e5%af%b9%e4%bd%a0%e6%9c%80%e5%bf%99%e7%9a%84%20nginx%20worker%20%e8%bf%9b%e7%a8%8b%e8%bf%9b%e8%a1%8c%e9%87%87%e6%a0%b7%ef%bc%9a%20https%3a%2f%2fgithub.com%2fagentzh%2fnginx-systemtap-toolkit%23sample-bt%20%e5%a6%82%e6%9e%9c%e4%bd%a0%e7%9a%84%20nginx%20%e8%bf%9b%e7%a8%8b%e7%9a%84%20CPU%20%e5%be%88%e4%bd%8e%ef%bc%8c%e4%bd%86%e8%af%b7%e6%b1%82%e5%bb%b6%e6%97%b6%e5%be%88%e9%ab%98%ef%bc%8c%e5%88%99%e6%9c%89%e4%b8%a4%e7%a7%8d%e5%8f%af%e8%83%bd%ef%bc%9a%201...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -273,7 +266,7 @@ echo `$awk '{count[$0]++}END{for(name in count)print name}' out &gt; ooo; awk 'E
       </li>
       <li class="tumblr">
 					<script>
-						document.write('<a href="http://www.tumblr.com/share?v=3&amp;u=' + encodeURIComponent('http:\/\/bg2bkk.github.io\/post\/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5\/') + '&amp;t=linux shell控制并发进程数实践" class="popup">');
+						document.write('<a href="http://www.tumblr.com/share?v=3&amp;u=' + encodeURIComponent('http:\/\/bg2bkk.github.io\/post\/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips\/') + '&amp;t=openresty学习过程中的一些tips" class="popup">');
 					</script>
               <span class="icon">
                   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
@@ -284,7 +277,7 @@ echo `$awk '{count[$0]++}END{for(name in count)print name}' out &gt; ooo; awk 'E
           <script>document.write('</a>');</script>
       </li>
       <li class="reddit">
-          <a href="http://www.reddit.com/submit?url=http://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/">
+          <a href="http://www.reddit.com/submit?url=http://bg2bkk.github.io/post/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/">
               <span class="icon">
                   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
 											<g>
@@ -299,7 +292,7 @@ echo `$awk '{count[$0]++}END{for(name in count)print name}' out &gt; ooo; awk 'E
           </a>
       </li>
       <li class="googleplus">
-          <a href="https://plus.google.com/share?url=http://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/" class="popup">
+          <a href="https://plus.google.com/share?url=http://bg2bkk.github.io/post/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/" class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <g>
@@ -318,7 +311,7 @@ echo `$awk '{count[$0]++}END{for(name in count)print name}' out &gt; ooo; awk 'E
 						if (firstimg !== undefined) {
 							imgurl = firstimg.src;
 						}
-						document.write('<a href="http://pinterest.com/pin/create/button/?url=http:\/\/bg2bkk.github.io\/post\/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5\/&amp;media=' + imgurl + '&amp;description=linux shell控制并发进程数实践" class="popup">');
+						document.write('<a href="http://pinterest.com/pin/create/button/?url=http:\/\/bg2bkk.github.io\/post\/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips\/&amp;media=' + imgurl + '&amp;description=openresty学习过程中的一些tips" class="popup">');
 					</script>
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
@@ -329,7 +322,7 @@ echo `$awk '{count[$0]++}END{for(name in count)print name}' out &gt; ooo; awk 'E
           <script>document.write('</a>');</script>
       </li>
       <li class="pocket">
-          <a href="https://getpocket.com/save?url=http://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/"  class="popup">
+          <a href="https://getpocket.com/save?url=http://bg2bkk.github.io/post/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/"  class="popup">
               <span class="icon">
                   <svg width="32px" height="28px" viewBox="0 0 32 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
                       <path d="M28.7817528,0.00172488695 C30.8117487,0.00431221738 31.9749312,1.12074529 31.9644402,3.10781507 C31.942147,6.67703739 32.1336065,10.2669583 31.8057648,13.8090137 C30.7147076,25.5813672 17.2181194,31.8996281 7.20714461,25.3808491 C2.71833574,22.4571656 0.196577202,18.3122624 0.0549495772,12.9357897 C-0.0342233715,9.5774348 0.00642900214,6.21519891 0.0300336062,2.85555035 C0.0405245414,1.1129833 1.21157517,0.0146615391 3.01995012,0.00819321302 C7.34746087,-0.00603710433 11.6775944,0.00431221738 16.0064164,0.00172488695 C20.2644248,0.00172488695 24.5237444,-0.00215610869 28.7817528,0.00172488695 L28.7817528,0.00172488695 Z M8.64885184,7.85611511 C7.38773662,7.99113854 6.66148108,8.42606978 6.29310958,9.33228474 C5.90114134,10.2969233 6.17774769,11.1421181 6.89875951,11.8276216 C9.35282156,14.161969 11.8108164,16.4924215 14.2976518,18.7943114 C15.3844131,19.7966007 16.5354102,19.7836177 17.6116843,18.7813283 C20.0185529,16.5495467 22.4070683,14.2982907 24.7824746,12.0327533 C25.9845979,10.8850542 26.1012707,9.56468083 25.1469132,8.60653379 C24.1361858,7.59255976 22.8449191,7.6743528 21.5890476,8.85191291 C19.9936451,10.3488554 18.3680912,11.8172352 16.8395462,13.3777945 C16.1342655,14.093159 15.7200114,14.0048744 15.0566806,13.3440386 C13.4599671,11.7484252 11.8081945,10.2060421 10.1262706,8.70001155 C9.65564653,8.27936164 9.00411403,8.05345704 8.64885184,7.85611511 L8.64885184,7.85611511 L8.64885184,7.85611511 Z"></path>
