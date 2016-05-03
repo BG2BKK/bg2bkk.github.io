@@ -99,10 +99,12 @@
         </span>
     </div>
     <h1 class="post-title">nginx gdb utils的编译 安装和使用</h1>
-    <p>1、想用<a href="https://github.com/openresty/nginx-gdb-utils">nginx-gdb-utils</a>来监控ngx_lua的内存使用情况
-2、在CentOS 6.5上，gdb为7.2，python为2.6，没有一个符合的，想强上，没上了，只能在7上搞
-3、CentSO 7的gdb是7.6，版本也很老，对于nginx-gdb-utils来说。python倒是2.7，可以搞
-4、<a href="http://www.linuxfromscratch.org/blfs/view/svn/general/gdb.html">gdb</a>需要编译安装，首先下载gdb-7.11</p>
+    <ul>
+<li>1、想用<a href="https://github.com/openresty/nginx-gdb-utils">nginx-gdb-utils</a>来监控ngx_lua的内存使用情况</li>
+<li>2、在CentOS 6.5上，gdb为7.2，python为2.6，没有一个符合的，想强上，没上了，只能在7上搞</li>
+<li>3、CentSO 7的gdb是7.6，版本也很老，对于nginx-gdb-utils来说。python倒是2.7，可以搞</li>
+<li>4、<a href="http://www.linuxfromscratch.org/blfs/view/svn/general/gdb.html">gdb</a>需要编译安装，首先下载gdb-7.11</li>
+</ul>
 
 <pre><code class="language-bash">    cd gdb-7.11
     ./configure --with-python=python2.7

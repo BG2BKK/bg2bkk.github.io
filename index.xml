@@ -2,18 +2,18 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>BG2BKK Site</title>
-    <link>http://bg2bkk.github.io/</link>
+    <link>https://bg2bkk.github.io/</link>
     <description>Recent content on BG2BKK Site</description>
     <generator>Hugo -- gohugo.io</generator>
     <lastBuildDate>Tue, 12 Apr 2016 10:19:38 +0800</lastBuildDate>
-    <atom:link href="http://bg2bkk.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://bg2bkk.github.io/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>github 上那些令我感到惊艳又实用的项目</title>
-      <link>http://bg2bkk.github.io/post/github%20%E4%B8%8A%E9%82%A3%E4%BA%9B%E4%BB%A4%E6%88%91%E6%84%9F%E5%88%B0%E6%83%8A%E8%89%B3%E5%8F%88%E5%AE%9E%E7%94%A8%E7%9A%84%E9%A1%B9%E7%9B%AE/</link>
+      <link>https://bg2bkk.github.io/post/github%20%E4%B8%8A%E9%82%A3%E4%BA%9B%E4%BB%A4%E6%88%91%E6%84%9F%E5%88%B0%E6%83%8A%E8%89%B3%E5%8F%88%E5%AE%9E%E7%94%A8%E7%9A%84%E9%A1%B9%E7%9B%AE/</link>
       <pubDate>Tue, 12 Apr 2016 10:19:38 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/github%20%E4%B8%8A%E9%82%A3%E4%BA%9B%E4%BB%A4%E6%88%91%E6%84%9F%E5%88%B0%E6%83%8A%E8%89%B3%E5%8F%88%E5%AE%9E%E7%94%A8%E7%9A%84%E9%A1%B9%E7%9B%AE/</guid>
+      <guid>https://bg2bkk.github.io/post/github%20%E4%B8%8A%E9%82%A3%E4%BA%9B%E4%BB%A4%E6%88%91%E6%84%9F%E5%88%B0%E6%83%8A%E8%89%B3%E5%8F%88%E5%AE%9E%E7%94%A8%E7%9A%84%E9%A1%B9%E7%9B%AE/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;https://github.com/phodal&#34;&gt;https://github.com/phodal&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
@@ -22,10 +22,10 @@
     
     <item>
       <title>shadowsocks go through the Fuck GFW</title>
-      <link>http://bg2bkk.github.io/post/shadowsocks%20go%20through%20the%20F%2A%2Ak%20GFW/</link>
+      <link>https://bg2bkk.github.io/post/shadowsocks%20go%20through%20the%20F%2A%2Ak%20GFW/</link>
       <pubDate>Mon, 11 Apr 2016 00:33:17 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/shadowsocks%20go%20through%20the%20F%2A%2Ak%20GFW/</guid>
+      <guid>https://bg2bkk.github.io/post/shadowsocks%20go%20through%20the%20F%2A%2Ak%20GFW/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;&lt;p&gt;买VPS，vultr的设备，使用起来还是蛮简单的。信用卡一张，注册并扣费0.1美元会送50美元，两个月内用完。我开始部署了一个日本的最便宜的5美元一月的vps，使用起来还不错，youtube 480P没问题；但是我通过这送的50美元实验了以下几个配置的机器速度，洛杉矶机房20美元，洛杉矶机房5美元，日本机房5美元，日本机房10美元，发现ping vps-ip时美国机房都是170ms，日本机房是220ms，原因可能是即使日本离得近，去日本的路由也要绕道美国才到日本的，所以我们直接选择美国机房好了。位于西海岸的洛杉矶机房，让你打开youtube 1080P毫无压力，白天晚上都没问题。&lt;/p&gt;&lt;/li&gt;
 
@@ -84,11 +84,80 @@ sudo ./debian_shadowsocks_tennfy.sh
     </item>
     
     <item>
+      <title>nginx gdb utils的编译 安装和使用</title>
+      <link>https://bg2bkk.github.io/post/nginx-gdb-utils%E7%9A%84%E7%BC%96%E8%AF%91%20%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8/</link>
+      <pubDate>Fri, 25 Mar 2016 20:16:51 +0800</pubDate>
+      
+      <guid>https://bg2bkk.github.io/post/nginx-gdb-utils%E7%9A%84%E7%BC%96%E8%AF%91%20%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;1、想用&lt;a href=&#34;https://github.com/openresty/nginx-gdb-utils&#34;&gt;nginx-gdb-utils&lt;/a&gt;来监控ngx_lua的内存使用情况&lt;/li&gt;
+&lt;li&gt;2、在CentOS 6.5上，gdb为7.2，python为2.6，没有一个符合的，想强上，没上了，只能在7上搞&lt;/li&gt;
+&lt;li&gt;3、CentSO 7的gdb是7.6，版本也很老，对于nginx-gdb-utils来说。python倒是2.7，可以搞&lt;/li&gt;
+&lt;li&gt;4、&lt;a href=&#34;http://www.linuxfromscratch.org/blfs/view/svn/general/gdb.html&#34;&gt;gdb&lt;/a&gt;需要编译安装，首先下载gdb-7.11&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;    cd gdb-7.11
+    ./configure --with-python=python2.7
+    报错，报python2.7找不到，换成
+
+    ./configure --with-python=/usr/bin/python2.7
+    依然报错
+    很奇怪，难道不是要python2.7吗，怎么报找不到。
+    后来才知道，需要python，要的不是python2.7的可执行文件，而是python的库文件等待
+
+    sudo yum install python2.7-devel
+
+    make -j24 --with-python
+    注意我这里不用写--with-python=blahblah了
+    终于不报错了
+
+    make -C gdb install 
+    报错，报没有makeinfo的错误，经查，makeinfo是texinfo的一部分，用来生成说明文档的，因为它而不能安装，蛋疼
+
+    sudo yum install texinfo
+
+    make -C gdb install
+    安装在/usr/local/bin/gdb
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;5、将nginx-gdb-utils写入gdb初始化文件中，这样以后就不用每次加载py文件了&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;vim ~/.gdbinit
+
+directory /path/to/nginx-gdb-utils
+
+py import sys
+py sys.path.append(&amp;quot;/path/to/nginx-gdb-utils&amp;quot;)
+
+source luajit20.gdb
+source ngx-lua.gdb
+source luajit21.py
+source ngx-raw-req.py
+set python print-stack full
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;但其实一般而言我们都是用root用户的，所以在sudo或者直接是root用户下时，需要重新写~/.gdbinit，这时应该是在/root/.gdbinit了&lt;/p&gt;
+
+&lt;p&gt;6、/usr/local/bin/gdb -p 12345
+7、lgcstat&lt;/p&gt;
+
+&lt;p&gt;发现报一些函数或者变量找不到，比如Lgref找不到，这个原因是相关软件没有把用 -g 选项把符号编译进去&lt;/p&gt;
+
+&lt;p&gt;8、对于LuaJit而言，make CCDEBUG=-g -B -j8
+9、对于lua-cjson而言，make CCDEBUG=-g -B -j8
+10、对于tengine、nginx或者openresty而言，CFLAGS=&amp;ldquo;-g -O2&amp;rdquo; ./configure&lt;/p&gt;
+
+&lt;p&gt;11、自此就可以愉快的玩耍了。这些工具还是很有意思的。&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
       <title>effective tips in daily work</title>
-      <link>http://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</link>
+      <link>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</link>
       <pubDate>Thu, 24 Mar 2016 16:36:33 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</guid>
+      <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</guid>
       <description>
 
 &lt;h2 id=&#34;git修改默认分支名:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;git修改默认分支名&lt;/h2&gt;
@@ -770,10 +839,10 @@ tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.ca
     
     <item>
       <title>New evolvement of Epoll</title>
-      <link>http://bg2bkk.github.io/post/New%20Evolvement%20of%20Epoll/</link>
+      <link>https://bg2bkk.github.io/post/New%20Evolvement%20of%20Epoll/</link>
       <pubDate>Tue, 22 Mar 2016 01:48:41 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/New%20Evolvement%20of%20Epoll/</guid>
+      <guid>https://bg2bkk.github.io/post/New%20Evolvement%20of%20Epoll/</guid>
       <description>
 
 &lt;h2 id=&#34;epoll在linux-内核中的新发展:b489f0f2178b22438ad2d1ac9c25dd2c&#34;&gt;EPOLL在linux 内核中的新发展&lt;/h2&gt;
@@ -880,10 +949,10 @@ tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.ca
     
     <item>
       <title>openresty学习过程中的一些tips</title>
-      <link>http://bg2bkk.github.io/post/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/</link>
+      <link>https://bg2bkk.github.io/post/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/</link>
       <pubDate>Mon, 14 Mar 2016 16:36:14 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/</guid>
+      <guid>https://bg2bkk.github.io/post/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/</guid>
       <description>
 
 &lt;h2 id=&#34;ngx-lua获取post字段参数:d90c926ba9cb9e1e62be5d1b7a7aa7fb&#34;&gt;ngx_lua获取post字段参数&lt;/h2&gt;
@@ -1066,10 +1135,10 @@ print(table.maxn(t))
     
     <item>
       <title>HTTP2的实践过程</title>
-      <link>http://bg2bkk.github.io/post/HTTP2%E7%9A%84%E5%AE%9E%E8%B7%B5%E8%BF%87%E7%A8%8B/</link>
+      <link>https://bg2bkk.github.io/post/HTTP2%E7%9A%84%E5%AE%9E%E8%B7%B5%E8%BF%87%E7%A8%8B/</link>
       <pubDate>Sat, 12 Mar 2016 16:17:52 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/HTTP2%E7%9A%84%E5%AE%9E%E8%B7%B5%E8%BF%87%E7%A8%8B/</guid>
+      <guid>https://bg2bkk.github.io/post/HTTP2%E7%9A%84%E5%AE%9E%E8%B7%B5%E8%BF%87%E7%A8%8B/</guid>
       <description>
 
 &lt;h2 id=&#34;目录:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;目录&lt;/h2&gt;
@@ -1512,10 +1581,10 @@ nghttpd
     
     <item>
       <title>采用二级指针实现单链表操作 单链表翻转 删除单链表结点</title>
-      <link>http://bg2bkk.github.io/post/list%E9%93%BE%E8%A1%A8%E9%87%87%E7%94%A8%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E8%AE%BF%E9%97%AE%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9/</link>
+      <link>https://bg2bkk.github.io/post/list%E9%93%BE%E8%A1%A8%E9%87%87%E7%94%A8%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E8%AE%BF%E9%97%AE%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9/</link>
       <pubDate>Tue, 01 Mar 2016 11:00:34 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/list%E9%93%BE%E8%A1%A8%E9%87%87%E7%94%A8%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E8%AE%BF%E9%97%AE%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9/</guid>
+      <guid>https://bg2bkk.github.io/post/list%E9%93%BE%E8%A1%A8%E9%87%87%E7%94%A8%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E8%AE%BF%E9%97%AE%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;register_filesystem中的二级指针，刚开始没看懂。怒了，如果这个都没看懂，还搞什么C语言编程&lt;/li&gt;
 &lt;li&gt;leetcode中的反转链表，二级指针操作巨好用&lt;/li&gt;
@@ -1649,10 +1718,10 @@ int main()
     
     <item>
       <title>VFS虚拟文件系统</title>
-      <link>http://bg2bkk.github.io/post/VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</link>
+      <link>https://bg2bkk.github.io/post/VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</link>
       <pubDate>Mon, 29 Feb 2016 15:33:32 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</guid>
+      <guid>https://bg2bkk.github.io/post/VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</guid>
       <description>
 
 &lt;h2 id=&#34;虚拟文件系统:33c34adef684867bc26f32ab644d7c6f&#34;&gt;虚拟文件系统&lt;/h2&gt;
@@ -1878,10 +1947,10 @@ int main()
     
     <item>
       <title>pipe在内核中的实现</title>
-      <link>http://bg2bkk.github.io/post/pipe%E5%9C%A8%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/</link>
+      <link>https://bg2bkk.github.io/post/pipe%E5%9C%A8%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/</link>
       <pubDate>Sat, 27 Feb 2016 09:49:41 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/pipe%E5%9C%A8%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/</guid>
+      <guid>https://bg2bkk.github.io/post/pipe%E5%9C%A8%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/</guid>
       <description>
 
 &lt;h2 id=&#34;pipe在linux内核中的实现:eef8af46b03027cdd30025ef9f062910&#34;&gt;pipe在linux内核中的实现&lt;/h2&gt;
@@ -2321,10 +2390,10 @@ pipe_poll(struct file *filp, poll_table *wait)
     
     <item>
       <title>redis主从复制学习笔记</title>
-      <link>http://bg2bkk.github.io/post/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
+      <link>https://bg2bkk.github.io/post/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
       <pubDate>Fri, 26 Feb 2016 16:15:31 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
+      <guid>https://bg2bkk.github.io/post/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;redis&lt;a href=&#34;http://qifuguang.me/2015/10/18/Redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/&#34;&gt;主从复制&lt;/a&gt;
 
@@ -2366,10 +2435,10 @@ pipe_poll(struct file *filp, poll_table *wait)
     
     <item>
       <title>redis持久化学习笔记</title>
-      <link>http://bg2bkk.github.io/post/redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
+      <link>https://bg2bkk.github.io/post/redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
       <pubDate>Fri, 26 Feb 2016 14:56:41 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
+      <guid>https://bg2bkk.github.io/post/redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;&lt;p&gt;虽然网络上关于redis持久化的相关内容数不胜数，但是一来作为我的学习笔记，好记性不如烂笔头；二来除去官方redis之外，很多有意义的修改或补充都非常值得讨论，所以我想做一下记录。&lt;/p&gt;&lt;/li&gt;
 
@@ -2490,10 +2559,10 @@ pipe_poll(struct file *filp, poll_table *wait)
     
     <item>
       <title>tcp ip协议栈在linux内核启动中的顺序</title>
-      <link>http://bg2bkk.github.io/post/tcp%20ip%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%9C%A8linux%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8%E4%B8%AD%E7%9A%84%E9%A1%BA%E5%BA%8F/</link>
+      <link>https://bg2bkk.github.io/post/tcp%20ip%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%9C%A8linux%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8%E4%B8%AD%E7%9A%84%E9%A1%BA%E5%BA%8F/</link>
       <pubDate>Wed, 24 Feb 2016 23:13:13 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/tcp%20ip%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%9C%A8linux%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8%E4%B8%AD%E7%9A%84%E9%A1%BA%E5%BA%8F/</guid>
+      <guid>https://bg2bkk.github.io/post/tcp%20ip%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%9C%A8linux%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8%E4%B8%AD%E7%9A%84%E9%A1%BA%E5%BA%8F/</guid>
       <description>
 
 &lt;p&gt;在我尝试从kernel中深入了解TCP IP协议栈时，遇到了难题。&lt;/p&gt;
@@ -3054,10 +3123,10 @@ Idx Name          Size      VMA       LMA       File off  Algn
     
     <item>
       <title>openresty压测过程和systemtap工具使用中的一些问题</title>
-      <link>http://bg2bkk.github.io/post/openresty%E5%8E%8B%E6%B5%8B%E8%BF%87%E7%A8%8B%E5%92%8Csystemtap%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/</link>
+      <link>https://bg2bkk.github.io/post/openresty%E5%8E%8B%E6%B5%8B%E8%BF%87%E7%A8%8B%E5%92%8Csystemtap%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/</link>
       <pubDate>Mon, 22 Feb 2016 11:15:36 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/openresty%E5%8E%8B%E6%B5%8B%E8%BF%87%E7%A8%8B%E5%92%8Csystemtap%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/</guid>
+      <guid>https://bg2bkk.github.io/post/openresty%E5%8E%8B%E6%B5%8B%E8%BF%87%E7%A8%8B%E5%92%8Csystemtap%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/</guid>
       <description>
 
 &lt;h2 id=&#34;一-tegine编译-高版本的httpluamodule:dab12220e12920eb4ab0fdd954035a76&#34;&gt;一、tegine编译+高版本的httpluamodule&lt;/h2&gt;
@@ -3219,10 +3288,10 @@ tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.ca
     
     <item>
       <title>linux shell控制并发进程数实践</title>
-      <link>http://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/</link>
+      <link>https://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/</link>
       <pubDate>Fri, 19 Feb 2016 10:54:28 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/</guid>
+      <guid>https://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/</guid>
       <description>
 
 &lt;h1 id=&#34;shell脚本多线程应用:98445e76c0e56f8e093561726589792e&#34;&gt;shell脚本多线程应用&lt;/h1&gt;
@@ -3356,154 +3425,6 @@ echo `$awk &#39;{count[$0]++}END{for(name in count)print name}&#39; out &amp;gt;
 &lt;p&gt;&lt;a href=&#34;http://kodango.com/sed-and-awk-notes-part-1&#34;&gt;sed&amp;amp;awk入门 一&lt;/a&gt;&lt;br /&gt;
 &lt;a href=&#34;http://kodango.com/sed-and-awk-notes-part-2&#34;&gt;sed&amp;amp;awk入门 二&lt;/a&gt;&lt;br /&gt;
 &lt;a href=&#34;http://www.cnblogs.com/dong008259/archive/2011/12/06/2277287.html&#34;&gt;awk用法汇总&lt;/a&gt;&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>livestream的几种初步解决方案</title>
-      <link>http://bg2bkk.github.io/post/livestream%E7%9A%84%E5%87%A0%E7%A7%8D%E5%88%9D%E6%AD%A5%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/</link>
-      <pubDate>Thu, 18 Feb 2016 20:57:19 +0800</pubDate>
-      
-      <guid>http://bg2bkk.github.io/post/livestream%E7%9A%84%E5%87%A0%E7%A7%8D%E5%88%9D%E6%AD%A5%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/</guid>
-      <description>
-
-&lt;h1 id=&#34;实时视频流解决方案:522c154dca6ec9c4e9be4965f54df0ed&#34;&gt;实时视频流解决方案&lt;/h1&gt;
-
-&lt;h2 id=&#34;mjpg-streamer:522c154dca6ec9c4e9be4965f54df0ed&#34;&gt;mjpg-streamer&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code&gt;site: https://github.com/codewithpassion/mjpg-streamer/tree/master/mjpg-streamer
-
-    link: http://www.cnblogs.com/hnrainll/archive/2011/06/08/2074909.html
-    link: http://blog.163.com/chenhongswing@126/blog/static/1335924432011825104144612/
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;    #提供一个可以直接使用的demo
-
-    git clone https://github.com/codewithpassion/mjpg-streamer/tree/master/mjpg-streamer
-
-    cd mjpg-streamer
-
-    ./mjpg_streamer -i &amp;quot;input_uvc.so -d /dev/video0 -r 640x480 -y&amp;quot; -o &amp;quot;output_http.so -w ./www&amp;quot;
-
-    127.0.0.1:8080访问主页，可以获得stream、static以及通过vlc和mplayer播放
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;ffmpeg-websocket播放:522c154dca6ec9c4e9be4965f54df0ed&#34;&gt;ffmpeg+websocket播放&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code&gt;site: https://github.com/phoboslab/jsmpeg
-link: http://segmentfault.com/a/1190000000392586
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;    #提供可以直接运行的demo
-
-    git clone https://github.com/phoboslab/jsmpeg
-
-    nodejs stream-server.js huang	监听随机端口
-        Listening for MPEG Stream on http://127.0.0.1:8082/&amp;lt;secret&amp;gt;/&amp;lt;width&amp;gt;/&amp;lt;height&amp;gt;
-        Awaiting WebSocket connections on ws://127.0.0.1:8084/
-        Stream Connected: 127.0.0.1:52460 size: 640x480
-        New WebSocket Connection (1 total)
-        Disconnected WebSocket (0 total)
-
-    ffmpeg -s 640x480 -f video4linux2 -i /dev/video0 -f mpeg1video -b 800k -r 30 http://localhost:8082/huang/640/480/		ffmpeg采集编码并发送视频流
-    google-chrome stream-example.html		使用websocket在线观看
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;vlc视频流输出和vlc视频流播放:522c154dca6ec9c4e9be4965f54df0ed&#34;&gt;vlc视频流输出和vlc视频流播放&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code&gt;site: http://www.cnblogs.com/fx2008/p/4315416.html
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;    a、关掉防火墙，至少将视频流端口开启
-    b、vlc --ttl 12 -vvv --color -I telnet --telnet-password videolan --rtsp-host 0.0.0.0 --rtsp-port 5554
-    c、通过telnet启动vlc的vlm管理中，telnet 127.0.0.1 4212，密码是刚才的videolan
-    d、new Test vod enabled 新建一个vod，名字是Test
-    e、setup Test input /path/video.file    给Test输入视频
-    f、vlc rtsp://127.0.0.1:5554/Test 启动vlc观看视频流，这里还差声音
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;nginx的rtmp转播:522c154dca6ec9c4e9be4965f54df0ed&#34;&gt;nginx的rtmp转播&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code&gt;site: http://itony.me/619.html
-site: https://github.com/arut/nginx-rtmp-module
-site: http://openresty.org
-site: http://blog.csdn.net/leixiaohua1020/article/details/12029543
-site: http://blog.csdn.net/leixiaohua1020/article/details/39803457
-site: http://blog.csdn.net/fireroll/article/details/18899285
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;    a、安装openresty和rtmp模块
-    b、配置nginx，rtmp配置块与http配置块平级
-        rtmp {
-            server {
-                listen 1935;
-                application live1 {
-                    live on;
-                    record off;
-                }
-            }
-        }
-    c、ffmpeg转发视频流  
-        ffmpeg -re -i xxx.mp4 -c copy -f flv   rtmp://localhost:1935/live1/room1
-        其中的live1是应用，room1是将来要打开的节点
-
-    d、在vlc中打开视频流： 
-        rtmp://localhost:1935/live1/room1
-
-    e、ffmpeg -f video4linux2 -i /dev/video0 -c:v libx264 -an -f flv rtmp://localhost:1935/live1/room1 试试摄像头
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;aliyun-nginx-rtmp在线转播:522c154dca6ec9c4e9be4965f54df0ed&#34;&gt;aliyun+nginx+rtmp在线转播&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code&gt;site: http://blog.csdn.net/xdwyyan/article/details/43198985
-注意：在nginx中配置rtmp后，reload是不够的，需要kill掉重新启动nginx。
-通过sudo netstat -tlnp | grep 1935来观察nginx是否将端口打开
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;    sudo ffmpeg -i /dev/video0 -acodec acc -strict experimental -ar 44100 -ac 2 -b:a 96k -r 25 -b:v 500k -s 640*480 -f flv rtmp://101.200.124.174:1935/live1/room1
-    vlc rtmp://101.200.124.174:1935/live1/room1
-
-    ffmpeg -loglevel verbose -re -i xxx.mp4 -vcodec libx264 -vprofile baseline -acodec libmp3lame -ar 44100 -ac 1 -f flv rtmp://101.200.124.174:1935/hls/movie
-    vlc http://101.200.124.174/hls/movie
-
-    #v4l2读取摄像头，进行x264编码并将视频流发送至阿里云，进而进行hls播放
-    ffmpeg -f video4linux2 -s 320x240 -i /dev/video0 -vcodec libx264 -f flv  rtmp://101.200.124.174:1935/hls/movie
-    vlc http://101.200.124.174/hls/movie
-    手机浏览器打开也行
-
-    #http config block
-    rtmp {
-        server {
-            listen 1935;
-            application live1 {
-                live on;
-                record off;
-            }
-            application hls{
-                live on;
-                hls on;
-                hls_path /tmp/hls;
-            }
-    
-        }
-    }
-
-    #server config block
-    location /hls {
-        types {
-            application/vnd.apple.mpegurl m3u8;
-            video/mp2t ts;
-        }
-        root /tmp;
-        add_header Cache-Control no-cache;
-    }
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;extra-info:522c154dca6ec9c4e9be4965f54df0ed&#34;&gt;Extra Info&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code&gt;防火墙设置，配置1985端口可以被外网访问
-huang@vultr:~$ sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 1985 -j ACCEPT
-&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     
