@@ -3,13 +3,58 @@
   
   <url>
     <loc>https://bg2bkk.github.io/</loc>
-    <lastmod>2016-04-11T00:33:17+08:00</lastmod>
+    <lastmod>2016-05-03T16:39:34+08:00</lastmod>
     <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://bg2bkk.github.io/post/X86%E8%B0%83%E7%94%A8%E7%BA%A6%E5%AE%9A/</loc>
+    <lastmod>2016-05-03T16:39:34+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://bg2bkk.github.io/post/Developing%20stm32%20on%20Linux/</loc>
+    <lastmod>2016-04-12T10:20:13+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://bg2bkk.github.io/post/github%20%E4%B8%8A%E9%82%A3%E4%BA%9B%E4%BB%A4%E6%88%91%E6%84%9F%E5%88%B0%E6%83%8A%E8%89%B3%E5%8F%88%E5%AE%9E%E7%94%A8%E7%9A%84%E9%A1%B9%E7%9B%AE/</loc>
+    <lastmod>2016-04-12T10:19:38+08:00</lastmod>
   </url>
   
   <url>
     <loc>https://bg2bkk.github.io/post/shadowsocks%20go%20through%20the%20F%2A%2Ak%20GFW/</loc>
     <lastmod>2016-04-11T00:33:17+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://bg2bkk.github.io/post/DNS%20with%20golang/</loc>
+    <lastmod>2016-04-08T12:05:30+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://bg2bkk.github.io/post/googletest%20framework%E5%88%9D%E6%AD%A5%E4%B8%8A%E6%89%8B/</loc>
+    <lastmod>2016-04-03T13:14:13+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://bg2bkk.github.io/post/stapxx%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B/</loc>
+    <lastmod>2016-04-01T18:38:31+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://bg2bkk.github.io/post/minimal%20linux%20distro%E5%88%B6%E4%BD%9C%E8%BF%87%E7%A8%8B/</loc>
+    <lastmod>2016-03-30T15:13:13+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://bg2bkk.github.io/post/TODO%20List/</loc>
+    <lastmod>2016-03-28T14:43:15+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://bg2bkk.github.io/post/nginx-gdb-utils%E7%9A%84%E7%BC%96%E8%AF%91%20%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8/</loc>
+    <lastmod>2016-03-25T20:16:51+08:00</lastmod>
   </url>
   
   <url>
@@ -23,13 +68,43 @@
   </url>
   
   <url>
+    <loc>https://bg2bkk.github.io/post/Linux%20C%20%E7%BB%88%E7%AB%AF%E7%BC%96%E7%A8%8B%E4%B9%8B%E4%BB%A3%E7%A0%81%E8%87%AA%E5%8A%A8%E8%A1%A5%E5%85%A8/</loc>
+    <lastmod>2016-03-22T01:48:07+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://bg2bkk.github.io/post/7%E5%B1%82%E4%B8%8A%E7%BA%BF%E8%BF%87%E7%A8%8B/</loc>
+    <lastmod>2016-03-16T09:50:21+08:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://bg2bkk.github.io/post/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/</loc>
     <lastmod>2016-03-14T16:36:14+08:00</lastmod>
   </url>
   
   <url>
+    <loc>https://bg2bkk.github.io/post/coroutine%20and%20goroutine/</loc>
+    <lastmod>2016-03-13T17:59:29+08:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://bg2bkk.github.io/post/HTTP2%E7%9A%84%E5%AE%9E%E8%B7%B5%E8%BF%87%E7%A8%8B/</loc>
     <lastmod>2016-03-12T16:17:52+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://bg2bkk.github.io/post/resume/</loc>
+    <lastmod>2016-03-12T11:25:56+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://bg2bkk.github.io/post/SO_REUSEADDR%E5%92%8CSO_REUSEPORT/</loc>
+    <lastmod>2016-03-12T01:10:56+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://bg2bkk.github.io/post/tcp_fast_open%E7%9A%84%E6%A6%82%E5%BF%B5%20%E4%BD%9C%E7%94%A8%E4%BB%A5%E5%8F%8A%E5%AE%9E%E7%8E%B0/</loc>
+    <lastmod>2016-03-12T01:10:30+08:00</lastmod>
   </url>
   
   <url>
@@ -75,6 +150,11 @@
   <url>
     <loc>https://bg2bkk.github.io/post/livestream%E7%9A%84%E5%87%A0%E7%A7%8D%E5%88%9D%E6%AD%A5%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/</loc>
     <lastmod>2016-02-18T20:57:19+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://bg2bkk.github.io/about/</loc>
+    <lastmod>2016-02-18T20:45:46+08:00</lastmod>
   </url>
   
 </urlset>
