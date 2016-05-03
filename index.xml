@@ -2,18 +2,18 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>BG2BKK Site</title>
-    <link>http://bg2bkk.github.io/</link>
+    <link>https://bg2bkk.github.io/</link>
     <description>Recent content on BG2BKK Site</description>
     <generator>Hugo -- gohugo.io</generator>
     <lastBuildDate>Mon, 11 Apr 2016 00:33:17 +0800</lastBuildDate>
-    <atom:link href="http://bg2bkk.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://bg2bkk.github.io/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>shadowsocks go through the Fuck GFW</title>
-      <link>http://bg2bkk.github.io/post/shadowsocks%20go%20through%20the%20F%2A%2Ak%20GFW/</link>
+      <link>https://bg2bkk.github.io/post/shadowsocks%20go%20through%20the%20F%2A%2Ak%20GFW/</link>
       <pubDate>Mon, 11 Apr 2016 00:33:17 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/shadowsocks%20go%20through%20the%20F%2A%2Ak%20GFW/</guid>
+      <guid>https://bg2bkk.github.io/post/shadowsocks%20go%20through%20the%20F%2A%2Ak%20GFW/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;&lt;p&gt;买VPS，vultr的设备，使用起来还是蛮简单的。信用卡一张，注册并扣费0.1美元会送50美元，两个月内用完。我开始部署了一个日本的最便宜的5美元一月的vps，使用起来还不错，youtube 480P没问题；但是我通过这送的50美元实验了以下几个配置的机器速度，洛杉矶机房20美元，洛杉矶机房5美元，日本机房5美元，日本机房10美元，发现ping vps-ip时美国机房都是170ms，日本机房是220ms，原因可能是即使日本离得近，去日本的路由也要绕道美国才到日本的，所以我们直接选择美国机房好了。位于西海岸的洛杉矶机房，让你打开youtube 1080P毫无压力，白天晚上都没问题。&lt;/p&gt;&lt;/li&gt;
 
@@ -73,11 +73,73 @@ sudo ./debian_shadowsocks_tennfy.sh
     
     <item>
       <title>effective tips in daily work</title>
-      <link>http://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</link>
+      <link>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</link>
       <pubDate>Thu, 24 Mar 2016 16:36:33 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</guid>
+      <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</guid>
       <description>
+
+&lt;h2 id=&#34;git修改默认分支名:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;git修改默认分支名&lt;/h2&gt;
+
+&lt;p&gt;在develop分支改动太大了，导致merge 到master分支时非常被动，这个时候我想，干脆将develop分支作为分支好了。还好碰到&lt;a href=&#34;http://stackoverflow.com/questions/1485578/change-a-git-remote-head-to-point-to-something-besides-master&#34;&gt;stackoverflow的一个帖子&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;git branch -m master oldmaster&lt;/li&gt;
+&lt;li&gt;git branch -m develop master&lt;/li&gt;
+&lt;li&gt;git push -f origin master&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;另一个方法是从github的&lt;a href=&#34;https://help.github.com/articles/setting-the-default-branch/&#34;&gt;项目主页上更改&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;编译openssl-1-0-2g:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;编译openssl 1.0.2g&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;./config shared -fPIC zlib-dynamic &amp;amp;&amp;amp; make depend -j   &amp;amp;&amp;amp; make -j
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;编译nginx-tengine-cpp模块:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;编译nginx/tengine: CPP模块&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;./configure --add-module=../cpp_module  --with-ld-opt=&amp;quot;-lstdc++&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;curl-i-和-i的区别:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;curl -i 和 -I的区别&lt;/h2&gt;
+
+&lt;p&gt;man page:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;	-i, --include
+		(HTTP) Include the HTTP-header in the output. The HTTP-header includes things like server-name, date of the document, HTTP-version and more...
+		
+	-I, --head
+		(HTTP/FTP/FILE) Fetch the HTTP-header only! HTTP-servers feature the command HEAD which this uses to get nothing but the header of a document. When used on an FTP or FILE file, curl displays the file size and last modification time only.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;-i选项会打印出HTTP头部的一些信息，这个选项是curl软件的选项，这些信息本来就是存在的&lt;/p&gt;
+
+&lt;p&gt;-I选项会发送HEAD请求，获取信息&lt;/p&gt;
+
+&lt;h2 id=&#34;linux系统如何将父子进程一起kill掉:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;linux系统如何将父子进程一起kill掉&lt;/h2&gt;
+
+&lt;p&gt;对于普通进程而言，kill掉父进程将会连带着把子进程kill掉；而对于daemon等类型进程而言，kill掉父进程，子进程会被daemon接管，所以如果想父子一起kill掉的话，不能直接kill父进程。&lt;/p&gt;
+
+&lt;p&gt;有&lt;a href=&#34;http://blog.csdn.net/lalaguozhe/article/details/11142855&#34;&gt;两种方法&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;kill &amp;ndash; -PPID&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;PPID前面有&lt;strong&gt;&lt;em&gt;-&lt;/em&gt;&lt;/strong&gt;号，可以将父子进程kill掉&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;使用exec或者xargs来kill掉他们&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;dns查询中-域名是否可以有多个cname呢:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;dns查询中，域名是否可以有多个cname呢？&lt;/h2&gt;
+
+&lt;p&gt;不可以
+    * &lt;a href=&#34;http://serverfault.com/questions/574072/can-we-have-multiple-cnames-for-a-single-name&#34;&gt;http://serverfault.com/questions/574072/can-we-have-multiple-cnames-for-a-single-name&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;git代理访问:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;git代理访问&lt;/h2&gt;
+
+&lt;p&gt;git config &amp;ndash;global http.proxy 10.8.0.1:8118&lt;/p&gt;
 
 &lt;h2 id=&#34;ubuntu操作-挂载-格式化sd卡:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;ubuntu操作、挂载、格式化SD卡&lt;/h2&gt;
 
@@ -696,10 +758,10 @@ tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.ca
     
     <item>
       <title>New evolvement of Epoll</title>
-      <link>http://bg2bkk.github.io/post/New%20Evolvement%20of%20Epoll/</link>
+      <link>https://bg2bkk.github.io/post/New%20Evolvement%20of%20Epoll/</link>
       <pubDate>Tue, 22 Mar 2016 01:48:41 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/New%20Evolvement%20of%20Epoll/</guid>
+      <guid>https://bg2bkk.github.io/post/New%20Evolvement%20of%20Epoll/</guid>
       <description>
 
 &lt;h2 id=&#34;epoll在linux-内核中的新发展:b489f0f2178b22438ad2d1ac9c25dd2c&#34;&gt;EPOLL在linux 内核中的新发展&lt;/h2&gt;
@@ -805,11 +867,197 @@ tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.ca
     </item>
     
     <item>
+      <title>openresty学习过程中的一些tips</title>
+      <link>https://bg2bkk.github.io/post/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/</link>
+      <pubDate>Mon, 14 Mar 2016 16:36:14 +0800</pubDate>
+      
+      <guid>https://bg2bkk.github.io/post/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/</guid>
+      <description>
+
+&lt;h2 id=&#34;ngx-lua获取post字段参数:d90c926ba9cb9e1e62be5d1b7a7aa7fb&#34;&gt;ngx_lua获取post字段参数&lt;/h2&gt;
+
+&lt;p&gt;在用户请求为POST方式时，如果想获取post中的各参数字段，比如post数据为 &amp;ldquo;uid=100&amp;amp;ip=10.13.112.53&amp;rdquo;，此时想获取该字段的话，可以调用&lt;a href=&#34;https://github.com/openresty/lua-nginx-module#ngxreqget_post_args&#34;&gt;ngx.req.get_post_args&lt;/a&gt;函数。按惯例返回table类型，post数据的各字段为table的key&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-lua&#34;&gt;function get_uid()
+	local args = ngx.req.get_post_args()
+	local uid = args[&#39;uid&#39;]
+	return uid
+end
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;关于HTTP的POST提交数据的方式，网上有很多讨论&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://imququ.com/post/four-ways-to-post-data-in-http.html&#34;&gt;四种常见的POST提交数据方式&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;application/x-www-form-urlencoded&lt;/li&gt;
+&lt;li&gt;multipart/form-data&lt;/li&gt;
+&lt;li&gt;application/json&lt;/li&gt;
+&lt;li&gt;text/xml&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;HTTP &lt;a href=&#34;http://jaseywang.me/2012/03/03/http-headers-%E9%83%A8%E5%88%86%E5%AD%97%E6%AE%B5%E7%AC%94%E8%AE%B0/&#34;&gt;header头的一些字段&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;ngx_lua同样提供了读写HTTP请求中&lt;a href=&#34;https://github.com/openresty/lua-nginx-module#ngxreqget_uri_args&#34;&gt;uri参数&lt;/a&gt;，读写HTTP请求中的&lt;a href=&#34;https://github.com/openresty/lua-nginx-module#ngxreqget_uri_args&#34;&gt;HEADER头部&lt;/a&gt;，这些在ngx_lua开发中为我们提供了丰富的工具，非常好的功能。&lt;/p&gt;
+
+&lt;p&gt;最后回到主题，当我读出uid字段后，有时候会发现报错&amp;rdquo;requesty body in temp file not supported&amp;rdquo;，原因在于nginx会将用户请求的body字段缓存起来，如果超出缓存大小，则将用户body数据写到文件中；而ngx.req.get_post_args()是不支持从文件中读取数据的。因此解决办法是：适当加大 &lt;a href=&#34;http://wiki.nginx.org/HttpCoreModule#client_body_buffer_size&#34;&gt;nginx 的 client_body_buffer_size 配置&lt;/a&gt;, 当 client_body_buffer_size 配置为和 client_max_body_size 一样大时，nginx就不会把请求体缓冲到文件系统了（但也要仔细内存占用）。&lt;/p&gt;
+
+&lt;p&gt;对于client_max_body_size来说，&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;Syntax:		client_max_body_size size;
+Default:	client_max_body_size 1m;
+Context:	http, server, location
+
+Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field. If the size in a request exceeds the configured value, the 413 (Request Entity Too Large) error is returned to the client. Please be aware that browsers cannot correctly display this error. Setting size to 0 disables checking of client request body size.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;设置允许的client body最大值，对http server来说是种保护。&lt;/p&gt;
+
+&lt;p&gt;对于client_body_buffer_size来说，&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;Syntax:		client_body_buffer_size size;
+Default:	client_body_buffer_size 8k|16k;
+Context:	http, server, location
+
+Sets buffer size for reading client request body. In case the request body is larger than the buffer, the whole body or only its part is written to a temporary file. By default, buffer size is equal to two memory pages. This is 8K on x86, other 32-bit platforms, and x86-64. It is usually 16K on other 64-bit platforms.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如果client body size大于默认值，则nginx将会把body缓存在文件中。将client body buffer size设置为和client_max_body_size一样大，nginx将不会把它写进文件中。&lt;/p&gt;
+
+&lt;h2 id=&#34;ngx-lua中判断table为空:d90c926ba9cb9e1e62be5d1b7a7aa7fb&#34;&gt;ngx_lua中判断table为空&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;lua的table中，有两类kv，一类是以数字为index，比如{&amp;lsquo;abc&amp;rsquo;, &amp;lsquo;efg&amp;rsquo;}中，{k=1, v=abc}, {k=2, v=efg}，另一类以自己kv存储，比如{[&amp;lsquo;abc&amp;rsquo;] = &amp;lsquo;efg&amp;rsquo;}，k为abc的元素，v为efg&lt;/li&gt;
+&lt;li&gt;#table中，#标识符是返回以数字为index的key，从1开始算，连续的key的数量&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-lua&#34;&gt;local t = {}
+t[1] = &#39;a&#39;
+t[2] = &#39;b&#39;
+t[20] = &#39;c&#39;
+
+print(#t)
+2
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;因此#号不能获得table的真实大小，也不能用于判断table是否为空&lt;/li&gt;
+&lt;li&gt;table.maxn(tab)，maxn返回table中以数字为key的元素中，数字最大的那个&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-lua&#34;&gt;local t = {}
+t[1] = &#39;a&#39;
+t[2] = &#39;b&#39;
+t[20] = &#39;c&#39;
+
+print(table.maxn(t))
+20
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;next就是pairs遍历table时用来取下一个内容的函数，因此next(tab)可以用来判断table是否为空，如果next(tab)返回为nil的话，说明第一个元素不存在，所以该table为空&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://moonbingbing.gitbooks.io/openresty-best-practices/content/lua/not_nill.html&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;ngx-lua中的参数获得:d90c926ba9cb9e1e62be5d1b7a7aa7fb&#34;&gt;ngx_lua中的参数获得&lt;/h2&gt;
+
+&lt;p&gt;ngx_lua中获得req参数有如下几个方法：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;ngx.var.arg_city 获取city参数&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;host:port/uri?city=abc    &lt;strong&gt;&lt;em&gt;ngx.var.arg_city = abc&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;host:port/uri?city=       &lt;strong&gt;&lt;em&gt;ngx.var.arg_city = &amp;ldquo;&lt;/em&gt;&lt;/strong&gt;, and its length is 0&lt;/li&gt;
+&lt;li&gt;host:port/uri?city        &lt;strong&gt;&lt;em&gt;ngx.var.arg_city = nil&lt;/em&gt;&lt;/strong&gt;，cause it doesn&amp;rsquo;t exist yet&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;ngx.req.get_headers()[&amp;lsquo;city&amp;rsquo;]，获取http请求头中的city参数&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;host:port/uri -H &amp;lsquo;city:abc&amp;rsquo;   &lt;strong&gt;&lt;em&gt;结果为abc&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;host:port/uri -H &amp;lsquo;city:&amp;rsquo;      &lt;strong&gt;&lt;em&gt;结果为nil&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://groups.google.com/forum/#!topic/openresty/fQvG_TvDAvU&#34;&gt;thread&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;虽然init_worker_by_lua阶段不能使用cosocket，不过可以先通过一个timer（定时时间为0让其立即调用）来发出对外的socket io操作，以实现一些初始化的目的。&lt;/li&gt;
+&lt;li&gt;openresty的两个缓存中，ngx shared dict是跨worker共享的，是一个单纯的kv缓存；预计接下来会有patch能够支持lpush等redis操作；lua-resty-lrucache是每个worker的Lua VM空间内缓存，不能跨worker共享，优点是可以存储所有lua对象，比如table，而不需要序列化和反序列化&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;worker 启动时，upstream 是空的，即 _M.data={}，所以这个时候是不能提供服务的。所以每次 reload config 都会导致一段时间内服务不可访问。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;在 init_worker_by_lua 执行 cosocket 相关的 API 是不允许的（后期可能会添加支持），但可以调用标准 SOCKET 完成初始化加载，例如借助 luasocket 完成数据源获取并初始化 _M 。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;不清楚 init_worker_by_lua 里是否可以进行文件操作？&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;是可以的，这个确定。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;在ngx lua性能分析方面，agentzh提出一系列的工具，主要是nginx-systemtap-toolkit和stapxx两个工程。我们使用的脚本，&lt;a href=&#34;https://groups.google.com/forum/#!topic/openresty/bOwgPymXQzg&#34;&gt;说明文档&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;引用：
+	我们有一整套的基于 systemtap 的工具链可以用于在线或者离线的性能分析。 
+	你的 nginx 进程的 CPU 使用率如果很高的话，可以使用 C 级别的 on-CPU 时间火焰图工具对你最忙的 nginx worker 进程进行采样： 
+	    https://github.com/agentzh/nginx-systemtap-toolkit#sample-bt 
+	如果你的 nginx 进程的 CPU 很低，但请求延时很高，则有两种可能： 
+	1. 你的 nginx 阻塞在了某些阻塞的 IO 操作（比如文件 IO）或者系统的同步锁上，此时你可以使用 C 级别的 off-CPU 
+	时间火焰图工具对某个典型的 nginx worker 进程进行采样： 
+	   https://github.com/agentzh/nginx-systemtap-toolkit#sample-bt-off-cpu 
+	如果你发现 Lua 代码占用了大部分的 CPU 时间，则可以进一步使用 ngx-lua-exec-time 工具加以确认： 
+	    https://github.com/agentzh/stapxx#ngx-lua-exec-time 
+	进一步地，你可以使用 Lua 代码级别的 on-CPU 火焰图工具在 Lua 层面上分析 CPU 时间的分布。如果你使用的是 LuaJIT 
+	2.0.x，则可以使用下面这个工具进行采样： 
+	    https://github.com/agentzh/nginx-systemtap-toolkit#ngx-sample-lua-bt 
+	如果你使用的是 LuaJIT 2.1，则可以使用 lj-lua-stacks 工具进行采样： 
+	    https://github.com/agentzh/stapxx#lj-lua-stacks 
+	2. 你的 nginx 通过 ngx_lua 的 cosocket 或者 ngx_proxy 这样的 upstream 
+	模块和上游服务进行通信时，上游服务的延时过大。此时你可以分别使用 
+	ngx-lua-tcp-recv-time、ngx-lua-udp-recv-time 以及 ngx-single-req-latency 
+	工具进行分析： 
+	    https://github.com/agentzh/stapxx#ngx-lua-tcp-recv-time 
+	    https://github.com/agentzh/stapxx#ngx-lua-udp-recv-time 
+	    https://github.com/agentzh/stapxx#ngx-single-req-latency  
+
+
+
+    - 我们主要使用四个工具来生成火焰图以分析性能，sample-bt、sample-bt-off-cpu、ngx-sample-lua-bt 和 lj-lua-stacks。
+    - 实际使用中命令：
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;1、sudo ./sample-bt -p 8736 -t 20 -u -a &#39;-DMAXSKIPPED=10000&#39; &amp;gt; a.bt
+2、sudo ./sample-bt-off-cpu -p 8736 -t 20 -u &amp;gt; b.bt
+3、sudo ./ngx-sample-lua-bt --luajit20 -p 44252 -t 20 &amp;gt; c.bt
+4、sudo ./samples/lj-lua-stacks.sxx --skip-badvars -x 44250 -I tapset/ &amp;gt; d.bt
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;- 通过a.bt生成火焰图
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;	../FlameGraph/stackcollapse-stap.pl a.bt | ../FlameGraph/flamegraph.pl &amp;gt; a.svg
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;- 通过脚本ngx-lua-conn-pools来追踪ngx lua connection pool的工作情况。        
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;    sudo ./ngx-lua-conn-pools  --luajit20 -p 28261
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
+    
+    <item>
       <title>HTTP2的实践过程</title>
-      <link>http://bg2bkk.github.io/post/HTTP2%E7%9A%84%E5%AE%9E%E8%B7%B5%E8%BF%87%E7%A8%8B/</link>
+      <link>https://bg2bkk.github.io/post/HTTP2%E7%9A%84%E5%AE%9E%E8%B7%B5%E8%BF%87%E7%A8%8B/</link>
       <pubDate>Sat, 12 Mar 2016 16:17:52 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/HTTP2%E7%9A%84%E5%AE%9E%E8%B7%B5%E8%BF%87%E7%A8%8B/</guid>
+      <guid>https://bg2bkk.github.io/post/HTTP2%E7%9A%84%E5%AE%9E%E8%B7%B5%E8%BF%87%E7%A8%8B/</guid>
       <description>
 
 &lt;h2 id=&#34;目录:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;目录&lt;/h2&gt;
@@ -1252,10 +1500,10 @@ nghttpd
     
     <item>
       <title>采用二级指针实现单链表操作 单链表翻转 删除单链表结点</title>
-      <link>http://bg2bkk.github.io/post/list%E9%93%BE%E8%A1%A8%E9%87%87%E7%94%A8%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E8%AE%BF%E9%97%AE%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9/</link>
+      <link>https://bg2bkk.github.io/post/list%E9%93%BE%E8%A1%A8%E9%87%87%E7%94%A8%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E8%AE%BF%E9%97%AE%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9/</link>
       <pubDate>Tue, 01 Mar 2016 11:00:34 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/list%E9%93%BE%E8%A1%A8%E9%87%87%E7%94%A8%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E8%AE%BF%E9%97%AE%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9/</guid>
+      <guid>https://bg2bkk.github.io/post/list%E9%93%BE%E8%A1%A8%E9%87%87%E7%94%A8%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E8%AE%BF%E9%97%AE%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;register_filesystem中的二级指针，刚开始没看懂。怒了，如果这个都没看懂，还搞什么C语言编程&lt;/li&gt;
 &lt;li&gt;leetcode中的反转链表，二级指针操作巨好用&lt;/li&gt;
@@ -1389,10 +1637,10 @@ int main()
     
     <item>
       <title>VFS虚拟文件系统</title>
-      <link>http://bg2bkk.github.io/post/VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</link>
+      <link>https://bg2bkk.github.io/post/VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</link>
       <pubDate>Mon, 29 Feb 2016 15:33:32 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</guid>
+      <guid>https://bg2bkk.github.io/post/VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</guid>
       <description>
 
 &lt;h2 id=&#34;虚拟文件系统:33c34adef684867bc26f32ab644d7c6f&#34;&gt;虚拟文件系统&lt;/h2&gt;
@@ -1618,10 +1866,10 @@ int main()
     
     <item>
       <title>pipe在内核中的实现</title>
-      <link>http://bg2bkk.github.io/post/pipe%E5%9C%A8%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/</link>
+      <link>https://bg2bkk.github.io/post/pipe%E5%9C%A8%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/</link>
       <pubDate>Sat, 27 Feb 2016 09:49:41 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/pipe%E5%9C%A8%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/</guid>
+      <guid>https://bg2bkk.github.io/post/pipe%E5%9C%A8%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/</guid>
       <description>
 
 &lt;h2 id=&#34;pipe在linux内核中的实现:eef8af46b03027cdd30025ef9f062910&#34;&gt;pipe在linux内核中的实现&lt;/h2&gt;
@@ -2061,10 +2309,10 @@ pipe_poll(struct file *filp, poll_table *wait)
     
     <item>
       <title>redis主从复制学习笔记</title>
-      <link>http://bg2bkk.github.io/post/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
+      <link>https://bg2bkk.github.io/post/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
       <pubDate>Fri, 26 Feb 2016 16:15:31 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
+      <guid>https://bg2bkk.github.io/post/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;redis&lt;a href=&#34;http://qifuguang.me/2015/10/18/Redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/&#34;&gt;主从复制&lt;/a&gt;
 
@@ -2106,10 +2354,10 @@ pipe_poll(struct file *filp, poll_table *wait)
     
     <item>
       <title>redis持久化学习笔记</title>
-      <link>http://bg2bkk.github.io/post/redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
+      <link>https://bg2bkk.github.io/post/redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
       <pubDate>Fri, 26 Feb 2016 14:56:41 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
+      <guid>https://bg2bkk.github.io/post/redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;&lt;p&gt;虽然网络上关于redis持久化的相关内容数不胜数，但是一来作为我的学习笔记，好记性不如烂笔头；二来除去官方redis之外，很多有意义的修改或补充都非常值得讨论，所以我想做一下记录。&lt;/p&gt;&lt;/li&gt;
 
@@ -2230,10 +2478,10 @@ pipe_poll(struct file *filp, poll_table *wait)
     
     <item>
       <title>tcp ip协议栈在linux内核启动中的顺序</title>
-      <link>http://bg2bkk.github.io/post/tcp%20ip%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%9C%A8linux%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8%E4%B8%AD%E7%9A%84%E9%A1%BA%E5%BA%8F/</link>
+      <link>https://bg2bkk.github.io/post/tcp%20ip%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%9C%A8linux%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8%E4%B8%AD%E7%9A%84%E9%A1%BA%E5%BA%8F/</link>
       <pubDate>Wed, 24 Feb 2016 23:13:13 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/tcp%20ip%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%9C%A8linux%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8%E4%B8%AD%E7%9A%84%E9%A1%BA%E5%BA%8F/</guid>
+      <guid>https://bg2bkk.github.io/post/tcp%20ip%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%9C%A8linux%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8%E4%B8%AD%E7%9A%84%E9%A1%BA%E5%BA%8F/</guid>
       <description>
 
 &lt;p&gt;在我尝试从kernel中深入了解TCP IP协议栈时，遇到了难题。&lt;/p&gt;
@@ -2794,10 +3042,10 @@ Idx Name          Size      VMA       LMA       File off  Algn
     
     <item>
       <title>openresty压测过程和systemtap工具使用中的一些问题</title>
-      <link>http://bg2bkk.github.io/post/openresty%E5%8E%8B%E6%B5%8B%E8%BF%87%E7%A8%8B%E5%92%8Csystemtap%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/</link>
+      <link>https://bg2bkk.github.io/post/openresty%E5%8E%8B%E6%B5%8B%E8%BF%87%E7%A8%8B%E5%92%8Csystemtap%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/</link>
       <pubDate>Mon, 22 Feb 2016 11:15:36 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/openresty%E5%8E%8B%E6%B5%8B%E8%BF%87%E7%A8%8B%E5%92%8Csystemtap%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/</guid>
+      <guid>https://bg2bkk.github.io/post/openresty%E5%8E%8B%E6%B5%8B%E8%BF%87%E7%A8%8B%E5%92%8Csystemtap%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/</guid>
       <description>
 
 &lt;h2 id=&#34;一-tegine编译-高版本的httpluamodule:dab12220e12920eb4ab0fdd954035a76&#34;&gt;一、tegine编译+高版本的httpluamodule&lt;/h2&gt;
@@ -2959,10 +3207,10 @@ tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.ca
     
     <item>
       <title>linux shell控制并发进程数实践</title>
-      <link>http://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/</link>
+      <link>https://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/</link>
       <pubDate>Fri, 19 Feb 2016 10:54:28 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/</guid>
+      <guid>https://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/</guid>
       <description>
 
 &lt;h1 id=&#34;shell脚本多线程应用:98445e76c0e56f8e093561726589792e&#34;&gt;shell脚本多线程应用&lt;/h1&gt;
@@ -3101,10 +3349,10 @@ echo `$awk &#39;{count[$0]++}END{for(name in count)print name}&#39; out &amp;gt;
     
     <item>
       <title>livestream的几种初步解决方案</title>
-      <link>http://bg2bkk.github.io/post/livestream%E7%9A%84%E5%87%A0%E7%A7%8D%E5%88%9D%E6%AD%A5%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/</link>
+      <link>https://bg2bkk.github.io/post/livestream%E7%9A%84%E5%87%A0%E7%A7%8D%E5%88%9D%E6%AD%A5%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/</link>
       <pubDate>Thu, 18 Feb 2016 20:57:19 +0800</pubDate>
       
-      <guid>http://bg2bkk.github.io/post/livestream%E7%9A%84%E5%87%A0%E7%A7%8D%E5%88%9D%E6%AD%A5%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/</guid>
+      <guid>https://bg2bkk.github.io/post/livestream%E7%9A%84%E5%87%A0%E7%A7%8D%E5%88%9D%E6%AD%A5%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/</guid>
       <description>
 
 &lt;h1 id=&#34;实时视频流解决方案:522c154dca6ec9c4e9be4965f54df0ed&#34;&gt;实时视频流解决方案&lt;/h1&gt;

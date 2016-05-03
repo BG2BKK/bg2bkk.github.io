@@ -9,7 +9,7 @@
 
         <meta property="og:title" content=" effective tips in daily work &middot;  BG2BKK Site" />
         <meta property="og:site_name" content="BG2BKK Site" />
-        <meta property="og:url" content="http://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/" />
+        <meta property="og:url" content="https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/" />
 
     
         <meta property="og:type" content="article" />
@@ -21,7 +21,7 @@
         <meta name="twitter:creator" content="@" />
         <meta name="twitter:title" content="effective tips in daily work" />
         <meta name="twitter:description" content="" />
-        <meta name="twitter:url" content="http://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/" />
+        <meta name="twitter:url" content="https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/" />
     
 
         <title> effective tips in daily work &middot;  BG2BKK Site</title>
@@ -39,11 +39,11 @@
           
 
     
-        <link href="http://bg2bkk.github.io/index.xml" rel="alternate" type="application/rss+xml" title="BG2BKK Site" />
+        <link href="https://bg2bkk.github.io/index.xml" rel="alternate" type="application/rss+xml" title="BG2BKK Site" />
     
 
     
-        <link rel="canonical" href="http://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/" />
+        <link rel="canonical" href="https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/" />
 
     
     <script type="application/ld+json">
@@ -57,7 +57,7 @@
         },
         "datePublished": "2016-03-24",
         "description": "",
-        "wordCount":  1275 
+        "wordCount":  1402 
     }
     </script>
     
@@ -70,8 +70,8 @@
     <body>
         <header id="header">
             
-            <a id="logo" href="http://bg2bkk.github.io/"><img src="https://raw.githubusercontent.com/BG2BKK/githubio/master/themes/crisp/images/eagle.jpg" alt="BG2BKK Site" /></a> 
-            <h1><a href="http://bg2bkk.github.io/">BG2BKK Site</a></h1>
+            <a id="logo" href="https://bg2bkk.github.io/"><img src="https://raw.githubusercontent.com/BG2BKK/githubio/master/themes/crisp/images/eagle.jpg" alt="BG2BKK Site" /></a> 
+            <h1><a href="https://bg2bkk.github.io/">BG2BKK Site</a></h1>
             <p></p>
 
             <div id="follow-icons">
@@ -80,7 +80,7 @@
 	<a href="http://github.com/bg2bkk" rel="me"><i class="fa fa-linkedin-square fa-2x"></i></a>
 	<a href="http://github.com/bg2bkk" rel="me"><i class="fa fa-github-square fa-2x"></i></a>
 	<a href="http://plus.google.com/bg2bkk" rel="author"><i class="fa fa-google-plus-square fa-2x"></i></a>
-	<a href="http://bg2bkk.github.io/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a> 
+	<a href="https://bg2bkk.github.io/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a> 
 </div>  
 
             <h6><a href="http://bg2bkk.github.io">About</a></h6>
@@ -100,6 +100,68 @@
     </div>
     <h1 class="post-title">effective tips in daily work</h1>
     
+
+<h2 id="git修改默认分支名:1350fa5c56171e9d9c8991f08929cd14">git修改默认分支名</h2>
+
+<p>在develop分支改动太大了，导致merge 到master分支时非常被动，这个时候我想，干脆将develop分支作为分支好了。还好碰到<a href="http://stackoverflow.com/questions/1485578/change-a-git-remote-head-to-point-to-something-besides-master">stackoverflow的一个帖子</a></p>
+
+<ul>
+<li>git branch -m master oldmaster</li>
+<li>git branch -m develop master</li>
+<li>git push -f origin master</li>
+</ul>
+
+<p>另一个方法是从github的<a href="https://help.github.com/articles/setting-the-default-branch/">项目主页上更改</a></p>
+
+<h2 id="编译openssl-1-0-2g:1350fa5c56171e9d9c8991f08929cd14">编译openssl 1.0.2g</h2>
+
+<pre><code class="language-bash">./config shared -fPIC zlib-dynamic &amp;&amp; make depend -j   &amp;&amp; make -j
+</code></pre>
+
+<h2 id="编译nginx-tengine-cpp模块:1350fa5c56171e9d9c8991f08929cd14">编译nginx/tengine: CPP模块</h2>
+
+<pre><code class="language-bash">./configure --add-module=../cpp_module  --with-ld-opt=&quot;-lstdc++&quot;
+</code></pre>
+
+<h2 id="curl-i-和-i的区别:1350fa5c56171e9d9c8991f08929cd14">curl -i 和 -I的区别</h2>
+
+<p>man page:</p>
+
+<pre><code class="language-bash">	-i, --include
+		(HTTP) Include the HTTP-header in the output. The HTTP-header includes things like server-name, date of the document, HTTP-version and more...
+		
+	-I, --head
+		(HTTP/FTP/FILE) Fetch the HTTP-header only! HTTP-servers feature the command HEAD which this uses to get nothing but the header of a document. When used on an FTP or FILE file, curl displays the file size and last modification time only.
+</code></pre>
+
+<p>-i选项会打印出HTTP头部的一些信息，这个选项是curl软件的选项，这些信息本来就是存在的</p>
+
+<p>-I选项会发送HEAD请求，获取信息</p>
+
+<h2 id="linux系统如何将父子进程一起kill掉:1350fa5c56171e9d9c8991f08929cd14">linux系统如何将父子进程一起kill掉</h2>
+
+<p>对于普通进程而言，kill掉父进程将会连带着把子进程kill掉；而对于daemon等类型进程而言，kill掉父进程，子进程会被daemon接管，所以如果想父子一起kill掉的话，不能直接kill父进程。</p>
+
+<p>有<a href="http://blog.csdn.net/lalaguozhe/article/details/11142855">两种方法</a></p>
+
+<ul>
+<li><p>kill &ndash; -PPID</p>
+
+<ul>
+<li>PPID前面有<strong><em>-</em></strong>号，可以将父子进程kill掉</li>
+</ul></li>
+
+<li><p>使用exec或者xargs来kill掉他们</p></li>
+</ul>
+
+<h2 id="dns查询中-域名是否可以有多个cname呢:1350fa5c56171e9d9c8991f08929cd14">dns查询中，域名是否可以有多个cname呢？</h2>
+
+<p>不可以
+    * <a href="http://serverfault.com/questions/574072/can-we-have-multiple-cnames-for-a-single-name">http://serverfault.com/questions/574072/can-we-have-multiple-cnames-for-a-single-name</a></p>
+
+<h2 id="git代理访问:1350fa5c56171e9d9c8991f08929cd14">git代理访问</h2>
+
+<p>git config &ndash;global http.proxy 10.8.0.1:8118</p>
 
 <h2 id="ubuntu操作-挂载-格式化sd卡:1350fa5c56171e9d9c8991f08929cd14">ubuntu操作、挂载、格式化SD卡</h2>
 
@@ -717,7 +779,7 @@ tcpdump -ni any port 9001 and 'tcp[13] &amp; 4 != 0 ' -s0  -w rst.cap -vvv
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
-          <a href="mailto:?subject=effective%20tips%20in%20daily%20work&amp;body=http://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/">
+          <a href="mailto:?subject=effective%20tips%20in%20daily%20work&amp;body=https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path transform="scale(0.014,-0.014) translate(0,-1670)" d="M1792 826v-794q0 -66 -47 -113t-113 -47h-1472q-66 0 -113 47t-47 113v794q44 -49 101 -87q362 -246 497 -345q57 -42 92.5 -65.5t94.5 -48t110 -24.5h1h1q51 0 110 24.5t94.5 48t92.5 65.5q170 123 498 345q57 39 100 87zM1792 1120q0 -79 -49 -151t-122 -123 q-376 -261 -468 -325q-10 -7 -42.5 -30.5t-54 -38t-52 -32.5t-57.5 -27t-50 -9h-1h-1q-23 0 -50 9t-57.5 27t-52 32.5t-54 38t-42.5 30.5q-91 64 -262 182.5t-205 142.5q-62 42 -117 115.5t-55 136.5q0 78 41.5 130t118.5 52h1472q65 0 112.5 -47t47.5 -113z"/>
@@ -727,7 +789,7 @@ tcpdump -ni any port 9001 and 'tcp[13] &amp; 4 != 0 ' -s0  -w rst.cap -vvv
           </a>
       </li>
       <li class="facebook">
-          <a href="https://www.facebook.com/sharer/sharer.php?u=http://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/" class="popup">
+          <a href="https://www.facebook.com/sharer/sharer.php?u=https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/" class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M27.825,4.783c0-2.427-2.182-4.608-4.608-4.608H4.783c-2.422,0-4.608,2.182-4.608,4.608v18.434 c0,2.427,2.181,4.608,4.608,4.608H14V17.379h-3.379v-4.608H14v-1.795c0-3.089,2.335-5.885,5.192-5.885h3.718v4.608h-3.726 c-0.408,0-0.884,0.492-0.884,1.236v1.836h4.609v4.608h-4.609v10.446h4.916c2.422,0,4.608-2.188,4.608-4.608V4.783z"/>
@@ -737,7 +799,7 @@ tcpdump -ni any port 9001 and 'tcp[13] &amp; 4 != 0 ' -s0  -w rst.cap -vvv
           </a>
       </li>
 			<li class="twitter">
-          <a href="http://twitter.com/home?status=effective%20tips%20in%20daily%20work%20http://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/" class="popup">
+          <a href="http://twitter.com/home?status=effective%20tips%20in%20daily%20work%20https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/" class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
 		                  <path d="M24.253,8.756C24.689,17.08,18.297,24.182,9.97,24.62c-3.122,0.162-6.219-0.646-8.861-2.32 c2.703,0.179,5.376-0.648,7.508-2.321c-2.072-0.247-3.818-1.661-4.489-3.638c0.801,0.128,1.62,0.076,2.399-0.155 C4.045,15.72,2.215,13.6,2.115,11.077c0.688,0.275,1.426,0.407,2.168,0.386c-2.135-1.65-2.729-4.621-1.394-6.965 C5.575,7.816,9.54,9.84,13.803,10.071c-0.842-2.739,0.694-5.64,3.434-6.482c2.018-0.623,4.212,0.044,5.546,1.683 c1.186-0.213,2.318-0.662,3.329-1.317c-0.385,1.256-1.247,2.312-2.399,2.942c1.048-0.106,2.069-0.394,3.019-0.851 C26.275,7.229,25.39,8.196,24.253,8.756z"/>
@@ -747,7 +809,7 @@ tcpdump -ni any port 9001 and 'tcp[13] &amp; 4 != 0 ' -s0  -w rst.cap -vvv
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=http://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/&amp;title=effective%20tips%20in%20daily%20work&amp;summary=ubuntu%e6%93%8d%e4%bd%9c%e3%80%81%e6%8c%82%e8%bd%bd%e3%80%81%e6%a0%bc%e5%bc%8f%e5%8c%96SD%e5%8d%a1%20%e7%8e%a9%e6%a0%91%e8%8e%93%e6%b4%be%e7%ad%89%e6%9d%bf%e5%ad%90%e7%9a%84%e6%97%b6%e5%80%99%ef%bc%8c%e9%9c%80%e8%a6%81%e4%bb%8ehost%e6%9c%ba%e5%99%a8%e5%b0%86os%e9%95%9c%e5%83%8f%e7%83%a7%e8%bf%9bsd%e5%8d%a1%ef%bc%8c%e7%84%b6%e5%90%8e%e5%90%af%e5%8a%a8%e3%80%82%e9%82%a3%e4%b9%88ubuntu%e5%a6%82%e4%bd%95%e6%93%8d%e4%bd%9c%e5%91%a2%ef%bc%9f%20fdisk%20-l%e5%91%bd%e4%bb%a4%e5%8f%af%e4%bb%a5%e7%94%a8%e6%9d%a5%e6%9f%a5%e7%9c%8b%e7%b3%bb%e7%bb%9f%e4%b8%ad%e7%9a%84%e5%ad%98%e5%82%a8%e7%a1%ac%e4%bb%b6%20Disk%20%2fdev%2fsda%3a%20111.8%20GiB%2c%20120034123776%20bytes%2c%20234441648%20sectors%20Units%3a%20sectors%20of%201%20%2a%20512%20%3d%20512%20bytes%20Sector%20size%20%28logical%2fphysical%29%3a%20512%20bytes%20%2f%20512%20bytes%20I%2fO%20size%20%28minimum%2foptimal%29%3a%20512%20bytes%20%2f%20512%20bytes%20Disklabel%20type%3a%20gpt%20Disk%20identifier%3a%20C27256BB-CE04-48C2-96F4-8F79FAE2AE87%20Device%20Start%20End%20Sectors%20Size%20Type%20%2fdev%2fsda1%202048%20234440703%20234438656%20111.8G%20Linux%20filesystem%20Disk%20%2fdev%2fsdb%3a%20167.7%20GiB%2c%20180045766656%20bytes%2c%20351651888%20sectors%20Units%3a%20sectors%20of%201%20%2a%20512%20%3d%20512%20bytes%20Sector%20size%20%28logical%2fphysical%29%3a%20512%20bytes%20%2f%20512%20bytes%20I%2fO%20size%20%28minimum%2foptimal%29%3a%20512%20bytes%20%2f%20512%20bytes%20Disklabel%20type%3a%20dos%20Disk%20identifier%3a%200x42b438a2%20Device%20Boot%20Start%20End%20Sectors%20Size%20Id%20Type%20%2fdev%2fsdb1%20%2a%202048%20105887743%20105885696%2050.5G%207%20HPFS%2fNTFS%2fexFAT%20%2fdev%2fsdb2%20105887744%20187807665%2081919922%2039.1G%2083%20Linux%20%2fdev%2fsdb3%20187807744%20228767743%2040960000%2019.5G%207%20HPFS%2fNTFS%2fexFAT%20%2fdev%2fsdb4%20228769790%20351649791%20122880002%2058.6G%20f%20W95%20Ext%27d%20%28LBA%29%20%2fdev%2fsdb5%20228769792%20351649791%20122880000%2058.6G%207%20HPFS%2fNTFS%2fexFAT%20Disk%20%2fdev%2fsdc%3a%2014.9%20GiB%2c%2016021192704%20bytes%2c%2031291392%20sectors%20Units%3a%20sectors%20of%201%20%2a%20512%20%3d%20512%20bytes%20Sector%20size%20%28logical%2fphysical%29%3a%20512%20bytes%20%2f%20512%20bytes%20I%2fO%20size%20%28minimum%2foptimal%29%3a%20512%20bytes%20%2f%20512%20bytes%20Disklabel%20type%3a%20dos%20Disk%20identifier%3a%200x00000000%20Device%20Boot%20Start%20End%20Sectors%20Size%20Id%20Type%20%2fdev%2fsdc1%208192%2031291391%2031283200%2014.9G%20c%20W95%20FAT32%20%28LBA%29%20%e5%a6%82%e6%9e%9csd%e5%8d%a1%ef%bc%88tf%e5%8d%a1%ef%bc%89%e9%80%9a%e8%bf%87usb%20%e8%af%bb%e5%8d%a1%e5%99%a8%e6%8e%a5%e5%85%a5%e7%94%b5%e8%84%91%ef%bc%8c%e5%88%99%e4%bc%9a%e6%98%be%e7%a4%ba%e4%b8%ba%20%2fdev%2fsdc%20%e5%a6%82%e6%9e%9c%e6%98%af%e6%a0%87%e5%87%86sd%e5%8d%a1%ef%bc%88%e5%a4%a7%e5%8d%a1%ef%bc%89%ef%bc%8c%e5%88%99%e4%bc%9a%e6%98%be%e7%a4%ba%e4%b8%ba%20%2fdev%2fmmblck0%20Disk%20%2fdev%2fmmcblk0%3a%2014.9%20GiB%2c%2016021192704%20bytes%2c%2031291392%20sectors%20Units%3a%20sectors%20of%201%20%2a%20512%20%3d%20512%20bytes%20Sector%20size%20%28logical%2fphysical%29%3a%20512%20bytes%20%2f%20512%20bytes%20I%2fO%20size%20%28minimum%2foptimal%29%3a%20512%20bytes%20%2f%20512%20bytes%20Disklabel%20type%3a%20dos%20Disk%20identifier%3a%200x00000000%20Device%20Boot%20Start%20End%20Sectors%20Size%20Id%20Type%20%2fdev%2fmmcblk0p1%208192%2031291391%2031283200%2014.9G%20c%20W95%20FAT32%20%28LBA%29%20%e6%8e%a8%e8%8d%90%e4%bd%bf%e7%94%a8USB%e8%af%bb%e5%8d%a1%e5%99%a8%ef%bc%8c%e9%80%9f%e5%ba%a6%e8%be%83%e4%b8%ba%e5%bf%ab%e4%b8%80%e4%ba%9b%e3%80%82%20Lua%e5%ba%93%e6%96%87%e4%bb%b6%e7%9a%84%e5%8a%a0%e8%bd%bd%e8%b7%af%e5%be%84%20Lua%20%e6%8f%90%e4%be%9b%e4%b8%80%e4%b8%aa%e5%90%8d%e4%b8%ba%20require%20%e7%9a%84%e5%87%bd%e6%95%b0%e6%9d%a5%e5%8a%a0%e8%bd%bd%e6%a8%a1%e5%9d%97%ef%bc%8c%e4%bd%bf%e7%94%a8%e4%b9%9f%e5%be%88%e7%ae%80%e5%8d%95%ef%bc%8c%e5%ae%83%e5%8f%aa%e6%9c%89%e4%b8%80%e4%b8%aa%e5%8f%82%e6%95%b0%ef%bc%8c%e8%bf%99%e4%b8%aa%e5%8f%82%e6%95%b0%e5%b0%b1%e6%98%af%e8%a6%81%e6%8c%87%e5%ae%9a%e5%8a%a0%e8%bd%bd%e7%9a%84%e6%a8%a1%e5%9d%97%e5%90%8d%ef%bc%8c%e4%be%8b%e5%a6%82%ef%bc%9a%20require%28%26quot%3b%26lt%3b%e6%a8%a1%e5%9d%97%e5%90%8d%26gt%3b%26quot%3b%29%20--%20%e6%88%96%e8%80%85%e6%98%af%20--%20require%20%26quot%3b%26lt%3b%e6%a8%a1%e5%9d%97%e5%90%8d%26gt%3b%26quot%3b%20%e7%84%b6%e5%90%8e%e4%bc%9a%e8%bf%94%e5%9b%9e%e4%b8%80%e4%b8%aa%e7%94%b1%e6%a8%a1%e5%9d%97%e5%b8%b8%e9%87%8f%e6%88%96%e5%87%bd%e6%95%b0%e7%bb%84%e6%88%90%e7%9a%84%20table%ef%bc%8c%e5%b9%b6%e4%b8%94%e8%bf%98%e4%bc%9a%e5%ae%9a%e4%b9%89%e4%b8%80%e4%b8%aa%e5%8c%85%e5%90%ab%e8%af%a5%20table%20%e7%9a%84%e5%85%a8%e5%b1%80%e5%8f%98%e9%87%8f%e3%80%82%20%e6%88%96%e8%80%85%e7%bb%99%e5%8a%a0%e8%bd%bd%e7%9a%84%e6%a8%a1%e5%9d%97%e5%ae%9a%e4%b9%89%e4%b8%80%e4%b8%aa%e5%88%ab%e5%90%8d%e5%8f%98%e9%87%8f%ef%bc%8c%e6%96%b9%e4%be%bf%e8%b0%83%e7%94%a8%ef%bc%9a%20local%20m%20%3d%20require%28%26quot%3bmodule%26quot%3b%29%20print%28m.constant%29%20m.func3%28%29%20%e5%af%b9%e4%ba%8e%e8%87%aa%e5%ae%9a%e4%b9%89%e7%9a%84%e6%a8%a1%e5%9d%97%ef%bc%8c%e6%a8%a1%e5%9d%97%e6%96%87%e4%bb%b6%e4%b8%8d%e6%98%af%e6%94%be%e5%9c%a8%e5%93%aa%e4%b8%aa%e6%96%87%e4%bb%b6%e7%9b%ae%e5%bd%95%e9%83%bd%e8%a1%8c%ef%bc%8c%e5%87%bd%e6%95%b0%20require%20%e6%9c%89%e5%ae%83%e8%87%aa%e5%b7%b1%e7%9a%84%e6%96%87%e4%bb%b6%e8%b7%af%e5%be%84%e5%8a%a0%e8%bd%bd%e7%ad%96%e7%95%a5%ef%bc%8c%e5%ae%83%e4%bc%9a%e5%b0%9d%e8%af%95%e4%bb%8e%20Lua%20%e6%96%87%e4%bb%b6%e6%88%96%20C%20%e7%a8%8b%e5%ba%8f%e5%ba%93%e4%b8%ad%e5%8a%a0%e8%bd%bd%e6%a8%a1%e5%9d%97%e3%80%82%20require%20%e7%94%a8%e4%ba%8e%e6%90%9c%e7%b4%a2%20Lua%20%e6%96%87%e4%bb%b6%e7%9a%84%e8%b7%af%e5%be%84%e6%98%af%e5%ad%98%e6%94%be%e5%9c%a8%e5%85%a8%e5%b1%80%e5%8f%98%e9%87%8f%20package.path%20%e4%b8%ad%ef%bc%8c%e5%bd%93%20Lua%20%e5%90%af%e5%8a%a8%e5%90%8e%ef%bc%8c%e4%bc%9a%e4%bb%a5%e7%8e%af%e5%a2%83%e5%8f%98%e9%87%8f%20LUA_PATH%20%e7%9a%84%e5%80%bc%e6%9d%a5%e5%88%9d%e5%a7%8b%e8%bf%99%e4%b8%aa%e7%8e%af%e5%a2%83%e5%8f%98%e9%87%8f%e3%80%82%e5%a6%82%e6%9e%9c%e6%b2%a1%e6%9c%89%e6%89%be%e5%88%b0%e8%af%a5%e7%8e%af%e5%a2%83%e5%8f%98%e9%87%8f%ef%bc%8c%e5%88%99%e4%bd%bf%e7%94%a8%e4%b8%80%e4%b8%aa%e7%bc%96%e8%af%91%e6%97%b6%e5%ae%9a%e4%b9%89%e7%9a%84%e9%bb%98%e8%ae%a4%e8%b7%af%e5%be%84%e6%9d%a5%e5%88%9d%e5%a7%8b%e5%8c%96%e3%80%82%20Lua%205.1.5%20Copyright%20%28C%29%201994-2012%20Lua.org%2c%20PUC-Rio%20%26gt%3b%20print%28package.path%29%20~%2flua%2f%3f.lua%3b%2fusr%2flocal%2fshare%2flua%2f5.1%2f%3f.lua%3b%2fhome%2fhuang%2fworkspace%2fluactor%2f%3f.lua%3b.%2f%3f.lua%3b%2fusr%2flocal%2fshare%2flua%2f5.1%2f%3f.lua%3b%2fusr%2flocal%2fshare%2flua%2f5.1%2f%3f%2finit.lua%3b%2fusr%2flocal%2flib%2flua%2f5.1%2f%3f.lua%3b%2fusr%2flocal%2flib%2flua%2f5.1%2f%3f%2finit.lua%3b%20%e5%a6%82%e6%9e%9c%e6%b2%a1%e6%9c%89%20LUA_PATH%20%e8%bf%99%e4%b8%aa%e7%8e%af%e5%a2%83%e5%8f%98%e9%87%8f%ef%bc%8c%e4%b9%9f%e5%8f%af%e4%bb%a5%e8%87%aa%e5%ae%9a%e4%b9%89%e8%ae%be%e7%bd%ae%20huang%40ThinkPad-X220%3a~%2fworkspace%2fluapkg%2fluasocket-2.0.2%24%20export%20LUA_PATH%3d%26quot%3b4%3b%3b%26quot%3b%20huang%40ThinkPad-X220%3a~%2fworkspace%2fluapkg%2fluasocket-2.0.2%24%20lua%20Lua%205.1.5%20Copyright%20%28C%29%201994-2012%20Lua.org%2c%20PUC-Rio%20%26gt%3b%20print%28package.path%29%204%3b.%2f%3f.lua%3b%2fusr%2flocal%2fshare%2flua%2f5.1%2f%3f.lua%3b%2fusr%2flocal%2fshare%2flua%2f5.1%2f%3f%2finit.lua%3b%2fusr%2flocal%2flib%2flua%2f5.1%2f%3f.lua%3b%2fusr%2flocal%2flib%2flua%2f5.1%2f%3f%2finit.lua%3b%20%26gt%3b%20%e5%8f%af%e4%bb%a5%e7%9c%8b%e5%88%b0%ef%bc%8c%e9%9a%8f%e4%be%bf%e5%8a%a0%e7%9a%84%e7%8e%af%e5%a2%83%e5%8f%98%e9%87%8f%26rdquo%3b4%3b%26ldquo%3b%e5%86%99%e5%9c%a8%e4%ba%86package.path%e4%b8%ad%e3%80%82%20%e8%80%8c%e4%b8%ba%e4%bb%80%e4%b9%884%e9%9c%80%e8%a6%81%e4%b8%a4%e4%b8%aa%26rsquo%3b%ef%bc%9b%26rsquo%3b%e5%8f%b7%e5%91%a2%ef%bc%9a%e6%96%87%e4%bb%b6%e8%b7%af%e5%be%84%e4%bb%a5%20%26ldquo%3b%3b%26rdquo%3b%20%e5%8f%b7%e5%88%86%e9%9a%94%ef%bc%8c%e6%9c%80%e5%90%8e%e7%9a%84%202%20%e4%b8%aa%20%26ldquo%3b%3b%3b%26rdquo%3b%20%e8%a1%a8%e7%a4%ba%e6%96%b0%e5%8a%a0%e7%9a%84%e8%b7%af%e5%be%84%e5%90%8e%e9%9d%a2%e5%8a%a0%e4%b8%8a%e5%8e%9f%e6%9d%a5%e7%9a%84%e9%bb%98%e8%ae%a4%e8%b7%af%e5%be%84%e3%80%82%20huang%40ThinkPad-X220%3a~%2fworkspace%2fluapkg%2fluasocket-2.0.2%24%20export%20LUA_PATH%3d%26quot%3b4%3b%26quot%3b%20huang%40ThinkPad-X220%3a~%2fworkspace%2fluapkg%2fluasocket-2.0.2%24%20lua%20Lua%205.1.5%20Copyright%20%28C%29%201994-2012%20Lua.org%2c%20PUC-Rio%20%26gt%3b%20print%28package.path%29%204%3b%20%26gt%3b%20%e5%8f%af%e8%a7%81%e5%a6%82%e6%9e%9c%e5%8f%aa%e6%9c%89%e4%b8%80%e4%b8%aa%ef%bc%9b%e5%8f%b7%ef%bc%8c%e5%b0%86%e5%8f%aa%e9%87%87%e7%94%a8%e8%bf%99%e4%b8%aa%e5%88%86%e5%8f%b7%e3%80%82%20%e5%a6%82%e6%9e%9c%e6%89%be%e8%bf%87%e7%9b%ae%e6%a0%87%e6%96%87%e4%bb%b6%ef%bc%8c%e5%88%99%e4%bc%9a%e8%b0%83%e7%94%a8%20package.loadfile%20%e6%9d%a5%e5%8a%a0%e8%bd%bd%e6%a8%a1%e5%9d%97%e3%80%82%e5%90%a6%e5%88%99%ef%bc%8c%e5%b0%b1%e4%bc%9a%e5%8e%bb%e6%89%be%20C%20%e7%a8%8b%e5%ba%8f%e5%ba%93%e3%80%82%e6%90%9c%e7%b4%a2%e7%9a%84%e6%96%87%e4%bb%b6%e8%b7%af%e5%be%84%e6%98%af%e4%bb%8e%e5%85%a8%e5%b1%80%e5%8f%98%e9%87%8f%20package.cpath%20%e8%8e%b7%e5%8f%96%ef%bc%8c%e8%80%8c%e8%bf%99%e4%b8%aa%e5%8f%98%e9%87%8f%e5%88%99%e6%98%af%e9%80%9a%e8%bf%87%e7%8e%af%e5%a2%83%e5%8f%98%e9%87%8f%20LUA_CPATH%20%e6%9d%a5%e5%88%9d%e5%a7%8b%e3%80%82%e6%90%9c%e7%b4%a2%e7%9a%84%e7%ad%96%e7%95%a5%e8%b7%9f%e4%b8%8a%e9%9d%a2%e7%9a%84%e4%b8%80%e6%a0%b7%ef%bc%8c%e5%8f%aa%e4%b8%8d%e8%bf%87%e7%8e%b0%e5%9c%a8%e6%8d%a2%e6%88%90%e6%90%9c%e7%b4%a2%e7%9a%84%e6%98%af%20so%20%e6%88%96%20dll%20%e7%b1%bb%e5%9e%8b%e7%9a%84%e6%96%87%e4%bb%b6%e3%80%82%e5%a6%82%e6%9e%9c%e6%89%be%e5%be%97%e5%88%b0%ef%bc%8c%e9%82%a3%e4%b9%88%20require%20%e5%b0%b1%e4%bc%9a%e9%80%9a%e8%bf%87%20package.loadlib%20%e6%9d%a5%e5%8a%a0%e8%bd%bd%e5%ae%83%e3%80%82%20%e6%88%91%e4%bb%ac%e4%b9%9f%e5%8f%af%e4%bb%a5%e5%9c%a8lua%e4%bb%a3%e7%a0%81%e4%b8%ad%e5%8a%a8%e6%80%81%e4%bf%ae%e6%94%b9package.path%e5%8f%98%e9%87%8f%ef%bc%8c%20package.path%20%3d%20%26quot%3b..%2f%3f.lua%3b%26quot%3b..package.path%20require%20%26quot%3bfun%26quot%3b%20%e8%bf%99%e7%82%b9%e5%af%b9%e4%ba%8e%e6%88%91%e4%bb%ac%e8%87%aa%e5%b7%b1%e7%9a%84lua%20project%e7%9a%84%e8%ae%be%e7%bd%ae%e6%9d%a5%e8%af%b4%e6%97%a0%e7%96%91%e6%98%af%e5%be%88%e6%96%b9%e4%be%bf%e7%9a%84%e3%80%82%20%e5%8f%82%e8%80%83%e9%93%be%e6%8e%a5%20cpp%e8%b0%83%e7%94%a8c%e5%87%bd%e6%95%b0%20%e7%94%b1%e4%ba%8eCPP%e5%9c%a8%e9%93%be%e6%8e%a5%e6%97%b6%e4%b8%8eC%e4%b8%8d%e5%a4%aa%e4%b8%80%e6%a0%b7%ef%bc%8c%e5%9b%a0%e6%ad%a4%e5%9c%a8%e8%b0%83%e7%94%a8C%e5%87%bd%e6%95%b0%e6%97%b6%ef%bc%8c%e9%9c%80%e8%a6%81%e5%81%9a%e4%b8%80%e5%ae%9a%e5%a4%84%e7%90%86%e3%80%82%20%e5%b0%86C%e5%87%bd%e6%95%b0%e7%9a%84%e5%a3%b0%e6%98%8e%e6%88%bf%e5%ad%90%20%23ifdef%20__cplusplus%20%e5%9d%97%e4%b8%ad%20%23ifdef%20__cplusplus%20extern%20%26quot%3bC%26quot%3b%20%7b%20%23endif%20%2f%2a...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/&amp;title=effective%20tips%20in%20daily%20work&amp;summary=git%e4%bf%ae%e6%94%b9%e9%bb%98%e8%ae%a4%e5%88%86%e6%94%af%e5%90%8d%20%e5%9c%a8develop%e5%88%86%e6%94%af%e6%94%b9%e5%8a%a8%e5%a4%aa%e5%a4%a7%e4%ba%86%ef%bc%8c%e5%af%bc%e8%87%b4merge%20%e5%88%b0master%e5%88%86%e6%94%af%e6%97%b6%e9%9d%9e%e5%b8%b8%e8%a2%ab%e5%8a%a8%ef%bc%8c%e8%bf%99%e4%b8%aa%e6%97%b6%e5%80%99%e6%88%91%e6%83%b3%ef%bc%8c%e5%b9%b2%e8%84%86%e5%b0%86develop%e5%88%86%e6%94%af%e4%bd%9c%e4%b8%ba%e5%88%86%e6%94%af%e5%a5%bd%e4%ba%86%e3%80%82%e8%bf%98%e5%a5%bd%e7%a2%b0%e5%88%b0stackoverflow%e7%9a%84%e4%b8%80%e4%b8%aa%e5%b8%96%e5%ad%90%20git%20branch%20-m%20master%20oldmaster%20git%20branch%20-m%20develop%20master%20git%20push%20-f%20origin%20master%20%e5%8f%a6%e4%b8%80%e4%b8%aa%e6%96%b9%e6%b3%95%e6%98%af%e4%bb%8egithub%e7%9a%84%e9%a1%b9%e7%9b%ae%e4%b8%bb%e9%a1%b5%e4%b8%8a%e6%9b%b4%e6%94%b9%20%e7%bc%96%e8%af%91openssl%201.0.2g%20.%2fconfig%20shared%20-fPIC%20zlib-dynamic%20%26amp%3b%26amp%3b%20make%20depend%20-j%20%26amp%3b%26amp%3b%20make%20-j%20%e7%bc%96%e8%af%91nginx%2ftengine%3a%20CPP%e6%a8%a1%e5%9d%97%20.%2fconfigure%20--add-module%3d..%2fcpp_module%20--with-ld-opt%3d%26quot%3b-lstdc%2b%2b%26quot%3b%20curl%20-i%20%e5%92%8c%20-I%e7%9a%84%e5%8c%ba%e5%88%ab%20man%20page%3a%20-i%2c%20--include%20%28HTTP%29%20Include%20the%20HTTP-header%20in%20the%20output.%20The%20HTTP-header%20includes%20things%20like%20server-name%2c%20date%20of%20the%20document%2c%20HTTP-version%20and%20more...%20-I%2c%20--head%20%28HTTP%2fFTP%2fFILE%29%20Fetch%20the%20HTTP-header%20only%21..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -758,7 +820,7 @@ tcpdump -ni any port 9001 and 'tcp[13] &amp; 4 != 0 ' -s0  -w rst.cap -vvv
       </li>
       <li class="tumblr">
 					<script>
-						document.write('<a href="http://www.tumblr.com/share?v=3&amp;u=' + encodeURIComponent('http:\/\/bg2bkk.github.io\/post\/effective%20tips%20in%20daily%20work\/') + '&amp;t=effective tips in daily work" class="popup">');
+						document.write('<a href="http://www.tumblr.com/share?v=3&amp;u=' + encodeURIComponent('https:\/\/bg2bkk.github.io\/post\/effective%20tips%20in%20daily%20work\/') + '&amp;t=effective tips in daily work" class="popup">');
 					</script>
               <span class="icon">
                   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
@@ -769,7 +831,7 @@ tcpdump -ni any port 9001 and 'tcp[13] &amp; 4 != 0 ' -s0  -w rst.cap -vvv
           <script>document.write('</a>');</script>
       </li>
       <li class="reddit">
-          <a href="http://www.reddit.com/submit?url=http://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/">
+          <a href="http://www.reddit.com/submit?url=https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/">
               <span class="icon">
                   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
 											<g>
@@ -784,7 +846,7 @@ tcpdump -ni any port 9001 and 'tcp[13] &amp; 4 != 0 ' -s0  -w rst.cap -vvv
           </a>
       </li>
       <li class="googleplus">
-          <a href="https://plus.google.com/share?url=http://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/" class="popup">
+          <a href="https://plus.google.com/share?url=https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/" class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <g>
@@ -798,12 +860,12 @@ tcpdump -ni any port 9001 and 'tcp[13] &amp; 4 != 0 ' -s0  -w rst.cap -vvv
       </li>
       <li class="pinterest">
           <script>
-						var imgurl = "http:\/\/bg2bkk.github.io\/logo.png";
+						var imgurl = "https:\/\/bg2bkk.github.io\/logo.png";
 						var firstimg = document.getElementsByClassName("post")[0].getElementsByTagName("img")[0];
 						if (firstimg !== undefined) {
 							imgurl = firstimg.src;
 						}
-						document.write('<a href="http://pinterest.com/pin/create/button/?url=http:\/\/bg2bkk.github.io\/post\/effective%20tips%20in%20daily%20work\/&amp;media=' + imgurl + '&amp;description=effective tips in daily work" class="popup">');
+						document.write('<a href="http://pinterest.com/pin/create/button/?url=https:\/\/bg2bkk.github.io\/post\/effective%20tips%20in%20daily%20work\/&amp;media=' + imgurl + '&amp;description=effective tips in daily work" class="popup">');
 					</script>
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
@@ -814,7 +876,7 @@ tcpdump -ni any port 9001 and 'tcp[13] &amp; 4 != 0 ' -s0  -w rst.cap -vvv
           <script>document.write('</a>');</script>
       </li>
       <li class="pocket">
-          <a href="https://getpocket.com/save?url=http://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/"  class="popup">
+          <a href="https://getpocket.com/save?url=https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/"  class="popup">
               <span class="icon">
                   <svg width="32px" height="28px" viewBox="0 0 32 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
                       <path d="M28.7817528,0.00172488695 C30.8117487,0.00431221738 31.9749312,1.12074529 31.9644402,3.10781507 C31.942147,6.67703739 32.1336065,10.2669583 31.8057648,13.8090137 C30.7147076,25.5813672 17.2181194,31.8996281 7.20714461,25.3808491 C2.71833574,22.4571656 0.196577202,18.3122624 0.0549495772,12.9357897 C-0.0342233715,9.5774348 0.00642900214,6.21519891 0.0300336062,2.85555035 C0.0405245414,1.1129833 1.21157517,0.0146615391 3.01995012,0.00819321302 C7.34746087,-0.00603710433 11.6775944,0.00431221738 16.0064164,0.00172488695 C20.2644248,0.00172488695 24.5237444,-0.00215610869 28.7817528,0.00172488695 L28.7817528,0.00172488695 Z M8.64885184,7.85611511 C7.38773662,7.99113854 6.66148108,8.42606978 6.29310958,9.33228474 C5.90114134,10.2969233 6.17774769,11.1421181 6.89875951,11.8276216 C9.35282156,14.161969 11.8108164,16.4924215 14.2976518,18.7943114 C15.3844131,19.7966007 16.5354102,19.7836177 17.6116843,18.7813283 C20.0185529,16.5495467 22.4070683,14.2982907 24.7824746,12.0327533 C25.9845979,10.8850542 26.1012707,9.56468083 25.1469132,8.60653379 C24.1361858,7.59255976 22.8449191,7.6743528 21.5890476,8.85191291 C19.9936451,10.3488554 18.3680912,11.8172352 16.8395462,13.3777945 C16.1342655,14.093159 15.7200114,14.0048744 15.0566806,13.3440386 C13.4599671,11.7484252 11.8081945,10.2060421 10.1262706,8.70001155 C9.65564653,8.27936164 9.00411403,8.05345704 8.64885184,7.85611511 L8.64885184,7.85611511 L8.64885184,7.85611511 Z"></path>
@@ -861,9 +923,9 @@ tcpdump -ni any port 9001 and 'tcp[13] &amp; 4 != 0 ' -s0  -w rst.cap -vvv
       ],{
         callback:function(){
           asyncLoader([
-            "http:\/\/bg2bkk.github.io\/css/rrssb.css",
-            "http:\/\/bg2bkk.github.io\/js/gist.min.js", 
-            "http:\/\/bg2bkk.github.io\/js/rrssb.min.js",
+            "https:\/\/bg2bkk.github.io\/css/rrssb.css",
+            "https:\/\/bg2bkk.github.io\/js/gist.min.js", 
+            "https:\/\/bg2bkk.github.io\/js/rrssb.min.js",
             "//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.5/styles/default.min.css"
           ], { callback:function() {
               hljs.initHighlighting();
