@@ -5,8 +5,111 @@
     <link>https://bg2bkk.github.io/</link>
     <description>Recent content on BG2BKK Site</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Tue, 12 Apr 2016 10:19:38 +0800</lastBuildDate>
+    <lastBuildDate>Fri, 22 Apr 2016 11:25:56 +0800</lastBuildDate>
     <atom:link href="https://bg2bkk.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>resume</title>
+      <link>https://bg2bkk.github.io/post/resume/</link>
+      <pubDate>Fri, 22 Apr 2016 11:25:56 +0800</pubDate>
+      
+      <guid>https://bg2bkk.github.io/post/resume/</guid>
+      <description>
+
+&lt;h1 id=&#34;黄振栋简历:c59a67a3c7bc5faa453847420267045e&#34;&gt;黄振栋简历&lt;/h1&gt;
+
+&lt;h2 id=&#34;联系方式:c59a67a3c7bc5faa453847420267045e&#34;&gt;联系方式&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;手机：15010359288&lt;/li&gt;
+&lt;li&gt;Email：bg2bkk@gmail.com&lt;/li&gt;
+&lt;li&gt;微博：&lt;a href=&#34;http://weibo.com/BG2BKK&#34;&gt;@bg2bkk&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;个人信息:c59a67a3c7bc5faa453847420267045e&#34;&gt;个人信息&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;男/1990&lt;/li&gt;
+&lt;li&gt;硕士/哈工大深圳研究生院计算机系&lt;/li&gt;
+&lt;li&gt;工作年限：1年&lt;/li&gt;
+&lt;li&gt;英语水平：CET-6&lt;/li&gt;
+&lt;li&gt;技术博客：&lt;a href=&#34;http://bg2bkk.github.io&#34;&gt;http://bg2bkk.github.io&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Github：&lt;a href=&#34;http://github.com/bg2bkk&#34;&gt;http://github.com/bg2bkk&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;教育背景:c59a67a3c7bc5faa453847420267045e&#34;&gt;教育背景&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;2012.09 ~ 2015.01 哈尔滨工业大学 计算机 硕士&lt;/li&gt;
+&lt;li&gt;2008.09 ~ 2012.06 哈尔滨工程大学 计算机 学士&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&#34;工作经历:c59a67a3c7bc5faa453847420267045e&#34;&gt;工作经历&lt;/h2&gt;
+
+&lt;h4 id=&#34;新浪微博-系统开发工程师-2015年1月-2016年3月:c59a67a3c7bc5faa453847420267045e&#34;&gt;新浪微博 系统开发工程师 （ 2015年1月 ~ 2016年3月 ）&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;手机微博七层动态调度系统dygateway&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;该项目是手机微博mapi团队的7层动态调度系统，能够实现动态分流和动态调整，采用ngx_lua开发，主要锻炼了设计能力。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;其他项目&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;HTTP DNS服务端的开发
+
+&lt;ul&gt;
+&lt;li&gt;参与开发nginx的http dns模块&lt;/li&gt;
+&lt;li&gt;对项目进行压测和评估，协助灰度上线。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h4 id=&#34;极光推送-jpush-cn-后台开发实习生-2013年9月-2014年5月:c59a67a3c7bc5faa453847420267045e&#34;&gt;极光推送(jpush.cn) 后台开发实习生（ 2013年9月 ~ 2014年5月 ）&lt;/h4&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;大规模用户模拟系统&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;实习项目，该系统是极光推送后台系统中用于功能和负载测试的子系统，通过模拟真实用户的功能，保持大规模用户在线，统计模拟用户的运行数据，以测试推送系统的推送速度、负载强度和其他情况。&lt;/li&gt;
+&lt;li&gt;在mentor指导下独立完成。&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;经过系统设计、功能实现、压力测试及系统调优，单机可实现最高200万TCP长连接，线上运行时单机模拟50万用户，长期稳定运行。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;linux cpp tcp epoll 多线程及线程间通信&lt;/li&gt;
+&lt;li&gt;单进程epoll和非阻塞IO实现高并发&lt;/li&gt;
+&lt;li&gt;多线程分别实现配置上传下发模块、统计模块、上报模块和心跳模块&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&#34;技能清单:c59a67a3c7bc5faa453847420267045e&#34;&gt;技能清单&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;c/lua/golang/python/shell&lt;/li&gt;
+&lt;li&gt;nginx/ngx_lua&lt;/li&gt;
+&lt;li&gt;linux kernel/embedded system&lt;/li&gt;
+&lt;li&gt;microprocessor: stm32 51 avr FPGA&lt;/li&gt;
+&lt;li&gt;PCB design&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&#34;项目-演讲和讲义:c59a67a3c7bc5faa453847420267045e&#34;&gt;项目 演讲和讲义&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/WEIBOMSRE/ABTestingGateway&#34;&gt;ABTestingGateway&lt;/a&gt;：手机微博七层动态调度系统中关于灰度发布和动态分流的子项目，598 star。&lt;/li&gt;
+&lt;li&gt;2015年OSC源创会运维专场：&lt;a href=&#34;https://github.com/WEIBOMSRE/ABTestingGateway/blob/master/doc/%E5%9F%BA%E4%BA%8E%E5%8A%A8%E6%80%81%E7%AD%96%E7%95%A5%E7%9A%84%E7%81%B0%E5%BA%A6%E5%8F%91%E5%B8%83%E7%B3%BB%E7%BB%9F.pdf&#34;&gt;基于动态策略的灰度发布系统&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>github 上那些令我感到惊艳又实用的项目</title>
@@ -3283,148 +3386,6 @@ tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.ca
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;七、压测过程中发现lua获取用户特征时，如果用户特征不存在，比如headers中的UID参数，事实上它是处于ngx.req.get_headers()函数返回值(table类型)中，如果lua提取用户特征时，找不到UID，则会扩大范围去上一级里找，此时性能会大大下降&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>linux shell控制并发进程数实践</title>
-      <link>https://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/</link>
-      <pubDate>Fri, 19 Feb 2016 10:54:28 +0800</pubDate>
-      
-      <guid>https://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/</guid>
-      <description>
-
-&lt;h1 id=&#34;shell脚本多线程应用:98445e76c0e56f8e093561726589792e&#34;&gt;shell脚本多线程应用&lt;/h1&gt;
-
-&lt;ul&gt;
-&lt;li&gt;同事将新上线APP的一部分log交给我，让我统计下这些log中供出现了哪些deviceid
-
-&lt;ul&gt;
-&lt;li&gt;采用awk就可以实现这部分匹配和统计功能，还是比较简单的&lt;/li&gt;
-&lt;li&gt;挑战在于，这批log文件非常多非常大，单进程工作处理起来非常的慢。因此我想到了多进程方式。&lt;/li&gt;
-&lt;li&gt;以往需要使用shell来实现多进程时，采用以下模板&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;for seq; do
-    {
-        task
-    }&amp;amp;
-done
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code&gt;* 当任务较为简单，并发数不多时，这招很管用。然而现在log文件有好几K个，grep处理文件非常耗CPU，上述模板将会按文件数启动进程，系统的CPU Load一跃而起，泪目。
-* 此时的情况是，解决问题的思路和方向没有错，方式上还需要改进。关键在于：控制并发任务，合理使用CPU。
-* 如何在shell中控制并发进程数呢，我找到这样一个帖子
-* http://blog.sciencenet.cn/blog-548663-750136.html
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;ul&gt;
-&lt;li&gt;shell脚本中控制并发任务数的大体方式是：
-
-&lt;ul&gt;
-&lt;li&gt;初始化token池，形成一定token空间，又能在为空时阻塞想拿token的进程
-
-&lt;ul&gt;
-&lt;li&gt;生成一个数组，执行任务前先从数组中获得一个元素，能够获得就继续执行，否则阻塞。数组大小最好为CPU核心数。任务执行完成后将元素放回，以供别的进程使用。&lt;/li&gt;
-&lt;li&gt;生成一个阻塞访问的管道pipe，先向管道中写入若干行，任务执行前从管道中获取token，任务结束后放回。&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;最终脚本如下所示
-
-&lt;ul&gt;
-&lt;li&gt;我在理解这个脚本的时候感到吃力，比如exec、read等既熟悉又陌生的指令，毕竟没写过shell脚本&lt;/li&gt;
-&lt;li&gt;后来我发现，man bash和man sh是第一手消息资料
-
-&lt;ul&gt;
-&lt;li&gt;if -p $directory中，-p是什么意思，在man bash的CONDITIONAL EXPRESSIONS中&lt;/li&gt;
-&lt;li&gt;read -u999中，-u又是什么意思，在man bash的 SHELL BUILTIN COMMANDS的read指令中&lt;/li&gt;
-&lt;li&gt;exec 999&amp;lt;&amp;gt;$Pfifo中，man bash的REDIRECTION小节中&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#!/bin/sh
-
-awk=/usr/bin/awk
-uniq=/usr/bin/uniq
-
-Nproc=24
-
-#$$是进程pid
-Pfifo=&amp;quot;/tmp/$$.fifo&amp;quot;
-mkfifo $Pfifo
-
-#以999为文件描述符打开管道,&amp;lt;&amp;gt;表示可读可写
-exec 999&amp;lt;&amp;gt;$Pfifo
-rm -f $Pfifo
-
-#向管道中写入Nproc行,作为令牌
-for((i=1; i&amp;lt;=$Nproc; i++)); do
-    echo
-done &amp;gt;&amp;amp;999
-
-echo &#39;&#39; &amp;gt; out
-echo &#39;&#39; &amp;gt; ooo
-filenames=`ls *.log`
-for filename in $filenames; do
-#从管道中取出1行作为token，如果管道为空，read将会阻塞
-#man bash可以知道-u是从fd中读取一行
-    read -u999
-
-    {
-    #所要执行的任务
-        `$awk -F&#39;,&#39; &#39;/did/ {for(i=1;i&amp;lt;=NF;i++) if($i ~ /did/) print $i i}&#39; $filename | $awk -F&#39;:&#39; &#39;{print $2}&#39; | $awk -F&#39;&amp;quot;&#39; &#39;{print $2}&#39;  | $uniq | $awk &#39;{count[$1]++}END{for(name in count)print name &amp;gt;&amp;gt; &amp;quot;out&amp;quot;}&#39;` &amp;amp;&amp;amp; {
-            echo &amp;quot;$filename done&amp;quot;
-        } || {
-            echo &amp;quot;$filename error&amp;quot;
-        }
-        sleep 1
-    #归还token
-        echo &amp;gt;&amp;amp;999
-    }&amp;amp;
-
-done
-
-#等待所有子进程结束
-wait 
-
-#关闭管道
-exec 999&amp;gt;&amp;amp;-
-
-echo `$awk &#39;{count[$0]++}END{for(name in count)print name}&#39; out &amp;gt; ooo; awk &#39;END{print NR}&#39; ooo`
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;ul&gt;
-&lt;li&gt;单进程方式处理这些log需要3个小时，而控制并发进程数的话只需要10分钟不到。
-
-&lt;ul&gt;
-&lt;li&gt;可见大部分计算资源都浪费在CPU切换上了。&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h1 id=&#34;参考链接:98445e76c0e56f8e093561726589792e&#34;&gt;参考链接&lt;/h1&gt;
-
-&lt;h2 id=&#34;linux-shell-和-lsof-等工具使用的一些tips:98445e76c0e56f8e093561726589792e&#34;&gt;linux shell 和 lsof 等工具使用的一些tips&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://www.cnblogs.com/chengmo/archive/2010/10/20/1855805.html&#34;&gt;linux shell数据输入输出的重定向分析&lt;/a&gt;&lt;br /&gt;
-&lt;a href=&#34;http://linuxtools-rst.readthedocs.org/zh_CN/latest/tool/lsof.html&#34;&gt;lsof 一切皆文件&lt;/a&gt;&lt;/p&gt;
-
-&lt;h2 id=&#34;文件描述符与进程间通信:98445e76c0e56f8e093561726589792e&#34;&gt;文件描述符与进程间通信&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://adelphos.blog.51cto.com/2363901/1598570&#34;&gt;IO重定向和文件描述符&lt;/a&gt;&lt;br /&gt;
-&lt;a href=&#34;http://www.cnblogs.com/GODYCA/archive/2013/01/05/2845618.html&#34;&gt;文件描述符与进程间通信的关联&lt;/a&gt;&lt;/p&gt;
-
-&lt;h2 id=&#34;linux-shell-cocurrency并发控制:98445e76c0e56f8e093561726589792e&#34;&gt;linux shell cocurrency并发控制&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://blog.sciencenet.cn/blog-548663-750136.html&#34;&gt;Bash脚本实现批量作业并行化&lt;/a&gt;&lt;br /&gt;
-&lt;a href=&#34;https://pebblesinthesand.wordpress.com/2008/05/22/a-srcipt-for-running-processes-in-parallel-in-bash/&#34;&gt;A script for running processes in parallel in Bash&lt;/a&gt;&lt;/p&gt;
-
-&lt;h2 id=&#34;awk-sed:98445e76c0e56f8e093561726589792e&#34;&gt;awk&amp;amp;sed&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://kodango.com/sed-and-awk-notes-part-1&#34;&gt;sed&amp;amp;awk入门 一&lt;/a&gt;&lt;br /&gt;
-&lt;a href=&#34;http://kodango.com/sed-and-awk-notes-part-2&#34;&gt;sed&amp;amp;awk入门 二&lt;/a&gt;&lt;br /&gt;
-&lt;a href=&#34;http://www.cnblogs.com/dong008259/archive/2011/12/06/2277287.html&#34;&gt;awk用法汇总&lt;/a&gt;&lt;/p&gt;
 </description>
     </item>
     
