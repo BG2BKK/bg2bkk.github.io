@@ -57,7 +57,7 @@
         },
         "datePublished": "2016-03-12",
         "description": "",
-        "wordCount":  1233 
+        "wordCount":  1237 
     }
     </script>
     
@@ -145,8 +145,9 @@
 <p>而在线下调试时，如果需要配置https，则需要自建和签发证书。
 <a href="http://segmentfault.com/a/1190000002569859">基于openssl自建证书</a></p>
 
-<p>###在CentOS系统上自建证书
-1.自建CA，颁发证书</p>
+<p>###在CentOS系统上自建证书</p>
+
+<p>1.自建CA，颁发证书</p>
 
 <pre><code class="language-bash">CA首先需要自建证书，作为颁发证书所用的根证书。CA的openssl配置文件/etc/pki/tls/openssl.cnf：
 
@@ -204,50 +205,46 @@ emailAddress		= optional
 
 <pre><code class="language-bash">在/etc/pki/CA下创建初始文件
 
-# touch serial index.txt
-# echo 01 &gt; serial
+$ touch serial index.txt
+$ echo 01 &gt; serial
+
 </code></pre>
 
-<p>2.生成根密钥
-```bash	</p>
+<p>2.生成根密钥</p>
 
-<h1 id="cd-etc-pki-ca:7c9d76473bce6d4e5d302b3b042a765b">cd /etc/pki/CA</h1>
+<pre><code class="language-bash">$ cd /etc/pki/CA
+$ openssl genrsa -out private/cakey.pem 2048
+</code></pre>
 
-<h1 id="openssl-genrsa-out-private-cakey-pem-2048:7c9d76473bce6d4e5d302b3b042a765b">openssl genrsa -out private/cakey.pem 2048</h1>
+<p>3.生成根证书</p>
 
-<p>```	
-3.生成根证书</p>
-
-<p>```bash	
-使用req指令，通过私钥，生成自签证书</p>
-
-<h1 id="openssl-req-new-x509-key-private-cakey-pem-out-cacert-pem:7c9d76473bce6d4e5d302b3b042a765b">openssl req -new -x509 -key private/cakey.pem -out cacert.pem</h1>
-
-<p>You are about to be asked to enter information that will be incorporated
+<pre><code class="language-bash">使用req指令，通过私钥，生成自签证书
+$ openssl req -new -x509 -key private/cakey.pem -out cacert.pem
+You are about to be asked to enter information that will be incorporated
 into your certificate request.
 What you are about to enter is what is called a Distinguished Name or a DN.
 There are quite a few fields but you can leave some blank
-For some fields there will be a default value,</p>
-
-<h2 id="if-you-enter-the-field-will-be-left-blank:7c9d76473bce6d4e5d302b3b042a765b">If you enter &lsquo;.&rsquo;, the field will be left blank.</h2>
-
-<p>Country Name (2 letter code) [XX]:CN
+For some fields there will be a default value,
+If you enter '.', the field will be left blank.
+-----
+Country Name (2 letter code) [XX]:CN
 State or Province Name (full name) []:BeiJing
 Locality Name (eg, city) [Default City]:
 Organization Name (eg, company) [Default Company Ltd]:
 Organizational Unit Name (eg, section) []:
-Common Name (eg, your name or your server&rsquo;s hostname) []:root
+Common Name (eg, your name or your server's hostname) []:root
 Email Address []:
-```	
-4.为nginx server生成密钥</p>
+</code></pre>
 
-<pre><code class="language-bash"># mkdir /data/zhendong/nginx_ssl
-# openssl genrsa -out nginx.key 2048
+<p>4.为nginx server生成密钥</p>
+
+<pre><code class="language-bash">$ mkdir /data/zhendong/nginx_ssl
+$ openssl genrsa -out nginx.key 2048
 </code></pre>
 
 <p>5.为nginx生成 证书签署请求</p>
 
-<pre><code class="language-bash"># openssl req -new -key nginx.key -out nginx.csr
+<pre><code class="language-bash">$ openssl req -new -key nginx.key -out nginx.csr
 You are about to be asked to enter information that will be incorporated
 into your certificate request.
 What you are about to enter is what is called a Distinguished Name or a DN.
@@ -274,30 +271,32 @@ Common Name填成nginx server的server_name用来访问。
 
 <p>6.向CA请求证书</p>
 
-<pre><code class="language-bash"># openssl ca -in nginx.csr -out nginx.crt
+<pre><code class="language-bash">$ openssl ca -in nginx.csr -out nginx.crt
+
 如果失败，可以尝试以下命令
 
-openssl x509 -req -in nginx.csr -CA /etc/pki/CA/cacert.pem -CAkey /etc/pki/CA/private/cakey.pem -CAcreateserial -out nginx.crt
+$ openssl x509 -req -in nginx.csr -CA /etc/pki/CA/cacert.pem -CAkey /etc/pki/CA/private/cakey.pem -CAcreateserial -out nginx.crt
 </code></pre>
 
 <p>7.配置nginx</p>
 
-<pre><code class="language-bash">        listen 8443 ssl ;
-        ssl_certificate  /data1/zhendong/nginx_ssl/nginx.crt;
-        ssl_certificate_key /data1/zhendong/nginx_ssl/nginx.key;
+<pre><code class="language-bash">listen 8443 ssl ;
+ssl_certificate  /data1/zhendong/nginx_ssl/nginx.crt;
+ssl_certificate_key /data1/zhendong/nginx_ssl/nginx.key;
 </code></pre>
 
 <p>8.通过curl访问</p>
 
-<pre><code class="language-bash"># curl --cacert /etc/pki/CA/cacert.pem https://localhost:8443/
+<pre><code class="language-bash">$ curl --cacert /etc/pki/CA/cacert.pem https://localhost:8443/
 this is abtesting server
 
-# curl --cacert /etc/pki/CA/cacert.pem https://127.0.0.1:8443/
+$ curl --cacert /etc/pki/CA/cacert.pem https://127.0.0.1:8443/
 curl: (51) SSL: certificate subject name 'localhost' does not match target host name '127.0.0.1'
 </code></pre>
 
-<p>###在Ubuntu系统上自建证书
-Ubuntu系统与CentOS的不同之处在于软件包管理不同，当克服这部分不同后，就可以执行与CentOS系统一样的操作。</p>
+<p>###在Ubuntu系统上自建证书</p>
+
+<p>Ubuntu系统与CentOS的不同之处在于软件包管理不同，当克服这部分不同后，就可以执行与CentOS系统一样的操作。</p>
 
 <p>首先Ubuntu的openssl目录在<strong>/usr/lib/ssl</strong>下，而实际上这是一个软链接。</p>
 
@@ -341,27 +340,31 @@ x509_extensions	= usr_cert		# The extentions to add to the cert
 
 <p>从配置文件中看到，我们需要在<strong>/usr/lib/ssl</strong>下建立<strong>demoCA</strong>目录以及其他。</p>
 
-<pre><code class="language-bash"># cd /usr/lib/ssl
-# mkdir demoCA
-# mkdir demoCA/newcerts
-# mkdir demoCA/private
+<pre><code class="language-bash">$ cd /usr/lib/ssl
+$ mkdir demoCA
+$ mkdir demoCA/newcerts
+$ mkdir demoCA/private
 </code></pre>
 
 <p>余下的操作将与在CentOS系统上没有区别。最后执行情况为：</p>
 
-<pre><code class="language-bash"># curl --cacert /usr/lib/ssl/demoCA/cacert.pem https://localhost:8443
+<pre><code class="language-bash">$ curl --cacert /usr/lib/ssl/demoCA/cacert.pem https://localhost:8443
 this is abtesting server
 </code></pre>
 
 <h2 id="nginx的支持http-2的patch:7c9d76473bce6d4e5d302b3b042a765b">nginx的支持HTTP/2的patch</h2>
 
+<blockquote>
+<p>nginx目前已正式支持HTTP/2，包括tengine-2.1.2+ 和 openresty</p>
+</blockquote>
+
 <p>nginx在8月份的时候从1.9.3版本推出了支持HTTP/2的<a href="http://nginx.org/patches/http2/">patch</a>，使用时与标准nginx并无区别。</p>
 
-<pre><code class="language-bash"># cd nginx-1.9.4/
-# patch -p1 &lt; patch.http2-v3_1.9.4.txt  
-# ./configure --with-http_v2_module --with-http_ssl_module
-# make
-# make install
+<pre><code class="language-bash">$ cd nginx-1.9.4/
+$ patch -p1 &lt; patch.http2-v3_1.9.4.txt  
+$ ./configure --with-http_v2_module --with-http_ssl_module
+$ make
+$ make install
 </code></pre>
 
 <p>支持http2的nginx关键配置为</p>
@@ -377,13 +380,15 @@ this is abtesting server
 
 <p>由于nghttp2所依赖的库太新了，目前只在Ubuntu系统成功安装。安装过程：</p>
 
-<pre><code class="language-bash">	$ autoreconf -i
-	$ automake
-	$ autoconf
-	$ ./configure
-	$ make
+<pre><code class="language-bash">$ autoreconf -i
+$ automake
+$ autoconf
+$ ./configure
+$ make
 ```	
+
 其中**./configure**的结果非常重要
+
 ```bash
     Version:        1.2.2-DEV shared 14:8:0
     Host type:      x86_64-unknown-linux-gnu
@@ -436,10 +441,10 @@ this is abtesting server
 
 <p>编译帮助文档</p>
 
-<pre><code>make html
+<pre><code class="language-bash">make html
 </code></pre>
 
-<p>###nghttpd作为http2 server</p>
+<h3 id="nghttpd作为http2-server:7c9d76473bce6d4e5d302b3b042a765b">nghttpd作为http2 server</h3>
 
 <p>http2-no-tls</p>
 
@@ -453,7 +458,7 @@ this is abtesting server
 
 <p>关于nghttpd的选项，其实可以与nginx配置做到一一对照的。目前对nghttpd的源码及实现了解的比较少，因其日本人的过于C++代码的风格实在晦涩难懂，所以很少做调优。</p>
 
-<p>###nghttp作为http2 client</p>
+<h3 id="nghttp作为http2-client:7c9d76473bce6d4e5d302b3b042a765b">nghttp作为http2 client</h3>
 
 <p>http2-client-no-tls</p>
 
@@ -469,8 +474,9 @@ nghttp https://127.0.0.1:8080
 
 <p>经过使用，nghttp也可以对nginx发出http2请求并成功返回。</p>
 
-<p>通过strace和阅读源码，nghttp（包括压测工具h2load）作为client时，会读取系统的证书/usr/lib/ssl/demoCA/cacert.pem，因此可以不用指定。
-###nghttpx作为proxy，转向nginx后端</p>
+<p>通过strace和阅读源码，nghttp（包括压测工具h2load）作为client时，会读取系统的证书/usr/lib/ssl/demoCA/cacert.pem，因此可以不用指定。</p>
+
+<h3 id="nghttpx作为proxy-转向nginx后端:7c9d76473bce6d4e5d302b3b042a765b">nghttpx作为proxy，转向nginx后端</h3>
 
 <p>client ——&gt; http2-proxy-no-tls ——&gt; http1.1 upstream(nginx):</p>
 
@@ -493,9 +499,9 @@ this is beta3 server
 
 <p>采用nginx-http2作为proxy，使用方法与nginx-http1.1没有区别。</p>
 
-<p>###h2load作为压测工具</p>
+<h3 id="h2load作为压测工具:7c9d76473bce6d4e5d302b3b042a765b">h2load作为压测工具</h3>
 
-<pre><code class="language-bash"># h2load -n100 -c10 -t4  https://127.0.0.1:8080
+<pre><code class="language-bash">$ h2load -n100 -c10 -t4  https://127.0.0.1:8080
 starting benchmark...
 spawning thread #0: 3 concurrent clients, 25 total requests
 spawning thread #1: 3 concurrent clients, 25 total requests

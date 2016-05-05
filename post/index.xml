@@ -54,20 +54,22 @@
 &lt;li&gt;&lt;p&gt;手机微博七层动态调度系统dygateway&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;动态调度系统&lt;strong&gt;&lt;em&gt;dygateway&lt;/em&gt;&lt;/strong&gt; 在手机微博7层实现
+&lt;li&gt;&lt;p&gt;动态调度系统&lt;strong&gt;&lt;em&gt;dygateway&lt;/em&gt;&lt;/strong&gt; 在手机微博7层实现&lt;/p&gt;
 
 &lt;ul&gt;
 &lt;li&gt;系统资源的动态伸缩&lt;/li&gt;
 &lt;li&gt;用户请求的动态分流&lt;/li&gt;
 &lt;li&gt;产品服务的灰度发布&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;基于nginx和ngx_lua开发
+
+&lt;li&gt;&lt;p&gt;基于nginx和ngx_lua开发&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;开发灰度发布子系统 &lt;a href=&#34;https://github.com/CNSRE/ABTestingGateway&#34;&gt;ABTestingGateway&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;参与开发 &lt;strong&gt;ngx-lua-upstream-module&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;开发 &lt;strong&gt;灰度发布系统&lt;/strong&gt; &lt;a href=&#34;https://github.com/CNSRE/ABTestingGateway&#34;&gt;ABTestingGateway&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;参与开发 &lt;strong&gt;nginx动态upstream模块&lt;/strong&gt;&lt;a href=&#34;https://github.com/CNSRE/lua-upstream-nginx-module&#34;&gt;ngx-lua-upstream-module&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;目前应用于手机微博、微博头条等产品线&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;目前应用于手机微博、微博头条等产品线&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
@@ -134,10 +136,10 @@
 &lt;h2 id=&#34;技能清单:c59a67a3c7bc5faa453847420267045e&#34;&gt;技能清单&lt;/h2&gt;
 
 &lt;ul&gt;
-&lt;li&gt;c/lua/golang/python/shell&lt;/li&gt;
+&lt;li&gt;c/lua/python/golang/shell/vhdl&lt;/li&gt;
 &lt;li&gt;nginx/ngx_lua&lt;/li&gt;
-&lt;li&gt;linux kernel/embedded system&lt;/li&gt;
-&lt;li&gt;IOT: ble/mqtt/elua&lt;/li&gt;
+&lt;li&gt;linux kernel/ performance profiling&lt;/li&gt;
+&lt;li&gt;embedded system &amp;amp;&amp;amp; IOT: ble/mqtt/elua&lt;/li&gt;
 &lt;li&gt;microprocessor: stm32 51 avr FPGA&lt;/li&gt;
 &lt;/ul&gt;
 
@@ -146,7 +148,7 @@
 &lt;h2 id=&#34;项目-演讲和讲义:c59a67a3c7bc5faa453847420267045e&#34;&gt;项目 演讲和讲义&lt;/h2&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/WEIBOMSRE/ABTestingGateway&#34;&gt;ABTestingGateway&lt;/a&gt;：手机微博七层动态调度系统中关于灰度发布和动态分流的子项目，598 star。&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/WEIBOMSRE/ABTestingGateway&#34;&gt;ABTestingGateway&lt;/a&gt;：手机微博七层动态调度系统中关于灰度发布和动态分流的子项目，660+ stars。&lt;/li&gt;
 &lt;li&gt;2015年OSC源创会运维专场：&lt;a href=&#34;https://github.com/WEIBOMSRE/ABTestingGateway/blob/master/doc/%E5%9F%BA%E4%BA%8E%E5%8A%A8%E6%80%81%E7%AD%96%E7%95%A5%E7%9A%84%E7%81%B0%E5%BA%A6%E5%8F%91%E5%B8%83%E7%B3%BB%E7%BB%9F.pdf&#34;&gt;基于动态策略的灰度发布系统&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
@@ -1339,8 +1341,9 @@ print(table.maxn(t))
 &lt;p&gt;而在线下调试时，如果需要配置https，则需要自建和签发证书。
 &lt;a href=&#34;http://segmentfault.com/a/1190000002569859&#34;&gt;基于openssl自建证书&lt;/a&gt;&lt;/p&gt;
 
-&lt;p&gt;###在CentOS系统上自建证书
-1.自建CA，颁发证书&lt;/p&gt;
+&lt;p&gt;###在CentOS系统上自建证书&lt;/p&gt;
+
+&lt;p&gt;1.自建CA，颁发证书&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;CA首先需要自建证书，作为颁发证书所用的根证书。CA的openssl配置文件/etc/pki/tls/openssl.cnf：
 
@@ -1398,50 +1401,46 @@ emailAddress		= optional
 
 &lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;在/etc/pki/CA下创建初始文件
 
-# touch serial index.txt
-# echo 01 &amp;gt; serial
+$ touch serial index.txt
+$ echo 01 &amp;gt; serial
+
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;2.生成根密钥
-```bash	&lt;/p&gt;
+&lt;p&gt;2.生成根密钥&lt;/p&gt;
 
-&lt;h1 id=&#34;cd-etc-pki-ca:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;cd /etc/pki/CA&lt;/h1&gt;
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ cd /etc/pki/CA
+$ openssl genrsa -out private/cakey.pem 2048
+&lt;/code&gt;&lt;/pre&gt;
 
-&lt;h1 id=&#34;openssl-genrsa-out-private-cakey-pem-2048:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;openssl genrsa -out private/cakey.pem 2048&lt;/h1&gt;
+&lt;p&gt;3.生成根证书&lt;/p&gt;
 
-&lt;p&gt;```	
-3.生成根证书&lt;/p&gt;
-
-&lt;p&gt;```bash	
-使用req指令，通过私钥，生成自签证书&lt;/p&gt;
-
-&lt;h1 id=&#34;openssl-req-new-x509-key-private-cakey-pem-out-cacert-pem:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;openssl req -new -x509 -key private/cakey.pem -out cacert.pem&lt;/h1&gt;
-
-&lt;p&gt;You are about to be asked to enter information that will be incorporated
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;使用req指令，通过私钥，生成自签证书
+$ openssl req -new -x509 -key private/cakey.pem -out cacert.pem
+You are about to be asked to enter information that will be incorporated
 into your certificate request.
 What you are about to enter is what is called a Distinguished Name or a DN.
 There are quite a few fields but you can leave some blank
-For some fields there will be a default value,&lt;/p&gt;
-
-&lt;h2 id=&#34;if-you-enter-the-field-will-be-left-blank:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;If you enter &amp;lsquo;.&amp;rsquo;, the field will be left blank.&lt;/h2&gt;
-
-&lt;p&gt;Country Name (2 letter code) [XX]:CN
+For some fields there will be a default value,
+If you enter &#39;.&#39;, the field will be left blank.
+-----
+Country Name (2 letter code) [XX]:CN
 State or Province Name (full name) []:BeiJing
 Locality Name (eg, city) [Default City]:
 Organization Name (eg, company) [Default Company Ltd]:
 Organizational Unit Name (eg, section) []:
-Common Name (eg, your name or your server&amp;rsquo;s hostname) []:root
+Common Name (eg, your name or your server&#39;s hostname) []:root
 Email Address []:
-```	
-4.为nginx server生成密钥&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# mkdir /data/zhendong/nginx_ssl
-# openssl genrsa -out nginx.key 2048
+&lt;p&gt;4.为nginx server生成密钥&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ mkdir /data/zhendong/nginx_ssl
+$ openssl genrsa -out nginx.key 2048
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;5.为nginx生成 证书签署请求&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# openssl req -new -key nginx.key -out nginx.csr
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ openssl req -new -key nginx.key -out nginx.csr
 You are about to be asked to enter information that will be incorporated
 into your certificate request.
 What you are about to enter is what is called a Distinguished Name or a DN.
@@ -1468,30 +1467,32 @@ Common Name填成nginx server的server_name用来访问。
 
 &lt;p&gt;6.向CA请求证书&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# openssl ca -in nginx.csr -out nginx.crt
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ openssl ca -in nginx.csr -out nginx.crt
+
 如果失败，可以尝试以下命令
 
-openssl x509 -req -in nginx.csr -CA /etc/pki/CA/cacert.pem -CAkey /etc/pki/CA/private/cakey.pem -CAcreateserial -out nginx.crt
+$ openssl x509 -req -in nginx.csr -CA /etc/pki/CA/cacert.pem -CAkey /etc/pki/CA/private/cakey.pem -CAcreateserial -out nginx.crt
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;7.配置nginx&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;        listen 8443 ssl ;
-        ssl_certificate  /data1/zhendong/nginx_ssl/nginx.crt;
-        ssl_certificate_key /data1/zhendong/nginx_ssl/nginx.key;
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;listen 8443 ssl ;
+ssl_certificate  /data1/zhendong/nginx_ssl/nginx.crt;
+ssl_certificate_key /data1/zhendong/nginx_ssl/nginx.key;
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;8.通过curl访问&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# curl --cacert /etc/pki/CA/cacert.pem https://localhost:8443/
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ curl --cacert /etc/pki/CA/cacert.pem https://localhost:8443/
 this is abtesting server
 
-# curl --cacert /etc/pki/CA/cacert.pem https://127.0.0.1:8443/
+$ curl --cacert /etc/pki/CA/cacert.pem https://127.0.0.1:8443/
 curl: (51) SSL: certificate subject name &#39;localhost&#39; does not match target host name &#39;127.0.0.1&#39;
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;###在Ubuntu系统上自建证书
-Ubuntu系统与CentOS的不同之处在于软件包管理不同，当克服这部分不同后，就可以执行与CentOS系统一样的操作。&lt;/p&gt;
+&lt;p&gt;###在Ubuntu系统上自建证书&lt;/p&gt;
+
+&lt;p&gt;Ubuntu系统与CentOS的不同之处在于软件包管理不同，当克服这部分不同后，就可以执行与CentOS系统一样的操作。&lt;/p&gt;
 
 &lt;p&gt;首先Ubuntu的openssl目录在&lt;strong&gt;/usr/lib/ssl&lt;/strong&gt;下，而实际上这是一个软链接。&lt;/p&gt;
 
@@ -1535,27 +1536,31 @@ x509_extensions	= usr_cert		# The extentions to add to the cert
 
 &lt;p&gt;从配置文件中看到，我们需要在&lt;strong&gt;/usr/lib/ssl&lt;/strong&gt;下建立&lt;strong&gt;demoCA&lt;/strong&gt;目录以及其他。&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# cd /usr/lib/ssl
-# mkdir demoCA
-# mkdir demoCA/newcerts
-# mkdir demoCA/private
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ cd /usr/lib/ssl
+$ mkdir demoCA
+$ mkdir demoCA/newcerts
+$ mkdir demoCA/private
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;余下的操作将与在CentOS系统上没有区别。最后执行情况为：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# curl --cacert /usr/lib/ssl/demoCA/cacert.pem https://localhost:8443
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ curl --cacert /usr/lib/ssl/demoCA/cacert.pem https://localhost:8443
 this is abtesting server
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;h2 id=&#34;nginx的支持http-2的patch:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;nginx的支持HTTP/2的patch&lt;/h2&gt;
 
+&lt;blockquote&gt;
+&lt;p&gt;nginx目前已正式支持HTTP/2，包括tengine-2.1.2+ 和 openresty&lt;/p&gt;
+&lt;/blockquote&gt;
+
 &lt;p&gt;nginx在8月份的时候从1.9.3版本推出了支持HTTP/2的&lt;a href=&#34;http://nginx.org/patches/http2/&#34;&gt;patch&lt;/a&gt;，使用时与标准nginx并无区别。&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# cd nginx-1.9.4/
-# patch -p1 &amp;lt; patch.http2-v3_1.9.4.txt  
-# ./configure --with-http_v2_module --with-http_ssl_module
-# make
-# make install
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ cd nginx-1.9.4/
+$ patch -p1 &amp;lt; patch.http2-v3_1.9.4.txt  
+$ ./configure --with-http_v2_module --with-http_ssl_module
+$ make
+$ make install
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;支持http2的nginx关键配置为&lt;/p&gt;
@@ -1571,13 +1576,15 @@ this is abtesting server
 
 &lt;p&gt;由于nghttp2所依赖的库太新了，目前只在Ubuntu系统成功安装。安装过程：&lt;/p&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;	$ autoreconf -i
-	$ automake
-	$ autoconf
-	$ ./configure
-	$ make
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ autoreconf -i
+$ automake
+$ autoconf
+$ ./configure
+$ make
 ```	
+
 其中**./configure**的结果非常重要
+
 ```bash
     Version:        1.2.2-DEV shared 14:8:0
     Host type:      x86_64-unknown-linux-gnu
@@ -1630,10 +1637,10 @@ this is abtesting server
 
 &lt;p&gt;编译帮助文档&lt;/p&gt;
 
-&lt;pre&gt;&lt;code&gt;make html
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;make html
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;###nghttpd作为http2 server&lt;/p&gt;
+&lt;h3 id=&#34;nghttpd作为http2-server:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;nghttpd作为http2 server&lt;/h3&gt;
 
 &lt;p&gt;http2-no-tls&lt;/p&gt;
 
@@ -1647,7 +1654,7 @@ this is abtesting server
 
 &lt;p&gt;关于nghttpd的选项，其实可以与nginx配置做到一一对照的。目前对nghttpd的源码及实现了解的比较少，因其日本人的过于C++代码的风格实在晦涩难懂，所以很少做调优。&lt;/p&gt;
 
-&lt;p&gt;###nghttp作为http2 client&lt;/p&gt;
+&lt;h3 id=&#34;nghttp作为http2-client:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;nghttp作为http2 client&lt;/h3&gt;
 
 &lt;p&gt;http2-client-no-tls&lt;/p&gt;
 
@@ -1663,8 +1670,9 @@ nghttp https://127.0.0.1:8080
 
 &lt;p&gt;经过使用，nghttp也可以对nginx发出http2请求并成功返回。&lt;/p&gt;
 
-&lt;p&gt;通过strace和阅读源码，nghttp（包括压测工具h2load）作为client时，会读取系统的证书/usr/lib/ssl/demoCA/cacert.pem，因此可以不用指定。
-###nghttpx作为proxy，转向nginx后端&lt;/p&gt;
+&lt;p&gt;通过strace和阅读源码，nghttp（包括压测工具h2load）作为client时，会读取系统的证书/usr/lib/ssl/demoCA/cacert.pem，因此可以不用指定。&lt;/p&gt;
+
+&lt;h3 id=&#34;nghttpx作为proxy-转向nginx后端:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;nghttpx作为proxy，转向nginx后端&lt;/h3&gt;
 
 &lt;p&gt;client ——&amp;gt; http2-proxy-no-tls ——&amp;gt; http1.1 upstream(nginx):&lt;/p&gt;
 
@@ -1687,9 +1695,9 @@ this is beta3 server
 
 &lt;p&gt;采用nginx-http2作为proxy，使用方法与nginx-http1.1没有区别。&lt;/p&gt;
 
-&lt;p&gt;###h2load作为压测工具&lt;/p&gt;
+&lt;h3 id=&#34;h2load作为压测工具:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;h2load作为压测工具&lt;/h3&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# h2load -n100 -c10 -t4  https://127.0.0.1:8080
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ h2load -n100 -c10 -t4  https://127.0.0.1:8080
 starting benchmark...
 spawning thread #0: 3 concurrent clients, 25 total requests
 spawning thread #1: 3 concurrent clients, 25 total requests
