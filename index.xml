@@ -5,8 +5,292 @@
     <link>https://bg2bkk.github.io/</link>
     <description>Recent content on BG2BKK Site</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Fri, 22 Apr 2016 11:25:56 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 05 May 2016 20:13:45 +0800</lastBuildDate>
     <atom:link href="https://bg2bkk.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>DNS with golang</title>
+      <link>https://bg2bkk.github.io/post/DNS%20with%20golang/</link>
+      <pubDate>Thu, 05 May 2016 20:13:45 +0800</pubDate>
+      
+      <guid>https://bg2bkk.github.io/post/DNS%20with%20golang/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;Record Tyeps&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;DNS Management: Record Types and When To Use Them&#34;&gt;Record Types&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;A records:    A 记录&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;CNAME&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;MX Record&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;miekg/dns&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;dig with edns&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.gsic.uva.es/~jnisigl/dig-edns-client-subnet.html&#34;&gt;https://www.gsic.uva.es/~jnisigl/dig-edns-client-subnet.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://xmodulo.com/geographic-location-ip-address-command-line.html&#34;&gt;http://xmodulo.com/geographic-location-ip-address-command-line.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;curl ipinfo.io/23.66.166.151&lt;/li&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;发现UDP和TCP发出的包，效果大不同&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;急需DNS抓包工具&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;DNS报文格式&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;IP packet
+
+&lt;ul&gt;
+&lt;li&gt;IP Header 20 bytes&lt;/li&gt;
+&lt;li&gt;IP Data: UDP
+
+&lt;ul&gt;
+&lt;li&gt;UDP Header 8 bytes&lt;/li&gt;
+&lt;li&gt;UDP Data: DNS
+
+&lt;ul&gt;
+&lt;li&gt;DNS Header 12 bytes&lt;/li&gt;
+&lt;li&gt;DNS Data: RR
+
+&lt;ul&gt;
+&lt;li&gt;RR: Question&lt;/li&gt;
+&lt;li&gt;RR: Answer&lt;/li&gt;
+&lt;li&gt;RR: Authority&lt;/li&gt;
+&lt;li&gt;RR: Additional&lt;/li&gt;
+&lt;li&gt;RR
+
+&lt;ul&gt;
+&lt;li&gt;QName&lt;/li&gt;
+&lt;li&gt;QType&lt;/li&gt;
+&lt;li&gt;QClass&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;RR OPT
+
+&lt;ul&gt;
+&lt;li&gt;QName null&lt;/li&gt;
+&lt;li&gt;QType OPT=41&lt;/li&gt;
+&lt;li&gt;QClass = UDP payload 2bytes&lt;/li&gt;
+&lt;li&gt;TTL = Extended-RCODE 1byte: extend + VERSION 1byte: 0 + Z 2bytes: 0&lt;/li&gt;
+&lt;li&gt;RDLen len of data(OPT)&lt;/li&gt;
+&lt;li&gt;OPT
+
+&lt;ul&gt;
+&lt;li&gt;Option-Code 2bytes: EDNS0_SUBNET&lt;/li&gt;
+&lt;li&gt;Option-Length 2bytes&lt;/li&gt;
+&lt;li&gt;Option-Data&lt;br /&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Family 1byte: IPV4(1)&lt;/li&gt;
+&lt;li&gt;Source Netmask 1byte: 32&lt;/li&gt;
+&lt;li&gt;Scope Netmask 1byte: 0&lt;/li&gt;
+&lt;li&gt;Client Subnet 4bytes: 65.135.152.203&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;我们总是在追一些时髦的技术，而不顾基础还不牢靠&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;我们总是看见新的框架，然而框架本质上仍然是那些东西，mvc，cs&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;!-- http://www.tcpipguide.com/free/index.htm --&gt;
+
+&lt;div align=&#34;center&#34;&gt;&lt;table border=&#34;3&#34; cellpadding=&#34;4&#34; cellspacing=&#34;2&#34;&gt;&lt;caption align=&#34;top&#34;&gt;&lt;p align=&#34;center&#34;&gt;&lt;font face=&#34;Arial&#34;&gt;&lt;b&gt;Table 147: UDP Message Format &lt;/b&gt;&lt;/font&gt;&lt;/p&gt;&lt;/caption&gt;
+&lt;tbody&gt;&lt;tr&gt;
+&lt;td bgcolor=&#34;#CCCCFF&#34;&gt;&lt;p align=&#34;center&#34;&gt;&lt;font face=&#34;Arial&#34;&gt;&lt;b&gt;Field 
+Name&lt;/b&gt;&lt;/font&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td bgcolor=&#34;#CCCCFF&#34;&gt;&lt;p align=&#34;center&#34;&gt;&lt;font face=&#34;Arial&#34;&gt;&lt;b&gt;Size (bytes)&lt;/b&gt;&lt;/font&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td align=&#34;left&#34; bgcolor=&#34;#CCCCFF&#34;&gt;&lt;p align=&#34;left&#34;&gt;&lt;font face=&#34;Arial&#34;&gt;&lt;b&gt;Description&lt;/b&gt;&lt;/font&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;p align=&#34;center&#34;&gt;&lt;font face=&#34;Arial&#34;&gt;&lt;b&gt;&lt;i&gt;Source 
+Port&lt;/i&gt;&lt;/b&gt;&lt;/font&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;p align=&#34;center&#34;&gt;&lt;font face=&#34;Arial&#34;&gt;2&lt;/font&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td&gt;&lt;p align=&#34;left&#34;&gt;&lt;font face=&#34;Arial&#34;&gt;&lt;b&gt;&lt;i&gt;Source Port:&lt;/i&gt;&lt;/b&gt; The 
+16-bit port number of the process that originated the UDP message on 
+the source device. This will normally be an ephemeral (client) port 
+number for a request sent by a client to a server, or a well-known/registered 
+(server) port number for a reply sent by a server to a client. &lt;/font&gt;&lt;a href=&#34;t_TCPIPTransportLayerProtocolTCPandUDPAddressingPort.htm&#34;&gt;&lt;font face=&#34;Arial&#34; color=&#34;#0101C0&#34;&gt;See 
+the section describing port numbers for details&lt;/font&gt;&lt;/a&gt;&lt;font face=&#34;Arial&#34;&gt;.&lt;/font&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34; bgcolor=&#34;#E1E1FF&#34;&gt;&lt;p align=&#34;center&#34;&gt;&lt;font face=&#34;Arial&#34;&gt;&lt;b&gt;&lt;i&gt;Destination 
+Port&lt;/i&gt;&lt;/b&gt;&lt;/font&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td align=&#34;center&#34; bgcolor=&#34;#E1E1FF&#34;&gt;&lt;p align=&#34;center&#34;&gt;&lt;font face=&#34;Arial&#34;&gt;2&lt;/font&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td bgcolor=&#34;#E1E1FF&#34;&gt;&lt;p align=&#34;left&#34;&gt;&lt;font face=&#34;Arial&#34;&gt;&lt;b&gt;&lt;i&gt;Destination 
+Port:&lt;/i&gt;&lt;/b&gt; The 16-bit port number of the process that is the ultimate 
+intended recipient of the message on the destination device. This will 
+usually be a well-known/registered (server) port number for a client 
+request, or an ephemeral (client) port number for a server reply. Again, 
+&lt;/font&gt;&lt;a href=&#34;t_TCPIPTransportLayerProtocolTCPandUDPAddressingPort.htm&#34;&gt;&lt;font face=&#34;Arial&#34; color=&#34;#0101C0&#34;&gt;see 
+the section describing port numbers for details&lt;/font&gt;&lt;/a&gt;&lt;font face=&#34;Arial&#34;&gt;.&lt;/font&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;p align=&#34;center&#34;&gt;&lt;font face=&#34;Arial&#34;&gt;&lt;b&gt;&lt;i&gt;Length&lt;/i&gt;&lt;/b&gt;&lt;/font&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;p align=&#34;center&#34;&gt;&lt;font face=&#34;Arial&#34;&gt;2&lt;/font&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td&gt;&lt;p align=&#34;left&#34;&gt;&lt;font face=&#34;Arial&#34;&gt;&lt;b&gt;&lt;i&gt;Length:&lt;/i&gt;&lt;/b&gt; The length 
+of the entire UDP datagram, including both header and &lt;i&gt;Data&lt;/i&gt; fields.&lt;/font&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34; bgcolor=&#34;#E1E1FF&#34;&gt;&lt;p align=&#34;center&#34;&gt;&lt;font face=&#34;Arial&#34;&gt;&lt;b&gt;&lt;i&gt;Checksum&lt;/i&gt;&lt;/b&gt;&lt;/font&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td align=&#34;center&#34; bgcolor=&#34;#E1E1FF&#34;&gt;&lt;p align=&#34;center&#34;&gt;&lt;font face=&#34;Arial&#34;&gt;2&lt;/font&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td bgcolor=&#34;#E1E1FF&#34;&gt;&lt;p align=&#34;left&#34;&gt;&lt;font face=&#34;Arial&#34;&gt;&lt;b&gt;&lt;i&gt;Checksum:&lt;/i&gt;&lt;/b&gt; 
+An optional 16-bit checksum computed over the entire UDP datagram plus 
+a special “pseudo header” of fields. See below for more information. 
+&lt;/font&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;p align=&#34;center&#34;&gt;&lt;font face=&#34;Arial&#34;&gt;&lt;b&gt;&lt;i&gt;Data&lt;/i&gt;&lt;/b&gt;&lt;/font&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td align=&#34;center&#34;&gt;&lt;p align=&#34;center&#34;&gt;&lt;font face=&#34;Arial&#34;&gt;Variable&lt;/font&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;td&gt;&lt;p align=&#34;left&#34;&gt;&lt;font face=&#34;Arial&#34;&gt;&lt;b&gt;&lt;i&gt;Data:&lt;/i&gt;&lt;/b&gt; The encapsulated 
+higher-layer message to be sent.&lt;/font&gt;&lt;/p&gt;
+&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+
+&lt;br&gt;&lt;a name=&#34;Figure_200&#34;&gt;&lt;/a&gt;&lt;/div&gt;
+
+&lt;style type=&#34;text/css&#34;&gt;
+div.l-f table{width:100%;padding:4px;}
+
+table {margin: 0 auto;}
+table.t-m-n &gt; tbody &gt; tr &gt; td {border:1px solid #ccc;padding:4px;}
+table.t-m-s &gt; tbody &gt; tr &gt; td {border:1px solid #ccc;padding:4px;}
+table.p-m-n &gt; tbody &gt; tr &gt; td {padding:4px;border-collapse:collapse;}
+table.p-m-s &gt; tbody &gt; tr &gt; td {padding:4px;border-collapse:collapse;}
+tr {vertical-align:top;}
+/* end tag modifiers - Printer friendly */
+
+
+div.t-h:hover &gt; div {display:block;}
+.t-m-s {font-size:80%;border: 2px solid #ccc;border-spacing:0;border-collapse:collapse;}
+.g-h-s {background:#9bf;color:#339;padding:4px; font-size:80%;font-weight:normal;border:1px solid #ccc;}
+&lt;/style&gt;
+
+&lt;table class=&#34;t-m-s&#34;&gt;
+&lt;tbody&gt;&lt;tr class=&#34;g-h-s&#34;&gt;
+&lt;td&gt;Octet&lt;/td&gt;
+&lt;td&gt;Bits&lt;/td&gt;
+&lt;td&gt;Len&lt;/td&gt;
+&lt;td&gt;Name&lt;/td&gt;
+&lt;td&gt;Notes&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;0-1&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;td&gt;Source port&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;2-3&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;td&gt;Destination Port&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;4-7&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;4&lt;/td&gt;
+&lt;td&gt;Sequence number&lt;/td&gt;
+&lt;td&gt;position of last octet we sent.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;8-11&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;4&lt;/td&gt;
+&lt;td&gt;Acknowledge Number&lt;/td&gt;
+&lt;td&gt;Next octet number we expect from the peer.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;12&lt;/td&gt;
+&lt;td&gt;0-3&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;HLEN&lt;/td&gt;
+&lt;td&gt;4 bits. The number of 32 bit multiples (4 octets) in the TCP header including any &#39;options&#39; fields.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;12&lt;/td&gt;
+&lt;td&gt;4-7&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;Reserved&lt;/td&gt;
+&lt;td&gt;should be zero&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;13&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;Code bits&lt;/td&gt;
+&lt;td&gt;8 bits (6 used) valid if 1&lt;br&gt;
+bit 0 (URG) Urgent&lt;br&gt;
+bit 1 (ACK) Acknowledgement&lt;br&gt;
+bit 2 (PSH) Requests PUSH&lt;br&gt;
+bit 3 (RST) Reset connection&lt;br&gt;
+bit 4 (SYN) Sync sequence numbers&lt;br&gt;
+bit 5 (FIN) sender finished&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;14-15&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;td&gt;Window&lt;/td&gt;
+&lt;td&gt;Specifies the amount of data we can accept.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;16-17&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;td&gt;Checksum&lt;/td&gt;
+&lt;td&gt;Standard IP checksum. Includes a &lt;a href=&#34;#tcp-check&#34; class=&#34;t-db&#34;&gt;TCP pseudo header&lt;/a&gt;.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;18-19&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;td&gt;Urgent pointer&lt;/td&gt;
+&lt;td&gt;Points to end of urgent data.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;t-c&#34;&gt;
+&lt;td colspan=&#34;5&#34;&gt;&lt;a href=&#34;#tcp_opts&#34; class=&#34;t-db&#34;&gt;TCP Options&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;t-c&#34;&gt;
+&lt;td colspan=&#34;5&#34;&gt;TCP data&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+</description>
+    </item>
     
     <item>
       <title>resume</title>
@@ -1341,7 +1625,7 @@ print(table.maxn(t))
 &lt;p&gt;而在线下调试时，如果需要配置https，则需要自建和签发证书。
 &lt;a href=&#34;http://segmentfault.com/a/1190000002569859&#34;&gt;基于openssl自建证书&lt;/a&gt;&lt;/p&gt;
 
-&lt;p&gt;###在CentOS系统上自建证书&lt;/p&gt;
+&lt;h3 id=&#34;在centos系统上自建证书:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;在CentOS系统上自建证书&lt;/h3&gt;
 
 &lt;p&gt;1.自建CA，颁发证书&lt;/p&gt;
 
@@ -3280,171 +3564,6 @@ Idx Name          Size      VMA       LMA       File off  Algn
 
 &lt;p&gt;linux.map中的信息可以帮助我们和dmesg的输出信息对照起来，可以看到内核中每个我们感兴趣的静态模块的加载顺序。&lt;br /&gt;
 以上工作都是基于linux-2.4内核实现的，新版本内核该如何实现呢？&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>openresty压测过程和systemtap工具使用中的一些问题</title>
-      <link>https://bg2bkk.github.io/post/openresty%E5%8E%8B%E6%B5%8B%E8%BF%87%E7%A8%8B%E5%92%8Csystemtap%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/</link>
-      <pubDate>Mon, 22 Feb 2016 11:15:36 +0800</pubDate>
-      
-      <guid>https://bg2bkk.github.io/post/openresty%E5%8E%8B%E6%B5%8B%E8%BF%87%E7%A8%8B%E5%92%8Csystemtap%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/</guid>
-      <description>
-
-&lt;h2 id=&#34;一-tegine编译-高版本的httpluamodule:dab12220e12920eb4ab0fdd954035a76&#34;&gt;一、tegine编译+高版本的httpluamodule&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;tengine-2.1.0的ngx_lua模块随着tengine软件发布，和以往版本的tengine不一样。&lt;/li&gt;
-&lt;li&gt;tengine自带的ngx_lua模块版本太老，与openresty相比要差几个版本，导致openresty里的一些好的软件工具不可用。
-
-&lt;ul&gt;
-&lt;li&gt;编译tengine+lua时需要手动指定ngx_lua模块和LuaJIT2.1
-
-&lt;ul&gt;
-&lt;li&gt;新版本ngx_lua能弥补openrestysystemtap在probe某些函数时的错误
-
-&lt;ul&gt;
-&lt;li&gt;关键脚本ngx-lua-exec-time.sxx中第58行@pfunc(ngx_http_lua_free_fake_request)函数找不到&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;使用LuaJIT2.1能解决lua执行时的stap问题。&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#关键脚本stapxx/samples/ngx-lua-exec-time.sxx中第58行@pfunc(ngx_http_lua_free_fake_request)函数找不到的问题：
-2&amp;gt; sudo ./samples/ngx-lua-exec-time.sxx -x 11070
-semantic error: while resolving probe point: identifier &#39;process&#39; at &amp;lt;input&amp;gt;:58:7
-        source:       process(&amp;quot;/usr/local/nginx/sbin/nginx&amp;quot;).function(&amp;quot;ngx_http_lua_free_fake_request&amp;quot;)
-                      ^
-
-semantic error: no match (similar functions: ngx_http_lua_get_request, ngx_http_create_request, ngx_http_free_request, ngx_http_lua_post_subrequest, ngx_http_scgi_create_request)
-Pass 2: analysis failed.  [man error::pass2]
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#tegine编译选项
-CFLAGS=&amp;quot;-g -O2&amp;quot; ./configure  --add-module=/path/ngx_openresty-1.7.10.1/bundle/ngx_lua-0.9.15/ --with-luajit-lib=/usr/local/lib/ --with-luajit-inc=/usr/local/include/luajit-2.1/ --with-ld-opt=-Wl,-rpath,/usr/local/lib
-
-make -j16
-
-#新版本ngx_lua在openresty的bundle的ngx_lua-0.9.15/里，也可以从https://github.com/openresty/lua-nginx-module获得
-
-#LuaJIT2.1的源代码也在bundle里，也可以从https://github.com/openresty/luajit2获得。
-
-LuaJIT2.1的编译选项是：
-make CCDEBUG=-g -B -j8
-make -j16
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;二-axel下载工具和debuginfo-centos-org:dab12220e12920eb4ab0fdd954035a76&#34;&gt;二、axel下载工具和debuginfo.centos.org&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;我们在安装kernel的debuginfo包的时候，由于只有debuginfo.centos.org上面有rpm包，所以yum源设置为它，但是在国内访问实在是慢，因此推荐使用axel或者mwget下载。mwget顾名思义是多线程的wget工具，下载rpm包非常快，值得推荐。&lt;/li&gt;
-&lt;li&gt;当我们为了系统中的systemtap安装时，需要安装kernel-debuginfo，这时需要注意严格按照自己的kernel版本来，centos系的需要注意是否2.6.32-431.11.2.el6.toa.2.x86_64后面有toa之类的&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#debian系的可以使用dpkg -l linux-image*命令，查看具体内核版本；
-
-huang@ThinkPad-X220:~$ dpkg -l linux-image*
-Desired=Unknown/Install/Remove/Purge/Hold
-| Status=Not/Inst/Conf-files/Unpacked/halF-conf/Half-inst/trig-aWait/Trig-pend
-|/ Err?=(none)/Reinst-required (Status,Err: uppercase=bad)
-||/ Name                   Version          Architecture     Description
-+++-======================-================-================-==================================================
-un  linux-image            &amp;lt;none&amp;gt;           &amp;lt;none&amp;gt;           (no description available)
-un  linux-image-3.0        &amp;lt;none&amp;gt;           &amp;lt;none&amp;gt;           (no description available)
-ii  linux-image-3.13.0-24- 3.13.0-24.47     amd64            Linux kernel image for version 3.13.0 on 64 bit x8
-ii  linux-image-3.13.0-24- 3.13.0-24.47     amd64            Linux kernel debug image for version 3.13.0 on 64 
-ii  linux-image-extra-3.13 3.13.0-24.46     amd64            Linux kernel extra modules for version 3.13.0 on 6
-ii  linux-image-generic    3.13.0.24.28     amd64            Generic Linux kernel image
-
-#特别要注意的是3.13.0-24.46、 47、 48，小版本很重要的。
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;三-centos6-4的gcc版本过低导致的问题:dab12220e12920eb4ab0fdd954035a76&#34;&gt;三、centos6.4的gcc版本过低导致的问题&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;在使用stapxx的工具追踪nginx运行情况时，发现有如下情况，比如：&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;2&amp;gt; sudo ./samples/ngx-rewrite-latency-distr.sxx -x 11070
-semantic error: not accessible at this address [man error::dwarf] (0x44a53b, dieoffset: 0x13a891): identifier &#39;$r&#39; at &amp;lt;input&amp;gt;:67:9
-        source:     r = $r
-                        ^
-
-Pass 2: analysis failed.  [man error::pass2]
-
-# 这个r是没有问题的，在nginx-systemtap-toolkit/ngx-active-reqs中有类似定义：
-my $c = &#39;@cast(c, &amp;quot;ngx_connection_t&amp;quot;)&#39;;
-my $r = &#39;@cast(r, &amp;quot;ngx_http_request_t&amp;quot;)&#39;;
-my $u = &#39;@cast(u, &amp;quot;ngx_http_upstream_t&amp;quot;)&#39;;
-my $p = &#39;@cast(p, &amp;quot;ngx_event_pipe_t&amp;quot;)&#39;;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;产生原因&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;tengine的DWARF信息不完整
-
-&lt;ul&gt;
-&lt;li&gt;低版本的gcc在O2时优化掉很多东西，而高版本gcc智能的多&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;解决方法有两种&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;一种方法是将gcc的编译优化选项降低为O0，以前是O2，则这个ngx_http_request_t的符号，即nginx的DWARF信息可以保留下来。&lt;/li&gt;
-&lt;li&gt;另一种方法是升级gcc，考虑到在线上服务器升级gcc不太好，这里介绍一种&lt;a href=&#34;http://ask.xmodulo.com/upgrade-gcc-centos.html&#34;&gt;暂时升级gcc的办法&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ sudo wget http://people.centos.org/tru/devtools-1.1/devtools-1.1.repo -P /etc/yum.repos.d
-$ sudo sh -c &#39;echo &amp;quot;enabled=1&amp;quot; &amp;gt;&amp;gt; /etc/yum.repos.d/devtools-1.1.repo&#39;
-$ sudo yum install devtoolset-1.1
-$ scl enable devtoolset-1.1 bash
-$ gcc --version
-# 通过devtoolset工具可以暂时提高gcc版本，而不更改之前服务器的配置，这个很有效果，高版本的gcc会智能保留symbol。
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;四-apache的压测工具ab升级高版本:dab12220e12920eb4ab0fdd954035a76&#34;&gt;四、apache的压测工具ab升级高版本&lt;/h2&gt;
-
-&lt;p&gt;在压测过程中，我们想微观的通过tcpdump抓包分析通信过程。&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;发现ab工具在发起keepalive请求时，在完成-n的请求数后额外的发出一个请求，随后又发出F包关闭连接，导致通信过程多出一次。&lt;/li&gt;
-&lt;li&gt;已有的httpd 2.3自带的ab工具有这个bug，升级httpd2.4后这个问题修复。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;五-tcpdump抓取fin包:dab12220e12920eb4ab0fdd954035a76&#34;&gt;五、tcpdump抓取fin包&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# tcp包里有个flags字段表示包的类型，tcpdump可以根据该字段抓取相应类型的包：
-# tcp[13] 就是 TCP flags (URG,ACK,PSH,RST,SYN,FIN)
-# Unskilled 32
-# Attackers 16
-# Pester     8
-# Real       4
-# Security   2
-# Folks      1
-
-#抓取fin包：
-tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 1 != 0 &#39; -s0  -w fin.cap -vvv
-#抓取syn+fin包：
-tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 3 != 0 &#39; -s0  -w syn_fin.cap -vvv
-#抓取rst包：
-tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.cap -vvv
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://babyhe.blog.51cto.com/1104064/1395489&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
-
-&lt;h2 id=&#34;六-redis内部监测工具-redis-faina:dab12220e12920eb4ab0fdd954035a76&#34;&gt;六、redis内部监测工具 redis-faina&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://github.com/facebookarchive/redis-faina&#34;&gt;redis-faina&lt;/a&gt;是facebook出品的，用于监控redis内部情况统计的一个工具。使用方法是：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;redis-cli  -p 6379 MONITOR | head -n 100000 | ./redis-faina/redis-faina.py
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;七、压测过程中发现lua获取用户特征时，如果用户特征不存在，比如headers中的UID参数，事实上它是处于ngx.req.get_headers()函数返回值(table类型)中，如果lua提取用户特征时，找不到UID，则会扩大范围去上一级里找，此时性能会大大下降&lt;/p&gt;
 </description>
     </item>
     
