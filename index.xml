@@ -2,18 +2,18 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>BG2BKK Site</title>
-    <link>https://bg2bkk.github.io/</link>
+    <link>http://bg2bkk.github.io/</link>
     <description>Recent content on BG2BKK Site</description>
     <generator>Hugo -- gohugo.io</generator>
     <lastBuildDate>Fri, 22 Apr 2016 11:25:56 +0800</lastBuildDate>
-    <atom:link href="https://bg2bkk.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://bg2bkk.github.io/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
       <title>resume</title>
-      <link>https://bg2bkk.github.io/post/resume/</link>
+      <link>http://bg2bkk.github.io/post/resume/</link>
       <pubDate>Fri, 22 Apr 2016 11:25:56 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/resume/</guid>
+      <guid>http://bg2bkk.github.io/post/resume/</guid>
       <description>
 
 &lt;h1 id=&#34;黄振栋简历:c59a67a3c7bc5faa453847420267045e&#34;&gt;黄振栋简历&lt;/h1&gt;
@@ -51,12 +51,12 @@
 &lt;h4 id=&#34;新浪微博-系统开发工程师-2015年1月-2016年3月:c59a67a3c7bc5faa453847420267045e&#34;&gt;新浪微博 系统开发工程师 （ 2015年1月 ~ 2016年3月 ）&lt;/h4&gt;
 
 &lt;ul&gt;
-&lt;li&gt;手机微博七层动态调度系统dygateway&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;该项目是手机微博mapi团队的7层动态调度系统，能够实现动态分流和动态调整，采用ngx_lua开发，主要锻炼了设计能力。&lt;/p&gt;
+&lt;li&gt;&lt;p&gt;手机微博七层动态调度系统dygateway&lt;/p&gt;
 
 &lt;ul&gt;
+&lt;li&gt;动态调度系统&lt;strong&gt;&lt;em&gt;dygateway&lt;/em&gt;&lt;/strong&gt; 用于在手机微博7层实现服务的动态扩容、用户请求的动态分流和资源的动态调整，基于nginx和ngx_lua开发，&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
 &lt;li&gt;&lt;p&gt;其他项目&lt;/p&gt;
 
 &lt;ul&gt;
@@ -113,10 +113,10 @@
     
     <item>
       <title>github 上那些令我感到惊艳又实用的项目</title>
-      <link>https://bg2bkk.github.io/post/github%20%E4%B8%8A%E9%82%A3%E4%BA%9B%E4%BB%A4%E6%88%91%E6%84%9F%E5%88%B0%E6%83%8A%E8%89%B3%E5%8F%88%E5%AE%9E%E7%94%A8%E7%9A%84%E9%A1%B9%E7%9B%AE/</link>
+      <link>http://bg2bkk.github.io/post/github%20%E4%B8%8A%E9%82%A3%E4%BA%9B%E4%BB%A4%E6%88%91%E6%84%9F%E5%88%B0%E6%83%8A%E8%89%B3%E5%8F%88%E5%AE%9E%E7%94%A8%E7%9A%84%E9%A1%B9%E7%9B%AE/</link>
       <pubDate>Tue, 12 Apr 2016 10:19:38 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/github%20%E4%B8%8A%E9%82%A3%E4%BA%9B%E4%BB%A4%E6%88%91%E6%84%9F%E5%88%B0%E6%83%8A%E8%89%B3%E5%8F%88%E5%AE%9E%E7%94%A8%E7%9A%84%E9%A1%B9%E7%9B%AE/</guid>
+      <guid>http://bg2bkk.github.io/post/github%20%E4%B8%8A%E9%82%A3%E4%BA%9B%E4%BB%A4%E6%88%91%E6%84%9F%E5%88%B0%E6%83%8A%E8%89%B3%E5%8F%88%E5%AE%9E%E7%94%A8%E7%9A%84%E9%A1%B9%E7%9B%AE/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;https://github.com/phodal&#34;&gt;https://github.com/phodal&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
@@ -125,10 +125,10 @@
     
     <item>
       <title>shadowsocks go through the Fuck GFW</title>
-      <link>https://bg2bkk.github.io/post/shadowsocks%20go%20through%20the%20F%2A%2Ak%20GFW/</link>
+      <link>http://bg2bkk.github.io/post/shadowsocks%20go%20through%20the%20F%2A%2Ak%20GFW/</link>
       <pubDate>Mon, 11 Apr 2016 00:33:17 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/shadowsocks%20go%20through%20the%20F%2A%2Ak%20GFW/</guid>
+      <guid>http://bg2bkk.github.io/post/shadowsocks%20go%20through%20the%20F%2A%2Ak%20GFW/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;&lt;p&gt;买VPS，vultr的设备，使用起来还是蛮简单的。信用卡一张，注册并扣费0.1美元会送50美元，两个月内用完。我开始部署了一个日本的最便宜的5美元一月的vps，使用起来还不错，youtube 480P没问题；但是我通过这送的50美元实验了以下几个配置的机器速度，洛杉矶机房20美元，洛杉矶机房5美元，日本机房5美元，日本机房10美元，发现ping vps-ip时美国机房都是170ms，日本机房是220ms，原因可能是即使日本离得近，去日本的路由也要绕道美国才到日本的，所以我们直接选择美国机房好了。位于西海岸的洛杉矶机房，让你打开youtube 1080P毫无压力，白天晚上都没问题。&lt;/p&gt;&lt;/li&gt;
 
@@ -188,10 +188,10 @@ sudo ./debian_shadowsocks_tennfy.sh
     
     <item>
       <title>nginx gdb utils的编译 安装和使用</title>
-      <link>https://bg2bkk.github.io/post/nginx-gdb-utils%E7%9A%84%E7%BC%96%E8%AF%91%20%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8/</link>
+      <link>http://bg2bkk.github.io/post/nginx-gdb-utils%E7%9A%84%E7%BC%96%E8%AF%91%20%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8/</link>
       <pubDate>Fri, 25 Mar 2016 20:16:51 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/nginx-gdb-utils%E7%9A%84%E7%BC%96%E8%AF%91%20%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8/</guid>
+      <guid>http://bg2bkk.github.io/post/nginx-gdb-utils%E7%9A%84%E7%BC%96%E8%AF%91%20%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;1、想用&lt;a href=&#34;https://github.com/openresty/nginx-gdb-utils&#34;&gt;nginx-gdb-utils&lt;/a&gt;来监控ngx_lua的内存使用情况&lt;/li&gt;
 &lt;li&gt;2、在CentOS 6.5上，gdb为7.2，python为2.6，没有一个符合的，想强上，没上了，只能在7上搞&lt;/li&gt;
@@ -257,10 +257,10 @@ set python print-stack full
     
     <item>
       <title>effective tips in daily work</title>
-      <link>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</link>
+      <link>http://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</link>
       <pubDate>Thu, 24 Mar 2016 16:36:33 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</guid>
+      <guid>http://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</guid>
       <description>
 
 &lt;h2 id=&#34;git修改默认分支名:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;git修改默认分支名&lt;/h2&gt;
@@ -942,10 +942,10 @@ tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.ca
     
     <item>
       <title>New evolvement of Epoll</title>
-      <link>https://bg2bkk.github.io/post/New%20Evolvement%20of%20Epoll/</link>
+      <link>http://bg2bkk.github.io/post/New%20Evolvement%20of%20Epoll/</link>
       <pubDate>Tue, 22 Mar 2016 01:48:41 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/New%20Evolvement%20of%20Epoll/</guid>
+      <guid>http://bg2bkk.github.io/post/New%20Evolvement%20of%20Epoll/</guid>
       <description>
 
 &lt;h2 id=&#34;epoll在linux-内核中的新发展:b489f0f2178b22438ad2d1ac9c25dd2c&#34;&gt;EPOLL在linux 内核中的新发展&lt;/h2&gt;
@@ -1052,10 +1052,10 @@ tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.ca
     
     <item>
       <title>openresty学习过程中的一些tips</title>
-      <link>https://bg2bkk.github.io/post/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/</link>
+      <link>http://bg2bkk.github.io/post/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/</link>
       <pubDate>Mon, 14 Mar 2016 16:36:14 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/</guid>
+      <guid>http://bg2bkk.github.io/post/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/</guid>
       <description>
 
 &lt;h2 id=&#34;ngx-lua获取post字段参数:d90c926ba9cb9e1e62be5d1b7a7aa7fb&#34;&gt;ngx_lua获取post字段参数&lt;/h2&gt;
@@ -1238,10 +1238,10 @@ print(table.maxn(t))
     
     <item>
       <title>HTTP2的实践过程</title>
-      <link>https://bg2bkk.github.io/post/HTTP2%E7%9A%84%E5%AE%9E%E8%B7%B5%E8%BF%87%E7%A8%8B/</link>
+      <link>http://bg2bkk.github.io/post/HTTP2%E7%9A%84%E5%AE%9E%E8%B7%B5%E8%BF%87%E7%A8%8B/</link>
       <pubDate>Sat, 12 Mar 2016 16:17:52 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/HTTP2%E7%9A%84%E5%AE%9E%E8%B7%B5%E8%BF%87%E7%A8%8B/</guid>
+      <guid>http://bg2bkk.github.io/post/HTTP2%E7%9A%84%E5%AE%9E%E8%B7%B5%E8%BF%87%E7%A8%8B/</guid>
       <description>
 
 &lt;h2 id=&#34;目录:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;目录&lt;/h2&gt;
@@ -1684,10 +1684,10 @@ nghttpd
     
     <item>
       <title>采用二级指针实现单链表操作 单链表翻转 删除单链表结点</title>
-      <link>https://bg2bkk.github.io/post/list%E9%93%BE%E8%A1%A8%E9%87%87%E7%94%A8%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E8%AE%BF%E9%97%AE%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9/</link>
+      <link>http://bg2bkk.github.io/post/list%E9%93%BE%E8%A1%A8%E9%87%87%E7%94%A8%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E8%AE%BF%E9%97%AE%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9/</link>
       <pubDate>Tue, 01 Mar 2016 11:00:34 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/list%E9%93%BE%E8%A1%A8%E9%87%87%E7%94%A8%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E8%AE%BF%E9%97%AE%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9/</guid>
+      <guid>http://bg2bkk.github.io/post/list%E9%93%BE%E8%A1%A8%E9%87%87%E7%94%A8%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E8%AE%BF%E9%97%AE%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;register_filesystem中的二级指针，刚开始没看懂。怒了，如果这个都没看懂，还搞什么C语言编程&lt;/li&gt;
 &lt;li&gt;leetcode中的反转链表，二级指针操作巨好用&lt;/li&gt;
@@ -1821,10 +1821,10 @@ int main()
     
     <item>
       <title>VFS虚拟文件系统</title>
-      <link>https://bg2bkk.github.io/post/VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</link>
+      <link>http://bg2bkk.github.io/post/VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</link>
       <pubDate>Mon, 29 Feb 2016 15:33:32 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</guid>
+      <guid>http://bg2bkk.github.io/post/VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</guid>
       <description>
 
 &lt;h2 id=&#34;虚拟文件系统:33c34adef684867bc26f32ab644d7c6f&#34;&gt;虚拟文件系统&lt;/h2&gt;
@@ -2050,10 +2050,10 @@ int main()
     
     <item>
       <title>pipe在内核中的实现</title>
-      <link>https://bg2bkk.github.io/post/pipe%E5%9C%A8%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/</link>
+      <link>http://bg2bkk.github.io/post/pipe%E5%9C%A8%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/</link>
       <pubDate>Sat, 27 Feb 2016 09:49:41 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/pipe%E5%9C%A8%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/</guid>
+      <guid>http://bg2bkk.github.io/post/pipe%E5%9C%A8%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/</guid>
       <description>
 
 &lt;h2 id=&#34;pipe在linux内核中的实现:eef8af46b03027cdd30025ef9f062910&#34;&gt;pipe在linux内核中的实现&lt;/h2&gt;
@@ -2493,10 +2493,10 @@ pipe_poll(struct file *filp, poll_table *wait)
     
     <item>
       <title>redis主从复制学习笔记</title>
-      <link>https://bg2bkk.github.io/post/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
+      <link>http://bg2bkk.github.io/post/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
       <pubDate>Fri, 26 Feb 2016 16:15:31 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
+      <guid>http://bg2bkk.github.io/post/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;redis&lt;a href=&#34;http://qifuguang.me/2015/10/18/Redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/&#34;&gt;主从复制&lt;/a&gt;
 
@@ -2538,10 +2538,10 @@ pipe_poll(struct file *filp, poll_table *wait)
     
     <item>
       <title>redis持久化学习笔记</title>
-      <link>https://bg2bkk.github.io/post/redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
+      <link>http://bg2bkk.github.io/post/redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
       <pubDate>Fri, 26 Feb 2016 14:56:41 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
+      <guid>http://bg2bkk.github.io/post/redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;&lt;p&gt;虽然网络上关于redis持久化的相关内容数不胜数，但是一来作为我的学习笔记，好记性不如烂笔头；二来除去官方redis之外，很多有意义的修改或补充都非常值得讨论，所以我想做一下记录。&lt;/p&gt;&lt;/li&gt;
 
@@ -2662,10 +2662,10 @@ pipe_poll(struct file *filp, poll_table *wait)
     
     <item>
       <title>tcp ip协议栈在linux内核启动中的顺序</title>
-      <link>https://bg2bkk.github.io/post/tcp%20ip%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%9C%A8linux%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8%E4%B8%AD%E7%9A%84%E9%A1%BA%E5%BA%8F/</link>
+      <link>http://bg2bkk.github.io/post/tcp%20ip%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%9C%A8linux%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8%E4%B8%AD%E7%9A%84%E9%A1%BA%E5%BA%8F/</link>
       <pubDate>Wed, 24 Feb 2016 23:13:13 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/tcp%20ip%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%9C%A8linux%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8%E4%B8%AD%E7%9A%84%E9%A1%BA%E5%BA%8F/</guid>
+      <guid>http://bg2bkk.github.io/post/tcp%20ip%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%9C%A8linux%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8%E4%B8%AD%E7%9A%84%E9%A1%BA%E5%BA%8F/</guid>
       <description>
 
 &lt;p&gt;在我尝试从kernel中深入了解TCP IP协议栈时，遇到了难题。&lt;/p&gt;
@@ -3226,10 +3226,10 @@ Idx Name          Size      VMA       LMA       File off  Algn
     
     <item>
       <title>openresty压测过程和systemtap工具使用中的一些问题</title>
-      <link>https://bg2bkk.github.io/post/openresty%E5%8E%8B%E6%B5%8B%E8%BF%87%E7%A8%8B%E5%92%8Csystemtap%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/</link>
+      <link>http://bg2bkk.github.io/post/openresty%E5%8E%8B%E6%B5%8B%E8%BF%87%E7%A8%8B%E5%92%8Csystemtap%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/</link>
       <pubDate>Mon, 22 Feb 2016 11:15:36 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/openresty%E5%8E%8B%E6%B5%8B%E8%BF%87%E7%A8%8B%E5%92%8Csystemtap%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/</guid>
+      <guid>http://bg2bkk.github.io/post/openresty%E5%8E%8B%E6%B5%8B%E8%BF%87%E7%A8%8B%E5%92%8Csystemtap%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/</guid>
       <description>
 
 &lt;h2 id=&#34;一-tegine编译-高版本的httpluamodule:dab12220e12920eb4ab0fdd954035a76&#34;&gt;一、tegine编译+高版本的httpluamodule&lt;/h2&gt;
