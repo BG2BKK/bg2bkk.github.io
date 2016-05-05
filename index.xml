@@ -59,13 +59,13 @@
 &lt;ul&gt;
 &lt;li&gt;系统资源的动态伸缩&lt;/li&gt;
 &lt;li&gt;用户请求的动态分流&lt;/li&gt;
-&lt;li&gt;产品服务的灰度发布。&lt;/li&gt;
+&lt;li&gt;产品服务的灰度发布&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;li&gt;基于nginx和ngx_lua开发
 
 &lt;ul&gt;
-&lt;li&gt;开发灰度发布子系统&lt;strong&gt;&lt;em&gt;&lt;a href=&#34;https://github.com/CNSRE/ABTestingGateway&#34;&gt;ABTestingGateway&lt;/a&gt;&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
-&lt;li&gt;参与开发ngx-lua-dynamic-upstream-module&lt;/li&gt;
+&lt;li&gt;开发灰度发布子系统 &lt;a href=&#34;https://github.com/CNSRE/ABTestingGateway&#34;&gt;ABTestingGateway&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;参与开发 &lt;strong&gt;ngx-lua-upstream-module&lt;/strong&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;li&gt;目前应用于手机微博、微博头条等产品线&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
