@@ -22,7 +22,7 @@
 
 &lt;ul&gt;
 &lt;li&gt;手机：15010359288&lt;/li&gt;
-&lt;li&gt;Email：bg2bkk@gmail.com&lt;/li&gt;
+&lt;li&gt;Email：bg2bkk # gmail.com&lt;/li&gt;
 &lt;li&gt;微博：&lt;a href=&#34;http://weibo.com/BG2BKK&#34;&gt;@bg2bkk&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
@@ -60,11 +60,28 @@
 &lt;li&gt;&lt;p&gt;其他项目&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;HTTP DNS服务端的开发
+&lt;li&gt;&lt;p&gt;HTTP DNS服务端的开发&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;一期：nginx + edns server松耦合实现
 
 &lt;ul&gt;
 &lt;li&gt;参与开发nginx的http dns模块&lt;/li&gt;
 &lt;li&gt;对项目进行压测和评估，协助灰度上线。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;二期：golang + edns查询
+
+&lt;ul&gt;
+&lt;li&gt;开发golang 版本的edns查询模块&lt;/li&gt;
+&lt;li&gt;参与golang server的架构设计&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;手机微博MAPI团队的HTTP/2升级&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;HTTP/2 server的评估与压测&lt;/li&gt;
+&lt;li&gt;协助移动端团队评估HTTP/2性能&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
@@ -96,8 +113,8 @@
 &lt;li&gt;c/lua/golang/python/shell&lt;/li&gt;
 &lt;li&gt;nginx/ngx_lua&lt;/li&gt;
 &lt;li&gt;linux kernel/embedded system&lt;/li&gt;
+&lt;li&gt;IOT: ble/mqtt/elua&lt;/li&gt;
 &lt;li&gt;microprocessor: stm32 51 avr FPGA&lt;/li&gt;
-&lt;li&gt;PCB design&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;hr /&gt;
