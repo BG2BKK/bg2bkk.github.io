@@ -54,33 +54,56 @@
 &lt;li&gt;&lt;p&gt;手机微博七层动态调度系统dygateway&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;动态调度系统&lt;strong&gt;&lt;em&gt;dygateway&lt;/em&gt;&lt;/strong&gt; 用于在手机微博7层实现服务的动态扩容、用户请求的动态分流和资源的动态调整，基于nginx和ngx_lua开发，&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;动态调度系统&lt;strong&gt;&lt;em&gt;dygateway&lt;/em&gt;&lt;/strong&gt; 在手机微博7层实现
 
+&lt;ul&gt;
+&lt;li&gt;系统资源的动态伸缩&lt;/li&gt;
+&lt;li&gt;用户请求的动态分流&lt;/li&gt;
+&lt;li&gt;产品服务的灰度发布。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;基于nginx和ngx_lua开发
+
+&lt;ul&gt;
+&lt;li&gt;开发灰度发布子系统&lt;strong&gt;&lt;em&gt;&lt;a href=&#34;https://github.com/CNSRE/ABTestingGateway&#34;&gt;ABTestingGateway&lt;/a&gt;&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;参与开发ngx-lua-dynamic-upstream-module&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;目前应用于手机微博、微博头条等产品线&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;!--
+修改nginx内部的upstream模块，在高并发压力下性能不下降，实时动态分流
+灰度子系统在对用户请求做一定处理，比如添加uri参数、header头部等后，再转发至目标后端。可以动态设置分流策略，实时生效，无需重启
+--&gt;
+
+&lt;hr /&gt;
+
+&lt;ul&gt;
 &lt;li&gt;&lt;p&gt;其他项目&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;p&gt;HTTP DNS服务端的开发&lt;/p&gt;
+&lt;li&gt;&lt;p&gt;手机微博 HTTP DNS 服务端开发&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;一期：nginx + edns server松耦合实现
+&lt;li&gt;&lt;p&gt;一期：nginx + edns server松耦合实现&lt;/p&gt;
 
 &lt;ul&gt;
 &lt;li&gt;参与开发nginx的http dns模块&lt;/li&gt;
-&lt;li&gt;对项目进行压测和评估，协助灰度上线。&lt;/li&gt;
+&lt;li&gt;对项目进行压测和评估，目前已灰度上线&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;二期：golang + edns查询
+
+&lt;li&gt;&lt;p&gt;二期：golang + edns查询&lt;/p&gt;
 
 &lt;ul&gt;
+&lt;li&gt;参与golang server的架构设计及系统开发&lt;/li&gt;
 &lt;li&gt;开发golang 版本的edns查询模块&lt;/li&gt;
-&lt;li&gt;参与golang server的架构设计&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 
 &lt;li&gt;&lt;p&gt;手机微博MAPI团队的HTTP/2升级&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;HTTP/2 server的评估与压测&lt;/li&gt;
+&lt;li&gt;HTTP/2 server的&lt;a href=&#34;https://bg2bkk.github.io/post/HTTP2%E7%9A%84%E5%AE%9E%E8%B7%B5%E8%BF%87%E7%A8%8B/&#34;&gt;评估与压测&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;协助移动端团队评估HTTP/2性能&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
@@ -101,6 +124,7 @@
 &lt;li&gt;linux cpp tcp epoll 多线程及线程间通信&lt;/li&gt;
 &lt;li&gt;单进程epoll和非阻塞IO实现高并发&lt;/li&gt;
 &lt;li&gt;多线程分别实现配置上传下发模块、统计模块、上报模块和心跳模块&lt;/li&gt;
+&lt;li&gt;tornado实现管理界面和监控界面&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
