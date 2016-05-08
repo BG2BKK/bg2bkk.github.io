@@ -57,7 +57,7 @@
         },
         "datePublished": "2016-03-24",
         "description": "",
-        "wordCount":  1392 
+        "wordCount":  1847 
     }
     </script>
     
@@ -100,6 +100,107 @@
     </div>
     <h1 class="post-title">effective tips in daily work</h1>
     
+
+<h2 id="ubuntu关闭键盘和触摸板的方法:1350fa5c56171e9d9c8991f08929cd14">ubuntu关闭键盘和触摸板的方法</h2>
+
+<p>家里的猫就是喜欢趴在笔记本键盘上看你干活，我只能再买一个键盘，然后笔记本键盘留给猫大爷了。</p>
+
+<p>然而它还喜欢在键盘上跳舞，这样太影响输入了，只能想办法把笔记本键盘关掉。</p>
+
+<p>在ubuntu下，键盘鼠标触控板都属于xinput设备，可以通过以下命令查看：</p>
+
+<pre><code class="language-bash">
+$ xinput  --list
+⎡ Virtual core pointer                    	id=2	[master pointer  (3)]
+⎜   ↳ Virtual core XTEST pointer              	id=4	[slave  pointer  (2)]
+⎜   ↳ SynPS/2 Synaptics TouchPad              	id=16	[slave  pointer  (2)]
+⎜   ↳ Rapoo Rapoo Gaming Keyboard             	id=11	[slave  pointer  (2)]
+⎜   ↳ RAPOO Rapoo 2.4G Wireless Device        	id=12	[slave  pointer  (2)]
+⎜   ↳ Wacom ISDv4 E6 Pen stylus               	id=13	[slave  pointer  (2)]
+⎜   ↳ Wacom ISDv4 E6 Finger touch             	id=14	[slave  pointer  (2)]
+⎜   ↳ Wacom ISDv4 E6 Pen eraser               	id=18	[slave  pointer  (2)]
+⎜   ↳ TPPS/2 IBM TrackPoint                   	id=19	[slave  pointer  (2)]
+⎣ Virtual core keyboard                   	id=3	[master keyboard (2)]
+    ↳ Virtual core XTEST keyboard             	id=5	[slave  keyboard (3)]
+    ↳ Power Button                            	id=6	[slave  keyboard (3)]
+    ↳ Video Bus                               	id=7	[slave  keyboard (3)]
+    ↳ Sleep Button                            	id=8	[slave  keyboard (3)]
+    ↳ Integrated Camera                       	id=9	[slave  keyboard (3)]
+    ↳ Rapoo Rapoo Gaming Keyboard             	id=10	[slave  keyboard (3)]
+    ↳ AT Translated Set 2 keyboard            	id=15	[slave  keyboard (3)]
+    ↳ ThinkPad Extra Buttons                  	id=17	[slave  keyboard (3)]
+</code></pre>
+
+<p>可以看到笔记本键盘是</p>
+
+<pre><code class="language-bash">    ↳ AT Translated Set 2 keyboard            	id=15	[slave  keyboard (3)]
+</code></pre>
+
+<p>而触控板是</p>
+
+<pre><code class="language-bash">⎜   ↳ SynPS/2 Synaptics TouchPad              	id=16	[slave  pointer  (2)]
+</code></pre>
+
+<p>他们的id分别是 15和 16，所以采用以下命令关掉就可以</p>
+
+<pre><code class="language-bash">sudo sudo xinput set-prop 15 &quot;Device Enabled&quot; 0
+sudo sudo xinput set-prop 16 &quot;Device Enabled&quot; 0
+</code></pre>
+
+<h2 id="小于1024的保留端口都有哪些:1350fa5c56171e9d9c8991f08929cd14">小于1024的保留端口都有哪些</h2>
+
+<p>我们会遇到如下情况：</p>
+
+<pre><code class="language-bash">$ sudo tcpdump -i any port 1080
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on any, link-type LINUX_SLL (Linux cooked), capture size 262144 bytes
+15:08:42.421693 IP localhost.55092 &gt; localhost.socks: Flags [.], ack 1960200857, win 342, options [nop,nop,TS val 4687328 ecr 4676064], length 0
+</code></pre>
+
+<p>我想监听1080端口，tcpdump为什么不乖乖显示1080，而是出现个socks呢？（可以通过<strong><em>-n</em></strong>参数解决）为什么1080是socks，而不是别的呢？</p>
+
+<p>这是因为低于1024的保留端口大多有自己的名字，他们<a href="http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml">由IANA分配</a>，通常用于系统进程，而我们可以在<strong><em>/etc/services</em></strong>文件中找到：</p>
+
+<pre><code class="language-bash">#
+# From ``Assigned Numbers'':
+#
+#&gt; The Registered Ports are not controlled by the IANA and on most systems
+#&gt; can be used by ordinary user processes or programs executed by ordinary
+#&gt; users.
+#
+#&gt; Ports are used in the TCP [45,106] to name the ends of logical
+#&gt; connections which carry long term conversations.  For the purpose of
+#&gt; providing services to unknown callers, a service contact port is
+#&gt; defined.  This list specifies the port used by the server process as its
+#&gt; contact port.  While the IANA can not control uses of these ports it
+#&gt; does register or list uses of these ports as a convienence to the
+#&gt; community.
+#
+socks		1080/tcp			# socks proxy server
+socks		1080/udp
+proofd		1093/tcp
+proofd		1093/udp
+rootd		1094/tcp
+rootd		1094/udp
+openvpn		1194/tcp
+openvpn		1194/udp
+rmiregistry	1099/tcp			# Java RMI Registry
+rmiregistry	1099/udp
+kazaa		1214/tcp
+kazaa		1214/udp
+nessus		1241/tcp			# Nessus vulnerability
+nessus		1241/udp			#  assessment scanner
+lotusnote	1352/tcp	lotusnotes	# Lotus Note
+lotusnote	1352/udp	lotusnotes
+ms-sql-s	1433/tcp			# Microsoft SQL Server
+ms-sql-s	1433/udp
+ms-sql-m	1434/tcp			# Microsoft SQL Monitor
+ms-sql-m	1434/udp
+ingreslock	1524/tcp
+ingreslock	1524/udp
+prospero-np	1525/tcp			# Prospero non-privileged
+
+</code></pre>
 
 <h2 id="git修改默认分支名:1350fa5c56171e9d9c8991f08929cd14">git修改默认分支名</h2>
 
@@ -812,7 +913,7 @@ tcpdump -ni any port 9001 and 'tcp[13] &amp; 4 != 0 ' -s0  -w rst.cap -vvv
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/&amp;title=effective%20tips%20in%20daily%20work&amp;summary=git%e4%bf%ae%e6%94%b9%e9%bb%98%e8%ae%a4%e5%88%86%e6%94%af%e5%90%8d%20%e5%9c%a8develop%e5%88%86%e6%94%af%e6%94%b9%e5%8a%a8%e5%a4%aa%e5%a4%a7%e4%ba%86%ef%bc%8c%e5%af%bc%e8%87%b4merge%20%e5%88%b0master%e5%88%86%e6%94%af%e6%97%b6%e9%9d%9e%e5%b8%b8%e8%a2%ab%e5%8a%a8%ef%bc%8c%e8%bf%99%e4%b8%aa%e6%97%b6%e5%80%99%e6%88%91%e6%83%b3%ef%bc%8c%e5%b9%b2%e8%84%86%e5%b0%86develop%e5%88%86%e6%94%af%e4%bd%9c%e4%b8%ba%e5%88%86%e6%94%af%e5%a5%bd%e4%ba%86%e3%80%82%e8%bf%98%e5%a5%bd%e7%a2%b0%e5%88%b0stackoverflow%e7%9a%84%e4%b8%80%e4%b8%aa%e5%b8%96%e5%ad%90%20git%20branch%20-m%20master%20oldmaster%20git%20branch%20-m%20develop%20master%20git%20push%20-f%20origin%20master%20%e5%8f%a6%e4%b8%80%e4%b8%aa%e6%96%b9%e6%b3%95%e6%98%af%e4%bb%8egithub%e7%9a%84%e9%a1%b9%e7%9b%ae%e4%b8%bb%e9%a1%b5%e4%b8%8a%e6%9b%b4%e6%94%b9%20%e7%bc%96%e8%af%91openssl%201.0.2g%20.%2fconfig%20shared%20-fPIC%20zlib-dynamic%20%26amp%3b%26amp%3b%20make%20depend%20-j%20%26amp%3b%26amp%3b%20make%20-j%20%e7%bc%96%e8%af%91nginx%2ftengine%3a%20CPP%e6%a8%a1%e5%9d%97%20.%2fconfigure%20--add-module%3d..%2fcpp_module%20--with-ld-opt%3d%26quot%3b-lstdc%2b%2b%26quot%3b%20curl%20-i%20%e5%92%8c%20-I%e7%9a%84%e5%8c%ba%e5%88%ab%20man%20page%3a%20-i%2c%20--include%20%28HTTP%29%20Include%20the%20HTTP-header%20in%20the%20output.%20The%20HTTP-header%20includes%20things%20like%20server-name%2c%20date%20of%20the%20document%2c%20HTTP-version%20and%20more...%20-I%2c%20--head%20%28HTTP%2fFTP%2fFILE%29%20Fetch%20the%20HTTP-header%20only%21..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/&amp;title=effective%20tips%20in%20daily%20work&amp;summary=ubuntu%e5%85%b3%e9%97%ad%e9%94%ae%e7%9b%98%e5%92%8c%e8%a7%a6%e6%91%b8%e6%9d%bf%e7%9a%84%e6%96%b9%e6%b3%95%20%e5%ae%b6%e9%87%8c%e7%9a%84%e7%8c%ab%e5%b0%b1%e6%98%af%e5%96%9c%e6%ac%a2%e8%b6%b4%e5%9c%a8%e7%ac%94%e8%ae%b0%e6%9c%ac%e9%94%ae%e7%9b%98%e4%b8%8a%e7%9c%8b%e4%bd%a0%e5%b9%b2%e6%b4%bb%ef%bc%8c%e6%88%91%e5%8f%aa%e8%83%bd%e5%86%8d%e4%b9%b0%e4%b8%80%e4%b8%aa%e9%94%ae%e7%9b%98%ef%bc%8c%e7%84%b6%e5%90%8e%e7%ac%94%e8%ae%b0%e6%9c%ac%e9%94%ae%e7%9b%98%e7%95%99%e7%bb%99%e7%8c%ab%e5%a4%a7%e7%88%b7%e4%ba%86%e3%80%82%20%e7%84%b6%e8%80%8c%e5%ae%83%e8%bf%98%e5%96%9c%e6%ac%a2%e5%9c%a8%e9%94%ae%e7%9b%98%e4%b8%8a%e8%b7%b3%e8%88%9e%ef%bc%8c%e8%bf%99%e6%a0%b7%e5%a4%aa%e5%bd%b1%e5%93%8d%e8%be%93%e5%85%a5%e4%ba%86%ef%bc%8c%e5%8f%aa%e8%83%bd%e6%83%b3%e5%8a%9e%e6%b3%95%e6%8a%8a%e7%ac%94%e8%ae%b0%e6%9c%ac%e9%94%ae%e7%9b%98%e5%85%b3%e6%8e%89%e3%80%82%20%e5%9c%a8ubuntu%e4%b8%8b%ef%bc%8c%e9%94%ae%e7%9b%98%e9%bc%a0%e6%a0%87%e8%a7%a6%e6%8e%a7%e6%9d%bf%e9%83%bd%e5%b1%9e%e4%ba%8exinput%e8%ae%be%e5%a4%87%ef%bc%8c%e5%8f%af%e4%bb%a5%e9%80%9a%e8%bf%87%e4%bb%a5%e4%b8%8b%e5%91%bd%e4%bb%a4%e6%9f%a5%e7%9c%8b%ef%bc%9a%20%24%20xinput%20--list%20%e2%8e%a1%20Virtual%20core%20pointer%20id%3d2%20%5bmaster%20pointer%20%283%29%5d%20%e2%8e%9c%20%e2%86%b3%20Virtual%20core%20XTEST%20pointer%20id%3d4%20%5bslave%20pointer%20%282%29%5d%20%e2%8e%9c%20%e2%86%b3%20SynPS%2f2%20Synaptics%20TouchPad%20id%3d16%20%5bslave%20pointer%20%282%29%5d%20%e2%8e%9c%20%e2%86%b3%20Rapoo%20Rapoo%20Gaming%20Keyboard%20id%3d11%20%5bslave%20pointer%20%282%29%5d%20%e2%8e%9c%20%e2%86%b3%20RAPOO%20Rapoo%202.4G%20Wireless%20Device%20id%3d12%20%5bslave%20pointer%20%282%29%5d%20%e2%8e%9c%20%e2%86%b3%20Wacom%20ISDv4%20E6%20Pen%20stylus%20id%3d13%20%5bslave%20pointer%20%282%29%5d%20%e2%8e%9c%20%e2%86%b3%20Wacom%20ISDv4%20E6%20Finger%20touch%20id%3d14%20%5bslave%20pointer%20%282%29%5d%20%e2%8e%9c%20%e2%86%b3%20Wacom%20ISDv4%20E6%20Pen%20eraser%20id%3d18%20%5bslave%20pointer%20%282%29%5d%20%e2%8e%9c%20%e2%86%b3%20TPPS%2f2%20IBM%20TrackPoint%20id%3d19%20%5bslave%20pointer%20%282%29%5d%20%e2%8e%a3%20Virtual%20core%20keyboard%20id%3d3%20%5bmaster%20keyboard%20%282%29%5d%20%e2%86%b3%20Virtual%20core%20XTEST%20keyboard%20id%3d5%20%5bslave%20keyboard%20%283%29%5d%20%e2%86%b3%20Power%20Button%20id%3d6%20%5bslave%20keyboard%20%283%29%5d%20%e2%86%b3%20Video%20Bus%20id%3d7%20%5bslave%20keyboard%20%283%29%5d%20%e2%86%b3%20Sleep%20Button%20id%3d8%20%5bslave%20keyboard%20%283%29%5d%20%e2%86%b3%20Integrated%20Camera%20id%3d9%20%5bslave%20keyboard%20%283%29%5d%20%e2%86%b3%20Rapoo%20Rapoo%20Gaming%20Keyboard%20id%3d10%20%5bslave%20keyboard%20%283%29%5d%20%e2%86%b3%20AT%20Translated%20Set%202%20keyboard%20id%3d15%20%5bslave%20keyboard%20%283%29%5d%20%e2%86%b3%20ThinkPad%20Extra%20Buttons%20id%3d17%20%5bslave%20keyboard%20%283%29%5d%20%e5%8f%af%e4%bb%a5%e7%9c%8b%e5%88%b0%e7%ac%94%e8%ae%b0%e6%9c%ac%e9%94%ae%e7%9b%98%e6%98%af%20%e2%86%b3%20AT%20Translated%20Set%202%20keyboard%20id%3d15%20%5bslave%20keyboard%20%283%29%5d%20%e8%80%8c%e8%a7%a6%e6%8e%a7%e6%9d%bf%e6%98%af%20%e2%8e%9c%20%e2%86%b3%20SynPS%2f2%20Synaptics%20TouchPad%20id%3d16%20%5bslave%20pointer%20%282%29%5d%20%e4%bb%96%e4%bb%ac%e7%9a%84id%e5%88%86%e5%88%ab%e6%98%af%2015%e5%92%8c%2016%ef%bc%8c%e6%89%80%e4%bb%a5%e9%87%87%e7%94%a8%e4%bb%a5%e4%b8%8b%e5%91%bd%e4%bb%a4%e5%85%b3%e6%8e%89%e5%b0%b1%e5%8f%af%e4%bb%a5%20sudo%20sudo%20xinput%20set-prop%2015%20%26quot%3bDevice%20Enabled%26quot%3b%200%20sudo%20sudo%20xinput%20set-prop%2016%20%26quot%3bDevice%20Enabled%26quot%3b%200%20%e5%b0%8f%e4%ba%8e1024%e7%9a%84%e4%bf%9d%e7%95%99%e7%ab%af%e5%8f%a3%e9%83%bd%e6%9c%89%e5%93%aa%e4%ba%9b%20%e6%88%91%e4%bb%ac%e4%bc%9a%e9%81%87%e5%88%b0%e5%a6%82%e4%b8%8b%e6%83%85%e5%86%b5%ef%bc%9a%20%24%20sudo%20tcpdump%20-i%20any%20port%201080%20tcpdump%3a%20verbose%20output%20suppressed%2c%20use%20-v%20or%20-vv%20for%20full%20protocol%20decode%20listening%20on%20any%2c%20link-type%20LINUX_SLL%20%28Linux%20cooked%29%2c%20capture%20size%20262144%20bytes%2015%3a08%3a42.421693%20IP%20localhost.55092%20%26gt%3b%20localhost.socks%3a%20Flags%20%5b.%5d%2c%20ack%201960200857%2c%20win%20342%2c%20options%20%5bnop%2cnop%2cTS%20val%204687328%20ecr%204676064%5d%2c%20length%200%20%e6%88%91%e6%83%b3%e7%9b%91%e5%90%ac1080%e7%ab%af%e5%8f%a3%ef%bc%8ctcpdump%e4%b8%ba%e4%bb%80%e4%b9%88%e4%b8%8d%e4%b9%96%e4%b9%96%e6%98%be%e7%a4%ba1080%ef%bc%8c%e8%80%8c%e6%98%af%e5%87%ba%e7%8e%b0%e4%b8%aasocks%e5%91%a2%ef%bc%9f%ef%bc%88%e5%8f%af%e4%bb%a5%e9%80%9a%e8%bf%87-n%e5%8f%82%e6%95%b0%e8%a7%a3%e5%86%b3%ef%bc%89%e4%b8%ba%e4%bb%80%e4%b9%881080%e6%98%afsocks%ef%bc%8c%e8%80%8c%e4%b8%8d%e6%98%af%e5%88%ab%e7%9a%84%e5%91%a2%ef%bc%9f%20%e8%bf%99%e6%98%af%e5%9b%a0%e4%b8%ba%e4%bd%8e%e4%ba%8e1024%e7%9a%84%e4%bf%9d%e7%95%99%e7%ab%af%e5%8f%a3%e5%a4%a7%e5%a4%9a%e6%9c%89%e8%87%aa%e5%b7%b1%e7%9a%84%e5%90%8d%e5%ad%97%ef%bc%8c%e4%bb%96%e4%bb%ac%e7%94%b1IANA%e5%88%86%e9%85%8d%ef%bc%8c%e9%80%9a%e5%b8%b8%e7%94%a8%e4%ba%8e%e7%b3%bb%e7%bb%9f%e8%bf%9b%e7%a8%8b%ef%bc%8c%e8%80%8c%e6%88%91%e4%bb%ac%e5%8f%af%e4%bb%a5%e5%9c%a8%2fetc%2fservices%e6%96%87%e4%bb%b6%e4%b8%ad%e6%89%be%e5%88%b0%ef%bc%9a%20%23%20%23%20From%20%60%60Assigned%20Numbers%27%27%3a%20%23%20%23%26gt%3b%20The%20Registered%20Ports%20are%20not%20controlled%20by%20the%20IANA%20and%20on%20most%20systems%20%23%26gt%3b%20can%20be%20used%20by%20ordinary%20user%20processes%20or%20programs%20executed%20by%20ordinary%20%23%26gt%3b%20users...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
