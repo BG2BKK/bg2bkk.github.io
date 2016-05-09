@@ -5,8 +5,86 @@
     <link>https://bg2bkk.github.io/post/</link>
     <description>Recent content in Posts on BG2BKK Site</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Mon, 09 May 2016 15:53:34 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 09 May 2016 16:55:42 +0800</lastBuildDate>
     <atom:link href="https://bg2bkk.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>SO_REUSEADDR和SO_REUSEPORT</title>
+      <link>https://bg2bkk.github.io/post/SO_REUSEADDR%E5%92%8CSO_REUSEPORT/</link>
+      <pubDate>Mon, 09 May 2016 16:55:42 +0800</pubDate>
+      
+      <guid>https://bg2bkk.github.io/post/SO_REUSEADDR%E5%92%8CSO_REUSEPORT/</guid>
+      <description>
+
+&lt;h2 id=&#34;结论:035fb573c14692e64241442f4294aac6&#34;&gt;结论&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;1. SO_REUSEPORT用于多个socket监听同一个TCP链接
+2. SO_REUSEADDR可用于多个进程bind同一端口，但需要TCP连接的四元组不一样。
+3. SO_REUSEPORT比SO_REUSEADDR更加扩展，但是也带来了隐患，需要额外注意
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;引言:035fb573c14692e64241442f4294aac6&#34;&gt;引言&lt;/h2&gt;
+
+&lt;p&gt;nginx 1.9.1引入了 SO_REUSEPORT选项，在高版本（linux kernel 3.9以上）系统上可用。该选项允许多个socket监听同一个IP:PORT组合，&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;SO_REUSEPORT可以&lt;a href=&#34;http://freeprogrammersblog.vhex.net/post/linux-39-introdued-new-way-of-writing-socket-servers/2&#34;&gt;简化服务器编程&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;prefork模式：master预先分配进程池，每一个client连接用一个进程处理
+
+&lt;ul&gt;
+&lt;li&gt;省资源，不用每次都fork，然后再回收&lt;/li&gt;
+&lt;li&gt;可控制，预先分配的进程池大小是固定的&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;SO_REUSEPORT使得多进程时不用使master再做管理工作，比如管理子进程，设置信号等等，设置不需要一个master进程，只需要子进程监听同一个端口就行。操作系统做了大部分工作。
+
+&lt;ul&gt;
+&lt;li&gt;这里还有个好处是，C写的server模块，python写的server模块，它们可以共存监听同一个端口，灵活性更好&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;听听linux-kernle-维护者怎么说-https-lwn-net-articles-542629:035fb573c14692e64241442f4294aac6&#34;&gt;听听linux kernle&lt;a href=&#34;https://lwn.net/Articles/542629/&#34;&gt;维护者怎么说&lt;/a&gt;&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;允许多个进程绑定host上的同一端口&lt;/li&gt;
+&lt;li&gt;只需要第一个绑定端口的进程指定SO_REUSEPORT选项，后继者都可以绑定该端口，所以需要担心的是端口劫持，不希望恶意程序能accept该端口的连接。&lt;/li&gt;
+&lt;li&gt;方法是后继者要与第一次绑定端口的进程的USER ID一样，比如用root和普通用户启动程序绑定同一个端口，会报address already in use&lt;/li&gt;
+&lt;li&gt;SO_REUSEPORT的负载均衡性能更好
+&lt;!--        * 这里的负载均衡可能指的不是主动分配的，而是当多个线程监听同一端口时，如果某个线程在忙，那么新来的请求自然会被load较低的线程处理，间接的达到均衡效果 --&gt;&lt;/li&gt;
+&lt;li&gt;TCP和UDP都可以用
+
+&lt;ul&gt;
+&lt;li&gt;UDP场景中，在DNS server的应用比较有意义，可以负载均衡的处理dns请求&lt;/li&gt;
+&lt;li&gt;作者指出，SO_REUSEADDR虽然也能让UDP连接绑定同一端口，但是SO_REUSEPORT可以防止劫持，并能将请求均衡的分配给监听的线程&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;传统多线程的工作模式:035fb573c14692e64241442f4294aac6&#34;&gt;传统多线程的工作模式&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;1. 传统的多线程server都是有一个listener线程绑定端口并接受所有的请求，然后传递给其他线程，而这个listener往往会成为瓶颈&lt;/li&gt;
+&lt;li&gt;2. master绑定端口，每个slave轮流accept从该端口获取连接（nginx）
+
+&lt;ul&gt;
+&lt;li&gt;缺点是有可能导致每个slave不能平均的处理连接，unblanced；有的slave处理的过多，有的slave处理的过少，导致cpu资源不能充分利用&lt;/li&gt;
+&lt;li&gt;SO_REUSEPORT的实现可以使请求平均的分配给堵塞在accept上的各个进程&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;so-reuseport-和-so-reuseaddr-对比-待续:035fb573c14692e64241442f4294aac6&#34;&gt;SO_REUSEPORT 和 SO_REUSEADDR 对比（待续）&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;前者可以防止端口被恶意进程劫持&lt;/li&gt;
+&lt;li&gt;前者可以使请求平均分配给各个进程&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;参考链接:035fb573c14692e64241442f4294aac6&#34;&gt;参考链接&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://lwn.net/Articles/542629/&#34;&gt;lwn: the SO_REUSEPORT socket option&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/14388706/socket-options-so-reuseaddr-and-so-reuseport-how-do-they-differ-do-they-mean-t&#34;&gt;topic on so_reuseaddr and so_reuseport on stackoverflow&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>tcp_fast_open的概念 作用以及实现</title>
@@ -507,6 +585,9 @@ bit 5 (FIN) sender finished&lt;/td&gt;
 
 &lt;ul&gt;
 &lt;li&gt;facebook的RPC框架&lt;/li&gt;
+&lt;li&gt;所依赖的一些异步库，比如&lt;a href=&#34;https://github.com/facebook/folly&#34;&gt;folly&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;github主页看起来非常清爽，代码质量十分之高，而且不是那种为了kpi而造轮子的，每个项目都有用处，高层项目构建于基础项目&lt;/li&gt;
+&lt;li&gt;facebook主页可以多看看&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
@@ -3043,130 +3124,6 @@ pipe_poll(struct file *filp, poll_table *wait)
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>redis持久化学习笔记</title>
-      <link>https://bg2bkk.github.io/post/redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
-      <pubDate>Fri, 26 Feb 2016 14:56:41 +0800</pubDate>
-      
-      <guid>https://bg2bkk.github.io/post/redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;虽然网络上关于redis持久化的相关内容数不胜数，但是一来作为我的学习笔记，好记性不如烂笔头；二来除去官方redis之外，很多有意义的修改或补充都非常值得讨论，所以我想做一下记录。&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;持久化用于重启后的数据恢复，而持久化的引入导致了redis可能产生的性能抖动&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;redis持久化的&lt;a href=&#34;http://www.cnblogs.com/zhoujinyi/archive/2013/05/26/3098508.html&#34;&gt; 两种方法 &lt;/a&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;RDB方式&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;RDB方式是redis的默认持久化方式&lt;/li&gt;
-&lt;li&gt;快照RDB持久化过程:
-
-&lt;ul&gt;
-&lt;li&gt;redis调用fork，产生子进程&lt;/li&gt;
-&lt;li&gt;父进程继续接受用户请求；子进程负责将内存内容写入临时文件，写入完成后rename为dump文件，实现替换&lt;/li&gt;
-&lt;li&gt;在子进程写内存内容期间，父进程如果要修改内存数据，os将会通过写时复制为父进程创建副本，所以此时子进程写入的仍然是fork时刻的整个数据库内容&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;不足之处在于:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;如果redis出现问题崩溃了，此时的rdb文件可能不是最新的数据，从上次RDB文件生成到redis崩溃这段时间的数据全部丢掉。&lt;/li&gt;
-&lt;li&gt;产生快照时，redis最多将占用2倍于现有数据规模的内存，因此当内存占用过多时，RDB方式可能导致系统负载过高，甚至假死。（有个说法是，当redis的内存占用超过物理内存的3/5时，进行RDB主从复制就比较危险了）&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;主从复制过程&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;第一次同步
-
-&lt;ul&gt;
-&lt;li&gt;slave向master发送sync同步请求，master先dump出rdb文件，并将其全量传输给slave；master将产生rdb文件之后这段时间内的修改命令缓存起来，并发送给slave。首次同步完成。&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;第二次及以后的同步实现方式：
-
-&lt;ul&gt;
-&lt;li&gt;master将变量的快照（有修改的变量）直接实时发送给slave。&lt;/li&gt;
-&lt;li&gt;如果发生断开重连，则重复第一步第二步&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;reids-2.8版本之后，重连后进行第一步时，不用全量更新了。&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;AOF方式&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;AOF方式持久化过程&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Append Only File&lt;/li&gt;
-&lt;li&gt;Redis将每次收到的命令都追加到文件中，类似于mysql的binlog；当redis重启时重新执行文件中的所有命令来重建数据&lt;/li&gt;
-&lt;li&gt;如果将所有命令不加甄别的都写入文件中，持久化文件会越来越大，比如INCR test命令执行100次，效果与SET test 100一样。此时需要进行rewrite，合并命令。&lt;/li&gt;
-&lt;li&gt;Redis提供了bgrewriteaof命令，执行过程与产生RDB文件的机制类似，fork出的子进程将内存中的数据以命令的方式重写持久化文件。本质上讲，该命令是将数据库中所有数据内容以命令的方式重写进新的AOF文件&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;AOF方式之我的想法&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;AOF方式是redis在收到命名后将命令写入文件内，如果redis发送故障，重启时直接读取AOF文件重新执行命令即可恢复，可以克服RDB方式的缺点&lt;/li&gt;
-&lt;li&gt;bgrewriteaof指令是对AOF方式的一次优化，执行bgrewriteaof命令时是根据此时数据库内容来写入AOF文件，并替换旧的AOF文件。这个过程与RDB快照产生方式一样&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;RDB方式和AOF方式的对比&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;RDB方式恢复起来快，而AOF方式需要一条条命令执行&lt;/li&gt;
-&lt;li&gt;RDB文件不需要经过编码，是数据库内容的直接克隆，所以文件比较小；而AOF文件内是一条条命令，需要依次执行&lt;/li&gt;
-&lt;li&gt;RDB文件可能会丢失部分数据，而AOF则专门解决这个问题&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;选择哪种方式&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;官方推荐：
-
-&lt;ul&gt;
-&lt;li&gt;如果想要很高的数据保障，则同时使用两种方式&lt;/li&gt;
-&lt;li&gt;如果可以接受数据丢失，则仅使用RDB方式&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;通常的设计思路是
-
-&lt;ul&gt;
-&lt;li&gt;利用replication机制弥补持久化在性能和设计上的不足&lt;/li&gt;
-&lt;li&gt;master上不做RDB和AOF，保证读写性能&lt;/li&gt;
-&lt;li&gt;slave同时开启两种方式，保证数据安全性&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Redis数据恢复过程&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;AOF优先级高于RDB方式，如果同时配置了AOF和RDB，AOF生效&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;    void loadDataFromDisk(void) {
-        long long start = ustime();
-        if (server.aof_state == REDIS_AOF_ON) {
-            if (loadAppendOnlyFile(server.aof_filename) == REDIS_OK)
-                redisLog(REDIS_NOTICE,&amp;quot;DB loaded from append only file: %.3f seconds&amp;quot;,(float)(ustime()-start)/1000000);
-        } else {
-            if (rdbLoad(server.rdb_filename) == REDIS_OK) {
-                redisLog(REDIS_NOTICE,&amp;quot;DB loaded from disk: %.3f seconds&amp;quot;,
-                    (float)(ustime()-start)/1000000);
-            } else if (errno != ENOENT) {
-                redisLog(REDIS_WARNING,&amp;quot;Fatal error loading the DB: %s. Exiting.&amp;quot;,strerror(errno));
-                exit(1);
-            }
-        }
-    }
-&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     

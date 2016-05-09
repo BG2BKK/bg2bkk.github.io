@@ -13,7 +13,7 @@
 
     
         <meta property="og:type" content="article" />
-        <meta property="og:article:published_time" content="2016-03-12T01:10:56&#43;08:00" />
+        <meta property="og:article:published_time" content="2016-05-09T16:55:42&#43;08:00" />
         
 
         <meta name="twitter:card" content="summary" />
@@ -55,9 +55,9 @@
             "@type": "Person",
             "name": "http://profiles.google.com/?rel=author"
         },
-        "datePublished": "2016-03-12",
+        "datePublished": "2016-05-09",
         "description": "",
-        "wordCount":  42 
+        "wordCount":  59 
     }
     </script>
     
@@ -83,7 +83,7 @@
 	<a href="https://bg2bkk.github.io/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a> 
 </div>  
 
-            <h6><a href="http://bg2bkk.github.io">About</a></h6>
+            <h6><a href="https://bg2bkk.github.io/post/resume/">About</a></h6>
 
         </header>
 
@@ -91,8 +91,8 @@
 
 <article id="" class="post">
     <div class="post-stamp">
-        <time datetime="2016-03-12T01:10:56&#43;08:00">
-            12 Mar 2016
+        <time datetime="2016-05-09T16:55:42&#43;08:00">
+            9 May 2016
         </time>
         <span class="taglist">
         
@@ -104,8 +104,11 @@
 <h2 id="结论:035fb573c14692e64241442f4294aac6">结论</h2>
 
 <pre><code>1. SO_REUSEPORT用于多个socket监听同一个TCP链接
-2. SO_REUSEADDR与其区别是，前者是，后者是。
+2. SO_REUSEADDR可用于多个进程bind同一端口，但需要TCP连接的四元组不一样。
+3. SO_REUSEPORT比SO_REUSEADDR更加扩展，但是也带来了隐患，需要额外注意
 </code></pre>
+
+<h2 id="引言:035fb573c14692e64241442f4294aac6">引言</h2>
 
 <p>nginx 1.9.1引入了 SO_REUSEPORT选项，在高版本（linux kernel 3.9以上）系统上可用。该选项允许多个socket监听同一个IP:PORT组合，</p>
 
@@ -126,14 +129,21 @@
 
 <h2 id="听听linux-kernle-维护者怎么说-https-lwn-net-articles-542629:035fb573c14692e64241442f4294aac6">听听linux kernle<a href="https://lwn.net/Articles/542629/">维护者怎么说</a></h2>
 
-<pre><code>* 允许多个进程绑定host上的同一端口
-* 只需要第一个绑定端口的进程指定SO_REUSEPORT选项，后继者都可以绑定该端口，所以需要担心的是端口劫持，不希望恶意程序能accept该端口的连接。
-* 方法是后继者要与第一次绑定端口的进程的USER ID一样，比如用root和普通用户启动程序绑定同一个端口，会报address already in use
-* TCP和UDP都可以用
-</code></pre>
+<ul>
+<li>允许多个进程绑定host上的同一端口</li>
+<li>只需要第一个绑定端口的进程指定SO_REUSEPORT选项，后继者都可以绑定该端口，所以需要担心的是端口劫持，不希望恶意程序能accept该端口的连接。</li>
+<li>方法是后继者要与第一次绑定端口的进程的USER ID一样，比如用root和普通用户启动程序绑定同一个端口，会报address already in use</li>
+<li>SO_REUSEPORT的负载均衡性能更好
+<!--        * 这里的负载均衡可能指的不是主动分配的，而是当多个线程监听同一端口时，如果某个线程在忙，那么新来的请求自然会被load较低的线程处理，间接的达到均衡效果 --></li>
+<li>TCP和UDP都可以用
 
 <ul>
-<li><p>传统多线程的工作模式</p>
+<li>UDP场景中，在DNS server的应用比较有意义，可以负载均衡的处理dns请求</li>
+<li>作者指出，SO_REUSEADDR虽然也能让UDP连接绑定同一端口，但是SO_REUSEPORT可以防止劫持，并能将请求均衡的分配给监听的线程</li>
+</ul></li>
+</ul>
+
+<h2 id="传统多线程的工作模式:035fb573c14692e64241442f4294aac6">传统多线程的工作模式</h2>
 
 <ul>
 <li>1. 传统的多线程server都是有一个listener线程绑定端口并接受所有的请求，然后传递给其他线程，而这个listener往往会成为瓶颈</li>
@@ -143,14 +153,20 @@
 <li>缺点是有可能导致每个slave不能平均的处理连接，unblanced；有的slave处理的过多，有的slave处理的过少，导致cpu资源不能充分利用</li>
 <li>SO_REUSEPORT的实现可以使请求平均的分配给堵塞在accept上的各个进程</li>
 </ul></li>
-</ul></li>
+</ul>
 
-<li><p>SO_REUSEPORT 和 SO_REUSEADDR</p>
+<h2 id="so-reuseport-和-so-reuseaddr-对比-待续:035fb573c14692e64241442f4294aac6">SO_REUSEPORT 和 SO_REUSEADDR 对比（待续）</h2>
 
 <ul>
 <li>前者可以防止端口被恶意进程劫持</li>
 <li>前者可以使请求平均分配给各个进程</li>
-</ul></li>
+</ul>
+
+<h2 id="参考链接:035fb573c14692e64241442f4294aac6">参考链接</h2>
+
+<ul>
+<li><a href="https://lwn.net/Articles/542629/">lwn: the SO_REUSEPORT socket option</a></li>
+<li><a href="http://stackoverflow.com/questions/14388706/socket-options-so-reuseaddr-and-so-reuseport-how-do-they-differ-do-they-mean-t">topic on so_reuseaddr and so_reuseport on stackoverflow</a></li>
 </ul>
 
     <div id="social-bar">
@@ -186,7 +202,7 @@
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/SO_REUSEADDR%E5%92%8CSO_REUSEPORT/&amp;title=SO_REUSEADDR%e5%92%8cSO_REUSEPORT&amp;summary=%e7%bb%93%e8%ae%ba%201.%20SO_REUSEPORT%e7%94%a8%e4%ba%8e%e5%a4%9a%e4%b8%aasocket%e7%9b%91%e5%90%ac%e5%90%8c%e4%b8%80%e4%b8%aaTCP%e9%93%be%e6%8e%a5%202.%20SO_REUSEADDR%e4%b8%8e%e5%85%b6%e5%8c%ba%e5%88%ab%e6%98%af%ef%bc%8c%e5%89%8d%e8%80%85%e6%98%af%ef%bc%8c%e5%90%8e%e8%80%85%e6%98%af%e3%80%82%20nginx%201.9.1%e5%bc%95%e5%85%a5%e4%ba%86%20SO_REUSEPORT%e9%80%89%e9%a1%b9%ef%bc%8c%e5%9c%a8%e9%ab%98%e7%89%88%e6%9c%ac%ef%bc%88linux%20kernel%203.9%e4%bb%a5%e4%b8%8a%ef%bc%89%e7%b3%bb%e7%bb%9f%e4%b8%8a%e5%8f%af%e7%94%a8%e3%80%82%e8%af%a5%e9%80%89%e9%a1%b9%e5%85%81%e8%ae%b8%e5%a4%9a%e4%b8%aasocket%e7%9b%91%e5%90%ac%e5%90%8c%e4%b8%80%e4%b8%aaIP%3aPORT%e7%bb%84%e5%90%88%ef%bc%8c%20SO_REUSEPORT%e5%8f%af%e4%bb%a5%e7%ae%80%e5%8c%96%e6%9c%8d%e5%8a%a1%e5%99%a8%e7%bc%96%e7%a8%8b%20prefork%e6%a8%a1%e5%bc%8f%ef%bc%9amaster%e9%a2%84%e5%85%88%e5%88%86%e9%85%8d%e8%bf%9b%e7%a8%8b%e6%b1%a0%ef%bc%8c%e6%af%8f%e4%b8%80%e4%b8%aaclient%e8%bf%9e%e6%8e%a5%e7%94%a8%e4%b8%80%e4%b8%aa%e8%bf%9b%e7%a8%8b%e5%a4%84%e7%90%86%20%e7%9c%81%e8%b5%84%e6%ba%90%ef%bc%8c%e4%b8%8d%e7%94%a8%e6%af%8f%e6%ac%a1%e9%83%bdfork%ef%bc%8c%e7%84%b6%e5%90%8e%e5%86%8d%e5%9b%9e%e6%94%b6%20%e5%8f%af%e6%8e%a7%e5%88%b6%ef%bc%8c%e9%a2%84%e5%85%88%e5%88%86%e9%85%8d%e7%9a%84%e8%bf%9b%e7%a8%8b%e6%b1%a0%e5%a4%a7%e5%b0%8f%e6%98%af%e5%9b%ba%e5%ae%9a%e7%9a%84%20SO_REUSEPORT%e4%bd%bf%e5%be%97%e5%a4%9a%e8%bf%9b%e7%a8%8b%e6%97%b6%e4%b8%8d%e7%94%a8%e4%bd%bfmaster%e5%86%8d%e5%81%9a%e7%ae%a1%e7%90%86%e5%b7%a5%e4%bd%9c%ef%bc%8c%e6%af%94%e5%a6%82%e7%ae%a1%e7%90%86%e5%ad%90%e8%bf%9b%e7%a8%8b%ef%bc%8c%e8%ae%be%e7%bd%ae%e4%bf%a1%e5%8f%b7%e7%ad%89%e7%ad%89%ef%bc%8c%e8%ae%be%e7%bd%ae%e4%b8%8d%e9%9c%80%e8%a6%81%e4%b8%80%e4%b8%aamaster%e8%bf%9b%e7%a8%8b%ef%bc%8c%e5%8f%aa%e9%9c%80%e8%a6%81%e5%ad%90%e8%bf%9b%e7%a8%8b%e7%9b%91%e5%90%ac%e5%90%8c%e4%b8%80%e4%b8%aa%e7%ab%af%e5%8f%a3%e5%b0%b1%e8%a1%8c%e3%80%82%e6%93%8d%e4%bd%9c%e7%b3%bb%e7%bb%9f%e5%81%9a%e4%ba%86%e5%a4%a7%e9%83%a8%e5%88%86%e5%b7%a5%e4%bd%9c%e3%80%82%20%e8%bf%99%e9%87%8c%e8%bf%98%e6%9c%89%e4%b8%aa%e5%a5%bd%e5%a4%84%e6%98%af%ef%bc%8cC%e5%86%99%e7%9a%84server%e6%a8%a1%e5%9d%97%ef%bc%8cpython%e5%86%99%e7%9a%84server%e6%a8%a1%e5%9d%97%ef%bc%8c%e5%ae%83%e4%bb%ac%e5%8f%af%e4%bb%a5%e5%85%b1%e5%ad%98%e7%9b%91%e5%90%ac%e5%90%8c%e4%b8%80%e4%b8%aa%e7%ab%af%e5%8f%a3%ef%bc%8c%e7%81%b5%e6%b4%bb%e6%80%a7%e6%9b%b4%e5%a5%bd%20%e5%90%ac%e5%90%aclinux%20kernle%e7%bb%b4%e6%8a%a4%e8%80%85%e6%80%8e%e4%b9%88%e8%af%b4%20%2a%20%e5%85%81%e8%ae%b8%e5%a4%9a%e4%b8%aa%e8%bf%9b%e7%a8%8b%e7%bb%91%e5%ae%9ahost%e4%b8%8a%e7%9a%84%e5%90%8c%e4%b8%80%e7%ab%af%e5%8f%a3%20%2a%20%e5%8f%aa%e9%9c%80%e8%a6%81%e7%ac%ac%e4%b8%80%e4%b8%aa%e7%bb%91%e5%ae%9a%e7%ab%af%e5%8f%a3%e7%9a%84%e8%bf%9b%e7%a8%8b%e6%8c%87%e5%ae%9aSO_REUSEPORT%e9%80%89%e9%a1%b9%ef%bc%8c%e5%90%8e%e7%bb%a7%e8%80%85%e9%83%bd%e5%8f%af%e4%bb%a5%e7%bb%91%e5%ae%9a%e8%af%a5%e7%ab%af%e5%8f%a3%ef%bc%8c%e6%89%80%e4%bb%a5%e9%9c%80%e8%a6%81%e6%8b%85%e5%bf%83%e7%9a%84%e6%98%af%e7%ab%af%e5%8f%a3%e5%8a%ab%e6%8c%81%ef%bc%8c%e4%b8%8d%e5%b8%8c%e6%9c%9b%e6%81%b6%e6%84%8f%e7%a8%8b%e5%ba%8f%e8%83%bdaccept%e8%af%a5%e7%ab%af%e5%8f%a3%e7%9a%84%e8%bf%9e%e6%8e%a5%e3%80%82%20%2a%20%e6%96%b9%e6%b3%95%e6%98%af%e5%90%8e%e7%bb%a7%e8%80%85%e8%a6%81%e4%b8%8e%e7%ac%ac%e4%b8%80%e6%ac%a1%e7%bb%91%e5%ae%9a%e7%ab%af%e5%8f%a3%e7%9a%84%e8%bf%9b%e7%a8%8b%e7%9a%84USER%20ID%e4%b8%80%e6%a0%b7%ef%bc%8c%e6%af%94%e5%a6%82%e7%94%a8root%e5%92%8c%e6%99%ae%e9%80%9a%e7%94%a8%e6%88%b7%e5%90%af%e5%8a%a8%e7%a8%8b%e5%ba%8f%e7%bb%91%e5%ae%9a%e5%90%8c%e4%b8%80%e4%b8%aa%e7%ab%af%e5%8f%a3%ef%bc%8c%e4%bc%9a%e6%8a%a5address%20already%20in%20use%20%2a%20TCP%e5%92%8cUDP%e9%83%bd%e5%8f%af%e4%bb%a5%e7%94%a8%20%e4%bc%a0%e7%bb%9f%e5%a4%9a%e7%ba%bf%e7%a8%8b%e7%9a%84%e5%b7%a5%e4%bd%9c%e6%a8%a1%e5%bc%8f%201.%20%e4%bc%a0%e7%bb%9f%e7%9a%84%e5%a4%9a%e7%ba%bf%e7%a8%8bserver%e9%83%bd%e6%98%af%e6%9c%89%e4%b8%80%e4%b8%aalistener%e7%ba%bf%e7%a8%8b%e7%bb%91%e5%ae%9a%e7%ab%af%e5%8f%a3%e5%b9%b6%e6%8e%a5%e5%8f%97%e6%89%80%e6%9c%89%e7%9a%84%e8%af%b7%e6%b1%82%ef%bc%8c%e7%84%b6%e5%90%8e%e4%bc%a0%e9%80%92%e7%bb%99%e5%85%b6%e4%bb%96%e7%ba%bf%e7%a8%8b%ef%bc%8c%e8%80%8c%e8%bf%99%e4%b8%aalistener%e5%be%80%e5%be%80%e4%bc%9a%e6%88%90%e4%b8%ba%e7%93%b6%e9%a2%88%202.%20master%e7%bb%91%e5%ae%9a%e7%ab%af%e5%8f%a3%ef%bc%8c%e6%af%8f%e4%b8%aaslave%e8%bd%ae%e6%b5%81accept%e4%bb%8e%e8%af%a5%e7%ab%af%e5%8f%a3%e8%8e%b7%e5%8f%96%e8%bf%9e%e6%8e%a5%ef%bc%88nginx%ef%bc%89%20%e7%bc%ba%e7%82%b9%e6%98%af%e6%9c%89%e5%8f%af%e8%83%bd%e5%af%bc%e8%87%b4%e6%af%8f%e4%b8%aaslave%e4%b8%8d%e8%83%bd%e5%b9%b3%e5%9d%87%e7%9a%84%e5%a4%84%e7%90%86%e8%bf%9e%e6%8e%a5%ef%bc%8cunblanced%ef%bc%9b%e6%9c%89%e7%9a%84slave%e5%a4%84%e7%90%86%e7%9a%84%e8%bf%87%e5%a4%9a%ef%bc%8c%e6%9c%89%e7%9a%84slave%e5%a4%84%e7%90%86%e7%9a%84%e8%bf%87%e5%b0%91%ef%bc%8c%e5%af%bc%e8%87%b4cpu%e8%b5%84%e6%ba%90%e4%b8%8d%e8%83%bd%e5%85%85%e5%88%86%e5%88%a9%e7%94%a8%20SO_REUSEPORT%e7%9a%84%e5%ae%9e%e7%8e%b0%e5%8f%af%e4%bb%a5%e4%bd%bf%e8%af%b7%e6%b1%82%e5%b9%b3%e5%9d%87%e7%9a%84%e5%88%86%e9%85%8d%e7%bb%99%e5%a0%b5%e5%a1%9e%e5%9c%a8accept%e4%b8%8a%e7%9a%84%e5%90%84%e4%b8%aa%e8%bf%9b%e7%a8%8b%20SO_REUSEPORT%20%e5%92%8c%20SO_REUSEADDR%20%e5%89%8d%e8%80%85%e5%8f%af%e4%bb%a5%e9%98%b2%e6%ad%a2%e7%ab%af%e5%8f%a3%e8%a2%ab%e6%81%b6%e6%84%8f%e8%bf%9b%e7%a8%8b%e5%8a%ab%e6%8c%81%20%e5%89%8d%e8%80%85%e5%8f%af%e4%bb%a5%e4%bd%bf%e8%af%b7%e6%b1%82%e5%b9%b3%e5%9d%87%e5%88%86%e9%85%8d%e7%bb%99%e5%90%84%e4%b8%aa%e8%bf%9b%e7%a8%8b..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/SO_REUSEADDR%E5%92%8CSO_REUSEPORT/&amp;title=SO_REUSEADDR%e5%92%8cSO_REUSEPORT&amp;summary=%e7%bb%93%e8%ae%ba%201.%20SO_REUSEPORT%e7%94%a8%e4%ba%8e%e5%a4%9a%e4%b8%aasocket%e7%9b%91%e5%90%ac%e5%90%8c%e4%b8%80%e4%b8%aaTCP%e9%93%be%e6%8e%a5%202.%20SO_REUSEADDR%e5%8f%af%e7%94%a8%e4%ba%8e%e5%a4%9a%e4%b8%aa%e8%bf%9b%e7%a8%8bbind%e5%90%8c%e4%b8%80%e7%ab%af%e5%8f%a3%ef%bc%8c%e4%bd%86%e9%9c%80%e8%a6%81TCP%e8%bf%9e%e6%8e%a5%e7%9a%84%e5%9b%9b%e5%85%83%e7%bb%84%e4%b8%8d%e4%b8%80%e6%a0%b7%e3%80%82%203.%20SO_REUSEPORT%e6%af%94SO_REUSEADDR%e6%9b%b4%e5%8a%a0%e6%89%a9%e5%b1%95%ef%bc%8c%e4%bd%86%e6%98%af%e4%b9%9f%e5%b8%a6%e6%9d%a5%e4%ba%86%e9%9a%90%e6%82%a3%ef%bc%8c%e9%9c%80%e8%a6%81%e9%a2%9d%e5%a4%96%e6%b3%a8%e6%84%8f%20%e5%bc%95%e8%a8%80%20nginx%201.9.1%e5%bc%95%e5%85%a5%e4%ba%86%20SO_REUSEPORT%e9%80%89%e9%a1%b9%ef%bc%8c%e5%9c%a8%e9%ab%98%e7%89%88%e6%9c%ac%ef%bc%88linux%20kernel%203.9%e4%bb%a5%e4%b8%8a%ef%bc%89%e7%b3%bb%e7%bb%9f%e4%b8%8a%e5%8f%af%e7%94%a8%e3%80%82%e8%af%a5%e9%80%89%e9%a1%b9%e5%85%81%e8%ae%b8%e5%a4%9a%e4%b8%aasocket%e7%9b%91%e5%90%ac%e5%90%8c%e4%b8%80%e4%b8%aaIP%3aPORT%e7%bb%84%e5%90%88%ef%bc%8c%20SO_REUSEPORT%e5%8f%af%e4%bb%a5%e7%ae%80%e5%8c%96%e6%9c%8d%e5%8a%a1%e5%99%a8%e7%bc%96%e7%a8%8b%20prefork%e6%a8%a1%e5%bc%8f%ef%bc%9amaster%e9%a2%84%e5%85%88%e5%88%86%e9%85%8d%e8%bf%9b%e7%a8%8b%e6%b1%a0%ef%bc%8c%e6%af%8f%e4%b8%80%e4%b8%aaclient%e8%bf%9e%e6%8e%a5%e7%94%a8%e4%b8%80%e4%b8%aa%e8%bf%9b%e7%a8%8b%e5%a4%84%e7%90%86%20%e7%9c%81%e8%b5%84%e6%ba%90%ef%bc%8c%e4%b8%8d%e7%94%a8%e6%af%8f%e6%ac%a1%e9%83%bdfork%ef%bc%8c%e7%84%b6%e5%90%8e%e5%86%8d%e5%9b%9e%e6%94%b6%20%e5%8f%af%e6%8e%a7%e5%88%b6%ef%bc%8c%e9%a2%84%e5%85%88%e5%88%86%e9%85%8d%e7%9a%84%e8%bf%9b%e7%a8%8b%e6%b1%a0%e5%a4%a7%e5%b0%8f%e6%98%af%e5%9b%ba%e5%ae%9a%e7%9a%84%20SO_REUSEPORT%e4%bd%bf%e5%be%97%e5%a4%9a%e8%bf%9b%e7%a8%8b%e6%97%b6%e4%b8%8d%e7%94%a8%e4%bd%bfmaster%e5%86%8d%e5%81%9a%e7%ae%a1%e7%90%86%e5%b7%a5%e4%bd%9c%ef%bc%8c%e6%af%94%e5%a6%82%e7%ae%a1%e7%90%86%e5%ad%90%e8%bf%9b%e7%a8%8b%ef%bc%8c%e8%ae%be%e7%bd%ae%e4%bf%a1%e5%8f%b7%e7%ad%89%e7%ad%89%ef%bc%8c%e8%ae%be%e7%bd%ae%e4%b8%8d%e9%9c%80%e8%a6%81%e4%b8%80%e4%b8%aamaster%e8%bf%9b%e7%a8%8b%ef%bc%8c%e5%8f%aa%e9%9c%80%e8%a6%81%e5%ad%90%e8%bf%9b%e7%a8%8b%e7%9b%91%e5%90%ac%e5%90%8c%e4%b8%80%e4%b8%aa%e7%ab%af%e5%8f%a3%e5%b0%b1%e8%a1%8c%e3%80%82%e6%93%8d%e4%bd%9c%e7%b3%bb%e7%bb%9f%e5%81%9a%e4%ba%86%e5%a4%a7%e9%83%a8%e5%88%86%e5%b7%a5%e4%bd%9c%e3%80%82%20%e8%bf%99%e9%87%8c%e8%bf%98%e6%9c%89%e4%b8%aa%e5%a5%bd%e5%a4%84%e6%98%af%ef%bc%8cC%e5%86%99%e7%9a%84server%e6%a8%a1%e5%9d%97%ef%bc%8cpython%e5%86%99%e7%9a%84server%e6%a8%a1%e5%9d%97%ef%bc%8c%e5%ae%83%e4%bb%ac%e5%8f%af%e4%bb%a5%e5%85%b1%e5%ad%98%e7%9b%91%e5%90%ac%e5%90%8c%e4%b8%80%e4%b8%aa%e7%ab%af%e5%8f%a3%ef%bc%8c%e7%81%b5%e6%b4%bb%e6%80%a7%e6%9b%b4%e5%a5%bd%20%e5%90%ac%e5%90%aclinux%20kernle%e7%bb%b4%e6%8a%a4%e8%80%85%e6%80%8e%e4%b9%88%e8%af%b4%20%e5%85%81%e8%ae%b8%e5%a4%9a%e4%b8%aa%e8%bf%9b%e7%a8%8b%e7%bb%91%e5%ae%9ahost%e4%b8%8a%e7%9a%84%e5%90%8c%e4%b8%80%e7%ab%af%e5%8f%a3%20%e5%8f%aa%e9%9c%80%e8%a6%81%e7%ac%ac%e4%b8%80%e4%b8%aa%e7%bb%91%e5%ae%9a%e7%ab%af%e5%8f%a3%e7%9a%84%e8%bf%9b%e7%a8%8b%e6%8c%87%e5%ae%9aSO_REUSEPORT%e9%80%89%e9%a1%b9%ef%bc%8c%e5%90%8e%e7%bb%a7%e8%80%85%e9%83%bd%e5%8f%af%e4%bb%a5%e7%bb%91%e5%ae%9a%e8%af%a5%e7%ab%af%e5%8f%a3%ef%bc%8c%e6%89%80%e4%bb%a5%e9%9c%80%e8%a6%81%e6%8b%85%e5%bf%83%e7%9a%84%e6%98%af%e7%ab%af%e5%8f%a3%e5%8a%ab%e6%8c%81%ef%bc%8c%e4%b8%8d%e5%b8%8c%e6%9c%9b%e6%81%b6%e6%84%8f%e7%a8%8b%e5%ba%8f%e8%83%bdaccept%e8%af%a5%e7%ab%af%e5%8f%a3%e7%9a%84%e8%bf%9e%e6%8e%a5%e3%80%82%20%e6%96%b9%e6%b3%95%e6%98%af%e5%90%8e%e7%bb%a7%e8%80%85%e8%a6%81%e4%b8%8e%e7%ac%ac%e4%b8%80%e6%ac%a1%e7%bb%91%e5%ae%9a%e7%ab%af%e5%8f%a3%e7%9a%84%e8%bf%9b%e7%a8%8b%e7%9a%84USER%20ID%e4%b8%80%e6%a0%b7%ef%bc%8c%e6%af%94%e5%a6%82%e7%94%a8root%e5%92%8c%e6%99%ae%e9%80%9a%e7%94%a8%e6%88%b7%e5%90%af%e5%8a%a8%e7%a8%8b%e5%ba%8f%e7%bb%91%e5%ae%9a%e5%90%8c%e4%b8%80%e4%b8%aa%e7%ab%af%e5%8f%a3%ef%bc%8c%e4%bc%9a%e6%8a%a5address%20already%20in%20use%20SO_REUSEPORT%e7%9a%84%e8%b4%9f%e8%bd%bd%e5%9d%87%e8%a1%a1%e6%80%a7%e8%83%bd%e6%9b%b4%e5%a5%bd%20TCP%e5%92%8cUDP%e9%83%bd%e5%8f%af%e4%bb%a5%e7%94%a8%20UDP%e5%9c%ba%e6%99%af%e4%b8%ad%ef%bc%8c%e5%9c%a8DNS%20server%e7%9a%84%e5%ba%94%e7%94%a8%e6%af%94%e8%be%83%e6%9c%89%e6%84%8f%e4%b9%89%ef%bc%8c%e5%8f%af%e4%bb%a5%e8%b4%9f%e8%bd%bd%e5%9d%87%e8%a1%a1%e7%9a%84%e5%a4%84%e7%90%86dns%e8%af%b7%e6%b1%82%20%e4%bd%9c%e8%80%85%e6%8c%87%e5%87%ba%ef%bc%8cSO_REUSEADDR%e8%99%bd%e7%84%b6%e4%b9%9f%e8%83%bd%e8%ae%a9UDP%e8%bf%9e%e6%8e%a5%e7%bb%91%e5%ae%9a%e5%90%8c%e4%b8%80%e7%ab%af%e5%8f%a3%ef%bc%8c%e4%bd%86%e6%98%afSO_REUSEPORT%e5%8f%af%e4%bb%a5%e9%98%b2%e6%ad%a2%e5%8a%ab%e6%8c%81%ef%bc%8c%e5%b9%b6%e8%83%bd%e5%b0%86%e8%af%b7%e6%b1%82%e5%9d%87%e8%a1%a1%e7%9a%84%e5%88%86%e9%85%8d%e7%bb%99%e7%9b%91%e5%90%ac%e7%9a%84%e7%ba%bf%e7%a8%8b%20%e4%bc%a0%e7%bb%9f%e5%a4%9a%e7%ba%bf%e7%a8%8b%e7%9a%84%e5%b7%a5%e4%bd%9c%e6%a8%a1%e5%bc%8f%201.%20%e4%bc%a0%e7%bb%9f%e7%9a%84%e5%a4%9a%e7%ba%bf%e7%a8%8bserver%e9%83%bd%e6%98%af%e6%9c%89%e4%b8%80%e4%b8%aalistener%e7%ba%bf%e7%a8%8b%e7%bb%91%e5%ae%9a%e7%ab%af%e5%8f%a3%e5%b9%b6%e6%8e%a5%e5%8f%97%e6%89%80%e6%9c%89%e7%9a%84%e8%af%b7%e6%b1%82%ef%bc%8c%e7%84%b6%e5%90%8e%e4%bc%a0%e9%80%92%e7%bb%99%e5%85%b6%e4%bb%96%e7%ba%bf%e7%a8%8b%ef%bc%8c%e8%80%8c%e8%bf%99%e4%b8%aalistener%e5%be%80%e5%be%80%e4%bc%9a%e6%88%90%e4%b8%ba%e7%93%b6%e9%a2%88%202.%20master%e7%bb%91%e5%ae%9a%e7%ab%af%e5%8f%a3%ef%bc%8c%e6%af%8f%e4%b8%aaslave%e8%bd%ae%e6%b5%81accept%e4%bb%8e%e8%af%a5%e7%ab%af%e5%8f%a3%e8%8e%b7%e5%8f%96%e8%bf%9e%e6%8e%a5%ef%bc%88nginx%ef%bc%89%20%e7%bc%ba%e7%82%b9%e6%98%af%e6%9c%89%e5%8f%af%e8%83%bd%e5%af%bc%e8%87%b4%e6%af%8f%e4%b8%aaslave%e4%b8%8d%e8%83%bd%e5%b9%b3%e5%9d%87%e7%9a%84%e5%a4%84%e7%90%86%e8%bf%9e%e6%8e%a5%ef%bc%8cunblanced%ef%bc%9b%e6%9c%89%e7%9a%84slave%e5%a4%84%e7%90%86%e7%9a%84%e8%bf%87%e5%a4%9a%ef%bc%8c%e6%9c%89%e7%9a%84slave%e5%a4%84%e7%90%86%e7%9a%84%e8%bf%87%e5%b0%91%ef%bc%8c%e5%af%bc%e8%87%b4cpu%e8%b5%84%e6%ba%90%e4%b8%8d%e8%83%bd%e5%85%85%e5%88%86%e5%88%a9%e7%94%a8%20SO_REUSEPORT%e7%9a%84%e5%ae%9e%e7%8e%b0%e5%8f%af%e4%bb%a5%e4%bd%bf%e8%af%b7%e6%b1%82%e5%b9%b3%e5%9d%87%e7%9a%84%e5%88%86%e9%85%8d%e7%bb%99%e5%a0%b5%e5%a1%9e%e5%9c%a8accept%e4%b8%8a%e7%9a%84%e5%90%84%e4%b8%aa%e8%bf%9b%e7%a8%8b%20SO_REUSEPORT%20%e5%92%8c%20SO_REUSEADDR%20%e5%af%b9%e6%af%94%ef%bc%88%e5%be%85%e7%bb%ad%ef%bc%89%20%e5%89%8d%e8%80%85%e5%8f%af%e4%bb%a5%e9%98%b2%e6%ad%a2%e7%ab%af%e5%8f%a3%e8%a2%ab%e6%81%b6%e6%84%8f%e8%bf%9b%e7%a8%8b%e5%8a%ab%e6%8c%81%20%e5%89%8d%e8%80%85%e5%8f%af%e4%bb%a5%e4%bd%bf%e8%af%b7%e6%b1%82%e5%b9%b3%e5%9d%87%e5%88%86%e9%85%8d%e7%bb%99%e5%90%84%e4%b8%aa%e8%bf%9b%e7%a8%8b%20%e5%8f%82%e8%80%83%e9%93%be%e6%8e%a5%20lwn%3a%20the%20SO_REUSEPORT%20socket%20option%20topic%20on%20so_reuseaddr%20and%20so_reuseport%20on%20stackoverflow..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -266,11 +282,10 @@
 </div>
 
     <div itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <h5>A propos de l'auteur</h5>
+  <h5>about the author</h5>
   <section>
-    <p><a href="http://profiles.google.com/thibault.normand?rel=author" itemprop="name" rel="author">Thibault Normand</a> est un dévéloppeur et un bloggeur enthousiaste, curieux de toutes nouvelles technologies liées à la sécurité, l'architecture, et le
-      web. <a href="http://bg2bkk.github.io/" rel="me">Plus d'infos...</a>
-    </p>
+
+	<p>如果关于本文您有兴趣，我们可以进一步探讨、交流和学习。我的email是 bg2bkk # gmail.com. 欢迎交流</p>
   </section>
 </div>
 
