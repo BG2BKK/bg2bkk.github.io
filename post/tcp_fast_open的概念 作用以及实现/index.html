@@ -57,7 +57,7 @@
         },
         "datePublished": "2016-05-09",
         "description": "",
-        "wordCount":  24 
+        "wordCount":  1754 
     }
     </script>
     
@@ -117,6 +117,301 @@
 
 <p>TFO与2.6.34内核合并到主线，<a href="https://lwn.net/Articles/508865/">lwn通告地址</a></p>
 
+<p>TFO的使用目前还是有些复杂的，从<a href="https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt">linux的network文档来看</a>：</p>
+
+<p>TFO的配置说明：</p>
+
+<pre><code class="language-bash">tcp_fastopen - INTEGER
+	Enable TCP Fast Open feature (draft-ietf-tcpm-fastopen) to send data
+	in the opening SYN packet. To use this feature, the client application
+	must use sendmsg() or sendto() with MSG_FASTOPEN flag rather than
+	connect() to perform a TCP handshake automatically.
+
+	The values (bitmap) are
+	1: Enables sending data in the opening SYN on the client w/ MSG_FASTOPEN.
+	2: Enables TCP Fast Open on the server side, i.e., allowing data in
+	   a SYN packet to be accepted and passed to the application before
+	   3-way hand shake finishes.
+	4: Send data in the opening SYN regardless of cookie availability and
+	   without a cookie option.
+	0x100: Accept SYN data w/o validating the cookie.
+	0x200: Accept data-in-SYN w/o any cookie option present.
+	0x400/0x800: Enable Fast Open on all listeners regardless of the
+	   TCP_FASTOPEN socket option. The two different flags designate two
+	   different ways of setting max_qlen without the TCP_FASTOPEN socket
+	   option.
+
+	Default: 1
+
+	Note that the client &amp; server side Fast Open flags (1 and 2
+	respectively) must be also enabled before the rest of flags can take
+	effect.
+
+	See include/net/tcp.h and the code for more details.
+</code></pre>
+
+<p>为了启用 tcp fast open功能</p>
+
+<pre><code>- client需要使用sendmsg或者sento系统调用，加上MSG_FASTOPEN flag，来连接server端，代替connect系统调用。
+- 对server端不做要求。
+</code></pre>
+
+<p>linux系统（高版本内核）默认tcp_fastopen为1：</p>
+
+<pre><code class="language-bash">$ sysctl -a | grep fastopen
+
+net.ipv4.tcp_fastopen = 1
+</code></pre>
+
+<p>测试代码： server.c</p>
+
+<pre><code class="language-cpp">// reference: http://blog.csdn.net/hanhuili/article/details/8540227
+
+#include &lt;string.h&gt;         
+#include &lt;sys/types.h&gt; /* See NOTES */
+#include &lt;sys/socket.h&gt;
+#include &lt;netinet/in.h&gt;
+int main(){
+    int portno = 6666;
+    socklen_t clilen;
+    char buffer[256];
+    struct sockaddr_in serv_addr, cli_addr;
+    int cfd;
+    int sfd = socket(AF_INET, SOCK_STREAM, 0);   // Create socket
+    
+    bzero((char *) &amp;serv_addr, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    serv_addr.sin_addr.s_addr = INADDR_ANY;
+    serv_addr.sin_port = htons(portno);
+    bind(sfd, &amp;serv_addr,sizeof(serv_addr));      // Bind to well known address
+    
+    int qlen = 5;                 // Value to be chosen by application
+    int err = setsockopt(sfd, IPPROTO_TCP/*SOL_TCP*/, 23/*TCP_FASTOPEN*/, &amp;qlen, sizeof(qlen));
+    
+    listen(sfd,1);                // Mark socket to receive connections
+
+	while(1){
+		cfd = accept(sfd, NULL, 0);   // Accept connection on new socket
+
+		while(1){
+			int len = read(cfd,buffer,256);
+			if(len)
+				printf(&quot;tcp fast open: %s\n&quot;,buffer);
+			else
+				break;
+			// read and write data on connected socket cfd
+		}
+
+		memset(buffer, 0, 256);
+		close(cfd);
+	}
+
+}
+
+</code></pre>
+
+<p>测试代码：client.c</p>
+
+<pre><code class="language-cpp">
+#include &lt;sys/socket.h&gt;
+#include &lt;netinet/in.h&gt;
+#include &lt;netdb.h&gt; 
+#include &lt;errno.h&gt;
+int main(){
+    struct sockaddr_in serv_addr;
+    struct hostent *server;
+
+    char *data = &quot;Hello, tcp fast open&quot;;
+    int data_len = strlen(data);    
+    
+    int sfd = socket(AF_INET, SOCK_STREAM, 0);
+    server = gethostbyname(&quot;localhost&quot;);
+    
+    bzero((char *) &amp;serv_addr, sizeof(serv_addr));
+    serv_addr.sin_family = AF_INET;
+    bcopy((char *)server-&gt;h_addr, 
+         (char *)&amp;serv_addr.sin_addr.s_addr,
+         server-&gt;h_length);
+    serv_addr.sin_port = htons(6666);
+
+// /usr/src/linux-headers-4.4.0-22/include/linux/socket.h:#define MSG_FASTOPEN	0x20000000	/* Send data in TCP SYN */
+
+//  int len = sendto(sfd, data, data_len, 0x20000000/*MSG_FASTOPEN*/, 
+
+    int len = sendto(sfd, data, data_len, MSG_FASTOPEN/*MSG_FASTOPEN*/, 
+                (struct sockaddr *) &amp;serv_addr, sizeof(serv_addr));
+	if(errno != 0){
+		printf(&quot;error: %s\n&quot;, strerror(errno));
+	}
+    close(sfd);
+}
+
+</code></pre>
+
+<p>通信过程：tcpdump</p>
+
+<pre><code class="language-bash">
+$ sudo tcpdump -i any port 6666 -X
+
+# 第一次 ./client.o
+
+00:29:34.820187 IP localhost.51388 &gt; localhost.6666: Flags [S], seq 755101042, win 43690, options [mss 65495,sackOK,TS val 17053 ecr 0,nop,wscale 7,unknown-34,nop,nop], length 0
+	0x0000:  4500 0040 afef 4000 4006 8cc6 7f00 0001  E..@..@.@.......
+	0x0010:  7f00 0001 c8bc 1a0a 2d01 ed72 0000 0000  ........-..r....
+	0x0020:  b002 aaaa fe34 0000 0204 ffd7 0402 080a  .....4..........
+	0x0030:  0000 429d 0000 0000 0103 0307 2202 0101  ..B.........&quot;...
+00:29:34.820284 IP localhost.6666 &gt; localhost.51388: Flags [S.], seq 3725111481, ack 755101043, win 43690, options [mss 65495,sackOK,TS val 17053 ecr 17053,nop,wscale 7], length 0
+	0x0000:  4500 003c 0000 4000 4006 3cba 7f00 0001  E..&lt;..@.@.&lt;.....
+	0x0010:  7f00 0001 1a0a c8bc de08 b0b9 2d01 ed73  ............-..s
+	0x0020:  a012 aaaa fe30 0000 0204 ffd7 0402 080a  .....0..........
+	0x0030:  0000 429d 0000 429d 0103 0307            ..B...B.....
+00:29:34.820372 IP localhost.51388 &gt; localhost.6666: Flags [P.], seq 1:21, ack 1, win 342, options [nop,nop,TS val 17053 ecr 17053], length 20
+	0x0000:  4500 0048 aff0 4000 4006 8cbd 7f00 0001  E..H..@.@.......
+	0x0010:  7f00 0001 c8bc 1a0a 2d01 ed73 de08 b0ba  ........-..s....
+	0x0020:  8018 0156 fe3c 0000 0101 080a 0000 429d  ...V.&lt;........B.
+	0x0030:  0000 429d 4865 6c6c 6f2c 2074 6370 2066  ..B.Hello,.tcp.f
+	0x0040:  6173 7420 6f70 656e                      ast.open
+00:29:34.820433 IP localhost.6666 &gt; localhost.51388: Flags [.], ack 21, win 342, options [nop,nop,TS val 17053 ecr 17053], length 0
+	0x0000:  4500 0034 f227 4000 4006 4a9a 7f00 0001  E..4.'@.@.J.....
+	0x0010:  7f00 0001 1a0a c8bc de08 b0ba 2d01 ed87  ............-...
+	0x0020:  8010 0156 fe28 0000 0101 080a 0000 429d  ...V.(........B.
+	0x0030:  0000 429d                                ..B.
+00:29:34.859246 IP localhost.6666 &gt; localhost.51388: Flags [.], ack 22, win 342, options [nop,nop,TS val 17063 ecr 17053], length 0
+	0x0000:  4500 0034 f228 4000 4006 4a99 7f00 0001  E..4.(@.@.J.....
+	0x0010:  7f00 0001 1a0a c8bc de08 b0ba 2d01 ed88  ............-...
+	0x0020:  8010 0156 fe28 0000 0101 080a 0000 42a7  ...V.(........B.
+	0x0030:  0000 429d                                ..B.
+
+# 第二次 ./client.o
+
+00:29:39.271936 IP localhost.51398 &gt; localhost.6666: Flags [S], seq 2362540136, win 43690, options [mss 65495,sackOK,TS val 18166 ecr 0,nop,wscale 7,exp-tfo cookiereq], length 0
+	0x0000:  4500 0040 c69e 4000 4006 7617 7f00 0001  E..@..@.@.v.....
+	0x0010:  7f00 0001 c8c6 1a0a 8cd1 8068 0000 0000  ...........h....
+	0x0020:  b002 aaaa fe34 0000 0204 ffd7 0402 080a  .....4..........
+	0x0030:  0000 46f6 0000 0000 0103 0307 fe04 f989  ..F.............
+00:29:39.271986 IP localhost.6666 &gt; localhost.51398: Flags [S.], seq 3703577773, ack 2362540137, win 43690, options [mss 65495,sackOK,TS val 18166 ecr 18166,nop,wscale 7], length 0
+	0x0000:  4500 003c 0000 4000 4006 3cba 7f00 0001  E..&lt;..@.@.&lt;.....
+	0x0010:  7f00 0001 1a0a c8c6 dcc0 1cad 8cd1 8069  ...............i
+	0x0020:  a012 aaaa fe30 0000 0204 ffd7 0402 080a  .....0..........
+	0x0030:  0000 46f6 0000 46f6 0103 0307            ..F...F.....
+00:29:39.272038 IP localhost.51398 &gt; localhost.6666: Flags [P.], seq 1:21, ack 1, win 342, options [nop,nop,TS val 18166 ecr 18166], length 20
+	0x0000:  4500 0048 c69f 4000 4006 760e 7f00 0001  E..H..@.@.v.....
+	0x0010:  7f00 0001 c8c6 1a0a 8cd1 8069 dcc0 1cae  ...........i....
+	0x0020:  8018 0156 fe3c 0000 0101 080a 0000 46f6  ...V.&lt;........F.
+	0x0030:  0000 46f6 4865 6c6c 6f2c 2074 6370 2066  ..F.Hello,.tcp.f
+	0x0040:  6173 7420 6f70 656e                      ast.open
+00:29:39.272072 IP localhost.6666 &gt; localhost.51398: Flags [.], ack 21, win 342, options [nop,nop,TS val 18166 ecr 18166], length 0
+	0x0000:  4500 0034 5a58 4000 4006 e269 7f00 0001  E..4ZX@.@..i....
+	0x0010:  7f00 0001 1a0a c8c6 dcc0 1cae 8cd1 807d  ...............}
+	0x0020:  8010 0156 fe28 0000 0101 080a 0000 46f6  ...V.(........F.
+	0x0030:  0000 46f6                                ..F.
+00:29:39.311280 IP localhost.6666 &gt; localhost.51398: Flags [.], ack 22, win 342, options [nop,nop,TS val 18176 ecr 18166], length 0
+	0x0000:  4500 0034 5a59 4000 4006 e268 7f00 0001  E..4ZY@.@..h....
+	0x0010:  7f00 0001 1a0a c8c6 dcc0 1cae 8cd1 807e  ...............~
+	0x0020:  8010 0156 fe28 0000 0101 080a 0000 4700  ...V.(........G.
+	0x0030:  0000 46f6                                ..F.
+
+</code></pre>
+
+<p>奇怪的是，在代码中启用tcp_fastopen的结果和不启用，并没有区别。那这是什么原因呢？</p>
+
+<p>通过搜索，发现在介绍<a href="https://github.com/shadowsocks/shadowsocks/wiki/TCP-Fast-Open">tcp fast open优化shadowsocks</a>时，设置net.ipv4.tcp_fastopen为3，虽然奇怪，但是可以试试：</p>
+
+<pre><code class="language-bash">$ sysctl -a | grep fastopen
+
+net.ipv4.tcp_fastopen = 3
+</code></pre>
+
+<pre><code class="language-bash">
+# 第一次，server返回cookie unknown-34 0x38af51c10bf41ca4
+
+00:36:36.667932 IP localhost.52220 &gt; localhost.6666: Flags [S], seq 3662514892, win 43690, options [mss 65495,sackOK,TS val 122515 ecr 0,nop,wscale 7,unknown-34,nop,nop], length 0
+	0x0000:  4500 0040 545f 4000 4006 e856 7f00 0001  E..@T_@.@..V....
+	0x0010:  7f00 0001 cbfc 1a0a da4d 8acc 0000 0000  .........M......
+	0x0020:  b002 aaaa fe34 0000 0204 ffd7 0402 080a  .....4..........
+	0x0030:  0001 de93 0000 0000 0103 0307 2202 0101  ............&quot;...
+00:36:36.667990 IP localhost.6666 &gt; localhost.52220: Flags [S.], seq 3186866007, ack 3662514893, win 43690, options [mss 65495,sackOK,TS val 122515 ecr 122515,nop,wscale 7,unknown-34 0x38af51c10bf41ca4,nop,nop], length 0
+	0x0000:  4500 0048 0000 4000 4006 3cae 7f00 0001  E..H..@.@.&lt;.....
+	0x0010:  7f00 0001 1a0a cbfc bdf3 b757 da4d 8acd  ...........W.M..
+	0x0020:  d012 aaaa fe3c 0000 0204 ffd7 0402 080a  .....&lt;..........
+	0x0030:  0001 de93 0001 de93 0103 0307 220a 38af  ............&quot;.8.
+	0x0040:  51c1 0bf4 1ca4 0101                      Q.......
+00:36:36.668050 IP localhost.52220 &gt; localhost.6666: Flags [P.], seq 1:21, ack 1, win 342, options [nop,nop,TS val 122515 ecr 122515], length 20
+	0x0000:  4500 0048 5460 4000 4006 e84d 7f00 0001  E..HT`@.@..M....
+	0x0010:  7f00 0001 cbfc 1a0a da4d 8acd bdf3 b758  .........M.....X
+	0x0020:  8018 0156 fe3c 0000 0101 080a 0001 de93  ...V.&lt;..........
+	0x0030:  0001 de93 4865 6c6c 6f2c 2074 6370 2066  ....Hello,.tcp.f
+	0x0040:  6173 7420 6f70 656e                      ast.open
+00:36:36.668109 IP localhost.6666 &gt; localhost.52220: Flags [.], ack 21, win 342, options [nop,nop,TS val 122515 ecr 122515], length 0
+	0x0000:  4500 0034 69cb 4000 4006 d2f6 7f00 0001  E..4i.@.@.......
+	0x0010:  7f00 0001 1a0a cbfc bdf3 b758 da4d 8ae1  ...........X.M..
+	0x0020:  8010 0156 fe28 0000 0101 080a 0001 de93  ...V.(..........
+	0x0030:  0001 de93                                ....
+00:36:36.707264 IP localhost.6666 &gt; localhost.52220: Flags [.], ack 22, win 342, options [nop,nop,TS val 122525 ecr 122515], length 0
+	0x0000:  4500 0034 69cc 4000 4006 d2f5 7f00 0001  E..4i.@.@.......
+	0x0010:  7f00 0001 1a0a cbfc bdf3 b758 da4d 8ae2  ...........X.M..
+	0x0020:  8010 0156 fe28 0000 0101 080a 0001 de9d  ...V.(..........
+	0x0030:  0001 de93                                ....
+
+
+# 第二次，client发送请求时，将cookie写在syn包中，同时带上发送的数据；server端校验后(kernel和tcp/ip协议栈做校验)后返回成功，如此在3次握手中节省了一次rtt时间
+
+00:36:38.744954 IP localhost.52226 &gt; localhost.6666: Flags [S], seq 1820632025:1820632045, win 43690, options [mss 65495,sackOK,TS val 123034 ecr 0,nop,wscale 7,unknown-34 0x38af51c10bf41ca4,nop,nop], length 20
+	0x0000:  4500 005c 4343 4000 4006 f956 7f00 0001  E..\CC@.@..V....
+	0x0010:  7f00 0001 cc02 1a0a 6c84 a3d9 0000 0000  ........l.......
+	0x0020:  d002 aaaa fe50 0000 0204 ffd7 0402 080a  .....P..........
+	0x0030:  0001 e09a 0000 0000 0103 0307 220a 38af  ............&quot;.8.
+	0x0040:  51c1 0bf4 1ca4 0101 4865 6c6c 6f2c 2074  Q.......Hello,.t
+	0x0050:  6370 2066 6173 7420 6f70 656e            cp.fast.open
+00:36:38.745022 IP localhost.6666 &gt; localhost.52226: Flags [S.], seq 3848342665, ack 1820632046, win 43690, options [mss 65495,sackOK,TS val 123034 ecr 123034,nop,wscale 7], length 0
+	0x0000:  4500 003c 0000 4000 4006 3cba 7f00 0001  E..&lt;..@.@.&lt;.....
+	0x0010:  7f00 0001 1a0a cc02 e561 0c89 6c84 a3ee  .........a..l...
+	0x0020:  a012 aaaa fe30 0000 0204 ffd7 0402 080a  .....0..........
+	0x0030:  0001 e09a 0001 e09a 0103 0307            ............
+00:36:38.745072 IP localhost.52226 &gt; localhost.6666: Flags [.], ack 1, win 342, options [nop,nop,TS val 123034 ecr 123034], length 0
+	0x0000:  4500 0034 4344 4000 4006 f97d 7f00 0001  E..4CD@.@..}....
+	0x0010:  7f00 0001 cc02 1a0a 6c84 a3ee e561 0c8a  ........l....a..
+	0x0020:  8010 0156 fe28 0000 0101 080a 0001 e09a  ...V.(..........
+	0x0030:  0001 e09a                                ....
+00:36:38.745127 IP localhost.52226 &gt; localhost.6666: Flags [F.], seq 1, ack 1, win 342, options [nop,nop,TS val 123034 ecr 123034], length 0
+	0x0000:  4500 0034 4345 4000 4006 f97c 7f00 0001  E..4CE@.@..|....
+	0x0010:  7f00 0001 cc02 1a0a 6c84 a3ee e561 0c8a  ........l....a..
+	0x0020:  8011 0156 fe28 0000 0101 080a 0001 e09a  ...V.(..........
+	0x0030:  0001 e09a                                ....
+00:36:38.747232 IP localhost.6666 &gt; localhost.52226: Flags [.], ack 2, win 342, options [nop,nop,TS val 123035 ecr 123034], length 0
+	0x0000:  4500 0034 ec10 4000 4006 50b1 7f00 0001  E..4..@.@.P.....
+	0x0010:  7f00 0001 1a0a cc02 e561 0c8a 6c84 a3ef  .........a..l...
+	0x0020:  8010 0156 fe28 0000 0101 080a 0001 e09b  ...V.(..........
+	0x0030:  0001 e09a                                ....
+
+</code></pre>
+
+<ul>
+<li>上述通信过程中
+
+<ul>
+<li>第一次，server返回cookie unknown-34 0x38af51c10bf41ca4</li>
+<li>第二次，client发送请求时，将cookie写在syn包中，同时带上发送的数据；server端校验后(kernel和tcp/ip协议栈做校验)后返回成功，如此在3次握手中节省了一次rtt时间</li>
+</ul></li>
+<li>也就是说，在net.ipv4.tcp_fastopen设置为3时，tcp fastopen特性使能</li>
+</ul>
+
+<p>关于如何使能TFO，在前文中的TFO的配置说明中，我们可以看到，</p>
+
+<pre><code class="language-bash">	The values (bitmap) are
+	1: Enables sending data in the opening SYN on the client w/ MSG_FASTOPEN.
+		使能client端的TFO特性
+	2: Enables TCP Fast Open on the server side, i.e., allowing data in
+	   a SYN packet to be accepted and passed to the application before
+	   3-way hand shake finishes.
+		使能server端的TFO特性
+	4: Send data in the opening SYN regardless of cookie availability and
+	   without a cookie option.
+
+</code></pre>
+
+<p>并且这个标志是位操作，如果我在本机做实验，将本机作为sever端和client端的话，需要两个位都使能，所以应该将该值设置为3.</p>
+
 <h2 id="参考链接:dcfa70d5873a9471dad227ae4d6ecbe0">参考链接</h2>
 
 <ul>
@@ -161,7 +456,7 @@
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/tcp_fast_open%E7%9A%84%E6%A6%82%E5%BF%B5%20%E4%BD%9C%E7%94%A8%E4%BB%A5%E5%8F%8A%E5%AE%9E%E7%8E%B0/&amp;title=tcp_fast_open%e7%9a%84%e6%a6%82%e5%bf%b5%20%e4%bd%9c%e7%94%a8%e4%bb%a5%e5%8f%8a%e5%ae%9e%e7%8e%b0&amp;summary=%e5%bc%95%e8%a8%80%20%e4%b8%89%e6%ac%a1%e6%8f%a1%e6%89%8b%e7%9a%84%e8%bf%87%e7%a8%8b%e4%b8%ad%ef%bc%8c%e5%bd%93%e7%94%a8%e6%88%b7%e9%a6%96%e6%ac%a1%e8%ae%bf%e9%97%aeserver%e6%97%b6%ef%bc%8c%e5%8f%91%e9%80%81syn%e5%8c%85%ef%bc%8cserver%e6%a0%b9%e6%8d%ae%e7%94%a8%e6%88%b7IP%e7%94%9f%e6%88%90cookie%ef%bc%8c%e5%b9%b6%e4%b8%8esyn%2back%e4%b8%80%e5%90%8c%e5%8f%91%e5%9b%9eclient%ef%bc%9bclient%e5%86%8d%e6%ac%a1%e8%ae%bf%e9%97%aeserver%e6%97%b6%ef%bc%8c%e5%9c%a8syn%e5%8c%85%e6%90%ba%e5%b8%a6TCP%20cookie%ef%bc%9b%e5%a6%82%e6%9e%9cserver%e6%a0%a1%e9%aa%8c%e5%90%88%e6%b3%95%ef%bc%8c%e5%88%99%e5%9c%a8%e7%94%a8%e6%88%b7%e5%9b%9e%e5%a4%8dack%e5%89%8d%e5%b0%b1%e5%8f%af%e4%bb%a5%e7%9b%b4%e6%8e%a5%e5%8f%91%e9%80%81%e6%95%b0%e6%8d%ae%ef%bc%9b%e5%90%a6%e5%88%99%e6%8c%89%e7%85%a7%e6%ad%a3%e5%b8%b8%e4%b8%89%e6%ac%a1%e6%8f%a1%e6%89%8b%e8%bf%9b%e8%a1%8c%e3%80%82%20TFO%e6%8f%90%e9%ab%98%e6%80%a7%e8%83%bd%e7%9a%84%e5%85%b3%e9%94%ae%e6%98%af%e7%9c%81%e5%8e%bb%e4%ba%86%e7%83%ad%e8%af%b7%e6%b1%82%e7%9a%84%e4%b8%89%e6%ac%a1%e6%8f%a1%e6%89%8b%ef%bc%8c%e8%bf%99%e5%9c%a8%e5%85%85%e6%96%a5%e7%9d%80%e5%b0%8f%e5%af%b9%e8%b1%a1%e7%9a%84%e7%a7%bb%e5%8a%a8%e5%ba%94%e7%94%a8%e5%9c%ba%e6%99%af%e4%b8%ad%e8%83%bd%e5%a4%9f%e6%9e%81%e5%a4%a7%e6%8f%90%e5%8d%87%e6%80%a7%e8%83%bd%e3%80%82%20Google%e7%a0%94%e7%a9%b6%e5%8f%91%e7%8e%b0TCP%20%e4%ba%8c%e6%ac%a1%e6%8f%a1%e6%89%8b%e6%98%af%e9%a1%b5%e9%9d%a2%e5%bb%b6%e8%bf%9f%e6%97%b6%e9%97%b4%e7%9a%84%e9%87%8d%e8%a6%81%e9%83%a8%e5%88%86%ef%bc%8c%e6%89%80%e4%bb%a5%e6%8f%90%e5%87%baTFO%20TFO%e7%9a%84fast%20open%e6%a0%87%e5%bf%97%e4%bd%93%e7%8e%b0%e5%9c%a8TCP%e6%8a%a5%e6%96%87%e7%9a%84%e5%a4%b4%e9%83%a8%e7%9a%84OPTION%e5%ad%97%e6%ae%b5%20TCP%20Fast%20Open%e7%9a%84%e6%a0%87%e5%87%86%e6%96%87%e6%a1%a3%e6%98%afrfc7413%20TFO%e4%b8%8e2.6.34%e5%86%85%e6%a0%b8%e5%90%88%e5%b9%b6%e5%88%b0%e4%b8%bb%e7%ba%bf%ef%bc%8clwn%e9%80%9a%e5%91%8a%e5%9c%b0%e5%9d%80%20%e5%8f%82%e8%80%83%e9%93%be%e6%8e%a5%20TFO%26mdash%3bgoogle%20tcp%20fast%20open%20protocol%20wikipedia%20TFO%e7%ae%80%e4%bb%8b%20tfo%e7%9a%84golang%e5%ae%9e%e7%8e%b0%28github%29%20%e4%b8%8a%e4%b8%80%e8%a1%8c%e9%a1%b9%e7%9b%ae%e7%9a%84%e4%bd%9c%e8%80%85bradley%20falzon%20google%e5%85%b3%e4%ba%8etfo%e7%9a%84%e8%ae%ba%e6%96%87..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/tcp_fast_open%E7%9A%84%E6%A6%82%E5%BF%B5%20%E4%BD%9C%E7%94%A8%E4%BB%A5%E5%8F%8A%E5%AE%9E%E7%8E%B0/&amp;title=tcp_fast_open%e7%9a%84%e6%a6%82%e5%bf%b5%20%e4%bd%9c%e7%94%a8%e4%bb%a5%e5%8f%8a%e5%ae%9e%e7%8e%b0&amp;summary=%e5%bc%95%e8%a8%80%20%e4%b8%89%e6%ac%a1%e6%8f%a1%e6%89%8b%e7%9a%84%e8%bf%87%e7%a8%8b%e4%b8%ad%ef%bc%8c%e5%bd%93%e7%94%a8%e6%88%b7%e9%a6%96%e6%ac%a1%e8%ae%bf%e9%97%aeserver%e6%97%b6%ef%bc%8c%e5%8f%91%e9%80%81syn%e5%8c%85%ef%bc%8cserver%e6%a0%b9%e6%8d%ae%e7%94%a8%e6%88%b7IP%e7%94%9f%e6%88%90cookie%ef%bc%8c%e5%b9%b6%e4%b8%8esyn%2back%e4%b8%80%e5%90%8c%e5%8f%91%e5%9b%9eclient%ef%bc%9bclient%e5%86%8d%e6%ac%a1%e8%ae%bf%e9%97%aeserver%e6%97%b6%ef%bc%8c%e5%9c%a8syn%e5%8c%85%e6%90%ba%e5%b8%a6TCP%20cookie%ef%bc%9b%e5%a6%82%e6%9e%9cserver%e6%a0%a1%e9%aa%8c%e5%90%88%e6%b3%95%ef%bc%8c%e5%88%99%e5%9c%a8%e7%94%a8%e6%88%b7%e5%9b%9e%e5%a4%8dack%e5%89%8d%e5%b0%b1%e5%8f%af%e4%bb%a5%e7%9b%b4%e6%8e%a5%e5%8f%91%e9%80%81%e6%95%b0%e6%8d%ae%ef%bc%9b%e5%90%a6%e5%88%99%e6%8c%89%e7%85%a7%e6%ad%a3%e5%b8%b8%e4%b8%89%e6%ac%a1%e6%8f%a1%e6%89%8b%e8%bf%9b%e8%a1%8c%e3%80%82%20TFO%e6%8f%90%e9%ab%98%e6%80%a7%e8%83%bd%e7%9a%84%e5%85%b3%e9%94%ae%e6%98%af%e7%9c%81%e5%8e%bb%e4%ba%86%e7%83%ad%e8%af%b7%e6%b1%82%e7%9a%84%e4%b8%89%e6%ac%a1%e6%8f%a1%e6%89%8b%ef%bc%8c%e8%bf%99%e5%9c%a8%e5%85%85%e6%96%a5%e7%9d%80%e5%b0%8f%e5%af%b9%e8%b1%a1%e7%9a%84%e7%a7%bb%e5%8a%a8%e5%ba%94%e7%94%a8%e5%9c%ba%e6%99%af%e4%b8%ad%e8%83%bd%e5%a4%9f%e6%9e%81%e5%a4%a7%e6%8f%90%e5%8d%87%e6%80%a7%e8%83%bd%e3%80%82%20Google%e7%a0%94%e7%a9%b6%e5%8f%91%e7%8e%b0TCP%20%e4%ba%8c%e6%ac%a1%e6%8f%a1%e6%89%8b%e6%98%af%e9%a1%b5%e9%9d%a2%e5%bb%b6%e8%bf%9f%e6%97%b6%e9%97%b4%e7%9a%84%e9%87%8d%e8%a6%81%e9%83%a8%e5%88%86%ef%bc%8c%e6%89%80%e4%bb%a5%e6%8f%90%e5%87%baTFO%20TFO%e7%9a%84fast%20open%e6%a0%87%e5%bf%97%e4%bd%93%e7%8e%b0%e5%9c%a8TCP%e6%8a%a5%e6%96%87%e7%9a%84%e5%a4%b4%e9%83%a8%e7%9a%84OPTION%e5%ad%97%e6%ae%b5%20TCP%20Fast%20Open%e7%9a%84%e6%a0%87%e5%87%86%e6%96%87%e6%a1%a3%e6%98%afrfc7413%20TFO%e4%b8%8e2.6.34%e5%86%85%e6%a0%b8%e5%90%88%e5%b9%b6%e5%88%b0%e4%b8%bb%e7%ba%bf%ef%bc%8clwn%e9%80%9a%e5%91%8a%e5%9c%b0%e5%9d%80%20TFO%e7%9a%84%e4%bd%bf%e7%94%a8%e7%9b%ae%e5%89%8d%e8%bf%98%e6%98%af%e6%9c%89%e4%ba%9b%e5%a4%8d%e6%9d%82%e7%9a%84%ef%bc%8c%e4%bb%8elinux%e7%9a%84network%e6%96%87%e6%a1%a3%e6%9d%a5%e7%9c%8b%ef%bc%9a%20TFO%e7%9a%84%e9%85%8d%e7%bd%ae%e8%af%b4%e6%98%8e%ef%bc%9a%20tcp_fastopen%20-%20INTEGER%20Enable%20TCP%20Fast%20Open%20feature%20%28draft-ietf-tcpm-fastopen%29%20to%20send%20data%20in%20the%20opening%20SYN%20packet.%20To%20use%20this%20feature%2c%20the%20client%20application%20must%20use%20sendmsg%28%29%20or%20sendto%28%29%20with%20MSG_FASTOPEN%20flag%20rather%20than%20connect%28%29%20to%20perform%20a%20TCP%20handshake%20automatically.%20The%20values%20%28bitmap%29%20are%201%3a%20Enables%20sending%20data%20in%20the%20opening%20SYN%20on%20the%20client%20w%2f%20MSG_FASTOPEN...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
