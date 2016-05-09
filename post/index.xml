@@ -58,7 +58,7 @@
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;传统多线程的工作模式:035fb573c14692e64241442f4294aac6&#34;&gt;传统多线程的工作模式&lt;/h2&gt;
+&lt;h2 id=&#34;传统多线程的工作模式的缺点:035fb573c14692e64241442f4294aac6&#34;&gt;传统多线程的工作模式的缺点&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;1. 传统的多线程server都是有一个listener线程绑定端口并接受所有的请求，然后传递给其他线程，而这个listener往往会成为瓶颈&lt;/li&gt;
@@ -69,6 +69,61 @@
 &lt;li&gt;SO_REUSEPORT的实现可以使请求平均的分配给堵塞在accept上的各个进程&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;h2 id=&#34;so-reuseport的应用举例:035fb573c14692e64241442f4294aac6&#34;&gt;SO_REUSEPORT的应用举例&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;server.py&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-python&#34;&gt;import socket
+import os
+
+SO_REUSEPORT = 15
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.setsockopt(socket.SOL_SOCKET, SO_REUSEPORT, 1)
+s.bind((&#39;&#39;, 10000))
+s.listen(1)
+while True:
+    conn, addr = s.accept()
+    print(&#39;Connected to {}&#39;.format(os.getpid()))
+    data = conn.recv(1024)
+    conn.send(data)
+    conn.close()
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;启动两个进程，都绑定10000端口；使用nc作为client&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ python server.py&amp;amp;
+[1] 12649
+$ python server.py&amp;amp;
+[2] 12650
+$ echo data | nc localhost 10000
+Connected to 12649
+data
+$ echo data | nc localhost 10000
+Connected to 12650
+data
+$ echo data | nc localhost 10000
+Connected to 12649
+data
+$ echo data | nc localhost 10000
+Connected to 12650
+data
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;再启动一个新的进程显然也是可以的&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ python server.py&amp;amp;
+[3] 14021
+$ echo data | nc localhost 10000
+Connected to 12650
+data
+$ echo data | nc localhost 10000
+Connected to 14021
+data
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;h2 id=&#34;so-reuseport-和-so-reuseaddr-对比-待续:035fb573c14692e64241442f4294aac6&#34;&gt;SO_REUSEPORT 和 SO_REUSEADDR 对比（待续）&lt;/h2&gt;
 
@@ -404,6 +459,17 @@ net.ipv4.tcp_fastopen = 3
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;并且这个标志是位操作，如果我在本机做实验，将本机作为sever端和client端的话，需要两个位都使能，所以应该将该值设置为3.&lt;/p&gt;
+
+&lt;p&gt;同时我们可以看到，tcp fast open是非常向后兼容的，升级成本不高，需要高于3.7+版本内核，但总体来说值得采用。&lt;/p&gt;
+
+&lt;p&gt;nginx 1.5.18（2013年）开始支持tcp fast open&lt;/p&gt;
+
+&lt;h2 id=&#34;todo-list:dcfa70d5873a9471dad227ae4d6ecbe0&#34;&gt;TODO LIST&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;TFO在移动端场景中的性能体现：android+nginx&lt;/li&gt;
+&lt;li&gt;tcp fast open 在内核中的实现&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;h2 id=&#34;参考链接:dcfa70d5873a9471dad227ae4d6ecbe0&#34;&gt;参考链接&lt;/h2&gt;
 

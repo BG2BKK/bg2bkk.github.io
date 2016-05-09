@@ -57,7 +57,7 @@
         },
         "datePublished": "2016-05-09",
         "description": "",
-        "wordCount":  1754 
+        "wordCount":  1768 
     }
     </script>
     
@@ -411,6 +411,17 @@ net.ipv4.tcp_fastopen = 3
 </code></pre>
 
 <p>并且这个标志是位操作，如果我在本机做实验，将本机作为sever端和client端的话，需要两个位都使能，所以应该将该值设置为3.</p>
+
+<p>同时我们可以看到，tcp fast open是非常向后兼容的，升级成本不高，需要高于3.7+版本内核，但总体来说值得采用。</p>
+
+<p>nginx 1.5.18（2013年）开始支持tcp fast open</p>
+
+<h2 id="todo-list:dcfa70d5873a9471dad227ae4d6ecbe0">TODO LIST</h2>
+
+<ul>
+<li>TFO在移动端场景中的性能体现：android+nginx</li>
+<li>tcp fast open 在内核中的实现</li>
+</ul>
 
 <h2 id="参考链接:dcfa70d5873a9471dad227ae4d6ecbe0">参考链接</h2>
 
