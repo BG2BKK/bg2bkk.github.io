@@ -507,7 +507,7 @@ net.ipv4.tcp_fastopen = 3
 &lt;ul&gt;
 &lt;li&gt;男/1990&lt;/li&gt;
 &lt;li&gt;硕士/哈工大深圳研究生院计算机系&lt;/li&gt;
-&lt;li&gt;工作年限：1年&lt;/li&gt;
+&lt;li&gt;工作年限：14个月&lt;/li&gt;
 &lt;li&gt;英语水平：CET-6&lt;/li&gt;
 &lt;li&gt;技术博客：&lt;a href=&#34;http://bg2bkk.github.io&#34;&gt;http://bg2bkk.github.io&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;Github：&lt;a href=&#34;http://github.com/bg2bkk&#34;&gt;http://github.com/bg2bkk&lt;/a&gt;&lt;/li&gt;
@@ -515,14 +515,19 @@ net.ipv4.tcp_fastopen = 3
 
 &lt;h2 id=&#34;教育背景:c59a67a3c7bc5faa453847420267045e&#34;&gt;教育背景&lt;/h2&gt;
 
-&lt;ul&gt;
-&lt;li&gt;2012.09 ~ 2015.01 哈尔滨工业大学 计算机 硕士&lt;/li&gt;
-&lt;li&gt;2008.09 ~ 2012.06 哈尔滨工程大学 计算机 学士&lt;/li&gt;
-&lt;/ul&gt;
+&lt;pre&gt;&lt;code&gt;- 2012.09 ~ 2015.01 哈尔滨工业大学 计算机 硕士
+- 2008.09 ~ 2012.06 哈尔滨工程大学 计算机 学士 
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;hr /&gt;
 
 &lt;h2 id=&#34;工作经历:c59a67a3c7bc5faa453847420267045e&#34;&gt;工作经历&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;- 2015.01 ~ NOW      新浪微博               系统开发工程师 
+- 2013.09 ~ 2014.05  极光推送               后台开发实习生 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;项目经历:c59a67a3c7bc5faa453847420267045e&#34;&gt;项目经历&lt;/h2&gt;
 
 &lt;h4 id=&#34;新浪微博-系统开发工程师-2015年1月-2016年3月:c59a67a3c7bc5faa453847420267045e&#34;&gt;新浪微博 系统开发工程师 （ 2015年1月 ~ 2016年3月 ）&lt;/h4&gt;
 
@@ -530,22 +535,32 @@ net.ipv4.tcp_fastopen = 3
 &lt;li&gt;&lt;p&gt;手机微博七层动态调度系统dygateway&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;p&gt;动态调度系统&lt;strong&gt;&lt;em&gt;dygateway&lt;/em&gt;&lt;/strong&gt; 在手机微博7层实现&lt;/p&gt;
+&lt;li&gt;动态调度系统&lt;strong&gt;&lt;em&gt;dygateway&lt;/em&gt;&lt;/strong&gt; 在手机微博7层实现
 
 &lt;ul&gt;
 &lt;li&gt;系统资源的动态伸缩&lt;/li&gt;
 &lt;li&gt;用户请求的动态分流&lt;/li&gt;
 &lt;li&gt;产品服务的灰度发布&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;基于nginx和ngx_lua开发&lt;/p&gt;
+&lt;li&gt;dygateway作为7层服务时：
 
 &lt;ul&gt;
-&lt;li&gt;开发 &lt;strong&gt;灰度发布系统&lt;/strong&gt; &lt;a href=&#34;https://github.com/CNSRE/ABTestingGateway&#34;&gt;ABTestingGateway&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;参与开发 &lt;strong&gt;nginx动态upstream模块&lt;/strong&gt;&lt;a href=&#34;https://github.com/CNSRE/lua-upstream-nginx-module&#34;&gt;ngx-lua-upstream-module&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;动态分流子系统 &lt;a href=&#34;https://github.com/CNSRE/ABTestingGateway&#34;&gt;ABTestingGateway&lt;/a&gt;
 
-&lt;li&gt;&lt;p&gt;目前应用于手机微博、微博头条等产品线&lt;/p&gt;&lt;/li&gt;
+&lt;ul&gt;
+&lt;li&gt;根据用户请求的特征和分流策略将请求转发至不同的后端upstream；&lt;/li&gt;
+&lt;li&gt;动态设置分流策略，实时生效；&lt;/li&gt;
+&lt;li&gt;支持单级分流和多级分流。&lt;/li&gt;
+&lt;li&gt;基于ngx_lua 和 redis 开发&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;动态upstream模块&lt;a href=&#34;https://github.com/CNSRE/lua-upstream-nginx-module&#34;&gt;lua-upstream-nginx-module&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;该模块可以实时修改nginx的upstream列表，增减upstream，增减upstream中的member成员，实现动态伸缩。&lt;/li&gt;
+&lt;li&gt;nginx模块开发&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;目前应用于手机微博、微博头条等产品线&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
@@ -557,33 +572,23 @@ net.ipv4.tcp_fastopen = 3
 &lt;hr /&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;p&gt;其他项目&lt;/p&gt;
+&lt;li&gt;手机微博 HTTP DNS 服务端开发
 
 &lt;ul&gt;
-&lt;li&gt;&lt;p&gt;手机微博 HTTP DNS 服务端开发&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;一期：nginx + edns server松耦合实现&lt;/p&gt;
+&lt;li&gt;手机微博httpdns项目用于解决客户端恶意劫持的问题，并能够实现节点的智能调度。&lt;/li&gt;
+&lt;li&gt;一期：nginx + edns server松耦合实现
 
 &lt;ul&gt;
 &lt;li&gt;参与开发nginx的http dns模块&lt;/li&gt;
 &lt;li&gt;对项目进行压测和评估，目前已灰度上线&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;二期：golang + edns查询&lt;/p&gt;
+&lt;li&gt;二期：golang + edns查询
 
 &lt;ul&gt;
 &lt;li&gt;参与golang server的架构设计及系统开发&lt;/li&gt;
 &lt;li&gt;开发golang 版本的edns查询模块&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;手机微博MAPI团队的HTTP/2升级&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;HTTP/2 server的&lt;a href=&#34;https://bg2bkk.github.io/post/HTTP2%E7%9A%84%E5%AE%9E%E8%B7%B5%E8%BF%87%E7%A8%8B/&#34;&gt;评估与压测&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;协助移动端团队评估HTTP/2性能&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;httpdns server端一期已上线，手机微博客户端采用渠道包灰度；二期已完成edns查询模块。&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
@@ -613,7 +618,7 @@ net.ipv4.tcp_fastopen = 3
 
 &lt;ul&gt;
 &lt;li&gt;c/lua/python/golang/shell/vhdl&lt;/li&gt;
-&lt;li&gt;nginx/ngx_lua&lt;/li&gt;
+&lt;li&gt;nginx/ngx_lua/redis&lt;/li&gt;
 &lt;li&gt;linux kernel/ performance profiling&lt;/li&gt;
 &lt;li&gt;embedded system &amp;amp;&amp;amp; IOT: ble/mqtt/elua&lt;/li&gt;
 &lt;li&gt;microprocessor: stm32 51 avr FPGA&lt;/li&gt;
@@ -3276,7 +3281,7 @@ pipe_poll(struct file *filp, poll_table *wait)
 &lt;li&gt;&lt;p&gt;AOF方式之我的想法&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;AOF方式是redis在收到命名后将命令写入文件内，如果redis发送故障，重启时直接读取AOF文件重新执行命令即可恢复，可以克服RDB方式的缺点&lt;/li&gt;
+&lt;li&gt;AOF方式是redis在收到命名后将命令写入文件内，如果redis发生故障，重启时直接读取AOF文件重新执行命令即可恢复，可以克服RDB方式的缺点&lt;/li&gt;
 &lt;li&gt;bgrewriteaof指令是对AOF方式的一次优化，执行bgrewriteaof命令时是根据此时数据库内容来写入AOF文件，并替换旧的AOF文件。这个过程与RDB快照产生方式一样&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
