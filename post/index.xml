@@ -521,10 +521,34 @@ net.ipv4.tcp_fastopen = 3
 
 &lt;hr /&gt;
 
+&lt;h2 id=&#34;技能清单:c59a67a3c7bc5faa453847420267045e&#34;&gt;技能清单&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;c/ lua/ python/ golang/ shell/ vhdl&lt;/li&gt;
+&lt;li&gt;nginx/ ngx_lua/ redis&lt;/li&gt;
+&lt;li&gt;linux kernel/ performance profiling&lt;/li&gt;
+&lt;li&gt;算法、数据结构和设计模式&lt;/li&gt;
+&lt;li&gt;linux系统编程、多线程编程、网络编程&lt;/li&gt;
+&lt;li&gt;embedded system &amp;amp;&amp;amp; IOT: ble/mqtt/elua&lt;/li&gt;
+&lt;li&gt;microprocessor: stm32 51 avr FPGA&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&#34;自我评价:c59a67a3c7bc5faa453847420267045e&#34;&gt;自我评价&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;热爱计算机，热爱编程，热爱程序员这个工作&lt;/li&gt;
+&lt;li&gt;刨根问底，都想搞明白，所以很爱看源码&lt;/li&gt;
+&lt;li&gt;兴趣广泛，从安卓开发到Linux服务端开发，从kernel源码到lua源码，从单片机开发到FPGA开发，我都有兴趣:)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr /&gt;
+
 &lt;h2 id=&#34;工作经历:c59a67a3c7bc5faa453847420267045e&#34;&gt;工作经历&lt;/h2&gt;
 
-&lt;pre&gt;&lt;code&gt;- 2015.01 ~ NOW      新浪微博               系统开发工程师 
-- 2013.09 ~ 2014.05  极光推送               后台开发实习生 
+&lt;pre&gt;&lt;code&gt;- 2015.01 ~ NOW      新浪微博   系统开发工程师 
+- 2013.09 ~ 2014.05  极光推送   后台开发实习生 
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;h2 id=&#34;项目经历:c59a67a3c7bc5faa453847420267045e&#34;&gt;项目经历&lt;/h2&gt;
@@ -614,23 +638,42 @@ net.ipv4.tcp_fastopen = 3
 
 &lt;hr /&gt;
 
-&lt;h2 id=&#34;技能清单:c59a67a3c7bc5faa453847420267045e&#34;&gt;技能清单&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;c/lua/python/golang/shell/vhdl&lt;/li&gt;
-&lt;li&gt;nginx/ngx_lua/redis&lt;/li&gt;
-&lt;li&gt;linux kernel/ performance profiling&lt;/li&gt;
-&lt;li&gt;embedded system &amp;amp;&amp;amp; IOT: ble/mqtt/elua&lt;/li&gt;
-&lt;li&gt;microprocessor: stm32 51 avr FPGA&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;hr /&gt;
-
 &lt;h2 id=&#34;项目-演讲和讲义:c59a67a3c7bc5faa453847420267045e&#34;&gt;项目 演讲和讲义&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;https://github.com/WEIBOMSRE/ABTestingGateway&#34;&gt;ABTestingGateway&lt;/a&gt;：手机微博七层动态调度系统中关于灰度发布和动态分流的子项目，660+ stars。&lt;/li&gt;
 &lt;li&gt;2015年OSC源创会运维专场：&lt;a href=&#34;https://github.com/WEIBOMSRE/ABTestingGateway/blob/master/doc/%E5%9F%BA%E4%BA%8E%E5%8A%A8%E6%80%81%E7%AD%96%E7%95%A5%E7%9A%84%E7%81%B0%E5%BA%A6%E5%8F%91%E5%B8%83%E7%B3%BB%E7%BB%9F.pdf&#34;&gt;基于动态策略的灰度发布系统&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr /&gt;
+
+&lt;h2 id=&#34;个人项目:c59a67a3c7bc5faa453847420267045e&#34;&gt;个人项目&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/BG2BKK/MyDict&#34;&gt;MyDict&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;一个离线词典&lt;/li&gt;
+&lt;li&gt;原作者采用trie树对离线词库生成索引，我采用三向单词查找树(Ternary search tries TSTs)实现&lt;/li&gt;
+&lt;li&gt;数据结构解决实际问题，体现程序员的价值&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/BG2BKK/NFA_by_Python&#34;&gt;NFA_By_Python&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;《计算理论》专业课作业，内容是将使用NFA解析正则表达式，并将其可视化。&lt;/li&gt;
+&lt;li&gt;python分析正则表达式，自动生成dot代码，通过graphviz画图并生成pdf&lt;/li&gt;
+&lt;li&gt;这恐怕是我离计算机科学最近的一次了:)&lt;/li&gt;
+&lt;li&gt;其实想想，计算理论还是非常有趣的，而我也无比热爱这门科学&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/BG2BKK/img_process_vhdl&#34;&gt;img_process_vhdl&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;纯VHDL写的通用图像处理框架，在FPGA进行图像卷积运算，进而可以实现滤波、开闭等操作&lt;/li&gt;
+&lt;li&gt;考虑到github上好像逻辑工程师不多，我就不写README了。&lt;/li&gt;
+&lt;li&gt;以后再也不碰FPGA了，VHDL这种逻辑语言其实没必要人肉来写&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>
