@@ -497,7 +497,6 @@ net.ipv4.tcp_fastopen = 3
 &lt;h2 id=&#34;联系方式:c59a67a3c7bc5faa453847420267045e&#34;&gt;联系方式&lt;/h2&gt;
 
 &lt;ul&gt;
-&lt;li&gt;手机：&lt;/li&gt;
 &lt;li&gt;Email：bg2bkk # gmail.com&lt;/li&gt;
 &lt;li&gt;微博：&lt;a href=&#34;http://weibo.com/BG2BKK&#34;&gt;@bg2bkk&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
@@ -539,8 +538,6 @@ net.ipv4.tcp_fastopen = 3
 
 &lt;ul&gt;
 &lt;li&gt;热爱计算机，热爱编程，热爱程序员这个工作&lt;/li&gt;
-&lt;li&gt;刨根问底，都想搞明白，所以很爱看源码&lt;/li&gt;
-&lt;li&gt;兴趣广泛，从安卓开发到Linux服务端开发，从kernel源码到lua源码，从单片机开发到FPGA开发，我都有兴趣:)&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;hr /&gt;
@@ -647,6 +644,36 @@ net.ipv4.tcp_fastopen = 3
 
 &lt;hr /&gt;
 
+&lt;h2 id=&#34;兴趣点:c59a67a3c7bc5faa453847420267045e&#34;&gt;兴趣点&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;兴趣广泛，从Linux服务端开发到安卓开发，从单片机开发到FPGA开发，从kernel源码到lua源码，我都有兴趣:)&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;对所使用的软件或服务，愿意并有能力进行深入理解，从设计思路到源码实现着手&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;TCP/ DNS/ HTTP&lt;/li&gt;
+&lt;li&gt;Linux/ Nginx/ Redis/ Lua/&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;对动态追踪和性能优化尤其有兴趣&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;linux/nginx的配置参数调优&lt;/li&gt;
+&lt;li&gt;通过perf或者systemtap分析性能瓶颈&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;Linux kernel&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;tcp/ip stack&lt;/li&gt;
+&lt;li&gt;epoll&lt;/li&gt;
+&lt;li&gt;memory management&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;hr /&gt;
+
 &lt;h2 id=&#34;个人项目:c59a67a3c7bc5faa453847420267045e&#34;&gt;个人项目&lt;/h2&gt;
 
 &lt;ul&gt;
@@ -675,6 +702,207 @@ net.ipv4.tcp_fastopen = 3
 &lt;li&gt;以后再也不碰FPGA了，VHDL这种逻辑语言其实没必要人肉来写&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>DNS with golang</title>
+      <link>https://bg2bkk.github.io/post/DNS%20with%20golang/</link>
+      <pubDate>Wed, 13 Apr 2016 11:37:24 +0800</pubDate>
+      
+      <guid>https://bg2bkk.github.io/post/DNS%20with%20golang/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.cnblogs.com/cobbliu/archive/2013/04/02/2996333.html&#34;&gt;DNS消息格式&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.cnblogs.com/cobbliu/p/3188632.html&#34;&gt;EDNS详解&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://tools.ietf.org/html/rfc6891&#34;&gt;rfc6891&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.ietf.org/id/draft-ietf-dnsop-edns-client-subnet-08.txt&#34;&gt;edns_client_subnet draft&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://noops.me/?p=653&#34;&gt;小米的ends实践&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;6. respond时也需要增加一个Additional RRs区域，直接把请求的Additional内容发过去就可以(如果支持source netmask，将请求中的source netmask复制到scope netmask中，OpenDNS要求必须支持scope netmask)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code&gt;* 意思是非OpenDNS就可以不支持scope netmask吗？目前新浪的仍然不支持
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/miekg/dns&#34;&gt;miekg/dns: golang lib&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;dig with edns&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.gsic.uva.es/~jnisigl/dig-edns-client-subnet.html&#34;&gt;https://www.gsic.uva.es/~jnisigl/dig-edns-client-subnet.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://xmodulo.com/geographic-location-ip-address-command-line.html&#34;&gt;http://xmodulo.com/geographic-location-ip-address-command-line.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;在线查询：curl ipinfo.io/23.66.166.151&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;DNS报文格式&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;IP packet
+
+&lt;ul&gt;
+&lt;li&gt;IP Header 20 bytes&lt;/li&gt;
+&lt;li&gt;IP Data: UDP
+
+&lt;ul&gt;
+&lt;li&gt;UDP Header 8 bytes&lt;/li&gt;
+&lt;li&gt;UDP Data: DNS
+
+&lt;ul&gt;
+&lt;li&gt;DNS Header 12 bytes&lt;/li&gt;
+&lt;li&gt;DNS Data: RR
+
+&lt;ul&gt;
+&lt;li&gt;RR: Question[]&lt;/li&gt;
+&lt;li&gt;RR: Answer[]&lt;/li&gt;
+&lt;li&gt;RR: Authority[]&lt;/li&gt;
+&lt;li&gt;RR: Additional[]&lt;/li&gt;
+&lt;li&gt;RR
+
+&lt;ul&gt;
+&lt;li&gt;QName&lt;/li&gt;
+&lt;li&gt;QType&lt;/li&gt;
+&lt;li&gt;QClass&lt;/li&gt;
+&lt;li&gt;RDLENGTH&lt;/li&gt;
+&lt;li&gt;RDATA&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;RR OPT
+
+&lt;ul&gt;
+&lt;li&gt;QName null&lt;/li&gt;
+&lt;li&gt;QType OPT=41&lt;/li&gt;
+&lt;li&gt;QClass = UDP payload 2bytes&lt;/li&gt;
+&lt;li&gt;TTL = Extended-RCODE 1byte: extend + VERSION 1byte: 0 + Z 2bytes: 0&lt;/li&gt;
+&lt;li&gt;RDLen len of data(OPT)&lt;/li&gt;
+&lt;li&gt;OPT
+
+&lt;ul&gt;
+&lt;li&gt;Option-Code 2bytes: EDNS0_SUBNET&lt;/li&gt;
+&lt;li&gt;Option-Length 2bytes&lt;/li&gt;
+&lt;li&gt;Option-Data&lt;br /&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Family 1byte: IPV4(1)&lt;/li&gt;
+&lt;li&gt;Source Netmask 1byte: 32&lt;/li&gt;
+&lt;li&gt;Scope Netmask 1byte: 0&lt;/li&gt;
+&lt;li&gt;Client Subnet 4bytes: 65.135.152.203&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;我们总是在追一些时髦的技术，而不顾基础还不牢靠&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;我们总是看见新的框架，然而框架本质上仍然是那些东西，mvc，cs&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;!-- http://www.tcpipguide.com/free/index.htm --&gt;
+
+&lt;style type=&#34;text/css&#34;&gt;
+div.t-h:hover &gt; div {display:block;}
+.t-m-s {font-size:80%;border: 2px solid #ccc;border-spacing:0;border-collapse:collapse;}
+.g-h-s {background:#9bf;color:#339;padding:4px; font-size:80%;font-weight:normal;border:1px solid #ccc;}
+&lt;/style&gt;
+
+&lt;table class=&#34;t-m-s&#34;&gt;
+&lt;div align=&#34;center&#34;&gt;&lt;table border=&#34;3&#34; cellpadding=&#34;4&#34; cellspacing=&#34;2&#34;&gt;&lt;caption align=&#34;top&#34;&gt;&lt;p align=&#34;center&#34;&gt;&lt;font face=&#34;Arial&#34;&gt;&lt;b&gt;TCP Message Format &lt;/b&gt;&lt;/font&gt;&lt;/p&gt;&lt;/caption&gt;
+&lt;tbody&gt;&lt;tr class=&#34;g-h-s&#34;&gt;
+&lt;td&gt;Octet&lt;/td&gt;
+&lt;td&gt;Bits&lt;/td&gt;
+&lt;td&gt;Len&lt;/td&gt;
+&lt;td&gt;Name&lt;/td&gt;
+&lt;td&gt;Notes&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;0-1&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;td&gt;Source port&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;2-3&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;td&gt;Destination Port&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;4-7&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;4&lt;/td&gt;
+&lt;td&gt;Sequence number&lt;/td&gt;
+&lt;td&gt;position of last octet we sent.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;8-11&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;4&lt;/td&gt;
+&lt;td&gt;Acknowledge Number&lt;/td&gt;
+&lt;td&gt;Next octet number we expect from the peer.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;12&lt;/td&gt;
+&lt;td&gt;0-3&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;HLEN&lt;/td&gt;
+&lt;td&gt;4 bits. The number of 32 bit multiples (4 octets) in the TCP header including any &#39;options&#39; fields.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;12&lt;/td&gt;
+&lt;td&gt;4-7&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;Reserved&lt;/td&gt;
+&lt;td&gt;should be zero&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;13&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;Code bits&lt;/td&gt;
+&lt;td&gt;8 bits (6 used) valid if 1&lt;br&gt;
+bit 0 (URG) Urgent&lt;br&gt;
+bit 1 (ACK) Acknowledgement&lt;br&gt;
+bit 2 (PSH) Requests PUSH&lt;br&gt;
+bit 3 (RST) Reset connection&lt;br&gt;
+bit 4 (SYN) Sync sequence numbers&lt;br&gt;
+bit 5 (FIN) sender finished&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;14-15&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;td&gt;Window&lt;/td&gt;
+&lt;td&gt;Specifies the amount of data we can accept.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;16-17&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;td&gt;Checksum&lt;/td&gt;
+&lt;td&gt;Standard IP checksum. Includes a &lt;a href=&#34;#tcp-check&#34; class=&#34;t-db&#34;&gt;TCP pseudo header&lt;/a&gt;.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;18-19&lt;/td&gt;
+&lt;td&gt;-&lt;/td&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;td&gt;Urgent pointer&lt;/td&gt;
+&lt;td&gt;Points to end of urgent data.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;t-c&#34;&gt;
+&lt;td colspan=&#34;5&#34;&gt;&lt;a href=&#34;#tcp_opts&#34; class=&#34;t-db&#34;&gt;TCP Options&lt;/a&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr class=&#34;t-c&#34;&gt;
+&lt;td colspan=&#34;5&#34;&gt;TCP data&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/div&gt;
+&lt;/table&gt;
 </description>
     </item>
     
@@ -3255,130 +3483,6 @@ pipe_poll(struct file *filp, poll_table *wait)
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>redis持久化学习笔记</title>
-      <link>https://bg2bkk.github.io/post/redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link>
-      <pubDate>Fri, 26 Feb 2016 14:56:41 +0800</pubDate>
-      
-      <guid>https://bg2bkk.github.io/post/redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;虽然网络上关于redis持久化的相关内容数不胜数，但是一来作为我的学习笔记，好记性不如烂笔头；二来除去官方redis之外，很多有意义的修改或补充都非常值得讨论，所以我想做一下记录。&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;持久化用于重启后的数据恢复，而持久化的引入导致了redis可能产生的性能抖动&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;redis持久化的&lt;a href=&#34;http://www.cnblogs.com/zhoujinyi/archive/2013/05/26/3098508.html&#34;&gt; 两种方法 &lt;/a&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;RDB方式&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;RDB方式是redis的默认持久化方式&lt;/li&gt;
-&lt;li&gt;快照RDB持久化过程:
-
-&lt;ul&gt;
-&lt;li&gt;redis调用fork，产生子进程&lt;/li&gt;
-&lt;li&gt;父进程继续接受用户请求；子进程负责将内存内容写入临时文件，写入完成后rename为dump文件，实现替换&lt;/li&gt;
-&lt;li&gt;在子进程写内存内容期间，父进程如果要修改内存数据，os将会通过写时复制为父进程创建副本，所以此时子进程写入的仍然是fork时刻的整个数据库内容&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;不足之处在于:&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;如果redis出现问题崩溃了，此时的rdb文件可能不是最新的数据，从上次RDB文件生成到redis崩溃这段时间的数据全部丢掉。&lt;/li&gt;
-&lt;li&gt;产生快照时，redis最多将占用2倍于现有数据规模的内存，因此当内存占用过多时，RDB方式可能导致系统负载过高，甚至假死。（有个说法是，当redis的内存占用超过物理内存的3/5时，进行RDB主从复制就比较危险了）&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;主从复制过程&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;第一次同步
-
-&lt;ul&gt;
-&lt;li&gt;slave向master发送sync同步请求，master先dump出rdb文件，并将其全量传输给slave；master将产生rdb文件之后这段时间内的修改命令缓存起来，并发送给slave。首次同步完成。&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;第二次及以后的同步实现方式：
-
-&lt;ul&gt;
-&lt;li&gt;master将变量的快照（有修改的变量）直接实时发送给slave。&lt;/li&gt;
-&lt;li&gt;如果发生断开重连，则重复第一步第二步&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;reids-2.8版本之后，重连后进行第一步时，不用全量更新了。&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;AOF方式&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;AOF方式持久化过程&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Append Only File&lt;/li&gt;
-&lt;li&gt;Redis将每次收到的命令都追加到文件中，类似于mysql的binlog；当redis重启时重新执行文件中的所有命令来重建数据&lt;/li&gt;
-&lt;li&gt;如果将所有命令不加甄别的都写入文件中，持久化文件会越来越大，比如INCR test命令执行100次，效果与SET test 100一样。此时需要进行rewrite，合并命令。&lt;/li&gt;
-&lt;li&gt;Redis提供了bgrewriteaof命令，执行过程与产生RDB文件的机制类似，fork出的子进程将内存中的数据以命令的方式重写持久化文件。本质上讲，该命令是将数据库中所有数据内容以命令的方式重写进新的AOF文件&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;AOF方式之我的想法&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;AOF方式是redis在收到命名后将命令写入文件内，如果redis发生故障，重启时直接读取AOF文件重新执行命令即可恢复，可以克服RDB方式的缺点&lt;/li&gt;
-&lt;li&gt;bgrewriteaof指令是对AOF方式的一次优化，执行bgrewriteaof命令时是根据此时数据库内容来写入AOF文件，并替换旧的AOF文件。这个过程与RDB快照产生方式一样&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;RDB方式和AOF方式的对比&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;RDB方式恢复起来快，而AOF方式需要一条条命令执行&lt;/li&gt;
-&lt;li&gt;RDB文件不需要经过编码，是数据库内容的直接克隆，所以文件比较小；而AOF文件内是一条条命令，需要依次执行&lt;/li&gt;
-&lt;li&gt;RDB文件可能会丢失部分数据，而AOF则专门解决这个问题&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;选择哪种方式&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;官方推荐：
-
-&lt;ul&gt;
-&lt;li&gt;如果想要很高的数据保障，则同时使用两种方式&lt;/li&gt;
-&lt;li&gt;如果可以接受数据丢失，则仅使用RDB方式&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;通常的设计思路是
-
-&lt;ul&gt;
-&lt;li&gt;利用replication机制弥补持久化在性能和设计上的不足&lt;/li&gt;
-&lt;li&gt;master上不做RDB和AOF，保证读写性能&lt;/li&gt;
-&lt;li&gt;slave同时开启两种方式，保证数据安全性&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Redis数据恢复过程&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;AOF优先级高于RDB方式，如果同时配置了AOF和RDB，AOF生效&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;    void loadDataFromDisk(void) {
-        long long start = ustime();
-        if (server.aof_state == REDIS_AOF_ON) {
-            if (loadAppendOnlyFile(server.aof_filename) == REDIS_OK)
-                redisLog(REDIS_NOTICE,&amp;quot;DB loaded from append only file: %.3f seconds&amp;quot;,(float)(ustime()-start)/1000000);
-        } else {
-            if (rdbLoad(server.rdb_filename) == REDIS_OK) {
-                redisLog(REDIS_NOTICE,&amp;quot;DB loaded from disk: %.3f seconds&amp;quot;,
-                    (float)(ustime()-start)/1000000);
-            } else if (errno != ENOENT) {
-                redisLog(REDIS_WARNING,&amp;quot;Fatal error loading the DB: %s. Exiting.&amp;quot;,strerror(errno));
-                exit(1);
-            }
-        }
-    }
-&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     
