@@ -2260,10 +2260,9 @@ print(table.maxn(t))
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 
-&lt;li&gt;&lt;p&gt;lua的协程&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;lua的协程&lt;/p&gt;
 
-&lt;li&gt;&lt;p&gt;golang的协程(待续)&lt;/p&gt;&lt;/li&gt;
-
+&lt;ul&gt;
 &lt;li&gt;&lt;p&gt;lua不支持那种真正的多线程（共享同一地址空间的抢占式线程），原因是&lt;/p&gt;
 
 &lt;ul&gt;
@@ -2282,6 +2281,9 @@ print(table.maxn(t))
 &lt;li&gt;&lt;p&gt;lua的c runtime stack和lua runtime stack是&lt;a href=&#34;https://techsingular.org/2013/07/14/programming-in-lua%EF%BC%88%E5%85%AD%EF%BC%89%EF%BC%8Dcontinuation/&#34;&gt;什么样子的&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 
 &lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://www.lua.org/pil/9.2.html&#34;&gt;consumer-producer&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;golang的协程(待续)&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>
