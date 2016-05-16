@@ -57,7 +57,7 @@
         },
         "datePublished": "2016-03-13",
         "description": "",
-        "wordCount":  18 
+        "wordCount":  232 
     }
     </script>
     
@@ -83,7 +83,7 @@
 	<a href="https://bg2bkk.github.io/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a> 
 </div>  
 
-            <h6><a href="http://bg2bkk.github.io">About</a></h6>
+            <h6><a href="https://bg2bkk.github.io/post/resume/">About</a></h6>
 
         </header>
 
@@ -100,6 +100,73 @@
     </div>
     <h1 class="post-title">coroutine and goroutine</h1>
     <ul>
+<li>协程是什么？ what is coroutine ?
+
+<ul>
+<li>subroutine</li>
+<li><a href="http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html">Coroutines in C</a></li>
+<li><a href="http://coolshell.cn/articles/10975.html">协程</a></li>
+</ul></li>
+<li>ucontext
+
+<ul>
+<li><a href="http://courses.cs.vt.edu/~cs3214/spring2016/examples/threads/coroutines.c">ucontext版本的实现</a>
+
+<ul>
+<li>man getcontext and setcontext</li>
+<li>man makecontext and swapcontext</li>
+</ul></li>
+</ul></li>
+</ul>
+
+<pre><code class="language-bash">       In  a  System  V-like  environment,  one has the type ucontext_t defined in &lt;ucontext.h&gt; and the four functions getcontext(3), setcontext(3), makecontext() and swapcontext() that allow user-level context switching between multiple threads of control within a
+       process.
+
+       在类System V环境下，结构体ucontext_t和四个函数 getcontext、setcontext、makecontext和swapcontext提供了在一个进程内通过用户级上下文切换的方式实现多线程的方式
+
+       For the type and the first two functions, see getcontext(3).
+
+       The makecontext() function modifies the context pointed to by ucp (which was obtained from a call to getcontext(3)).  Before invoking makecontext(), the caller must allocate a new stack for this context and assign its address to ucp-&gt;uc_stack, and  define  a
+       successor context and assign its address to ucp-&gt;uc_link.
+
+       makecontext函数将修改ucp指向的 ucontext_t（必须是从getcontext获得的对象），在调用makecontext前，调用者必须为改上下文分配一个新的栈，并将ucp-&gt;uc_stack指向栈的地址，同时将ucp-&gt;uc_link指向下一个context
+
+       When  this  context  is  later activated (using setcontext(3) or swapcontext()) the function func is called, and passed the series of integer (int) arguments that follow argc; the caller must specify the number of these arguments in argc.  When this function
+       returns, the successor context is activated.  If the successor context pointer is NULL, the thread exits.
+
+       当该context稍后被激活(通过setcontext或者swapcontext)，makecontext函数参数中的func将被调用，同时向func传递argc个参数。当func返回时，下一个context将被激活调用。如果下一个context是null的话，该线程结束。
+
+       The swapcontext() function saves the current context in the structure pointed to by oucp, and then activates the context pointed to by ucp.
+
+       swapcontext函数将当前context保存在oucp结构体，同时激活ucp指向的context。
+</code></pre>
+
+<pre><code>* [ucontext的使用](man makecontext)
+* [云风的实现](https://github.com/cloudwu/coroutine) 
+</code></pre>
+
+<ul>
+<li><p>setjump &amp; longjmp</p>
+
+<ul>
+<li><a href="https://github.com/nasrallahmounir/context-switch-setjmp-longjm">setjump实现</a></li>
+<li><a href="https://github.com/mrquincle/event-abbey">setjump实现</a></li>
+</ul></li>
+
+<li><p>其他一些应用</p>
+
+<ul>
+<li><a href="https://github.com/colaghost/coroutine_event">coroutine-libevent</a>
+
+<ul>
+<li>在libevent里通过协程实现同步</li>
+</ul></li>
+</ul></li>
+
+<li><p>lua的协程</p></li>
+
+<li><p>golang的协程(待续)</p></li>
+
 <li><p>lua不支持那种真正的多线程（共享同一地址空间的抢占式线程），原因是</p>
 
 <ul>
@@ -117,7 +184,7 @@
 
 <li><p>lua的c runtime stack和lua runtime stack是<a href="https://techsingular.org/2013/07/14/programming-in-lua%EF%BC%88%E5%85%AD%EF%BC%89%EF%BC%8Dcontinuation/">什么样子的</a></p></li>
 
-<li><p>lua的<a href="https://techsingular.org/2013/10/27/lua-%E7%9A%84%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/">gc</a></p></li>
+<li><p><a href="https://www.lua.org/pil/9.2.html">consumer-producer</a></p></li>
 </ul>
 
     <div id="social-bar">
@@ -153,7 +220,7 @@
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/coroutine%20and%20goroutine/&amp;title=coroutine%20and%20goroutine&amp;summary=lua%e4%b8%8d%e6%94%af%e6%8c%81%e9%82%a3%e7%a7%8d%e7%9c%9f%e6%ad%a3%e7%9a%84%e5%a4%9a%e7%ba%bf%e7%a8%8b%ef%bc%88%e5%85%b1%e4%ba%ab%e5%90%8c%e4%b8%80%e5%9c%b0%e5%9d%80%e7%a9%ba%e9%97%b4%e7%9a%84%e6%8a%a2%e5%8d%a0%e5%bc%8f%e7%ba%bf%e7%a8%8b%ef%bc%89%ef%bc%8c%e5%8e%9f%e5%9b%a0%e6%98%af%20ANSI%20C%e6%b2%a1%e6%9c%89%e5%8e%9f%e7%94%9f%e7%9a%84%e5%a4%9a%e7%ba%bf%e7%a8%8b%ef%bc%8c%e6%89%80%e4%bb%a5lua%e4%b8%8d%e8%83%bd%e7%9b%b4%e6%8e%a5%e8%b0%83%e7%94%a8%e5%ae%9e%e7%8e%b0%20%e6%9c%80%e9%87%8d%e8%a6%81%e7%9a%84%e5%8e%9f%e5%9b%a0%e6%98%af%ef%bc%8c%e6%88%91%e4%bb%ac%e4%b8%8d%e8%ae%a4%e4%b8%ba%e5%a4%9a%e7%ba%bf%e7%a8%8b%e5%9c%a8lua%e4%b8%ad%e6%98%af%e4%b8%aa%e5%a5%bd%e4%b8%bb%e6%84%8f%20%e5%a4%9a%e7%ba%bf%e7%a8%8b%e6%98%af%e6%8f%90%e4%be%9b%e7%bb%99%e5%ba%95%e5%b1%82%e7%bc%96%e7%a8%8b%e7%9a%84%e3%80%82%e5%a4%9a%e7%ba%bf%e7%a8%8b%e7%9a%84%e5%90%8c%e6%ad%a5%e6%9c%ba%e5%88%b6%ef%bc%8c%e6%af%94%e5%a6%82%e4%bf%a1%e5%8f%b7%e9%87%8f%e5%92%8c%e7%9b%91%e6%8e%a7%e9%83%bd%e6%98%af%e5%9c%a8%e6%93%8d%e4%bd%9c%e7%b3%bb%e7%bb%9f%e4%b8%8a%e4%b8%8b%e6%96%87%e5%ae%9e%e7%8e%b0%e7%9a%84%ef%bc%8c%e8%80%8c%e9%9d%9e%e5%ba%94%e7%94%a8%e7%a8%8b%e5%ba%8f%e3%80%82%e8%b0%83%e8%af%95%e5%a4%9a%e7%ba%bf%e7%a8%8b%e6%af%94%e8%be%83%e9%ba%bb%e7%83%a6%e3%80%82%e8%80%8c%e4%b8%94%ef%bc%8c%e7%94%b1%e4%ba%8e%e7%a8%8b%e5%ba%8f%e4%b8%b4%e7%95%8c%e5%8c%ba%e7%9a%84%e5%90%8c%e6%ad%a5%e5%92%8c%e7%ab%9e%e4%ba%89%ef%bc%8c%e5%a4%9a%e7%ba%bf%e7%a8%8b%e4%b9%9f%e4%bc%9a%e5%bc%95%e8%b5%b7%e6%80%a7%e8%83%bd%e4%b8%8b%e9%99%8d%e3%80%82%20%e5%a4%9a%e7%ba%bf%e7%a8%8b%e5%bc%95%e8%b5%b7%e7%9a%84%e9%97%ae%e9%a2%98%ef%bc%8c%e4%b8%bb%e8%a6%81%e6%98%af%e6%8a%a2%e5%8d%a0%e5%bc%8f%e7%ba%bf%e7%a8%8b%e5%92%8c%e5%85%b1%e4%ba%ab%e5%86%85%e5%ad%98%e5%af%bc%e8%87%b4%e7%9a%84%ef%bc%8clua%e8%a7%a3%e5%86%b3%e8%bf%99%e4%b8%a4%e4%b8%aa%e9%97%ae%e9%a2%98%e7%9a%84%e6%96%b9%e6%b3%95%e6%98%af%ef%bc%9alua%20coroutine%e6%98%af%e5%8d%8f%e4%bd%9c%e5%bc%8f%e7%9a%84%ef%bc%8c%e9%9d%9e%e6%8a%a2%e5%8d%a0%e5%bc%8f%e7%9a%84%ef%bc%8c%e6%89%80%e4%bb%a5%e8%83%bd%e9%81%bf%e5%85%8d%e7%ba%bf%e7%a8%8b%e5%88%87%e6%8d%a2%e5%af%bc%e8%87%b4%e7%9a%84%e9%97%ae%e9%a2%98%ef%bc%9blua%20coroutine%e4%b9%8b%e9%97%b4%e4%b8%8d%e5%85%b1%e4%ba%ab%e5%86%85%e5%ad%98%e3%80%82%20%e6%88%91%e8%a7%81%e8%bf%87%e7%9a%84%e6%9c%80lua%e7%9a%84lua%e4%bb%a3%e7%a0%81%e5%92%8c%e5%8d%9a%e5%ae%a2%20lua%e7%9a%84coroutine%20and%20stack%20lua%e7%9a%84c%20runtime%20stack%e5%92%8clua%20runtime%20stack%e6%98%af%e4%bb%80%e4%b9%88%e6%a0%b7%e5%ad%90%e7%9a%84%20lua%e7%9a%84gc..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/coroutine%20and%20goroutine/&amp;title=coroutine%20and%20goroutine&amp;summary=%e5%8d%8f%e7%a8%8b%e6%98%af%e4%bb%80%e4%b9%88%ef%bc%9f%20what%20is%20coroutine%20%3f%20subroutine%20Coroutines%20in%20C%20%e5%8d%8f%e7%a8%8b%20ucontext%20ucontext%e7%89%88%e6%9c%ac%e7%9a%84%e5%ae%9e%e7%8e%b0%20man%20getcontext%20and%20setcontext%20man%20makecontext%20and%20swapcontext%20In%20a%20System%20V-like%20environment%2c%20one%20has%20the%20type%20ucontext_t%20defined%20in%20%26lt%3bucontext.h%26gt%3b%20and%20the%20four%20functions%20getcontext%283%29%2c%20setcontext%283%29%2c%20makecontext%28%29%20and%20swapcontext%28%29%20that%20allow%20user-level%20context%20switching%20between%20multiple%20threads%20of%20control%20within%20a%20process.%20%e5%9c%a8%e7%b1%bbSystem%20V%e7%8e%af%e5%a2%83%e4%b8%8b%ef%bc%8c%e7%bb%93%e6%9e%84%e4%bd%93ucontext_t%e5%92%8c%e5%9b%9b%e4%b8%aa%e5%87%bd%e6%95%b0%20getcontext%e3%80%81setcontext%e3%80%81makecontext%e5%92%8cswapcontext%e6%8f%90%e4%be%9b%e4%ba%86%e5%9c%a8%e4%b8%80%e4%b8%aa%e8%bf%9b%e7%a8%8b%e5%86%85%e9%80%9a%e8%bf%87%e7%94%a8%e6%88%b7%e7%ba%a7%e4%b8%8a%e4%b8%8b%e6%96%87%e5%88%87%e6%8d%a2%e7%9a%84%e6%96%b9%e5%bc%8f%e5%ae%9e%e7%8e%b0%e5%a4%9a%e7%ba%bf%e7%a8%8b%e7%9a%84%e6%96%b9%e5%bc%8f%20For%20the%20type%20and%20the%20first%20two%20functions%2c%20see%20getcontext%283%29.%20The%20makecontext%28%29%20function%20modifies%20the%20context%20pointed%20to%20by%20ucp%20%28which%20was%20obtained%20from%20a%20call%20to%20getcontext%283%29%29...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -233,11 +300,10 @@
 </div>
 
     <div itemprop="author" itemscope itemtype="http://schema.org/Person">
-  <h5>A propos de l'auteur</h5>
+  <h5>about the author</h5>
   <section>
-    <p><a href="http://profiles.google.com/thibault.normand?rel=author" itemprop="name" rel="author">Thibault Normand</a> est un dévéloppeur et un bloggeur enthousiaste, curieux de toutes nouvelles technologies liées à la sécurité, l'architecture, et le
-      web. <a href="http://bg2bkk.github.io/" rel="me">Plus d'infos...</a>
-    </p>
+
+	<p>如果关于本文您有兴趣，我们可以进一步探讨、交流和学习。我的email是 bg2bkk # gmail.com. 欢迎交流</p>
   </section>
 </div>
 

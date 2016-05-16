@@ -57,7 +57,7 @@
         },
         "datePublished": "2016-03-24",
         "description": "",
-        "wordCount":  1849 
+        "wordCount":  1857 
     }
     </script>
     
@@ -505,6 +505,16 @@ iptables-restore &lt; /etc/iptables.rules
 
 <pre><code class="language-bash">#允许ping
 iptables -A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT
+</code></pre>
+
+<p>如果想清空的话，先执行</p>
+
+<pre><code>/sbin/iptables -P INPUT ACCEPT
+</code></pre>
+
+<p>然后执行</p>
+
+<pre><code>/sbin/iptables -F
 </code></pre>
 
 <h2 id="vps简单的ssh登陆设置:1350fa5c56171e9d9c8991f08929cd14">VPS简单的ssh登陆设置</h2>
