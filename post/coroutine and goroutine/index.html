@@ -57,7 +57,7 @@
         },
         "datePublished": "2016-03-13",
         "description": "",
-        "wordCount":  232 
+        "wordCount":  1737 
     }
     </script>
     
@@ -99,59 +99,553 @@
         </span>
     </div>
     <h1 class="post-title">coroutine and goroutine</h1>
-    <ul>
-<li>协程是什么？ what is coroutine ?
+    
+
+<h4 id="协程是什么-what-is-coroutine:1a17fb99183985490e9adefe8aecc78f">协程是什么？ what is coroutine ?</h4>
 
 <ul>
-<li>subroutine</li>
-<li><a href="http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html">Coroutines in C</a></li>
-<li><a href="http://coolshell.cn/articles/10975.html">协程</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Coroutine">协程的概念</a></li>
+</ul>
+
+<blockquote>
+<p>Coroutines are computer program components that generalize subroutines for nonpreemptive multitasking, by allowing multiple entry points for suspending and resuming execution at certain locations. Coroutines are well-suited for implementing more familiar program components such as cooperative tasks, exceptions, event loop, iterators, infinite lists and pipes.</p>
+
+<p>According to Donald Knuth, the term coroutine was coined by Melvin Conway in 1958, after he applied it to construction of an assembly program.[1] The first published explanation of the coroutine appeared later, in 1963.[2]</p>
+</blockquote>
+
+<p>协程是为实现非抢占式多任务而提出的计算机子程序，通过提供多个程序入口使得程序可以在特定地址挂起和恢复执行。协程天生的支持实现常见程序组件，比如协作式任务、异常、时间循环、迭代器、无边界列表和管道等。</p>
+
+<p>根据祖师爷高纳德节说，协程的概念由Melvin Conway在1958年提出，随后他将协程应用在编写汇编程序上。协程的第一个公开发表的解释出现在1963年。</p>
+
+<p>可见协程的概念比多线程还早，而且按照Knuth的说法，<a href="http://coolshell.cn/articles/10975.html">”子例程是协程的特例“，一次子例程调用就是一次子函数调用</a>，协程是类函数一样的组件，我们可以在单线程中创建N多个协程，只要内存够用。</p>
+
+<pre><code>* 协程与子例程的[区别](https://en.wikipedia.org/wiki/Coroutine)
+    * 子例程只有一个调用入口起点，子例程退出后，执行结束；子例程只返回一次，在两次调用之间不保存状态；
+    * 协程有多个入口，调用起始点、或者从上一次返回点接着执行；从协程自己的角度来看，他放弃执行时不是退出，而是去调用另一个协程，或者说将CPU主动让给另一个协程；协程保存状态;
+        * 计算机科学中，[yield](https://en.wikipedia.org/wiki/Yield_(multithreading))用于使处理器放弃当前运行的线程thread，并将它放入运行队列的末尾
+        * 协程coroutine中的yield需要显式调用
+    * 每个子例程可以转换为一个不带yield的协程
+</code></pre>
+
+<p>协程有关的四个概念：<a href="https://en.wikipedia.org/wiki/Coroutine">coroutine</a>、<a href="https://en.wikipedia.org/wiki/Yield_(multithreading">yield</a>、<a href="https://en.wikipedia.org/wiki/Continuation">Continuation</a>、<a href="https://en.wikipedia.org/wiki/Cooperative_multitasking">cooperative multitasking</a></p>
+
+<ul>
+<li><a href="http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html">Coroutines in C</a>
+
+<ul>
+<li><a href="http://www.hawkwithwind.net/blog/2011/02/18/%E5%8D%8F%E7%A8%8B%E7%9A%84c%E5%AE%9E%E7%8E%B0/">给你一个直观的认识</a></li>
 </ul></li>
-<li>ucontext
+</ul>
+
+<pre><code class="language-cpp">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+int function(void) {
+	static int i, state = 0;
+	switch (state) {
+		case 0: goto LABEL0;
+		case 1: goto LABEL1;
+	}
+LABEL0: /* start of function */
+	for (i = 0; i &lt; 10; i++) {
+		printf(&quot;\t\t\ti = %d\n&quot;, i);
+		state = 1; /* so we will come back to LABEL1 */
+		return i;
+LABEL1:
+		; /* resume control straight after the return */
+	}
+}
+
+int main(){
+	int j = 0;
+	for ( j = 0; j &lt; 21; j++){
+		printf(&quot;j = %d, func = %d\n&quot;, j, function());
+	}
+}
+
+</code></pre>
+
+<p>执行结果</p>
+
+<pre><code class="language-bash">			i = 0
+j = 0, func = 0
+			i = 1
+j = 1, func = 1
+			i = 2
+j = 2, func = 2
+			i = 3
+j = 3, func = 3
+			i = 4
+j = 4, func = 4
+			i = 5
+j = 5, func = 5
+			i = 6
+j = 6, func = 6
+			i = 7
+j = 7, func = 7
+			i = 8
+j = 8, func = 8
+			i = 9
+j = 9, func = 9
+j = 10, func = 10
+j = 11, func = 11
+j = 12, func = 12
+j = 13, func = 13
+j = 14, func = 14
+j = 15, func = 15
+j = 16, func = 16
+j = 17, func = 17
+j = 18, func = 18
+j = 19, func = 19
+j = 20, func = 20
+</code></pre>
 
 <ul>
-<li><a href="http://courses.cs.vt.edu/~cs3214/spring2016/examples/threads/coroutines.c">ucontext版本的实现</a>
+<li><p>执行结果分析</p>
 
 <ul>
-<li>man getcontext and setcontext</li>
-<li>man makecontext and swapcontext</li>
+<li>变量i 和 state 都是 static类型的，是文件全局作用域的</li>
+<li>首次执行function函数时，state = 0，goto 到 LABEL0，然后进行正常循环和返回</li>
+<li>当function调用次数超过十次后，每次进入function函数内部时，由switch分发到LABEL1；执行完循环体后，对i增1，然后进行判断是否 i &lt; 10，发现不满足，退出程序</li>
+<li>可能我们会比较纠结function程序在 i &gt; 10后不再执行return i语句，为什么还会返回自增后的结果呢？
+
+<ul>
+<li>说实话我也并不能很好解释。我通过查看汇编代码，发现仍然会执行将i值转到ecx寄存器，我们的function返回值就从ecx拿到的。</li>
+</ul></li>
+</ul></li>
+
+<li><p>仍然有两种更优化的写法: <a href="http://coolshell.cn/articles/10975.html">左耳朵耗子的例子</a>和<a href="http://www.hawkwithwind.net/blog/2011/02/18/%E5%8D%8F%E7%A8%8B%E7%9A%84c%E5%AE%9E%E7%8E%B0/">上例</a>的来源都是天才程序员  <a href="http://www.chiark.greenend.org.uk/~sgtatham/">imon Tatham</a>对<a href="http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html">协程做的尝试</a></p></li>
+
+<li><p><a href="http://www.colaghost.net/os/unix_linux/341">协程实现的基础</a></p></li>
+
+<li><p>推荐的一些协程库</p>
+
+<ul>
+<li><a href="http://dunkels.com/adam/pt/">protothread</a></li>
+<li>其实c里面最好的协程库，就是嵌入LuaVM啦。</li>
+</ul></li>
+</ul>
+
+<h2 id="setjump-longjmp:1a17fb99183985490e9adefe8aecc78f">setjump &amp; longjmp</h2>
+
+<h5 id="man-longjmp:1a17fb99183985490e9adefe8aecc78f">man longjmp</h5>
+
+<pre><code class="language-bash">NAME
+       longjmp, siglongjmp - nonlocal jump to a saved stack context
+
+SYNOPSIS
+       #include &lt;setjmp.h&gt;
+
+       void longjmp(jmp_buf env, int val);
+       void siglongjmp(sigjmp_buf env, int val);
+
+DESCRIPTION
+       longjmp()  and  setjmp(3) are useful for dealing with errors and interrupts encountered in a low-level subroutine of a program.  longjmp() restores the environment saved by the last call of setjmp(3)
+       with the corresponding env argument.  After longjmp() is completed, program execution continues as if the corresponding call of setjmp(3) had just returned the value val.  longjmp() cannot cause 0 to
+       be returned.  If longjmp() is invoked with a second argument of 0, 1 will be returned instead.
+
+	   longjmp和setjmp在处理程序调用子例程过程中遇到错误或中断时非常有用。longjmp将恢复最近一次调用setjmp时通过env参数保存的上下文环境。longjmp完成后，原来调用setjmp的地方将会返回，并且setjmp的返回值是longjmp的val参数。longjmp不会返回0。如果longjmp调用时第二个参数是0，那么它将会返回1.
+
+       siglongjmp()  is  similar  to longjmp() except for the type of its env argument.  If, and only if, the sigsetjmp(3) call that set this env used a nonzero savesigs flag, siglongjmp() also restores the
+       signal mask that was saved by sigsetjmp(3).
+
+RETURN VALUE
+       These functions never return.
+
+</code></pre>
+
+<h5 id="man-setjmp:1a17fb99183985490e9adefe8aecc78f">man setjmp</h5>
+
+<pre><code class="language-bash">NAME
+       setjmp, sigsetjmp - save stack context for nonlocal goto
+
+SYNOPSIS
+       #include &lt;setjmp.h&gt;
+
+       int setjmp(jmp_buf env);
+       int sigsetjmp(sigjmp_buf env, int savesigs);
+	 
+DESCRIPTION
+       setjmp()  and  longjmp(3)  are  useful for dealing with errors and interrupts encountered in a low-level subroutine of a program.  setjmp() saves the stack context/environment in env for later use by
+       longjmp(3).  The stack context will be invalidated if the function which called setjmp() returns.
+
+       sigsetjmp() is similar to setjmp().  If, and only if, savesigs is nonzero, the process's current signal mask is saved in env and will be restored if a siglongjmp(3) is later performed with this env.
+
+RETURN VALUE
+       setjmp() and sigsetjmp() return 0 if returning directly, and nonzero when returning from longjmp(3) or siglongjmp(3) using the saved context.
+
+</code></pre>
+
+<h5 id="示例代码:1a17fb99183985490e9adefe8aecc78f">示例代码</h5>
+
+<p><a href="http://blog.linux.org.tw/~jserv/archives/001848.html">代码地址</a> 博客评论区</p>
+
+<pre><code class="language-cpp">#include &lt;stdio.h&gt;                                                                                  
+#include &lt;unistd.h&gt;
+#include &lt;setjmp.h&gt;
+
+jmp_buf jmpbuf_th0;
+jmp_buf jmpbuf_th1;
+
+static int cnt1 = 0;
+static int cnt0 = 0;
+
+static void thread_0()
+{
+	printf(&quot;%s \n\n&quot;, __FUNCTION__);
+	sleep(1);
+	longjmp(jmpbuf_th0, cnt0++);
+}
+
+static void thread_1()
+{
+	printf(&quot;%s \n\n&quot;, __FUNCTION__);
+	sleep(1);
+	longjmp(jmpbuf_th1, cnt1++);
+}
+
+
+int main()
+{
+	int rc0, rc1 = 0;
+
+entry_thread_0:
+	rc0 = setjmp(jmpbuf_th0);
+	printf(&quot;rc0 = %d\n&quot;, rc0);
+	if (rc0 != 0)
+		thread_1();
+entry_thread_1:
+	rc1 = setjmp(jmpbuf_th1);
+	printf(&quot;rc1 = %d\n&quot;, rc1);
+	thread_0();
+
+	return 0;
+}
+</code></pre>
+
+<p>执行结果</p>
+
+<pre><code class="language-bash">rc0 = 0
+rc1 = 0
+thread_0 
+
+rc0 = 1
+thread_1 
+
+rc1 = 1
+thread_0 
+
+rc0 = 1
+thread_1 
+
+rc1 = 1
+thread_0 
+
+rc0 = 2
+thread_1 
+
+rc1 = 2
+thread_0 
+
+rc0 = 3
+thread_1 
+
+rc1 = 3
+thread_0 
+
+</code></pre>
+
+<ul>
+<li><p>执行过程分析</p>
+
+<ul>
+<li>setjmp和longjmp都是基于程序空间中额外的jmpbuf</li>
+<li>setjmp将当前环境存储在jmpbuf中，longjmp到同一个jmpbuf时，setjmp将会再次返回，返回值是longjmp的第二个参数val</li>
+<li>如果setjmp不是因为longjmp返回的，返回值为0</li>
+<li>不知道为什么执行结果中，自增的cnt0和cnt1在值为1的时候停顿了一次？</li>
+</ul></li>
+
+<li><p><a href="https://github.com/nasrallahmounir/context-switch-setjmp-longjm">setjump &amp; longjmp 进阶实现</a></p></li>
+
+<li><p><a href="https://github.com/mrquincle/event-abbey">setjump &amp; longjmp 进阶实现</a></p></li>
+</ul>
+
+<h2 id="ucontext:1a17fb99183985490e9adefe8aecc78f">ucontext</h2>
+
+<h5 id="man-getcontext:1a17fb99183985490e9adefe8aecc78f">man getcontext</h5>
+
+<pre><code class="language-bash">In  a  System  V-like  environment,  one has the two types mcontext_t and ucontext_t defined in &lt;ucontext.h&gt; and the four functions getcontext(), setcontext(), makecontext(3), and swapcontext(3) that
+allow user-level context switching between multiple threads of control within a process.
+
+The mcontext_t type is machine-dependent and opaque.  The ucontext_t type is a structure that has at least the following fields:
+
+    typedef struct ucontext {
+        struct ucontext *uc_link;
+        sigset_t         uc_sigmask;
+        stack_t          uc_stack;
+        mcontext_t       uc_mcontext;
+        ...
+    } ucontext_t;
+
+with sigset_t and stack_t defined in &lt;signal.h&gt;.  Here uc_link points to the context that will be resumed when the current context terminates (in case the current context was created  using  makecon‐
+text(3)),  uc_sigmask is the set of signals blocked in this context (see sigprocmask(2)), uc_stack is the stack used by this context (see sigaltstack(2)), and uc_mcontext is the machine-specific rep‐
+resentation of the saved context, that includes the calling thread's machine registers.
+
+The function getcontext() initializes the structure pointed at by ucp to the currently active context.
+
+The function setcontext() restores the user context pointed at by ucp.  A successful call does not return.  The context should have been obtained by a call  of  getcontext(),  or  makecontext(3),  or
+passed as third argument to a signal handler.
+
+If the context was obtained by a call of getcontext(), program execution continues as if this call just returned.
+
+If the context was obtained by a call of makecontext(3), program execution continues by a call to the function func specified as the second argument of that call to makecontext(3).  When the function
+func returns, we continue with the uc_link member of the structure ucp specified as the first argument of that call to makecontext(3).  When this member is NULL, the thread exits.
+
+If the context was obtained by a call to a signal handler, then old standard text says that &quot;program execution continues with the program instruction following the instruction interrupted by the sig‐
+nal&quot;.  However, this sentence was removed in SUSv2, and the present verdict is &quot;the result is unspecified&quot;.
+</code></pre>
+
+<h5 id="man-makecontext:1a17fb99183985490e9adefe8aecc78f">man makecontext</h5>
+
+<pre><code class="language-bash">In  a  System  V-like  environment,  one has the type ucontext_t defined in &lt;ucontext.h&gt; and the four functions getcontext(3), setcontext(3), makecontext() and swapcontext() that allow user-level context switching between multiple threads of control within a
+process.
+
+在类System V环境下，结构体ucontext_t和四个函数 getcontext、setcontext、makecontext和swapcontext提供了在一个进程内通过用户级上下文切换的方式实现多线程的方式
+
+For the type and the first two functions, see getcontext(3).
+
+The makecontext() function modifies the context pointed to by ucp (which was obtained from a call to getcontext(3)).  Before invoking makecontext(), the caller must allocate a new stack for this context and assign its address to ucp-&gt;uc_stack, and  define  a
+successor context and assign its address to ucp-&gt;uc_link.
+
+makecontext函数将修改ucp指向的 ucontext_t（必须是从getcontext获得的对象），在调用makecontext前，调用者必须为改上下文分配一个新的栈，并将ucp-&gt;uc_stack指向栈的地址，同时将ucp-&gt;uc_link指向下一个context
+
+When  this  context  is  later activated (using setcontext(3) or swapcontext()) the function func is called, and passed the series of integer (int) arguments that follow argc; the caller must specify the number of these arguments in argc.  When this function
+returns, the successor context is activated.  If the successor context pointer is NULL, the thread exits.
+
+当该context稍后被激活(通过setcontext或者swapcontext)，makecontext函数参数中的func将被调用，同时向func传递argc个参数。当func返回时，下一个context将被激活调用。如果下一个context是null的话，该线程结束。
+
+The swapcontext() function saves the current context in the structure pointed to by oucp, and then activates the context pointed to by ucp.
+
+swapcontext函数将当前context保存在oucp结构体，同时激活ucp指向的context。
+</code></pre>
+
+<h5 id="man-page-中的例子:1a17fb99183985490e9adefe8aecc78f">man page 中的例子</h5>
+
+<pre><code class="language-bash">#include &lt;ucontext.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+
+static ucontext_t uctx_main, uctx_func1, uctx_func2;
+
+#define handle_error(msg) \
+    do { perror(msg); exit(EXIT_FAILURE); } while (0)
+
+static void
+func1(void)
+{
+    printf(&quot;func1: started\n&quot;);
+    printf(&quot;func1: swapcontext(&amp;uctx_func1, &amp;uctx_func2)\n&quot;);
+    if (swapcontext(&amp;uctx_func1, &amp;uctx_func2) == -1)
+        handle_error(&quot;swapcontext&quot;);
+    printf(&quot;func1: returning\n&quot;);
+}
+
+static void
+func2(void)
+{
+    printf(&quot;func2: started\n&quot;);
+    printf(&quot;func2: swapcontext(&amp;uctx_func2, &amp;uctx_func1)\n&quot;);
+    if (swapcontext(&amp;uctx_func2, &amp;uctx_func1) == -1)
+        handle_error(&quot;swapcontext&quot;);
+    printf(&quot;func2: returning\n&quot;);
+}
+
+int
+main(int argc, char *argv[])
+{
+    char func1_stack[16384];
+    char func2_stack[16384];
+
+    if (getcontext(&amp;uctx_func1) == -1)
+        handle_error(&quot;getcontext&quot;);
+    uctx_func1.uc_stack.ss_sp = func1_stack;
+    uctx_func1.uc_stack.ss_size = sizeof(func1_stack);
+    uctx_func1.uc_link = &amp;uctx_main;
+    makecontext(&amp;uctx_func1, func1, 0);
+
+    if (getcontext(&amp;uctx_func2) == -1)
+        handle_error(&quot;getcontext&quot;);
+    uctx_func2.uc_stack.ss_sp = func2_stack;
+    uctx_func2.uc_stack.ss_size = sizeof(func2_stack);
+    /* Successor context is f1(), unless argc &gt; 1 */
+    uctx_func2.uc_link = (argc &gt; 1) ? NULL : &amp;uctx_func1;
+    makecontext(&amp;uctx_func2, func2, 0);
+
+    printf(&quot;main: swapcontext(&amp;uctx_main, &amp;uctx_func2)\n&quot;);
+    if (swapcontext(&amp;uctx_main, &amp;uctx_func2) == -1)
+        handle_error(&quot;swapcontext&quot;);
+
+    printf(&quot;main: exiting\n&quot;);
+    exit(EXIT_SUCCESS);
+}
+
+
+// http://stackoverflow.com/questions/20778735/is-the-type-stack-t-no-longer-defined-on-linux
+
+</code></pre>
+
+<p>执行结果：</p>
+
+<pre><code class="language-bash">$ gcc context.c -o context.o
+
+$ ./context.o 
+main: swapcontext(&amp;uctx_main, &amp;uctx_func2)
+func2: started
+func2: swapcontext(&amp;uctx_func2, &amp;uctx_func1)
+func1: started
+func1: swapcontext(&amp;uctx_func1, &amp;uctx_func2)
+func2: returning
+func1: returning
+main: exiting
+</code></pre>
+
+<p>通过manpage中提供的ucontext_t源码，结合man page中的解释，我们对此做一分析。</p>
+
+<ul>
+<li>执行过程详解
+
+<ul>
+<li>getcontext(&amp;uctx_func2) 用当前上下文初始化ucontext_t结构体对象：uctx_func2</li>
+<li>在调用makecontext前，调用者为该上下文分配一个新的栈，并将成员uc_stack指向栈的地址，同时将uc_link指向下一个context。此时argc为0，所以uctx_func2的uc_link指向uctx_func1，也就是说当uctx_func2执行完后，会自动激活uctx_func1执行</li>
+<li>makecontext(&amp;uctx_func2, func2, 0) 函数设置当uctx_func2激活时，调用func2函数，参数为0个；当func2返回时，下一个context将被激活，在这里是uctx_func1</li>
+<li>swapcontext(&amp;uctx_main, &amp;uctx_func2) 函数将进程当前执行的上下文保存在uctx_main中，并激活uctx_func2；uctx_func2开始执行，首先被执行的是func2函数，
+
+<ul>
+<li>func2: started</li>
+<li>func2: swapcontext(&amp;uctx_func2, &amp;uctx_func1)</li>
+</ul></li>
+<li>随后func2函数调用 swapcontext(&amp;uctx_func2, &amp;uctx_func1)，将当前上下文环境保存在uctx_func2中，激活uctx_func1；uctx_func1开始执行，首先执行的是func1，打印出：
+
+<ul>
+<li>func1: started</li>
+<li>func1: swapcontext(&amp;uctx_func1, &amp;uctx_func2)</li>
+</ul></li>
+<li>随后func1函数调用swapcontext(&amp;uctx_func1, &amp;uctx_func2)，将当前上下文环境保存在uctx_func1中，并激活uctx_func2；上一次uctx_func2保存的上下文环境将被回复，然后进程执行返回到上次被swap_context的点，打印出:
+
+<ul>
+<li>func2: returning</li>
+</ul></li>
+<li>func2函数返回后，uctx_func2也就返回了，下一个context将被激活，也就是uctx_func1；打印出：
+
+<ul>
+<li>func1: returning</li>
+</ul></li>
+<li>uctx_func1也执行结束，而它的下一个context是uctx_main，在main函数中最开始调用swap_context(&amp;uctx_main, &amp;uctx_func2)时，当时程序执行的上下文的地址就是这句，那么在main中继续执行，打印出：
+
+<ul>
+<li>main: exiting</li>
 </ul></li>
 </ul></li>
 </ul>
 
-<pre><code class="language-bash">       In  a  System  V-like  environment,  one has the type ucontext_t defined in &lt;ucontext.h&gt; and the four functions getcontext(3), setcontext(3), makecontext() and swapcontext() that allow user-level context switching between multiple threads of control within a
-       process.
-
-       在类System V环境下，结构体ucontext_t和四个函数 getcontext、setcontext、makecontext和swapcontext提供了在一个进程内通过用户级上下文切换的方式实现多线程的方式
-
-       For the type and the first two functions, see getcontext(3).
-
-       The makecontext() function modifies the context pointed to by ucp (which was obtained from a call to getcontext(3)).  Before invoking makecontext(), the caller must allocate a new stack for this context and assign its address to ucp-&gt;uc_stack, and  define  a
-       successor context and assign its address to ucp-&gt;uc_link.
-
-       makecontext函数将修改ucp指向的 ucontext_t（必须是从getcontext获得的对象），在调用makecontext前，调用者必须为改上下文分配一个新的栈，并将ucp-&gt;uc_stack指向栈的地址，同时将ucp-&gt;uc_link指向下一个context
-
-       When  this  context  is  later activated (using setcontext(3) or swapcontext()) the function func is called, and passed the series of integer (int) arguments that follow argc; the caller must specify the number of these arguments in argc.  When this function
-       returns, the successor context is activated.  If the successor context pointer is NULL, the thread exits.
-
-       当该context稍后被激活(通过setcontext或者swapcontext)，makecontext函数参数中的func将被调用，同时向func传递argc个参数。当func返回时，下一个context将被激活调用。如果下一个context是null的话，该线程结束。
-
-       The swapcontext() function saves the current context in the structure pointed to by oucp, and then activates the context pointed to by ucp.
-
-       swapcontext函数将当前context保存在oucp结构体，同时激活ucp指向的context。
-</code></pre>
-
-<pre><code>* [ucontext的使用](man makecontext)
-* [云风的实现](https://github.com/cloudwu/coroutine) 
+<pre><code class="language-bash">$ ./context.o x
+main: swapcontext(&amp;uctx_main, &amp;uctx_func2)
+func2: started
+func2: swapcontext(&amp;uctx_func2, &amp;uctx_func1)
+func1: started
+func1: swapcontext(&amp;uctx_func1, &amp;uctx_func2)
+func2: returning
 </code></pre>
 
 <ul>
-<li><p>setjump &amp; longjmp</p>
+<li>执行过程详解
 
 <ul>
-<li><a href="https://github.com/nasrallahmounir/context-switch-setjmp-longjm">setjump实现</a></li>
-<li><a href="https://github.com/mrquincle/event-abbey">setjump实现</a></li>
+<li>当argc个数不为0时，uctx_func2的uc_link为NULL，所以如果uctx_func2结束生命周期，那么整个进程将会退出</li>
+<li>在第一次swap_context(&amp;uctx_main, &amp;uctx_func2)时开始调用func2，func2中打印出：
+
+<ul>
+<li>func2: started</li>
+<li>func2: swapcontext(&amp;uctx_func2, &amp;uctx_func1)</li>
 </ul></li>
+<li>随后swap执行uctx_func1，打印：
+
+<ul>
+<li>func1: started</li>
+<li>func1: swapcontext(&amp;uctx_func1, &amp;uctx_func2)</li>
+</ul></li>
+<li>随后swap返回uctx_func2，打印：
+
+<ul>
+<li>func2: returning</li>
+</ul></li>
+<li>而func2返回时，由于uctx_func2-&gt;uc_link为NULL，所以整个进程退出，并不会返回到之前保存过的uctx_main执行上下文中。</li>
+</ul></li>
+</ul>
+
+<p>通过以上分析，您有没有对协程有一个直观的认识呢？本质上，协程调度只是将当前执行的上下文保存起来；调度协程的时候就是将两个执行上下文context切换；指定context的下一个context，在本context执行结束后自动激活下一个context，实现协作；本context执行过程中，通过swap_context主动让出CPU，而不是被抢占放弃CPU。</p>
+
+<ul>
+<li>可以参考下<a href="http://courses.cs.vt.edu/~cs3214/spring2016/examples/threads/coroutines.c">进一步的实现</a>，加深下印象：</li>
+</ul>
+
+<pre><code class="language-cpp">#include &lt;stdio.h&gt;
+#include &lt;stdbool.h&gt;
+#include &lt;ucontext.h&gt;
+
+static char stack[2][65536];            // a stack for each coroutine
+static ucontext_t coroutine_state[2];   // container to remember context
+
+// switch current coroutine (0 -&gt; 1 -&gt; 0 -&gt; 1 ...)
+static inline void
+yield_to_next(void) 
+{
+    static int current = 0;
+
+    int prev = current;
+    int next = 1 - current;
+
+    current = next;
+    swapcontext(&amp;coroutine_state[prev], &amp;coroutine_state[next]);
+}
+
+static void
+coroutine(int coroutine_number)
+{
+    int i;
+    for (i = 0; i &lt; 5; i++) {
+        printf(&quot;Coroutine %d counts i=%d (&amp;i=%p)\n&quot;, coroutine_number, i, &amp;i);
+        yield_to_next();
+    }
+}
+
+int
+main()
+{
+    ucontext_t return_to_main;
+
+    // set up
+    int i;
+    for (i = 0; i &lt; 2; i++) {
+        // initialize ucontext_t
+        getcontext(&amp;coroutine_state[i]);
+        // set up per-context stack
+        coroutine_state[i].uc_stack.ss_sp = stack[i];
+        coroutine_state[i].uc_stack.ss_size = sizeof(stack[i]);
+        // when done, resume 'return_to_main' context
+        coroutine_state[i].uc_link = &amp;return_to_main;
+        // let context[i] perform a call to coroutine(i) when swapped to
+        makecontext(&amp;coroutine_state[i], (void (*)(void))coroutine, 1, i);
+    }
+
+    printf(&quot;Starting coroutines...\n&quot;);
+    swapcontext(&amp;return_to_main, &amp;coroutine_state[0]);
+    printf(&quot;Done.\n&quot;);
+    return 0;
+}
+</code></pre>
+
+<ul>
+<li><p><a href="https://github.com/cloudwu/coroutine">云风的实现</a></p></li>
 
 <li><p>其他一些应用</p>
 
@@ -162,8 +656,9 @@
 <li>在libevent里通过协程实现同步</li>
 </ul></li>
 </ul></li>
+</ul>
 
-<li><p>lua的协程</p>
+<h2 id="lua的协程:1a17fb99183985490e9adefe8aecc78f">Lua的协程</h2>
 
 <ul>
 <li><p>lua不支持那种真正的多线程（共享同一地址空间的抢占式线程），原因是</p>
@@ -184,10 +679,14 @@
 <li><p>lua的c runtime stack和lua runtime stack是<a href="https://techsingular.org/2013/07/14/programming-in-lua%EF%BC%88%E5%85%AD%EF%BC%89%EF%BC%8Dcontinuation/">什么样子的</a></p></li>
 
 <li><p><a href="https://www.lua.org/pil/9.2.html">consumer-producer</a></p></li>
-</ul></li>
-
-<li><p>golang的协程(待续)</p></li>
 </ul>
+
+<h2 id="golang的协程-待续:1a17fb99183985490e9adefe8aecc78f">golang的协程(待续)</h2>
+
+<h2 id="stm32-contiki-coroutine:1a17fb99183985490e9adefe8aecc78f">stm32/ contiki/ coroutine</h2>
+
+<p><a href="http://wiki.csie.ncku.edu.tw/embedded/Lab2">stm32上的协程实现</a>
+    * <a href="http://blog.linux.org.tw/~jserv/archives/001848.html">http://blog.linux.org.tw/~jserv/archives/001848.html</a></p>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -222,7 +721,7 @@
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/coroutine%20and%20goroutine/&amp;title=coroutine%20and%20goroutine&amp;summary=%e5%8d%8f%e7%a8%8b%e6%98%af%e4%bb%80%e4%b9%88%ef%bc%9f%20what%20is%20coroutine%20%3f%20subroutine%20Coroutines%20in%20C%20%e5%8d%8f%e7%a8%8b%20ucontext%20ucontext%e7%89%88%e6%9c%ac%e7%9a%84%e5%ae%9e%e7%8e%b0%20man%20getcontext%20and%20setcontext%20man%20makecontext%20and%20swapcontext%20In%20a%20System%20V-like%20environment%2c%20one%20has%20the%20type%20ucontext_t%20defined%20in%20%26lt%3bucontext.h%26gt%3b%20and%20the%20four%20functions%20getcontext%283%29%2c%20setcontext%283%29%2c%20makecontext%28%29%20and%20swapcontext%28%29%20that%20allow%20user-level%20context%20switching%20between%20multiple%20threads%20of%20control%20within%20a%20process.%20%e5%9c%a8%e7%b1%bbSystem%20V%e7%8e%af%e5%a2%83%e4%b8%8b%ef%bc%8c%e7%bb%93%e6%9e%84%e4%bd%93ucontext_t%e5%92%8c%e5%9b%9b%e4%b8%aa%e5%87%bd%e6%95%b0%20getcontext%e3%80%81setcontext%e3%80%81makecontext%e5%92%8cswapcontext%e6%8f%90%e4%be%9b%e4%ba%86%e5%9c%a8%e4%b8%80%e4%b8%aa%e8%bf%9b%e7%a8%8b%e5%86%85%e9%80%9a%e8%bf%87%e7%94%a8%e6%88%b7%e7%ba%a7%e4%b8%8a%e4%b8%8b%e6%96%87%e5%88%87%e6%8d%a2%e7%9a%84%e6%96%b9%e5%bc%8f%e5%ae%9e%e7%8e%b0%e5%a4%9a%e7%ba%bf%e7%a8%8b%e7%9a%84%e6%96%b9%e5%bc%8f%20For%20the%20type%20and%20the%20first%20two%20functions%2c%20see%20getcontext%283%29.%20The%20makecontext%28%29%20function%20modifies%20the%20context%20pointed%20to%20by%20ucp%20%28which%20was%20obtained%20from%20a%20call%20to%20getcontext%283%29%29...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/coroutine%20and%20goroutine/&amp;title=coroutine%20and%20goroutine&amp;summary=%e5%8d%8f%e7%a8%8b%e6%98%af%e4%bb%80%e4%b9%88%ef%bc%9f%20what%20is%20coroutine%20%3f%20%e5%8d%8f%e7%a8%8b%e7%9a%84%e6%a6%82%e5%bf%b5%20Coroutines%20are%20computer%20program%20components%20that%20generalize%20subroutines%20for%20nonpreemptive%20multitasking%2c%20by%20allowing%20multiple%20entry%20points%20for%20suspending%20and%20resuming%20execution%20at%20certain%20locations.%20Coroutines%20are%20well-suited%20for%20implementing%20more%20familiar%20program%20components%20such%20as%20cooperative%20tasks%2c%20exceptions%2c%20event%20loop%2c%20iterators%2c%20infinite%20lists%20and%20pipes.%20According%20to%20Donald%20Knuth%2c%20the%20term%20coroutine%20was%20coined%20by%20Melvin%20Conway%20in%201958%2c%20after%20he%20applied%20it%20to%20construction%20of%20an%20assembly%20program.%5b1%5d%20The%20first%20published%20explanation%20of%20the%20coroutine%20appeared%20later%2c%20in%201963.%5b2%5d%20%e5%8d%8f%e7%a8%8b%e6%98%af%e4%b8%ba%e5%ae%9e%e7%8e%b0%e9%9d%9e%e6%8a%a2%e5%8d%a0%e5%bc%8f%e5%a4%9a%e4%bb%bb%e5%8a%a1%e8%80%8c%e6%8f%90%e5%87%ba%e7%9a%84%e8%ae%a1%e7%ae%97%e6%9c%ba%e5%ad%90%e7%a8%8b%e5%ba%8f%ef%bc%8c%e9%80%9a%e8%bf%87%e6%8f%90%e4%be%9b%e5%a4%9a%e4%b8%aa%e7%a8%8b%e5%ba%8f%e5%85%a5%e5%8f%a3%e4%bd%bf%e5%be%97%e7%a8%8b%e5%ba%8f%e5%8f%af%e4%bb%a5%e5%9c%a8%e7%89%b9%e5%ae%9a%e5%9c%b0%e5%9d%80%e6%8c%82%e8%b5%b7%e5%92%8c%e6%81%a2%e5%a4%8d%e6%89%a7%e8%a1%8c%e3%80%82%e5%8d%8f%e7%a8%8b%e5%a4%a9%e7%94%9f%e7%9a%84%e6%94%af%e6%8c%81%e5%ae%9e%e7%8e%b0%e5%b8%b8%e8%a7%81%e7%a8%8b%e5%ba%8f%e7%bb%84%e4%bb%b6%ef%bc%8c%e6%af%94%e5%a6%82%e5%8d%8f%e4%bd%9c%e5%bc%8f%e4%bb%bb%e5%8a%a1%e3%80%81%e5%bc%82%e5%b8%b8%e3%80%81%e6%97%b6%e9%97%b4%e5%be%aa%e7%8e%af%e3%80%81%e8%bf%ad%e4%bb%a3%e5%99%a8%e3%80%81%e6%97%a0%e8%be%b9%e7%95%8c%e5%88%97%e8%a1%a8%e5%92%8c%e7%ae%a1%e9%81%93%e7%ad%89%e3%80%82%20%e6%a0%b9%e6%8d%ae%e7%a5%96%e5%b8%88%e7%88%b7%e9%ab%98%e7%ba%b3%e5%be%b7%e8%8a%82%e8%af%b4%ef%bc%8c%e5%8d%8f%e7%a8%8b%e7%9a%84%e6%a6%82%e5%bf%b5%e7%94%b1Melvin%20Conway%e5%9c%a81958%e5%b9%b4%e6%8f%90%e5%87%ba%ef%bc%8c%e9%9a%8f%e5%90%8e%e4%bb%96%e5%b0%86%e5%8d%8f%e7%a8%8b%e5%ba%94%e7%94%a8%e5%9c%a8%e7%bc%96%e5%86%99%e6%b1%87%e7%bc%96%e7%a8%8b%e5%ba%8f%e4%b8%8a%e3%80%82%e5%8d%8f%e7%a8%8b%e7%9a%84%e7%ac%ac%e4%b8%80%e4%b8%aa%e5%85%ac%e5%bc%80%e5%8f%91%e8%a1%a8%e7%9a%84%e8%a7%a3%e9%87%8a%e5%87%ba%e7%8e%b0%e5%9c%a81963%e5%b9%b4%e3%80%82%20%e5%8f%af%e8%a7%81%e5%8d%8f%e7%a8%8b%e7%9a%84%e6%a6%82%e5%bf%b5%e6%af%94%e5%a4%9a%e7%ba%bf%e7%a8%8b%e8%bf%98%e6%97%a9%ef%bc%8c%e8%80%8c%e4%b8%94%e6%8c%89%e7%85%a7Knuth%e7%9a%84%e8%af%b4%e6%b3%95%ef%bc%8c%e2%80%9d%e5%ad%90%e4%be%8b%e7%a8%8b%e6%98%af%e5%8d%8f%e7%a8%8b%e7%9a%84%e7%89%b9%e4%be%8b%e2%80%9c%ef%bc%8c%e4%b8%80%e6%ac%a1%e5%ad%90%e4%be%8b%e7%a8%8b%e8%b0%83%e7%94%a8%e5%b0%b1%e6%98%af%e4%b8%80%e6%ac%a1%e5%ad%90%e5%87%bd%e6%95%b0%e8%b0%83%e7%94%a8%ef%bc%8c%e5%8d%8f%e7%a8%8b%e6%98%af%e7%b1%bb%e5%87%bd%e6%95%b0%e4%b8%80%e6%a0%b7%e7%9a%84%e7%bb%84%e4%bb%b6%ef%bc%8c%e6%88%91%e4%bb%ac%e5%8f%af%e4%bb%a5%e5%9c%a8%e5%8d%95%e7%ba%bf%e7%a8%8b%e4%b8%ad%e5%88%9b%e5%bb%baN%e5%a4%9a%e4%b8%aa%e5%8d%8f%e7%a8%8b%ef%bc%8c%e5%8f%aa%e8%a6%81%e5%86%85%e5%ad%98%e5%a4%9f%e7%94%a8%e3%80%82%20%2a%20%e5%8d%8f%e7%a8%8b%e4%b8%8e%e5%ad%90%e4%be%8b%e7%a8%8b%e7%9a%84%5b%e5%8c%ba%e5%88%ab%5d%28https%3a%2f%2fen.wikipedia.org%2fwiki%2fCoroutine%29%20%2a%20%e5%ad%90%e4%be%8b%e7%a8%8b%e5%8f%aa%e6%9c%89%e4%b8%80%e4%b8%aa%e8%b0%83%e7%94%a8%e5%85%a5%e5%8f%a3%e8%b5%b7%e7%82%b9%ef%bc%8c%e5%ad%90%e4%be%8b%e7%a8%8b%e9%80%80%e5%87%ba%e5%90%8e%ef%bc%8c%e6%89%a7%e8%a1%8c%e7%bb%93%e6%9d%9f%ef%bc%9b%e5%ad%90%e4%be%8b%e7%a8%8b%e5%8f%aa%e8%bf%94%e5%9b%9e%e4%b8%80%e6%ac%a1%ef%bc%8c%e5%9c%a8%e4%b8%a4%e6%ac%a1%e8%b0%83%e7%94%a8%e4%b9%8b%e9%97%b4%e4%b8%8d%e4%bf%9d%e5%ad%98%e7%8a%b6%e6%80%81%ef%bc%9b%20%2a%20%e5%8d%8f%e7%a8%8b%e6%9c%89%e5%a4%9a%e4%b8%aa%e5%85%a5%e5%8f%a3%ef%bc%8c%e8%b0%83%e7%94%a8%e8%b5%b7%e5%a7%8b%e7%82%b9%e3%80%81%e6%88%96%e8%80%85%e4%bb%8e%e4%b8%8a%e4%b8%80%e6%ac%a1%e8%bf%94%e5%9b%9e%e7%82%b9%e6%8e%a5%e7%9d%80%e6%89%a7%e8%a1%8c%ef%bc%9b%e4%bb%8e%e5%8d%8f%e7%a8%8b%e8%87%aa%e5%b7%b1%e7%9a%84%e8%a7%92%e5%ba%a6%e6%9d%a5%e7%9c%8b%ef%bc%8c%e4%bb%96%e6%94%be%e5%bc%83%e6%89%a7%e8%a1%8c%e6%97%b6%e4%b8%8d%e6%98%af%e9%80%80%e5%87%ba%ef%bc%8c%e8%80%8c%e6%98%af%e5%8e%bb%e8%b0%83%e7%94%a8%e5%8f%a6%e4%b8%80%e4%b8%aa%e5%8d%8f%e7%a8%8b%ef%bc%8c%e6%88%96%e8%80%85%e8%af%b4%e5%b0%86CPU%e4%b8%bb%e5%8a%a8%e8%ae%a9%e7%bb%99%e5%8f%a6%e4%b8%80%e4%b8%aa%e5%8d%8f%e7%a8%8b%ef%bc%9b%e5%8d%8f%e7%a8%8b%e4%bf%9d%e5%ad%98%e7%8a%b6%e6%80%81%3b%20%2a%20%e8%ae%a1%e7%ae%97%e6%9c%ba%e7%a7%91%e5%ad%a6%e4%b8%ad%ef%bc%8c%5byield%5d%28https%3a%2f%2fen.wikipedia.org%2fwiki%2fYield_%28multithreading%29%29%e7%94%a8%e4%ba%8e%e4%bd%bf%e5%a4%84%e7%90%86%e5%99%a8%e6%94%be%e5%bc%83%e5%bd%93%e5%89%8d%e8%bf%90%e8%a1%8c%e7%9a%84%e7%ba%bf%e7%a8%8bthread%ef%bc%8c%e5%b9%b6%e5%b0%86%e5%ae%83%e6%94%be%e5%85%a5%e8%bf%90%e8%a1%8c%e9%98%9f%e5%88%97%e7%9a%84%e6%9c%ab%e5%b0%be%20%2a%20%e5%8d%8f%e7%a8%8bcoroutine%e4%b8%ad%e7%9a%84yield%e9%9c%80%e8%a6%81%e6%98%be%e5%bc%8f%e8%b0%83%e7%94%a8%20%2a%20%e6%af%8f%e4%b8%aa%e5%ad%90%e4%be%8b%e7%a8%8b%e5%8f%af%e4%bb%a5%e8%bd%ac%e6%8d%a2%e4%b8%ba%e4%b8%80%e4%b8%aa%e4%b8%8d%e5%b8%a6yield%e7%9a%84%e5%8d%8f%e7%a8%8b%20%e5%8d%8f%e7%a8%8b%e6%9c%89%e5%85%b3%e7%9a%84%e5%9b%9b%e4%b8%aa%e6%a6%82%e5%bf%b5%ef%bc%9acoroutine%e3%80%81yield%e3%80%81Continuation%e3%80%81cooperative%20multitasking%20Coroutines%20in%20C%20%e7%bb%99%e4%bd%a0%e4%b8%80%e4%b8%aa%e7%9b%b4%e8%a7%82%e7%9a%84%e8%ae%a4%e8%af%86%20%23include%20%26lt%3bstdio.h%26gt%3b%20%23include%20%26lt%3bstdlib.h%26gt%3b%20int%20function%28void%29%20%7b%20static%20int%20i%2c%20state%20%3d%200%3b%20switch%20%28state%29%20%7b%20case%200%3a%20goto%20LABEL0%3b%20case%201%3a%20goto%20LABEL1%3b%20%7d%20LABEL0%3a%20%2f%2a%20start%20of%20function%20%2a%2f%20for%20%28i%20%3d%200%3b%20i%20%26lt%3b%2010%3b%20i%2b%2b%29%20%7b%20printf%28%26quot%3b%5ct%5ct%5cti%20%3d%20%25d%5cn%26quot%3b%2c%20i%29%3b%20state%20%3d%201%3b%20%2f%2a%20so%20we%20will%20come%20back%20to%20LABEL1%20%2a%2f%20return%20i%3b%20LABEL1%3a%20%3b%20%2f%2a%20resume%20control%20straight%20after%20the%20return%20%2a%2f%20%7d%20%7d%20int%20main%28%29%7b%20int%20j%20%3d%200%3b%20for%20%28%20j%20%3d%200%3b%20j%20%26lt%3b%2021%3b%20j%2b%2b%29%7b%20printf%28%26quot%3bj%20%3d%20%25d%2c%20func%20%3d%20%25d%5cn%26quot%3b%2c%20j%2c%20function%28%29%29%3b%20%7d%20%7d%20%e6%89%a7%e8%a1%8c%e7%bb%93%e6%9e%9c%20i%20%3d%200%20j%20%3d%200%2c%20func%20%3d%200%20i%20%3d%201%20j%20%3d%201%2c%20func%20%3d%201%20i%20%3d%202%20j%20%3d%202%2c%20func%20%3d%202%20i%20%3d%203%20j%20%3d%203%2c%20func%20%3d%203%20i%20%3d%204%20j%20%3d%204%2c%20func%20%3d%204%20i%20%3d%205%20j%20%3d%205%2c%20func%20%3d%205%20i%20%3d%206%20j%20%3d%206%2c%20func%20%3d%206%20i%20%3d%207%20j%20%3d%207%2c%20func%20%3d%207%20i%20%3d%208%20j%20%3d%208%2c%20func%20%3d%208%20i%20%3d%209%20j%20%3d%209%2c%20func%20%3d%209%20j%20%3d%2010%2c%20func%20%3d%2010%20j%20%3d%2011%2c%20func%20%3d%2011%20j%20%3d%2012%2c%20func%20%3d%2012%20j%20%3d%2013%2c%20func%20%3d%2013%20j%20%3d%2014%2c%20func%20%3d%2014%20j%20%3d%2015%2c%20func%20%3d%2015%20j%20%3d%2016%2c%20func%20%3d%2016%20j%20%3d%2017%2c%20func%20%3d%2017%20j%20%3d%2018%2c%20func%20%3d%2018%20j%20%3d%2019%2c%20func%20%3d%2019%20j%20%3d%2020%2c%20func%20%3d%2020%20%e6%89%a7%e8%a1%8c%e7%bb%93%e6%9e%9c%e5%88%86%e6%9e%90%20%e5%8f%98%e9%87%8fi%20%e5%92%8c%20state%20%e9%83%bd%e6%98%af%20static%e7%b1%bb%e5%9e%8b%e7%9a%84%ef%bc%8c%e6%98%af%e6%96%87%e4%bb%b6%e5%85%a8%e5%b1%80%e4%bd%9c%e7%94%a8%e5%9f%9f%e7%9a%84%20%e9%a6%96%e6%ac%a1%e6%89%a7%e8%a1%8cfunction%e5%87%bd%e6%95%b0%e6%97%b6%ef%bc%8cstate%20%3d%200%ef%bc%8cgoto%20%e5%88%b0%20LABEL0%ef%bc%8c%e7%84%b6%e5%90%8e%e8%bf%9b%e8%a1%8c%e6%ad%a3%e5%b8%b8%e5%be%aa%e7%8e%af%e5%92%8c%e8%bf%94%e5%9b%9e%20%e5%bd%93function%e8%b0%83%e7%94%a8%e6%ac%a1%e6%95%b0%e8%b6%85%e8%bf%87%e5%8d%81%e6%ac%a1%e5%90%8e%ef%bc%8c%e6%af%8f%e6%ac%a1%e8%bf%9b%e5%85%a5function%e5%87%bd%e6%95%b0%e5%86%85%e9%83%a8%e6%97%b6%ef%bc%8c%e7%94%b1switch%e5%88%86%e5%8f%91%e5%88%b0LABEL1%ef%bc%9b%e6%89%a7%e8%a1%8c%e5%ae%8c%e5%be%aa%e7%8e%af%e4%bd%93%e5%90%8e%ef%bc%8c%e5%af%b9i%e5%a2%9e1%ef%bc%8c%e7%84%b6%e5%90%8e%e8%bf%9b%e8%a1%8c%e5%88%a4%e6%96%ad%e6%98%af%e5%90%a6%20i%20%26lt%3b%2010%ef%bc%8c%e5%8f%91%e7%8e%b0%e4%b8%8d%e6%bb%a1%e8%b6%b3%ef%bc%8c%e9%80%80%e5%87%ba%e7%a8%8b%e5%ba%8f%20%e5%8f%af%e8%83%bd%e6%88%91%e4%bb%ac%e4%bc%9a%e6%af%94%e8%be%83%e7%ba%a0%e7%bb%93function%e7%a8%8b%e5%ba%8f%e5%9c%a8%20i%20%26gt%3b%2010%e5%90%8e%e4%b8%8d%e5%86%8d%e6%89%a7%e8%a1%8creturn%20i%e8%af%ad%e5%8f%a5%ef%bc%8c%e4%b8%ba%e4%bb%80%e4%b9%88%e8%bf%98%e4%bc%9a%e8%bf%94%e5%9b%9e%e8%87%aa%e5%a2%9e%e5%90%8e%e7%9a%84%e7%bb%93%e6%9e%9c%e5%91%a2%ef%bc%9f%20%e8%af%b4%e5%ae%9e%e8%af%9d%e6%88%91%e4%b9%9f%e5%b9%b6%e4%b8%8d%e8%83%bd%e5%be%88%e5%a5%bd%e8%a7%a3%e9%87%8a%e3%80%82%e6%88%91%e9%80%9a%e8%bf%87%e6%9f%a5%e7%9c%8b%e6%b1%87%e7%bc%96%e4%bb%a3%e7%a0%81%ef%bc%8c%e5%8f%91%e7%8e%b0%e4%bb%8d%e7%84%b6%e4%bc%9a%e6%89%a7%e8%a1%8c%e5%b0%86i%e5%80%bc%e8%bd%ac%e5%88%b0ecx%e5%af%84%e5%ad%98%e5%99%a8%ef%bc%8c%e6%88%91%e4%bb%ac%e7%9a%84function%e8%bf%94%e5%9b%9e%e5%80%bc%e5%b0%b1%e4%bb%8eecx%e6%8b%bf%e5%88%b0%e7%9a%84%e3%80%82%20%e4%bb%8d%e7%84%b6%e6%9c%89%e4%b8%a4%e7%a7%8d%e6%9b%b4%e4%bc%98%e5%8c%96%e7%9a%84%e5%86%99%e6%b3%95%3a%20%e5%b7%a6%e8%80%b3%e6%9c%b5%e8%80%97%e5%ad%90%e7%9a%84%e4%be%8b%e5%ad%90%e5%92%8c%e4%b8%8a%e4%be%8b%e7%9a%84%e6%9d%a5%e6%ba%90%e9%83%bd%e6%98%af%e5%a4%a9%e6%89%8d%e7%a8%8b%e5%ba%8f%e5%91%98%20imon%20Tatham%e5%af%b9%e5%8d%8f%e7%a8%8b%e5%81%9a%e7%9a%84%e5%b0%9d%e8%af%95%20%e5%8d%8f%e7%a8%8b%e5%ae%9e%e7%8e%b0%e7%9a%84%e5%9f%ba%e7%a1%80%20%e6%8e%a8%e8%8d%90%e7%9a%84%e4%b8%80%e4%ba%9b%e5%8d%8f%e7%a8%8b%e5%ba%93%20protothread%20%e5%85%b6%e5%ae%9ec%e9%87%8c%e9%9d%a2%e6%9c%80%e5%a5%bd%e7%9a%84%e5%8d%8f%e7%a8%8b%e5%ba%93%ef%bc%8c%e5%b0%b1%e6%98%af%e5%b5%8c%e5%85%a5LuaVM%e5%95%a6%e3%80%82%20setjump%20%26amp%3b%20longjmp%20man%20longjmp%20NAME%20longjmp%2c%20siglongjmp%20-%20nonlocal%20jump%20to%20a%20saved%20stack%20context%20SYNOPSIS%20%23include%20%26lt%3bsetjmp.h%26gt%3b%20void%20longjmp%28jmp_buf%20env%2c%20int%20val%29%3b%20void%20siglongjmp%28sigjmp_buf%20env%2c%20int%20val%29%3b%20DESCRIPTION%20longjmp%28%29%20and%20setjmp%283%29%20are%20useful%20for%20dealing%20with%20errors%20and%20interrupts%20encountered%20in%20a%20low-level%20subroutine%20of%20a%20program...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

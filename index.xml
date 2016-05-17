@@ -5,8 +5,58 @@
     <link>https://bg2bkk.github.io/</link>
     <description>Recent content on BG2BKK Site</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Mon, 09 May 2016 16:55:42 +0800</lastBuildDate>
+    <lastBuildDate>Tue, 17 May 2016 11:33:10 +0800</lastBuildDate>
     <atom:link href="https://bg2bkk.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>design patterns 设计模式</title>
+      <link>https://bg2bkk.github.io/post/design%20patterns%20%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Tue, 17 May 2016 11:33:10 +0800</pubDate>
+      
+      <guid>https://bg2bkk.github.io/post/design%20patterns%20%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</guid>
+      <description>
+
+&lt;h2 id=&#34;uml类图:05beb03bd2b20b37622e83e38123d90b&#34;&gt;UML类图&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://design-patterns.readthedocs.io/zh_CN/latest/read_uml.html&#34;&gt;认真读图&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;单例模式:05beb03bd2b20b37622e83e38123d90b&#34;&gt;单例模式&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://marcio.io/2015/07/singleton-pattern-in-go/&#34;&gt;单例模式&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://tengj.top/2016/04/06/sjms4singleton/&#34;&gt;http://tengj.top/2016/04/06/sjms4singleton/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://liuxp0827.blog.51cto.com/5013343/1354360&#34;&gt;http://liuxp0827.blog.51cto.com/5013343/1354360&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;工厂模式:05beb03bd2b20b37622e83e38123d90b&#34;&gt;工厂模式&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://tengj.top/2016/04/02/sjms1simpleFactory/&#34;&gt;简单工厂模式&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.oschina.net/code/snippet_1469272_34383&#34;&gt;design pattern in GO&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;interface　相当于是　abstract class&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://tengj.top/2016/04/03/sjms2factorymethod/&#34;&gt;工厂方法模式&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;工厂方法模式的用意是定义一个创建产品对象的工厂接口，将实际创建工作推迟到子类中。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://tengj.top/2016/04/04/sjms3abstractfactory/&#34;&gt;抽象工厂模式&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;抽象工厂模式可以向客户端提供一个接口，使得客户端在不必指定产品的具体类型的情况下，创建多个产品族中的产品对象。这就是抽象工厂的用意。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>SO_REUSEADDR和SO_REUSEPORT</title>
@@ -2196,59 +2246,553 @@ print(table.maxn(t))
       <pubDate>Sun, 13 Mar 2016 17:59:29 +0800</pubDate>
       
       <guid>https://bg2bkk.github.io/post/coroutine%20and%20goroutine/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;协程是什么？ what is coroutine ?
+      <description>
+
+&lt;h4 id=&#34;协程是什么-what-is-coroutine:1a17fb99183985490e9adefe8aecc78f&#34;&gt;协程是什么？ what is coroutine ?&lt;/h4&gt;
 
 &lt;ul&gt;
-&lt;li&gt;subroutine&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html&#34;&gt;Coroutines in C&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://coolshell.cn/articles/10975.html&#34;&gt;协程&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Coroutine&#34;&gt;协程的概念&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Coroutines are computer program components that generalize subroutines for nonpreemptive multitasking, by allowing multiple entry points for suspending and resuming execution at certain locations. Coroutines are well-suited for implementing more familiar program components such as cooperative tasks, exceptions, event loop, iterators, infinite lists and pipes.&lt;/p&gt;
+
+&lt;p&gt;According to Donald Knuth, the term coroutine was coined by Melvin Conway in 1958, after he applied it to construction of an assembly program.[1] The first published explanation of the coroutine appeared later, in 1963.[2]&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;协程是为实现非抢占式多任务而提出的计算机子程序，通过提供多个程序入口使得程序可以在特定地址挂起和恢复执行。协程天生的支持实现常见程序组件，比如协作式任务、异常、时间循环、迭代器、无边界列表和管道等。&lt;/p&gt;
+
+&lt;p&gt;根据祖师爷高纳德节说，协程的概念由Melvin Conway在1958年提出，随后他将协程应用在编写汇编程序上。协程的第一个公开发表的解释出现在1963年。&lt;/p&gt;
+
+&lt;p&gt;可见协程的概念比多线程还早，而且按照Knuth的说法，&lt;a href=&#34;http://coolshell.cn/articles/10975.html&#34;&gt;”子例程是协程的特例“，一次子例程调用就是一次子函数调用&lt;/a&gt;，协程是类函数一样的组件，我们可以在单线程中创建N多个协程，只要内存够用。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;* 协程与子例程的[区别](https://en.wikipedia.org/wiki/Coroutine)
+    * 子例程只有一个调用入口起点，子例程退出后，执行结束；子例程只返回一次，在两次调用之间不保存状态；
+    * 协程有多个入口，调用起始点、或者从上一次返回点接着执行；从协程自己的角度来看，他放弃执行时不是退出，而是去调用另一个协程，或者说将CPU主动让给另一个协程；协程保存状态;
+        * 计算机科学中，[yield](https://en.wikipedia.org/wiki/Yield_(multithreading))用于使处理器放弃当前运行的线程thread，并将它放入运行队列的末尾
+        * 协程coroutine中的yield需要显式调用
+    * 每个子例程可以转换为一个不带yield的协程
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;协程有关的四个概念：&lt;a href=&#34;https://en.wikipedia.org/wiki/Coroutine&#34;&gt;coroutine&lt;/a&gt;、&lt;a href=&#34;https://en.wikipedia.org/wiki/Yield_(multithreading&#34;&gt;yield&lt;/a&gt;、&lt;a href=&#34;https://en.wikipedia.org/wiki/Continuation&#34;&gt;Continuation&lt;/a&gt;、&lt;a href=&#34;https://en.wikipedia.org/wiki/Cooperative_multitasking&#34;&gt;cooperative multitasking&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html&#34;&gt;Coroutines in C&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.hawkwithwind.net/blog/2011/02/18/%E5%8D%8F%E7%A8%8B%E7%9A%84c%E5%AE%9E%E7%8E%B0/&#34;&gt;给你一个直观的认识&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;ucontext
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;stdlib.h&amp;gt;
+int function(void) {
+	static int i, state = 0;
+	switch (state) {
+		case 0: goto LABEL0;
+		case 1: goto LABEL1;
+	}
+LABEL0: /* start of function */
+	for (i = 0; i &amp;lt; 10; i++) {
+		printf(&amp;quot;\t\t\ti = %d\n&amp;quot;, i);
+		state = 1; /* so we will come back to LABEL1 */
+		return i;
+LABEL1:
+		; /* resume control straight after the return */
+	}
+}
+
+int main(){
+	int j = 0;
+	for ( j = 0; j &amp;lt; 21; j++){
+		printf(&amp;quot;j = %d, func = %d\n&amp;quot;, j, function());
+	}
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;执行结果&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;			i = 0
+j = 0, func = 0
+			i = 1
+j = 1, func = 1
+			i = 2
+j = 2, func = 2
+			i = 3
+j = 3, func = 3
+			i = 4
+j = 4, func = 4
+			i = 5
+j = 5, func = 5
+			i = 6
+j = 6, func = 6
+			i = 7
+j = 7, func = 7
+			i = 8
+j = 8, func = 8
+			i = 9
+j = 9, func = 9
+j = 10, func = 10
+j = 11, func = 11
+j = 12, func = 12
+j = 13, func = 13
+j = 14, func = 14
+j = 15, func = 15
+j = 16, func = 16
+j = 17, func = 17
+j = 18, func = 18
+j = 19, func = 19
+j = 20, func = 20
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://courses.cs.vt.edu/~cs3214/spring2016/examples/threads/coroutines.c&#34;&gt;ucontext版本的实现&lt;/a&gt;
+&lt;li&gt;&lt;p&gt;执行结果分析&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;man getcontext and setcontext&lt;/li&gt;
-&lt;li&gt;man makecontext and swapcontext&lt;/li&gt;
+&lt;li&gt;变量i 和 state 都是 static类型的，是文件全局作用域的&lt;/li&gt;
+&lt;li&gt;首次执行function函数时，state = 0，goto 到 LABEL0，然后进行正常循环和返回&lt;/li&gt;
+&lt;li&gt;当function调用次数超过十次后，每次进入function函数内部时，由switch分发到LABEL1；执行完循环体后，对i增1，然后进行判断是否 i &amp;lt; 10，发现不满足，退出程序&lt;/li&gt;
+&lt;li&gt;可能我们会比较纠结function程序在 i &amp;gt; 10后不再执行return i语句，为什么还会返回自增后的结果呢？
+
+&lt;ul&gt;
+&lt;li&gt;说实话我也并不能很好解释。我通过查看汇编代码，发现仍然会执行将i值转到ecx寄存器，我们的function返回值就从ecx拿到的。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;仍然有两种更优化的写法: &lt;a href=&#34;http://coolshell.cn/articles/10975.html&#34;&gt;左耳朵耗子的例子&lt;/a&gt;和&lt;a href=&#34;http://www.hawkwithwind.net/blog/2011/02/18/%E5%8D%8F%E7%A8%8B%E7%9A%84c%E5%AE%9E%E7%8E%B0/&#34;&gt;上例&lt;/a&gt;的来源都是天才程序员  &lt;a href=&#34;http://www.chiark.greenend.org.uk/~sgtatham/&#34;&gt;imon Tatham&lt;/a&gt;对&lt;a href=&#34;http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html&#34;&gt;协程做的尝试&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.colaghost.net/os/unix_linux/341&#34;&gt;协程实现的基础&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;推荐的一些协程库&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://dunkels.com/adam/pt/&#34;&gt;protothread&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;其实c里面最好的协程库，就是嵌入LuaVM啦。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;setjump-longjmp:1a17fb99183985490e9adefe8aecc78f&#34;&gt;setjump &amp;amp; longjmp&lt;/h2&gt;
+
+&lt;h5 id=&#34;man-longjmp:1a17fb99183985490e9adefe8aecc78f&#34;&gt;man longjmp&lt;/h5&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;NAME
+       longjmp, siglongjmp - nonlocal jump to a saved stack context
+
+SYNOPSIS
+       #include &amp;lt;setjmp.h&amp;gt;
+
+       void longjmp(jmp_buf env, int val);
+       void siglongjmp(sigjmp_buf env, int val);
+
+DESCRIPTION
+       longjmp()  and  setjmp(3) are useful for dealing with errors and interrupts encountered in a low-level subroutine of a program.  longjmp() restores the environment saved by the last call of setjmp(3)
+       with the corresponding env argument.  After longjmp() is completed, program execution continues as if the corresponding call of setjmp(3) had just returned the value val.  longjmp() cannot cause 0 to
+       be returned.  If longjmp() is invoked with a second argument of 0, 1 will be returned instead.
+
+	   longjmp和setjmp在处理程序调用子例程过程中遇到错误或中断时非常有用。longjmp将恢复最近一次调用setjmp时通过env参数保存的上下文环境。longjmp完成后，原来调用setjmp的地方将会返回，并且setjmp的返回值是longjmp的val参数。longjmp不会返回0。如果longjmp调用时第二个参数是0，那么它将会返回1.
+
+       siglongjmp()  is  similar  to longjmp() except for the type of its env argument.  If, and only if, the sigsetjmp(3) call that set this env used a nonzero savesigs flag, siglongjmp() also restores the
+       signal mask that was saved by sigsetjmp(3).
+
+RETURN VALUE
+       These functions never return.
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;man-setjmp:1a17fb99183985490e9adefe8aecc78f&#34;&gt;man setjmp&lt;/h5&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;NAME
+       setjmp, sigsetjmp - save stack context for nonlocal goto
+
+SYNOPSIS
+       #include &amp;lt;setjmp.h&amp;gt;
+
+       int setjmp(jmp_buf env);
+       int sigsetjmp(sigjmp_buf env, int savesigs);
+	 
+DESCRIPTION
+       setjmp()  and  longjmp(3)  are  useful for dealing with errors and interrupts encountered in a low-level subroutine of a program.  setjmp() saves the stack context/environment in env for later use by
+       longjmp(3).  The stack context will be invalidated if the function which called setjmp() returns.
+
+       sigsetjmp() is similar to setjmp().  If, and only if, savesigs is nonzero, the process&#39;s current signal mask is saved in env and will be restored if a siglongjmp(3) is later performed with this env.
+
+RETURN VALUE
+       setjmp() and sigsetjmp() return 0 if returning directly, and nonzero when returning from longjmp(3) or siglongjmp(3) using the saved context.
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;示例代码:1a17fb99183985490e9adefe8aecc78f&#34;&gt;示例代码&lt;/h5&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://blog.linux.org.tw/~jserv/archives/001848.html&#34;&gt;代码地址&lt;/a&gt; 博客评论区&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#include &amp;lt;stdio.h&amp;gt;                                                                                  
+#include &amp;lt;unistd.h&amp;gt;
+#include &amp;lt;setjmp.h&amp;gt;
+
+jmp_buf jmpbuf_th0;
+jmp_buf jmpbuf_th1;
+
+static int cnt1 = 0;
+static int cnt0 = 0;
+
+static void thread_0()
+{
+	printf(&amp;quot;%s \n\n&amp;quot;, __FUNCTION__);
+	sleep(1);
+	longjmp(jmpbuf_th0, cnt0++);
+}
+
+static void thread_1()
+{
+	printf(&amp;quot;%s \n\n&amp;quot;, __FUNCTION__);
+	sleep(1);
+	longjmp(jmpbuf_th1, cnt1++);
+}
+
+
+int main()
+{
+	int rc0, rc1 = 0;
+
+entry_thread_0:
+	rc0 = setjmp(jmpbuf_th0);
+	printf(&amp;quot;rc0 = %d\n&amp;quot;, rc0);
+	if (rc0 != 0)
+		thread_1();
+entry_thread_1:
+	rc1 = setjmp(jmpbuf_th1);
+	printf(&amp;quot;rc1 = %d\n&amp;quot;, rc1);
+	thread_0();
+
+	return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;执行结果&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;rc0 = 0
+rc1 = 0
+thread_0 
+
+rc0 = 1
+thread_1 
+
+rc1 = 1
+thread_0 
+
+rc0 = 1
+thread_1 
+
+rc1 = 1
+thread_0 
+
+rc0 = 2
+thread_1 
+
+rc1 = 2
+thread_0 
+
+rc0 = 3
+thread_1 
+
+rc1 = 3
+thread_0 
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;执行过程分析&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;setjmp和longjmp都是基于程序空间中额外的jmpbuf&lt;/li&gt;
+&lt;li&gt;setjmp将当前环境存储在jmpbuf中，longjmp到同一个jmpbuf时，setjmp将会再次返回，返回值是longjmp的第二个参数val&lt;/li&gt;
+&lt;li&gt;如果setjmp不是因为longjmp返回的，返回值为0&lt;/li&gt;
+&lt;li&gt;不知道为什么执行结果中，自增的cnt0和cnt1在值为1的时候停顿了一次？&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/nasrallahmounir/context-switch-setjmp-longjm&#34;&gt;setjump &amp;amp; longjmp 进阶实现&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/mrquincle/event-abbey&#34;&gt;setjump &amp;amp; longjmp 进阶实现&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;ucontext:1a17fb99183985490e9adefe8aecc78f&#34;&gt;ucontext&lt;/h2&gt;
+
+&lt;h5 id=&#34;man-getcontext:1a17fb99183985490e9adefe8aecc78f&#34;&gt;man getcontext&lt;/h5&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;In  a  System  V-like  environment,  one has the two types mcontext_t and ucontext_t defined in &amp;lt;ucontext.h&amp;gt; and the four functions getcontext(), setcontext(), makecontext(3), and swapcontext(3) that
+allow user-level context switching between multiple threads of control within a process.
+
+The mcontext_t type is machine-dependent and opaque.  The ucontext_t type is a structure that has at least the following fields:
+
+    typedef struct ucontext {
+        struct ucontext *uc_link;
+        sigset_t         uc_sigmask;
+        stack_t          uc_stack;
+        mcontext_t       uc_mcontext;
+        ...
+    } ucontext_t;
+
+with sigset_t and stack_t defined in &amp;lt;signal.h&amp;gt;.  Here uc_link points to the context that will be resumed when the current context terminates (in case the current context was created  using  makecon‐
+text(3)),  uc_sigmask is the set of signals blocked in this context (see sigprocmask(2)), uc_stack is the stack used by this context (see sigaltstack(2)), and uc_mcontext is the machine-specific rep‐
+resentation of the saved context, that includes the calling thread&#39;s machine registers.
+
+The function getcontext() initializes the structure pointed at by ucp to the currently active context.
+
+The function setcontext() restores the user context pointed at by ucp.  A successful call does not return.  The context should have been obtained by a call  of  getcontext(),  or  makecontext(3),  or
+passed as third argument to a signal handler.
+
+If the context was obtained by a call of getcontext(), program execution continues as if this call just returned.
+
+If the context was obtained by a call of makecontext(3), program execution continues by a call to the function func specified as the second argument of that call to makecontext(3).  When the function
+func returns, we continue with the uc_link member of the structure ucp specified as the first argument of that call to makecontext(3).  When this member is NULL, the thread exits.
+
+If the context was obtained by a call to a signal handler, then old standard text says that &amp;quot;program execution continues with the program instruction following the instruction interrupted by the sig‐
+nal&amp;quot;.  However, this sentence was removed in SUSv2, and the present verdict is &amp;quot;the result is unspecified&amp;quot;.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;man-makecontext:1a17fb99183985490e9adefe8aecc78f&#34;&gt;man makecontext&lt;/h5&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;In  a  System  V-like  environment,  one has the type ucontext_t defined in &amp;lt;ucontext.h&amp;gt; and the four functions getcontext(3), setcontext(3), makecontext() and swapcontext() that allow user-level context switching between multiple threads of control within a
+process.
+
+在类System V环境下，结构体ucontext_t和四个函数 getcontext、setcontext、makecontext和swapcontext提供了在一个进程内通过用户级上下文切换的方式实现多线程的方式
+
+For the type and the first two functions, see getcontext(3).
+
+The makecontext() function modifies the context pointed to by ucp (which was obtained from a call to getcontext(3)).  Before invoking makecontext(), the caller must allocate a new stack for this context and assign its address to ucp-&amp;gt;uc_stack, and  define  a
+successor context and assign its address to ucp-&amp;gt;uc_link.
+
+makecontext函数将修改ucp指向的 ucontext_t（必须是从getcontext获得的对象），在调用makecontext前，调用者必须为改上下文分配一个新的栈，并将ucp-&amp;gt;uc_stack指向栈的地址，同时将ucp-&amp;gt;uc_link指向下一个context
+
+When  this  context  is  later activated (using setcontext(3) or swapcontext()) the function func is called, and passed the series of integer (int) arguments that follow argc; the caller must specify the number of these arguments in argc.  When this function
+returns, the successor context is activated.  If the successor context pointer is NULL, the thread exits.
+
+当该context稍后被激活(通过setcontext或者swapcontext)，makecontext函数参数中的func将被调用，同时向func传递argc个参数。当func返回时，下一个context将被激活调用。如果下一个context是null的话，该线程结束。
+
+The swapcontext() function saves the current context in the structure pointed to by oucp, and then activates the context pointed to by ucp.
+
+swapcontext函数将当前context保存在oucp结构体，同时激活ucp指向的context。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h5 id=&#34;man-page-中的例子:1a17fb99183985490e9adefe8aecc78f&#34;&gt;man page 中的例子&lt;/h5&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#include &amp;lt;ucontext.h&amp;gt;
+#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;stdlib.h&amp;gt;
+
+static ucontext_t uctx_main, uctx_func1, uctx_func2;
+
+#define handle_error(msg) \
+    do { perror(msg); exit(EXIT_FAILURE); } while (0)
+
+static void
+func1(void)
+{
+    printf(&amp;quot;func1: started\n&amp;quot;);
+    printf(&amp;quot;func1: swapcontext(&amp;amp;uctx_func1, &amp;amp;uctx_func2)\n&amp;quot;);
+    if (swapcontext(&amp;amp;uctx_func1, &amp;amp;uctx_func2) == -1)
+        handle_error(&amp;quot;swapcontext&amp;quot;);
+    printf(&amp;quot;func1: returning\n&amp;quot;);
+}
+
+static void
+func2(void)
+{
+    printf(&amp;quot;func2: started\n&amp;quot;);
+    printf(&amp;quot;func2: swapcontext(&amp;amp;uctx_func2, &amp;amp;uctx_func1)\n&amp;quot;);
+    if (swapcontext(&amp;amp;uctx_func2, &amp;amp;uctx_func1) == -1)
+        handle_error(&amp;quot;swapcontext&amp;quot;);
+    printf(&amp;quot;func2: returning\n&amp;quot;);
+}
+
+int
+main(int argc, char *argv[])
+{
+    char func1_stack[16384];
+    char func2_stack[16384];
+
+    if (getcontext(&amp;amp;uctx_func1) == -1)
+        handle_error(&amp;quot;getcontext&amp;quot;);
+    uctx_func1.uc_stack.ss_sp = func1_stack;
+    uctx_func1.uc_stack.ss_size = sizeof(func1_stack);
+    uctx_func1.uc_link = &amp;amp;uctx_main;
+    makecontext(&amp;amp;uctx_func1, func1, 0);
+
+    if (getcontext(&amp;amp;uctx_func2) == -1)
+        handle_error(&amp;quot;getcontext&amp;quot;);
+    uctx_func2.uc_stack.ss_sp = func2_stack;
+    uctx_func2.uc_stack.ss_size = sizeof(func2_stack);
+    /* Successor context is f1(), unless argc &amp;gt; 1 */
+    uctx_func2.uc_link = (argc &amp;gt; 1) ? NULL : &amp;amp;uctx_func1;
+    makecontext(&amp;amp;uctx_func2, func2, 0);
+
+    printf(&amp;quot;main: swapcontext(&amp;amp;uctx_main, &amp;amp;uctx_func2)\n&amp;quot;);
+    if (swapcontext(&amp;amp;uctx_main, &amp;amp;uctx_func2) == -1)
+        handle_error(&amp;quot;swapcontext&amp;quot;);
+
+    printf(&amp;quot;main: exiting\n&amp;quot;);
+    exit(EXIT_SUCCESS);
+}
+
+
+// http://stackoverflow.com/questions/20778735/is-the-type-stack-t-no-longer-defined-on-linux
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;执行结果：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ gcc context.c -o context.o
+
+$ ./context.o 
+main: swapcontext(&amp;amp;uctx_main, &amp;amp;uctx_func2)
+func2: started
+func2: swapcontext(&amp;amp;uctx_func2, &amp;amp;uctx_func1)
+func1: started
+func1: swapcontext(&amp;amp;uctx_func1, &amp;amp;uctx_func2)
+func2: returning
+func1: returning
+main: exiting
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;通过manpage中提供的ucontext_t源码，结合man page中的解释，我们对此做一分析。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;执行过程详解
+
+&lt;ul&gt;
+&lt;li&gt;getcontext(&amp;amp;uctx_func2) 用当前上下文初始化ucontext_t结构体对象：uctx_func2&lt;/li&gt;
+&lt;li&gt;在调用makecontext前，调用者为该上下文分配一个新的栈，并将成员uc_stack指向栈的地址，同时将uc_link指向下一个context。此时argc为0，所以uctx_func2的uc_link指向uctx_func1，也就是说当uctx_func2执行完后，会自动激活uctx_func1执行&lt;/li&gt;
+&lt;li&gt;makecontext(&amp;amp;uctx_func2, func2, 0) 函数设置当uctx_func2激活时，调用func2函数，参数为0个；当func2返回时，下一个context将被激活，在这里是uctx_func1&lt;/li&gt;
+&lt;li&gt;swapcontext(&amp;amp;uctx_main, &amp;amp;uctx_func2) 函数将进程当前执行的上下文保存在uctx_main中，并激活uctx_func2；uctx_func2开始执行，首先被执行的是func2函数，
+
+&lt;ul&gt;
+&lt;li&gt;func2: started&lt;/li&gt;
+&lt;li&gt;func2: swapcontext(&amp;amp;uctx_func2, &amp;amp;uctx_func1)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;随后func2函数调用 swapcontext(&amp;amp;uctx_func2, &amp;amp;uctx_func1)，将当前上下文环境保存在uctx_func2中，激活uctx_func1；uctx_func1开始执行，首先执行的是func1，打印出：
+
+&lt;ul&gt;
+&lt;li&gt;func1: started&lt;/li&gt;
+&lt;li&gt;func1: swapcontext(&amp;amp;uctx_func1, &amp;amp;uctx_func2)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;随后func1函数调用swapcontext(&amp;amp;uctx_func1, &amp;amp;uctx_func2)，将当前上下文环境保存在uctx_func1中，并激活uctx_func2；上一次uctx_func2保存的上下文环境将被回复，然后进程执行返回到上次被swap_context的点，打印出:
+
+&lt;ul&gt;
+&lt;li&gt;func2: returning&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;func2函数返回后，uctx_func2也就返回了，下一个context将被激活，也就是uctx_func1；打印出：
+
+&lt;ul&gt;
+&lt;li&gt;func1: returning&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;uctx_func1也执行结束，而它的下一个context是uctx_main，在main函数中最开始调用swap_context(&amp;amp;uctx_main, &amp;amp;uctx_func2)时，当时程序执行的上下文的地址就是这句，那么在main中继续执行，打印出：
+
+&lt;ul&gt;
+&lt;li&gt;main: exiting&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;       In  a  System  V-like  environment,  one has the type ucontext_t defined in &amp;lt;ucontext.h&amp;gt; and the four functions getcontext(3), setcontext(3), makecontext() and swapcontext() that allow user-level context switching between multiple threads of control within a
-       process.
-
-       在类System V环境下，结构体ucontext_t和四个函数 getcontext、setcontext、makecontext和swapcontext提供了在一个进程内通过用户级上下文切换的方式实现多线程的方式
-
-       For the type and the first two functions, see getcontext(3).
-
-       The makecontext() function modifies the context pointed to by ucp (which was obtained from a call to getcontext(3)).  Before invoking makecontext(), the caller must allocate a new stack for this context and assign its address to ucp-&amp;gt;uc_stack, and  define  a
-       successor context and assign its address to ucp-&amp;gt;uc_link.
-
-       makecontext函数将修改ucp指向的 ucontext_t（必须是从getcontext获得的对象），在调用makecontext前，调用者必须为改上下文分配一个新的栈，并将ucp-&amp;gt;uc_stack指向栈的地址，同时将ucp-&amp;gt;uc_link指向下一个context
-
-       When  this  context  is  later activated (using setcontext(3) or swapcontext()) the function func is called, and passed the series of integer (int) arguments that follow argc; the caller must specify the number of these arguments in argc.  When this function
-       returns, the successor context is activated.  If the successor context pointer is NULL, the thread exits.
-
-       当该context稍后被激活(通过setcontext或者swapcontext)，makecontext函数参数中的func将被调用，同时向func传递argc个参数。当func返回时，下一个context将被激活调用。如果下一个context是null的话，该线程结束。
-
-       The swapcontext() function saves the current context in the structure pointed to by oucp, and then activates the context pointed to by ucp.
-
-       swapcontext函数将当前context保存在oucp结构体，同时激活ucp指向的context。
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code&gt;* [ucontext的使用](man makecontext)
-* [云风的实现](https://github.com/cloudwu/coroutine) 
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ ./context.o x
+main: swapcontext(&amp;amp;uctx_main, &amp;amp;uctx_func2)
+func2: started
+func2: swapcontext(&amp;amp;uctx_func2, &amp;amp;uctx_func1)
+func1: started
+func1: swapcontext(&amp;amp;uctx_func1, &amp;amp;uctx_func2)
+func2: returning
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;p&gt;setjump &amp;amp; longjmp&lt;/p&gt;
+&lt;li&gt;执行过程详解
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/nasrallahmounir/context-switch-setjmp-longjm&#34;&gt;setjump实现&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/mrquincle/event-abbey&#34;&gt;setjump实现&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;当argc个数不为0时，uctx_func2的uc_link为NULL，所以如果uctx_func2结束生命周期，那么整个进程将会退出&lt;/li&gt;
+&lt;li&gt;在第一次swap_context(&amp;amp;uctx_main, &amp;amp;uctx_func2)时开始调用func2，func2中打印出：
+
+&lt;ul&gt;
+&lt;li&gt;func2: started&lt;/li&gt;
+&lt;li&gt;func2: swapcontext(&amp;amp;uctx_func2, &amp;amp;uctx_func1)&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;随后swap执行uctx_func1，打印：
+
+&lt;ul&gt;
+&lt;li&gt;func1: started&lt;/li&gt;
+&lt;li&gt;func1: swapcontext(&amp;amp;uctx_func1, &amp;amp;uctx_func2)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;随后swap返回uctx_func2，打印：
+
+&lt;ul&gt;
+&lt;li&gt;func2: returning&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;而func2返回时，由于uctx_func2-&amp;gt;uc_link为NULL，所以整个进程退出，并不会返回到之前保存过的uctx_main执行上下文中。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;通过以上分析，您有没有对协程有一个直观的认识呢？本质上，协程调度只是将当前执行的上下文保存起来；调度协程的时候就是将两个执行上下文context切换；指定context的下一个context，在本context执行结束后自动激活下一个context，实现协作；本context执行过程中，通过swap_context主动让出CPU，而不是被抢占放弃CPU。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;可以参考下&lt;a href=&#34;http://courses.cs.vt.edu/~cs3214/spring2016/examples/threads/coroutines.c&#34;&gt;进一步的实现&lt;/a&gt;，加深下印象：&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;stdbool.h&amp;gt;
+#include &amp;lt;ucontext.h&amp;gt;
+
+static char stack[2][65536];            // a stack for each coroutine
+static ucontext_t coroutine_state[2];   // container to remember context
+
+// switch current coroutine (0 -&amp;gt; 1 -&amp;gt; 0 -&amp;gt; 1 ...)
+static inline void
+yield_to_next(void) 
+{
+    static int current = 0;
+
+    int prev = current;
+    int next = 1 - current;
+
+    current = next;
+    swapcontext(&amp;amp;coroutine_state[prev], &amp;amp;coroutine_state[next]);
+}
+
+static void
+coroutine(int coroutine_number)
+{
+    int i;
+    for (i = 0; i &amp;lt; 5; i++) {
+        printf(&amp;quot;Coroutine %d counts i=%d (&amp;amp;i=%p)\n&amp;quot;, coroutine_number, i, &amp;amp;i);
+        yield_to_next();
+    }
+}
+
+int
+main()
+{
+    ucontext_t return_to_main;
+
+    // set up
+    int i;
+    for (i = 0; i &amp;lt; 2; i++) {
+        // initialize ucontext_t
+        getcontext(&amp;amp;coroutine_state[i]);
+        // set up per-context stack
+        coroutine_state[i].uc_stack.ss_sp = stack[i];
+        coroutine_state[i].uc_stack.ss_size = sizeof(stack[i]);
+        // when done, resume &#39;return_to_main&#39; context
+        coroutine_state[i].uc_link = &amp;amp;return_to_main;
+        // let context[i] perform a call to coroutine(i) when swapped to
+        makecontext(&amp;amp;coroutine_state[i], (void (*)(void))coroutine, 1, i);
+    }
+
+    printf(&amp;quot;Starting coroutines...\n&amp;quot;);
+    swapcontext(&amp;amp;return_to_main, &amp;amp;coroutine_state[0]);
+    printf(&amp;quot;Done.\n&amp;quot;);
+    return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/cloudwu/coroutine&#34;&gt;云风的实现&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 
 &lt;li&gt;&lt;p&gt;其他一些应用&lt;/p&gt;
 
@@ -2259,8 +2803,9 @@ print(table.maxn(t))
 &lt;li&gt;在libevent里通过协程实现同步&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
 
-&lt;li&gt;&lt;p&gt;lua的协程&lt;/p&gt;
+&lt;h2 id=&#34;lua的协程:1a17fb99183985490e9adefe8aecc78f&#34;&gt;Lua的协程&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;lua不支持那种真正的多线程（共享同一地址空间的抢占式线程），原因是&lt;/p&gt;
@@ -2281,10 +2826,14 @@ print(table.maxn(t))
 &lt;li&gt;&lt;p&gt;lua的c runtime stack和lua runtime stack是&lt;a href=&#34;https://techsingular.org/2013/07/14/programming-in-lua%EF%BC%88%E5%85%AD%EF%BC%89%EF%BC%8Dcontinuation/&#34;&gt;什么样子的&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 
 &lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://www.lua.org/pil/9.2.html&#34;&gt;consumer-producer&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;golang的协程(待续)&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;h2 id=&#34;golang的协程-待续:1a17fb99183985490e9adefe8aecc78f&#34;&gt;golang的协程(待续)&lt;/h2&gt;
+
+&lt;h2 id=&#34;stm32-contiki-coroutine:1a17fb99183985490e9adefe8aecc78f&#34;&gt;stm32/ contiki/ coroutine&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://wiki.csie.ncku.edu.tw/embedded/Lab2&#34;&gt;stm32上的协程实现&lt;/a&gt;
+    * &lt;a href=&#34;http://blog.linux.org.tw/~jserv/archives/001848.html&#34;&gt;http://blog.linux.org.tw/~jserv/archives/001848.html&lt;/a&gt;&lt;/p&gt;
 </description>
     </item>
     
@@ -3103,449 +3652,6 @@ int main()
 &lt;li&gt;&lt;p&gt;而对于namespace来说，除非使用CLONE_NEWS标志创建进程，会创建新的namespace结构体，否则所有进程共享一个namespace&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>pipe在内核中的实现</title>
-      <link>https://bg2bkk.github.io/post/pipe%E5%9C%A8%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/</link>
-      <pubDate>Sat, 27 Feb 2016 09:49:41 +0800</pubDate>
-      
-      <guid>https://bg2bkk.github.io/post/pipe%E5%9C%A8%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/</guid>
-      <description>
-
-&lt;h2 id=&#34;pipe在linux内核中的实现:eef8af46b03027cdd30025ef9f062910&#34;&gt;pipe在linux内核中的实现&lt;/h2&gt;
-
-&lt;p&gt;在之前关于linux shell多线程并发数控制的&lt;a href=&#34;https://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/&#34;&gt;博文&lt;/a&gt;中，我们使用了fifo作为token池，通过读写fifo实现token分发控制，进而实现了控制线程数的目的。
-我对pipe这个*** *NIX ***系统中最常用的组件（|）产生了兴趣&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;fifo和pipe是什么关系？&lt;/li&gt;
-&lt;li&gt;fifo或者pipe的使用方法？&lt;/li&gt;
-&lt;li&gt;pipe在linux kernel中的实现是怎样的？&lt;/li&gt;
-&lt;li&gt;fifo或者pipe的容量有多大，可以配置吗？&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;先说结论吧&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;fifo和pipe的区别
-
-&lt;ul&gt;
-&lt;li&gt;pipe是匿名管道，没有名字，只能用于两个拥有pipe读写两端fd的进程通信；&lt;/li&gt;
-&lt;li&gt;fifo在文件系统中有自己的名称，操作fifo与操作普通文件几无差别，可以用于两个没有关系的进程间通信&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;fifo和pipe在kernel层面上都实现在fs/pipe.c中，所以本质上二者是一个东西。&lt;/li&gt;
-&lt;li&gt;pipe作为linux文件系统的一部分，与epoll一样，都是在向kernel注册了自己的文件系统，可以使用VFS提供的通用接口，比如open、read和write等操作&lt;/li&gt;
-&lt;li&gt;pipe的容量不是无限大的，早期linux版本（kernel-2.4）中pipe容量只能是4KB大小，新版本可以在运行时根据需要扩大到64KB&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;本文主要基于linux-2.4.20内核中的pipe实现进行分析，理由是该版本的pipe实现与新版本kernel并没有太大差别，但是代码可读性要强很多，可以快速了解pipe的实际实现；从2.4.20内核中对pipe的架构有整体了解后，再阅读新版本(4.4.1)中的新feature，会比较顺遂。&lt;/p&gt;
-
-&lt;h3 id=&#34;pipe在fs-pipe-c中一些函数:eef8af46b03027cdd30025ef9f062910&#34;&gt;pipe在fs/pipe.c中一些函数&lt;/h3&gt;
-
-&lt;pre&gt;&lt;code&gt;- new_inode()
-- register_filesystem()
-- get_empty_file
-- get_unused_fd()
-- do_pipe作为pipe系统调用函数，在/arch/i386/sys_i386.c中定义
-- pipe的module_init在initcall中调用，但是pipe.c是编译在fs.o中的，他的module_init是如何调用进去的，需要进一步查找
-- struct dentry在include/linux/dcache.h中定义
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;具体实现:eef8af46b03027cdd30025ef9f062910&#34;&gt;具体实现&lt;/h3&gt;
-
-&lt;pre&gt;&lt;code&gt;* pipe文件系统初始化
-    * 注册pipefs
-        * register_filesystems
-
-* pipe系统调用
-    * pipe调用do_pipe
-    * do_pipe()
-        * f1&amp;amp;f2 get_empty_filep分配filep数据结构
-        * inode = get_pipe_inode()从pipe文件系统获得inode
-            * new_inode()
-            * pipe_new()新建pipe
-                * __get_free_pages(GFP_USER)为该pipe分配一页内存（4KB）
-                * inode-&amp;gt;i_pipe = kmalloc(sizeof(struct pipe_inde_info), GFP_KERNEL)分配pipe信息结构
-        * i&amp;amp;j = get_unused_fd()获取两个fd
-        * dentry = d_alloc()从pipefs分配dentry
-        * d_add(dentry, inode)将inode插入到dentry中
-        * 将f1设置成O_RDONLY，将f2设置成O_WRONLY
-        * 进程的files列表中，files[i] = f1, files[j] = f2
-
-* 实现函数
-    * pipe
-        * pipe_read
-        * pipe_write
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;tips&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;pipe不允许使用seek&lt;/li&gt;
-&lt;li&gt;低版本linux-2.4.20在pipe写的时候是固定大小，而高版本的是会按需分配直至64KB的。&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;高版本kernel内核中sysctl的配置参数&lt;strong&gt;&lt;em&gt;fs.pipe-max-size&lt;/em&gt;&lt;/strong&gt; 可以设置固定的pipe大小。但是也不能超过64KB大小，即使配置数据大于这个数字，pipe大小也会限制在64KB。&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://unix.stackexchange.com/questions/11946/how-big-is-the-pipe-buffer&#34;&gt;测试代码&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#!/bin/bash
-test $# -ge 1 || { echo &amp;quot;usage: $0 write-size [wait-time]&amp;quot;; exit 1; }
-test $# -ge 2 || set -- &amp;quot;$@&amp;quot; 1
-bytes_written=$(
-{
-    exec 3&amp;gt;&amp;amp;1
-    {
-        perl -e &#39;
-            $size = $ARGV[0];
-            $block = q(a) x $size;
-            $num_written = 0;
-            sub report { print STDERR $num_written * $size, qq(\n); }
-            report; while (defined syswrite STDOUT, $block) {
-                $num_written++; report;
-            }
-        &#39; &amp;quot;$1&amp;quot; 2&amp;gt;&amp;amp;3
-    } | (sleep &amp;quot;$2&amp;quot;; exec 0&amp;lt;&amp;amp;-);
-} | tail -1
-)
-printf &amp;quot;write size: %10d; bytes successfully before error: %d\n&amp;quot; \
-    &amp;quot;$1&amp;quot; &amp;quot;$bytes_written&amp;quot;
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code&gt;* 测试结果
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code&gt;huang@ThinkPad-X220:~/workspace/cpp$ /bin/bash -c &#39;for p in {0..18}; do ./pipe.sh $((2 ** $p)) 0.5; done&#39;
-write size:          1; bytes successfully before error: 65536
-write size:          2; bytes successfully before error: 65536
-write size:          4; bytes successfully before error: 65536
-write size:          8; bytes successfully before error: 65536
-write size:         16; bytes successfully before error: 65536
-write size:         32; bytes successfully before error: 65536
-write size:         64; bytes successfully before error: 65536
-write size:        128; bytes successfully before error: 65536
-write size:        256; bytes successfully before error: 65536
-write size:        512; bytes successfully before error: 65536
-write size:       1024; bytes successfully before error: 65536
-write size:       2048; bytes successfully before error: 65536
-write size:       4096; bytes successfully before error: 65536
-write size:       8192; bytes successfully before error: 65536
-write size:      16384; bytes successfully before error: 65536
-write size:      32768; bytes successfully before error: 65536
-write size:      65536; bytes successfully before error: 65536
-write size:     131072; bytes successfully before error: 0
-write size:     262144; bytes successfully before error: 0
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code&gt;* 内核中64KB大小的限制在哪里设置的？(TO DO)
-    * 只有在高版本的pipe实现中才有64KB大小，低版本都是4KB的。
-    * ulimit -a 的结果中，&amp;quot;pipe size (512 bytes, -p) 8&amp;quot;，表示一个pipe拥有8个512KB的buffer，总共是4KB
-    * 在include/linux/fs_pipe_i.h中，#define PIPE_DEF_BUFFERS   16, 这里是[按buffer的数量分配的](http://home.gna.org/pysfst/tests/pipe-limit.html)。
-    * 在fs/pipe.c中，pipe_write和pipe_read是在运行时按页大小分配的
-    * sysctl中fs.max_pipe_size的设置，fs.pipe-max-size = 1048576，又会起什么作用
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;ul&gt;
-&lt;li&gt;函数分析
-
-&lt;ul&gt;
-&lt;li&gt;init_pipe_fs向文件系统注册pipe组件&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;static int __init init_pipe_fs(void)
-{
-	int err = register_filesystem(&amp;amp;pipe_fs_type);
-	if (!err) {
-		pipe_mnt = kern_mount(&amp;amp;pipe_fs_type);
-		err = PTR_ERR(pipe_mnt);
-		if (IS_ERR(pipe_mnt))
-			unregister_filesystem(&amp;amp;pipe_fs_type);
-		else
-			err = 0;
-	}
-	return err;
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;static DECLARE_FSTYPE(pipe_fs_type, &amp;quot;pipefs&amp;quot;, pipefs_read_super, FS_NOMOUNT);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#define DECLARE_FSTYPE(var,type,read,flags) \
-struct file_system_type var = { \
-	name:		type, \
-	read_super:	read, \
-	fs_flags:	flags, \
-	owner:		THIS_MODULE, \
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code&gt;* pipe源码（2.4的实现中实在没什么可讲的，比较有价值的是pipe_write和pipe_read中处理缓冲队列源码可以参考）
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;/*
- * We use a start+len construction, which provides full use of the 
- * allocated memory.
- * -- Florian Coosmann (FGC)
- * 
- * Reads with count = 0 should always return 0.
- * -- Julian Bradfield 1999-06-07.
- */
-
-/* Drop the inode semaphore and wait for a pipe event, atomically */
-void pipe_wait(struct inode * inode)
-{
-	DECLARE_WAITQUEUE(wait, current);
-	current-&amp;gt;state = TASK_INTERRUPTIBLE;
-	add_wait_queue(PIPE_WAIT(*inode), &amp;amp;wait);
-	up(PIPE_SEM(*inode));
-	schedule();
-	remove_wait_queue(PIPE_WAIT(*inode), &amp;amp;wait);
-	current-&amp;gt;state = TASK_RUNNING;
-	down(PIPE_SEM(*inode));
-}
-
-static ssize_t
-pipe_read(struct file *filp, char *buf, size_t count, loff_t *ppos)
-{
-	struct inode *inode = filp-&amp;gt;f_dentry-&amp;gt;d_inode;
-	ssize_t size, read, ret;
-
-	/* Seeks are not allowed on pipes.  */
-	ret = -ESPIPE;
-	read = 0;
-	if (ppos != &amp;amp;filp-&amp;gt;f_pos)
-		goto out_nolock;
-
-	/* Always return 0 on null read.  */
-	ret = 0;
-	if (count == 0)
-		goto out_nolock;
-
-	/* Get the pipe semaphore */
-	ret = -ERESTARTSYS;
-	if (down_interruptible(PIPE_SEM(*inode)))
-		goto out_nolock;
-
-	if (PIPE_EMPTY(*inode)) {
-do_more_read:
-		ret = 0;
-		if (!PIPE_WRITERS(*inode))
-			goto out;
-
-		ret = -EAGAIN;
-		if (filp-&amp;gt;f_flags &amp;amp; O_NONBLOCK)
-			goto out;
-
-		for (;;) {
-			PIPE_WAITING_READERS(*inode)++;
-			pipe_wait(inode);
-			PIPE_WAITING_READERS(*inode)--;
-			ret = -ERESTARTSYS;
-			if (signal_pending(current))
-				goto out;
-			ret = 0;
-			if (!PIPE_EMPTY(*inode))
-				break;
-			if (!PIPE_WRITERS(*inode))
-				goto out;
-		}
-	}
-
-	/* Read what data is available.  */
-	ret = -EFAULT;
-	while (count &amp;gt; 0 &amp;amp;&amp;amp; (size = PIPE_LEN(*inode))) {
-		char *pipebuf = PIPE_BASE(*inode) + PIPE_START(*inode);
-		ssize_t chars = PIPE_MAX_RCHUNK(*inode);
-
-		if (chars &amp;gt; count)
-			chars = count;
-		if (chars &amp;gt; size)
-			chars = size;
-
-		if (copy_to_user(buf, pipebuf, chars))
-			goto out;
-
-		read += chars;
-		PIPE_START(*inode) += chars;
-		PIPE_START(*inode) &amp;amp;= (PIPE_SIZE - 1);
-		PIPE_LEN(*inode) -= chars;
-		count -= chars;
-		buf += chars;
-	}
-
-	/* Cache behaviour optimization */
-	if (!PIPE_LEN(*inode))
-		PIPE_START(*inode) = 0;
-
-	if (count &amp;amp;&amp;amp; PIPE_WAITING_WRITERS(*inode) &amp;amp;&amp;amp; !(filp-&amp;gt;f_flags &amp;amp; O_NONBLOCK)) {
-		/*
-		 * We know that we are going to sleep: signal
-		 * writers synchronously that there is more
-		 * room.
-		 */
-		wake_up_interruptible_sync(PIPE_WAIT(*inode));
-		if (!PIPE_EMPTY(*inode))
-			BUG();
-		goto do_more_read;
-	}
-	/* Signal writers asynchronously that there is more room.  */
-	wake_up_interruptible(PIPE_WAIT(*inode));
-
-	ret = read;
-out:
-	up(PIPE_SEM(*inode));
-out_nolock:
-	if (read)
-		ret = read;
-
-	UPDATE_ATIME(inode);
-	return ret;
-}
-
-static ssize_t
-pipe_write(struct file *filp, const char *buf, size_t count, loff_t *ppos)
-{
-	struct inode *inode = filp-&amp;gt;f_dentry-&amp;gt;d_inode;
-	ssize_t free, written, ret;
-
-	/* Seeks are not allowed on pipes.  */
-	ret = -ESPIPE;
-	written = 0;
-	if (ppos != &amp;amp;filp-&amp;gt;f_pos)
-		goto out_nolock;
-
-	/* Null write succeeds.  */
-	ret = 0;
-	if (count == 0)
-		goto out_nolock;
-
-	ret = -ERESTARTSYS;
-	if (down_interruptible(PIPE_SEM(*inode)))
-		goto out_nolock;
-
-	/* No readers yields SIGPIPE.  */
-	if (!PIPE_READERS(*inode))
-		goto sigpipe;
-
-	/* If count &amp;lt;= PIPE_BUF, we have to make it atomic.  */
-	free = (count &amp;lt;= PIPE_BUF ? count : 1);
-
-	/* Wait, or check for, available space.  */
-	if (filp-&amp;gt;f_flags &amp;amp; O_NONBLOCK) {
-		ret = -EAGAIN;
-		if (PIPE_FREE(*inode) &amp;lt; free)
-			goto out;
-	} else {
-		while (PIPE_FREE(*inode) &amp;lt; free) {
-			PIPE_WAITING_WRITERS(*inode)++;
-			pipe_wait(inode);
-			PIPE_WAITING_WRITERS(*inode)--;
-			ret = -ERESTARTSYS;
-			if (signal_pending(current))
-				goto out;
-
-			if (!PIPE_READERS(*inode))
-				goto sigpipe;
-		}
-	}
-
-	/* Copy into available space.  */
-	ret = -EFAULT;
-	while (count &amp;gt; 0) {
-		int space;
-		char *pipebuf = PIPE_BASE(*inode) + PIPE_END(*inode);
-		ssize_t chars = PIPE_MAX_WCHUNK(*inode);
-
-		if ((space = PIPE_FREE(*inode)) != 0) {
-			if (chars &amp;gt; count)
-				chars = count;
-			if (chars &amp;gt; space)
-				chars = space;
-
-			if (copy_from_user(pipebuf, buf, chars))
-				goto out;
-
-			written += chars;
-			PIPE_LEN(*inode) += chars;
-			count -= chars;
-			buf += chars;
-			space = PIPE_FREE(*inode);
-			continue;
-		}
-
-		ret = written;
-		if (filp-&amp;gt;f_flags &amp;amp; O_NONBLOCK)
-			break;
-
-		do {
-			/*
-			 * Synchronous wake-up: it knows that this process
-			 * is going to give up this CPU, so it doesn&#39;t have
-			 * to do idle reschedules.
-			 */
-			wake_up_interruptible_sync(PIPE_WAIT(*inode));
-			PIPE_WAITING_WRITERS(*inode)++;
-			pipe_wait(inode);
-			PIPE_WAITING_WRITERS(*inode)--;
-			if (signal_pending(current))
-				goto out;
-			if (!PIPE_READERS(*inode))
-				goto sigpipe;
-		} while (!PIPE_FREE(*inode));
-		ret = -EFAULT;
-	}
-
-	/* Signal readers asynchronously that there is more data.  */
-	wake_up_interruptible(PIPE_WAIT(*inode));
-
-	inode-&amp;gt;i_ctime = inode-&amp;gt;i_mtime = CURRENT_TIME;
-	mark_inode_dirty(inode);
-
-out:
-	up(PIPE_SEM(*inode));
-out_nolock:
-	if (written)
-		ret = written;
-	return ret;
-
-sigpipe:
-	if (written)
-		goto out;
-	up(PIPE_SEM(*inode));
-	send_sig(SIGPIPE, current, 0);
-	return -EPIPE;
-}
-
-
-/* No kernel lock held - fine */
-static unsigned int
-pipe_poll(struct file *filp, poll_table *wait)
-{
-	unsigned int mask;
-	struct inode *inode = filp-&amp;gt;f_dentry-&amp;gt;d_inode;
-
-	poll_wait(filp, PIPE_WAIT(*inode), wait);
-
-	/* Reading only -- no need for acquiring the semaphore.  */
-	mask = POLLIN | POLLRDNORM;
-	if (PIPE_EMPTY(*inode))
-		mask = POLLOUT | POLLWRNORM;
-	if (!PIPE_WRITERS(*inode) &amp;amp;&amp;amp; filp-&amp;gt;f_version != PIPE_WCOUNTER(*inode))
-		mask |= POLLHUP;
-	if (!PIPE_READERS(*inode))
-		mask |= POLLERR;
-
-	return mask;
-}
-
-&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     
