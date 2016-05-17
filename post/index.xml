@@ -5,58 +5,8 @@
     <link>https://bg2bkk.github.io/post/</link>
     <description>Recent content in Posts on BG2BKK Site</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Tue, 17 May 2016 11:33:10 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 09 May 2016 16:55:42 +0800</lastBuildDate>
     <atom:link href="https://bg2bkk.github.io/post/index.xml" rel="self" type="application/rss+xml" />
-    
-    <item>
-      <title>design patterns 设计模式</title>
-      <link>https://bg2bkk.github.io/post/design%20patterns%20%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</link>
-      <pubDate>Tue, 17 May 2016 11:33:10 +0800</pubDate>
-      
-      <guid>https://bg2bkk.github.io/post/design%20patterns%20%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</guid>
-      <description>
-
-&lt;h2 id=&#34;uml类图:05beb03bd2b20b37622e83e38123d90b&#34;&gt;UML类图&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://design-patterns.readthedocs.io/zh_CN/latest/read_uml.html&#34;&gt;认真读图&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;单例模式:05beb03bd2b20b37622e83e38123d90b&#34;&gt;单例模式&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://marcio.io/2015/07/singleton-pattern-in-go/&#34;&gt;单例模式&lt;/a&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://tengj.top/2016/04/06/sjms4singleton/&#34;&gt;http://tengj.top/2016/04/06/sjms4singleton/&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://liuxp0827.blog.51cto.com/5013343/1354360&#34;&gt;http://liuxp0827.blog.51cto.com/5013343/1354360&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;工厂模式:05beb03bd2b20b37622e83e38123d90b&#34;&gt;工厂模式&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://tengj.top/2016/04/02/sjms1simpleFactory/&#34;&gt;简单工厂模式&lt;/a&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.oschina.net/code/snippet_1469272_34383&#34;&gt;design pattern in GO&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;interface　相当于是　abstract class&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://tengj.top/2016/04/03/sjms2factorymethod/&#34;&gt;工厂方法模式&lt;/a&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;工厂方法模式的用意是定义一个创建产品对象的工厂接口，将实际创建工作推迟到子类中。&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://tengj.top/2016/04/04/sjms3abstractfactory/&#34;&gt;抽象工厂模式&lt;/a&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;抽象工厂模式可以向客户端提供一个接口，使得客户端在不必指定产品的具体类型的情况下，创建多个产品族中的产品对象。这就是抽象工厂的用意。&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
     
     <item>
       <title>SO_REUSEADDR和SO_REUSEPORT</title>
@@ -3286,6 +3236,56 @@ nghttpd
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;相结合，压测场景比较多。幸运的是，不论server是nginx还是nghttpd，其参数和调优都可以指定，比如线程数；不论wrk还是h2load，参数也可以指定，使用起来区别不大。&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>design patterns 设计模式</title>
+      <link>https://bg2bkk.github.io/post/design%20patterns%20%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</link>
+      <pubDate>Fri, 11 Mar 2016 11:33:10 +0800</pubDate>
+      
+      <guid>https://bg2bkk.github.io/post/design%20patterns%20%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/</guid>
+      <description>
+
+&lt;h2 id=&#34;uml类图:05beb03bd2b20b37622e83e38123d90b&#34;&gt;UML类图&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://design-patterns.readthedocs.io/zh_CN/latest/read_uml.html&#34;&gt;认真读图&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;单例模式:05beb03bd2b20b37622e83e38123d90b&#34;&gt;单例模式&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://marcio.io/2015/07/singleton-pattern-in-go/&#34;&gt;单例模式&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://tengj.top/2016/04/06/sjms4singleton/&#34;&gt;http://tengj.top/2016/04/06/sjms4singleton/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://liuxp0827.blog.51cto.com/5013343/1354360&#34;&gt;http://liuxp0827.blog.51cto.com/5013343/1354360&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;工厂模式:05beb03bd2b20b37622e83e38123d90b&#34;&gt;工厂模式&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://tengj.top/2016/04/02/sjms1simpleFactory/&#34;&gt;简单工厂模式&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.oschina.net/code/snippet_1469272_34383&#34;&gt;design pattern in GO&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;interface　相当于是　abstract class&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://tengj.top/2016/04/03/sjms2factorymethod/&#34;&gt;工厂方法模式&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;工厂方法模式的用意是定义一个创建产品对象的工厂接口，将实际创建工作推迟到子类中。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://tengj.top/2016/04/04/sjms3abstractfactory/&#34;&gt;抽象工厂模式&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;抽象工厂模式可以向客户端提供一个接口，使得客户端在不必指定产品的具体类型的情况下，创建多个产品族中的产品对象。这就是抽象工厂的用意。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
 </description>
     </item>
     
