@@ -5,8 +5,149 @@
     <link>https://bg2bkk.github.io/post/</link>
     <description>Recent content in Posts on BG2BKK Site</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Mon, 09 May 2016 16:55:42 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 26 May 2016 01:39:59 +0800</lastBuildDate>
     <atom:link href="https://bg2bkk.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>一道多线程面试题</title>
+      <link>https://bg2bkk.github.io/post/%E4%B8%80%E9%81%93%E5%A4%9A%E7%BA%BF%E7%A8%8B%E9%9D%A2%E8%AF%95%E9%A2%98/</link>
+      <pubDate>Thu, 26 May 2016 01:39:59 +0800</pubDate>
+      
+      <guid>https://bg2bkk.github.io/post/%E4%B8%80%E9%81%93%E5%A4%9A%E7%BA%BF%E7%A8%8B%E9%9D%A2%E8%AF%95%E9%A2%98/</guid>
+      <description>
+
+&lt;p&gt;最近突然看协程和并发编程比较多，遇到这样&lt;a href=&#34;http://blog.csdn.net/liuxuejiang158blog/article/details/21977009&#34;&gt;一道题&lt;/a&gt;&lt;/p&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;题目：子线程循环 10 次，接着主线程循环 100 次，接着又回到子线程循环 10 次，接着再回到主线程又循环 100 次，如此循环50次，试写出代码。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;参考文档里的代码采用C++11编写，而我，很不幸的，看不懂。&lt;/p&gt;
+
+&lt;p&gt;我想我的cpp已经退化到看不见了吧，然后c++11我更加看不懂了，甚至连cpp较为官方的&lt;a href=&#34;http://en.cppreference.com/w/cpp/thread/condition_variable&#34;&gt;文档都开始采用c++11了&lt;/a&gt;。&lt;/p&gt;
+
+&lt;p&gt;虽然我不会c++11，但是我会lua、c、golang、python、shell，我要报复性的把这个题做了。&lt;/p&gt;
+
+&lt;h2 id=&#34;c-11:2b47536402331bf9a7545f76ebbbb760&#34;&gt;C++11&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#include&amp;lt;iostream&amp;gt;
+#include&amp;lt;thread&amp;gt;
+#include&amp;lt;mutex&amp;gt;
+#include&amp;lt;condition_variable&amp;gt;
+using namespace std;
+mutex m;
+condition_variable cond;
+int flag=10;
+void fun(int num){
+    for(int i=0;i&amp;lt;2;i++){
+        unique_lock&amp;lt;mutex&amp;gt; lk(m);//A unique lock is an object that manages a mutex object with unique ownership in both states: locked and unlocked.
+        while(flag!=num)
+            cond.wait(lk);//在调用wait时会执行lk.unlock()
+        for(int j=0;j&amp;lt;num;j++)
+            cout&amp;lt;&amp;lt;j&amp;lt;&amp;lt;&amp;quot; &amp;quot;;
+        cout&amp;lt;&amp;lt;endl;
+        flag=(num==10)?100:10;
+        cond.notify_one();//被阻塞的线程唤醒后lk.lock()恢复在调用wait前的状态
+    }
+}
+int main(){
+    thread child(fun,10);
+    fun(100);
+    child.join();
+    return 0;
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;lua:2b47536402331bf9a7545f76ebbbb760&#34;&gt;Lua&lt;/h2&gt;
+
+&lt;p&gt;lua的协程使得主从两个thread之间并没有竞争关系，所以很顺畅的就可以把代码写出来，逻辑也十分简单&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-lua&#34;&gt;local thread = coroutine.create(function() 
+	for cnt = 1, 5 do
+		local tmp = {}
+		for i = 1, 10 do
+			table.insert(tmp, i)
+		end
+		print(&#39;child: &#39;, table.concat(tmp, &#39; &#39;))
+		coroutine.yield()
+
+		local tmp = {}
+		for i = 1, 10 do
+			table.insert(tmp, i)
+		end
+		print(&#39;child: &#39;, table.concat(tmp, &#39; &#39;))
+		coroutine.yield()
+	end
+
+end)
+
+
+for i=1, 5 do
+	coroutine.resume(thread)
+	local tmp = {}
+	for i = 1, 100 do
+		table.insert(tmp, i)
+	end
+	print(&#39;main: &#39;, table.concat(tmp, &#39; &#39;))
+
+	print(&#39;------------------------------------&#39;)
+
+	coroutine.resume(thread)
+
+	local tmp = {}
+	for i = 1, 100 do
+		table.insert(tmp, i)
+	end
+	print(&#39;main: &#39;, table.concat(tmp, &#39; &#39;))
+
+	print(&#39;====================================&#39;)
+end
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;
+child: 	1 2 3 4 5 6 7 8 9 10
+main: 	1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100
+------------------------------------
+child: 	1 2 3 4 5 6 7 8 9 10
+main: 	1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100
+====================================
+child: 	1 2 3 4 5 6 7 8 9 10
+main: 	1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100
+------------------------------------
+child: 	1 2 3 4 5 6 7 8 9 10
+main: 	1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100
+====================================
+child: 	1 2 3 4 5 6 7 8 9 10
+main: 	1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100
+------------------------------------
+child: 	1 2 3 4 5 6 7 8 9 10
+main: 	1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100
+====================================
+child: 	1 2 3 4 5 6 7 8 9 10
+main: 	1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100
+------------------------------------
+child: 	1 2 3 4 5 6 7 8 9 10
+main: 	1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100
+====================================
+child: 	1 2 3 4 5 6 7 8 9 10
+main: 	1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100
+------------------------------------
+child: 	1 2 3 4 5 6 7 8 9 10
+main: 	1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100
+====================================
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;c:2b47536402331bf9a7545f76ebbbb760&#34;&gt;c&lt;/h2&gt;
+
+&lt;h2 id=&#34;python:2b47536402331bf9a7545f76ebbbb760&#34;&gt;python&lt;/h2&gt;
+
+&lt;h2 id=&#34;golang:2b47536402331bf9a7545f76ebbbb760&#34;&gt;golang&lt;/h2&gt;
+
+&lt;h2 id=&#34;shell:2b47536402331bf9a7545f76ebbbb760&#34;&gt;shell&lt;/h2&gt;
+</description>
+    </item>
     
     <item>
       <title>SO_REUSEADDR和SO_REUSEPORT</title>
@@ -3772,143 +3913,6 @@ nghttpd
 
 &lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://design-patterns.readthedocs.io/zh_CN/latest/index.html#&#34;&gt;book&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>采用二级指针实现单链表操作 单链表翻转 删除单链表结点</title>
-      <link>https://bg2bkk.github.io/post/list%E9%93%BE%E8%A1%A8%E9%87%87%E7%94%A8%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E8%AE%BF%E9%97%AE%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9/</link>
-      <pubDate>Tue, 01 Mar 2016 11:00:34 +0800</pubDate>
-      
-      <guid>https://bg2bkk.github.io/post/list%E9%93%BE%E8%A1%A8%E9%87%87%E7%94%A8%E4%BA%8C%E7%BA%A7%E6%8C%87%E9%92%88%E8%AE%BF%E9%97%AE%E7%9A%84%E4%BC%98%E7%BC%BA%E7%82%B9/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;register_filesystem中的二级指针，刚开始没看懂。怒了，如果这个都没看懂，还搞什么C语言编程&lt;/li&gt;
-&lt;li&gt;leetcode中的反转链表，二级指针操作巨好用&lt;/li&gt;
-&lt;li&gt;先上代码吧&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#include&amp;lt;stdio.h&amp;gt;
-#include&amp;lt;stdlib.h&amp;gt;
-
-typedef struct ListNode{
-    int val;
-    struct ListNode *next;
-} ListNode;
-
-void printList(ListNode *head){
-    if(head){
-        printf(&amp;quot;%d\n&amp;quot;, head-&amp;gt;val);
-        printList(head-&amp;gt;next);
-    }
-}
-
-void printList_r(ListNode *head){
-    if(!head)
-        return;
-    if(head -&amp;gt; next)
-        printList_r(head-&amp;gt;next);
-    printf(&amp;quot;%d\n&amp;quot;, head-&amp;gt;val);
-}
-
-ListNode ** addToTail(ListNode **list){
-    ListNode **p ;
-    for( p = list; *p; p = &amp;amp; (*p)-&amp;gt;next);
-    return p;
-}
-
-void reverseList(ListNode **list){
-    ListNode *head = NULL;
-    ListNode **p = list;
-    while(*p){
-        ListNode *next = (*p)-&amp;gt;next;
-        (*p)-&amp;gt;next = head;
-        head = *p;
-        *p = next;
-    }
-    *list = head;
-}
-
-/* 
- * delete first item whose val equals to val
- *
-*/
-void deleteNodeAll(ListNode **l, int val){
-
-    while(*l){
-        if((*l)-&amp;gt;val == val){
-            ListNode *tmp = (*l)-&amp;gt;next;
-            free(*l);
-            *l = tmp;
-            break;
-        }
-        l = &amp;amp;(*l)-&amp;gt;next;
-    }
-}
-
-//delete all the items whose val equals to val
-void deleteNodeFirst(ListNode **l, int val){
-
-    while(*l){
-        if((*l)-&amp;gt;val == val){
-            ListNode *tmp = (*l)-&amp;gt;next;
-            free(*l);
-            *l = tmp;
-        }
-        else
-            l = &amp;amp;(*l)-&amp;gt;next;
-    }
-}
-
-int main()
-{
-    int a[] = {1, 2, 3, 2, 3 ,4};
-    int len = sizeof(a) / sizeof(int);
-    int i = 0;
-
-    static ListNode *list;
-
-    for( i = 0; i &amp;lt; len; i++)
-    {
-        ListNode *node = malloc(sizeof(struct ListNode));
-        node-&amp;gt;val = a[i];
-        ListNode **p = addToTail(&amp;amp;list);
-        *p = node;
-    }
-
-    printf(&amp;quot;--------print list in sequence------------\n&amp;quot;);
-    printList(list);
-
-    printf(&amp;quot;--------print list after reversed------------------\n&amp;quot;);
-    reverseList(&amp;amp;list);
-    printList(list);
-
-    printf(&amp;quot;--------delete first 1----------\n&amp;quot;);
-    deleteNodeFirst(&amp;amp;list, 1);
-    printList(list);
-
-    printf(&amp;quot;--------delete first 3----------------\n&amp;quot;);
-    deleteNodeFirst(&amp;amp;list, 3);
-    printList(list);
-
-    printf(&amp;quot;--------delete first 4-----------------\n&amp;quot;);
-    deleteNodeFirst(&amp;amp;list, 4);
-    printList(list);
-
-    printf(&amp;quot;--------delete non-existed item-------------\n&amp;quot;);
-    deleteNodeFirst(&amp;amp;list, 4);
-    printList(list);
-
-    printf(&amp;quot;--------delete the last item----------------\n&amp;quot;);
-    deleteNodeFirst(&amp;amp;list, 2);
-    printList(list);
-
-    printf(&amp;quot;--------reverse an empty list---------------\n&amp;quot;);
-    reverseList(&amp;amp;list);
-    printList(list);
-
-
-}
-&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     
