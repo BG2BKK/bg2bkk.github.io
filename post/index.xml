@@ -125,6 +125,10 @@ Connected to 14021
 data
 &lt;/code&gt;&lt;/pre&gt;
 
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/kavu/go_reuseport&#34;&gt;SO_REUSEPORT在golang中的实践&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
 &lt;h2 id=&#34;so-reuseport-和-so-reuseaddr-对比-待续:035fb573c14692e64241442f4294aac6&#34;&gt;SO_REUSEPORT 和 SO_REUSEADDR 对比（待续）&lt;/h2&gt;
 
 &lt;ul&gt;
@@ -480,6 +484,354 @@ net.ipv4.tcp_fastopen = 3
 &lt;li&gt;&lt;a href=&#34;https://github.com/bradleyfalzon/tcp-fast-open&#34;&gt;tfo的golang实现(github)&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://bradleyf.id.au/nix/shaving-your-rtt-wth-tfo/&#34;&gt;上一行项目的作者bradley falzon&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://static.googleusercontent.com/external_content/untrusted_dlcp/research.google.com/zh-CN/us/pubs/archive/37517.pdf&#34;&gt;google关于tfo的论文&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>effective tips in daily learning</title>
+      <link>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20learning/</link>
+      <pubDate>Fri, 06 May 2016 11:39:48 +0800</pubDate>
+      
+      <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20learning/</guid>
+      <description>
+
+&lt;h2 id=&#34;分布式存储:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;分布式存储&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://wuchong.me/blog/2014/08/07/distributed-storage-system-knowledge/&#34;&gt;知识体系&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://taop.marchtea.com/03.02.html&#34;&gt;B-Tree&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;分布式id生成:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;分布式ID生成&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://mp.weixin.qq.com/s?__biz=MjM5ODYxMDA5OQ==&amp;amp;mid=403837240&amp;amp;idx=1&amp;amp;sn=ae9f2bf0cc5b0f68f9a2213485313127&amp;amp;scene=21#wechat_redirect&#34;&gt;ID&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;方案一： 常规数据库的auto increment服务
+
+&lt;ul&gt;
+&lt;li&gt;改进：可以将ID划均分给若干数据库，每个数据库自增的起点不一样，可以保证各库生成ID不同
+
+&lt;ul&gt;
+&lt;li&gt;缺点是非强一致性&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;方案二： 单点批量生成；ID生成服务每次从数据库预定一定容量的ID，然后派发；可以成倍降低数据库压力；
+
+&lt;ul&gt;
+&lt;li&gt;缺点：单点服务、可能造成空洞；&lt;/li&gt;
+&lt;li&gt;改进：找备胎，一旦主ID服务挂掉，备胎立刻备上；通过vip+keepalived实现&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;方案三：uuid&lt;/li&gt;
+&lt;li&gt;方案四：当前毫秒数；缺点是每个毫秒容量有限，也可能重复&lt;/li&gt;
+&lt;li&gt;方案五：将64bit数字作为ID，分别包含字段：毫秒数、业务线、机房、机器、以及毫秒内序列号；根据业务来规划容量；毫秒数可以保证ID是趋势自增的&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.cnblogs.com/heyuquan/archive/2013/08/16/global-guid-identity-maxId.html&#34;&gt;ID&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;分布式锁:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;分布式锁&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.cnblogs.com/zhengyun_ustc/archive/2012/11/17/topic2.html&#34;&gt;http://www.cnblogs.com/zhengyun_ustc/archive/2012/11/17/topic2.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.jeffkit.info/2011/07/1000/&#34;&gt;http://www.jeffkit.info/2011/07/1000/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;一致性哈希-consistent-hashing:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;一致性哈希 consistent hashing&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.codeproject.com/Articles/56138/Consistent-hashing&#34;&gt;http://www.codeproject.com/Articles/56138/Consistent-hashing&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.huanghao.me/?p=14&#34;&gt;http://blog.huanghao.me/?p=14&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.csdn.net/sparkliang/article/details/5279393&#34;&gt;http://blog.csdn.net/sparkliang/article/details/5279393&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;并发编程:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;并发编程&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://hedengcheng.com/?p=725&#34;&gt;volatile&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://blogread.cn/it/article/7282?f=wb&#34;&gt;并发编程&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.infoq.com/cn/articles/producers-and-consumers-mode&#34;&gt;聊聊并发&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;nginx配置文件:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;nginx配置文件&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;rewrite:
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.xiehaichao.com/articles/428.html&#34;&gt;http://www.xiehaichao.com/articles/428.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://seanlook.com/2015/05/17/nginx-location-rewrite/&#34;&gt;http://seanlook.com/2015/05/17/nginx-location-rewrite/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;lua的学习-使用和源码精读:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;Lua的学习、使用和源码精读&lt;/h2&gt;
+
+&lt;h2 id=&#34;lua的元表:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;lua的元表&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://lua-users.org/wiki/MetamethodsTutorial&#34;&gt;http://lua-users.org/wiki/MetamethodsTutorial&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;元表用来扩展lua对象的功能，元表的含义在于生来就有，lua对象本身会带有这个表，所以称为元表&lt;/li&gt;
+&lt;li&gt;metatable也是普通的lua table，包含一系列元方法metamethods，每个元方法有对应的events触发；比如&lt;a href=&#34;http://lua-users.org/wiki/MetatableEvents&#34;&gt;算术运算符、__index 等操作&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;__index&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://lua-users.org/wiki/MetatableEvents&#34;&gt;http://lua-users.org/wiki/MetatableEvents&lt;/a&gt;
+&lt;ul&gt;
+&lt;li&gt; &lt;strong&gt;__index&lt;/strong&gt; - Control &amp;lsquo;prototype&amp;rsquo; inheritance. When accessing &amp;ldquo;myTable[key]&amp;rdquo; and the key does not appear in the table, but the metatable has an __index property:
+&lt;ul&gt;
+&lt;li&gt; if the value is a function, the function is called, passing in the table and the key; the return value of that function is returned as the result.
+&lt;/li&gt;&lt;li&gt; if the value is another table, the value of the key in that table is asked for and returned
+&lt;ul&gt;
+&lt;li&gt; &lt;em&gt;(and if it doesn&amp;rsquo;t exist in &lt;strong&gt;that&lt;/strong&gt; table, but that table&amp;rsquo;s metatable has an __index property, then it continues on up)&lt;/em&gt;
+&lt;/li&gt;&lt;/ul&gt;
+&lt;/li&gt;&lt;li&gt; &lt;em&gt;Use &amp;ldquo;rawget(myTable,key)&amp;rdquo; to skip this metamethod.&lt;/em&gt;
+&lt;/li&gt;&lt;/ul&gt;
+&lt;/li&gt;&lt;/ul&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;控制类型继承；当访问myTable[key]，而table中没有key域时，如果元表有__index项：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;如果__index是函数，则调用该函数&lt;/li&gt;
+&lt;li&gt;如果__index是table，返回这个table中key域的值；如果__index是table并且该table没有key域，但是该table有__index，则继续查找(calls fallback function or fallback table)&lt;/li&gt;
+&lt;li&gt;使用rawget(myTable, key)可以跳过metatable&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;__index是一个应用广泛并用处很大的元方法metamethod&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;如果想获取table中的元素key，而key在table中没有找到，该方法可以定义为函数或者一个table，来寻找key。
+
+&lt;ul&gt;
+&lt;li&gt;如果__index是函数，该函数的第一个参数是没有找到key的这个table，第二个参数是key；&lt;/li&gt;
+&lt;li&gt;如果__index是table，那么将在该table中寻找key，如果没有找到，可以继续从这个table的__index寻找，因此你可以通过__index进行一整个链条的查找。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;__metatable&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;用于隐藏metatable，当调用getmetatable(myTable)时，如果该域不为空，则返回这个域的值，而不是metatable&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://lua-users.org/wiki/LuaClassesWithMetatable&#34;&gt;sample code&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;lua源码精读:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;Lua源码精读&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Lua的全局和状态，以及初始化
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.csdn.net/maximuszhou/article/details/46277695&#34;&gt;Lua的全局和状态&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;在调用lua_newstate 初始化Lua虚拟机时，会创建一个全局状态和一个线程（或称为调用栈），这个全局状态在整个虚拟机中是唯一的，供其他线程共享。一个Lua虚拟机中可以包括多个线程，这些线程共享一个全局状态，线程之间也可以调用lua_xmove函数来交换数据。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.cnblogs.com/ringofthec/archive/2010/11/09/lua_State.html&#34;&gt;LuaVM 初始化&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://yq.aliyun.com/articles/1756?spm=5176.100240.searchblog.8.YbMjAK&#34;&gt;lua_State&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;lua与c的交互:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;Lua与C的交互&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;* [深入理解Lua与C用于数据交互的栈](http://blog.csdn.net/maximuszhou/article/details/21331819)
+* 为啥要通过 栈 来通信呢？
+    * Lua是动态类型语言，在Lua语言中没有类型定义的语法，每个值都携带了它自身的类型信息，而C语言是静态类型语言
+    * Lua使用垃圾收集，可以自动管理内存，而C语言要求程序自己释放分配的内存，需应用程序自身管理内存
+* 压栈的影响
+    * C将值压入栈中后，Lua将会生成相应类型的结构，存储和管理这个值
+    * Lua不会持有指向VM外部的指针，指向的都是自己的结构和栈上的结构
+    * 比如压入字符串，Lua生成Lua_TTSTRING类型的对象，C可以随意释放这个字符串
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://if-yu.info/lua-notes.html&#34;&gt;http://if-yu.info/lua-notes.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;list和nil:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;list和nil&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;* https://techsingular.org/2012/12/22/programming-in-lua%EF%BC%88%E5%9B%9B%EF%BC%89%EF%BC%8D-nil-%E5%92%8C-list/
+* nil不但不是无的意思，反而在list中起到占位和有的意思。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;lua的first-class-https-techsingular-org-2012-12-22-programming-in-lua-ef-bc-88-e5-9b-9b-ef-bc-89-ef-bc-8d-nil-e5-92-8c-list:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;&lt;a href=&#34;https://techsingular.org/2012/12/22/programming-in-lua%EF%BC%88%E5%9B%9B%EF%BC%89%EF%BC%8D-nil-%E5%92%8C-list/&#34;&gt;lua的first class&lt;/a&gt;&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;可以被赋值给变量；&lt;/li&gt;
+&lt;li&gt;可以作为参数；&lt;/li&gt;
+&lt;li&gt;可以作为返回值；&lt;/li&gt;
+&lt;li&gt;可以作为数据结构的构成部分。( 注意 nil 并不完全符合这个要求，但是可以通过某个 field 的缺失来表示 nil。)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;lua的gc:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;Lua的GC&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;* lua的[gc](https://techsingular.org/2013/10/27/lua-%E7%9A%84%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;lua的table:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;lua的table&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;* https://facepunch.com/showthread.php?t=1306348
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;I don&amp;rsquo;t believe this is correct. It was my understanding that Lua tables are implemented as a two-part data structure whereby dense non-negative integer keys are stored as a simple array and are therefore indexed by a simple pointer addition and dereference, which is O(1). All other keys (non-integer, negative and sparse integer) are stored in a hashmap as a chained scatter table which stores key-values pairs as a flat array indexed by the hash of the key. Collisions are resolved by storing pointers to the next element with the same hash alongside this (essentially a linked list of colliding elements). At worst case, where all elements collide, the complexity of this implementation is O(n), however it is expected that on average the number of collisions per element is 1 and the maximum is 2; this means that the average complexity is O(1).&lt;/p&gt;
+
+&lt;p&gt;The implementation of Lua tables is such that, even with a huge number of elements, lookup is as quick as possible.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h2 id=&#34;lua函数使用:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;lua函数使用&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;setmetatable&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.lua.org/manual/5.2/manual.html&#34;&gt;https://www.lua.org/manual/5.2/manual.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;setmetatable(table, metatable)
+
+&lt;ul&gt;
+&lt;li&gt;将metatable设置为table的元表，（在Lua中只能设置table的元表，其他类型的对象不行，除非使用C）。如果metatable为nil，则参数cable的元表被清除；如果该table的__metatable不为空，则抛出异常&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;该函数返回table&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;collectgarbage(&amp;ldquo;count&amp;rdquo;)&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;垃圾回收函数&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.lua.org/manual/5.2/manual.html#2.6&#34;&gt;lua yield 和 resume&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.lua.org/manual/5.2/manual.html#pdf-coroutine.resume&#34;&gt;http://www.lua.org/manual/5.2/manual.html#pdf-coroutine.resume&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-lua&#34;&gt;-- http://my.oschina.net/wangxuanyihaha/blog/186401
+
+function foo(a)
+    print(&amp;quot;foo&amp;quot;, a)
+    return coroutine.yield(2 * a)
+end
+
+co = coroutine.create(function ( a, b )
+    print(&amp;quot;co-body&amp;quot;, a, b)
+    local r = foo(a + 1)
+    print(&amp;quot;co-body&amp;quot;, r)
+    local r, s = coroutine.yield(a + b, a - b)
+    print(&amp;quot;co-body&amp;quot;, r, s)
+    return b, &amp;quot;end&amp;quot;
+end)
+
+print(&amp;quot;main&amp;quot;, coroutine.resume(co, 1, 10))
+print(&amp;quot;main&amp;quot;, coroutine.resume(co, &amp;quot;m&amp;quot;))	-- resume的参数 &#39;m&#39; 是在调用yield传入的，所以本次是在第5行 return m
+print(&amp;quot;main&amp;quot;, coroutine.resume(co, &amp;quot;x&amp;quot;, &amp;quot;y&amp;quot;))
+print(&amp;quot;main&amp;quot;, coroutine.resume(co, &amp;quot;x&amp;quot;, &amp;quot;y&amp;quot;))
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;co-body	1	10
+foo	2
+main	true	4
+co-body	m
+main	true	11	-9
+co-body	x	y
+main	true	10	end
+main	false	cannot resume dead coroutine
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;lua编码的陷阱:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;lua编码的陷阱&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;* [字符串拼接导致垃圾产生](http://tech.uc.cn/?p=1131)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;golang:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;golang&lt;/h2&gt;
+
+&lt;h3 id=&#34;golang的并发-协程和channel:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;golang的并发、协程和channel&lt;/h3&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://ibillxia.github.io/blog/2014/03/16/go-concurrent-programming-first-try/&#34;&gt;golang并发编程初探&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-lua&#34;&gt;	for i := 0; i &amp;lt; 10; i++ {
+		go func() {
+			arr[i] = i + i*i
+			chs[i] &amp;lt;- arr[i]
+		}()
+	}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;类似于如上形式的for循环中启动go协程，在for循环结束时协程才会开执行，所以每个协程用到的i都是最大值10&lt;/p&gt;
+
+&lt;p&gt;可以将i加入到协程的参数中，如下：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-lua&#34;&gt;	for i := 0; i &amp;lt; 10; i++ {
+		
+		chs[i] = make(chan int)
+		go func(i) {
+			arr[i] = i + i*i
+			chs[i] &amp;lt;- arr[i]
+		}(i)
+	}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;可以用局部变量保存i值&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-lua&#34;&gt;	for i := 0; i &amp;lt; 10; i++ {
+		i := i
+		chs[i] = make(chan int)
+		go func() {
+			arr[i] = i + i*i
+			chs[i] &amp;lt;- arr[i]
+		}()
+	}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.chenwang.net/2015/12/12/%E5%AE%8C%E6%95%B4%E7%9A%84golang-%E5%A4%9A%E5%8D%8F%E7%A8%8B%E4%BF%A1%E9%81%93-%E4%BB%BB%E5%8A%A1%E5%A4%84%E7%90%86%E7%A4%BA%E4%BE%8B/&#34;&gt;golang多协程channel同步&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;sync.WaitGroup&lt;/li&gt;
+&lt;li&gt;defer&lt;/li&gt;
+&lt;li&gt;recover&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.csdn.net/gophers/article/details/40505683&#34;&gt;golang闭包与协程使用&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&#34;golang设计模式:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;golang设计模式&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;* [单例模式](http://marcio.io/2015/07/singleton-pattern-in-go/)
+* [golang map reduce](https://gist.github.com/mcastilho)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3 id=&#34;golang接口:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;golang接口&lt;/h3&gt;
+
+&lt;pre&gt;&lt;code&gt;* https://github.com/astaxie/build-web-application-with-golang/blob/master/zh/02.6.md
+* http://xiaorui.cc/2016/03/11/%E5%85%B3%E4%BA%8Egolang-struct-interface%E7%9A%84%E7%90%86%E8%A7%A3%E4%BD%BF%E7%94%A8/
+* http://blog.csdn.net/zhangzhebjut/article/details/24974315
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;UML图&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;实现关系、泛化关系、关联关系、聚合关系 &lt;a href=&#34;http://design-patterns.readthedocs.io/zh_CN/latest/read_uml.html&#34;&gt;http://design-patterns.readthedocs.io/zh_CN/latest/read_uml.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;设计模式&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://tengj.top/2016/04/04/sjms3abstractfactory/&#34;&gt;http://tengj.top/2016/04/04/sjms3abstractfactory/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>
@@ -947,6 +1299,26 @@ bit 5 (FIN) sender finished&lt;/td&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;http://locklessinc.com/articles/locks/&#34;&gt;自旋锁专业研究&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/nlynch-mentor/vdsotest&#34;&gt;vdsotest&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;vdso研究学习&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;google&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/google/googletest&#34;&gt;googletest&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/gperftools/gperftools&#34;&gt;gperftool&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;c gui lib&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/vurtun/nuklear&#34;&gt;https://github.com/vurtun/nuklear&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/andlabs/libui&#34;&gt;https://github.com/andlabs/libui&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
@@ -2012,6 +2384,12 @@ tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.ca
       <guid>https://bg2bkk.github.io/post/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/</guid>
       <description>
 
+&lt;h2 id=&#34;openresty中如何写redis或者mysql的wraper:d90c926ba9cb9e1e62be5d1b7a7aa7fb&#34;&gt;openresty中如何写redis或者mysql的wraper&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://zivn.me/2013/08/05/Something-about-Openresty/&#34;&gt;参考资料&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
 &lt;h2 id=&#34;ngx-lua获取post字段参数:d90c926ba9cb9e1e62be5d1b7a7aa7fb&#34;&gt;ngx_lua获取post字段参数&lt;/h2&gt;
 
 &lt;p&gt;在用户请求为POST方式时，如果想获取post中的各参数字段，比如post数据为 &amp;ldquo;uid=100&amp;amp;ip=10.13.112.53&amp;rdquo;，此时想获取该字段的话，可以调用&lt;a href=&#34;https://github.com/openresty/lua-nginx-module#ngxreqget_post_args&#34;&gt;ngx.req.get_post_args&lt;/a&gt;函数。按惯例返回table类型，post数据的各字段为table的key&lt;/p&gt;
@@ -2226,6 +2604,8 @@ print(table.maxn(t))
 
 &lt;p&gt;协程有关的四个概念：&lt;a href=&#34;https://en.wikipedia.org/wiki/Coroutine&#34;&gt;coroutine&lt;/a&gt;、&lt;a href=&#34;https://en.wikipedia.org/wiki/Yield_(multithreading&#34;&gt;yield&lt;/a&gt;、&lt;a href=&#34;https://en.wikipedia.org/wiki/Continuation&#34;&gt;Continuation&lt;/a&gt;、&lt;a href=&#34;https://en.wikipedia.org/wiki/Cooperative_multitasking&#34;&gt;cooperative multitasking&lt;/a&gt;&lt;/p&gt;
 
+&lt;p&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Call_stack#Unwinding&#34;&gt;call stack&lt;/a&gt;&lt;/p&gt;
+
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html&#34;&gt;Coroutines in C&lt;/a&gt;
 
@@ -2308,11 +2688,18 @@ j = 20, func = 20
 &lt;ul&gt;
 &lt;li&gt;说实话我也并不能很好解释。我通过查看汇编代码，发现仍然会执行将i值转到ecx寄存器，我们的function返回值就从ecx拿到的。&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;return在这里并不是返回的意思，而是yield的意思&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 
-&lt;li&gt;&lt;p&gt;仍然有两种更优化的写法: &lt;a href=&#34;http://coolshell.cn/articles/10975.html&#34;&gt;左耳朵耗子的例子&lt;/a&gt;和&lt;a href=&#34;http://www.hawkwithwind.net/blog/2011/02/18/%E5%8D%8F%E7%A8%8B%E7%9A%84c%E5%AE%9E%E7%8E%B0/&#34;&gt;上例&lt;/a&gt;的来源都是天才程序员  &lt;a href=&#34;http://www.chiark.greenend.org.uk/~sgtatham/&#34;&gt;imon Tatham&lt;/a&gt;对&lt;a href=&#34;http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html&#34;&gt;协程做的尝试&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;仍然有两种更优化的写法: &lt;a href=&#34;http://coolshell.cn/articles/10975.html&#34;&gt;左耳朵耗子的例子&lt;/a&gt;和&lt;a href=&#34;http://www.hawkwithwind.net/blog/2011/02/18/%E5%8D%8F%E7%A8%8B%E7%9A%84c%E5%AE%9E%E7%8E%B0/&#34;&gt;上例&lt;/a&gt;的来源都是天才程序员  &lt;a href=&#34;http://www.chiark.greenend.org.uk/~sgtatham/&#34;&gt;imon Tatham&lt;/a&gt;对&lt;a href=&#34;http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html&#34;&gt;协程做的尝试&lt;/a&gt;，以及关于swtich-case写法的duff机器的&lt;a href=&#34;http://bbs.chinaunix.net/thread-1833313-1-1.html&#34;&gt;讨论&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.colaghost.net/os/unix_linux/341&#34;&gt;协程实现的基础&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.colaghost.net/os/unix_linux/341&#34;&gt;协程实现的基础&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;makecontext函数将context的eip设置为func参数的地址，所以当该context得以执行时，func函数就开始执行了。&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.csdn.net/ylyuanlu/article/details/18947951&#34;&gt;http://blog.csdn.net/ylyuanlu/article/details/18947951&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.csdn.net/yxysdcl/article/details/5569351&#34;&gt;http://blog.csdn.net/yxysdcl/article/details/5569351&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
 
 &lt;li&gt;&lt;p&gt;推荐的一些协程库&lt;/p&gt;
 
@@ -2742,6 +3129,24 @@ main()
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://1234n.com/?post/aukxju&#34;&gt;another demo&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://1234n.com/?post/4vzsvm&#34;&gt;lib&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://www.gnu.org/software/pth/&#34;&gt;gnu portable threads&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.ossp.org/pkg/lib/pth/&#34;&gt;pt&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://swtch.com/libtask/&#34;&gt;libtask&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.cnblogs.com/foxmailed/p/3509359.html&#34;&gt;libtask的coroutine&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
 &lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/cloudwu/coroutine&#34;&gt;云风的实现&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 
 &lt;li&gt;&lt;p&gt;其他一些应用&lt;/p&gt;
@@ -2775,10 +3180,78 @@ main()
 
 &lt;li&gt;&lt;p&gt;lua的c runtime stack和lua runtime stack是&lt;a href=&#34;https://techsingular.org/2013/07/14/programming-in-lua%EF%BC%88%E5%85%AD%EF%BC%89%EF%BC%8Dcontinuation/&#34;&gt;什么样子的&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://www.zhihu.com/question/21483863&#34;&gt;https://www.zhihu.com/question/21483863&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://www.zhihu.com/question/30133749&#34;&gt;lua协程调度&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;lua内部
+
+&lt;ul&gt;
+&lt;li&gt;当resume的时候，就切换lua_state环境，然后setjmp，紧接着由于pc指向新地址，所以会直接跳转到该位置&lt;/li&gt;
+&lt;li&gt;当yield时，直接回复环境，然后longjmp到该resume点&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;lua with C
+
+&lt;ul&gt;
+&lt;li&gt;当在C函数内入yield时，会恢复环境，longjmp到resume点，之后再次resume的时候，会因为环境被破坏，导致resume出错，此时lua会调用k系列函数，让resume继续下去&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.ibm.com/developerworks/cn/opensource/os-cn-python-yield/&#34;&gt;lua实现调度器&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
 &lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://www.lua.org/pil/9.2.html&#34;&gt;consumer-producer&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.lua.org/manual/5.2/manual.html#2.6&#34;&gt;lua yield 和 resume&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.lua.org/manual/5.2/manual.html#pdf-coroutine.resume&#34;&gt;http://www.lua.org/manual/5.2/manual.html#pdf-coroutine.resume&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-lua&#34;&gt;-- http://my.oschina.net/wangxuanyihaha/blog/186401
+
+function foo(a)
+    print(&amp;quot;foo&amp;quot;, a)
+    return coroutine.yield(2 * a)
+end
+
+co = coroutine.create(function ( a, b )
+    print(&amp;quot;co-body&amp;quot;, a, b)
+    local r = foo(a + 1)
+    print(&amp;quot;co-body&amp;quot;, r)
+    local r, s = coroutine.yield(a + b, a - b)
+    print(&amp;quot;co-body&amp;quot;, r, s)
+    return b, &amp;quot;end&amp;quot;
+end)
+
+print(&amp;quot;main&amp;quot;, coroutine.resume(co, 1, 10))
+print(&amp;quot;main&amp;quot;, coroutine.resume(co, &amp;quot;m&amp;quot;))	-- resume的参数 &#39;m&#39; 是在调用yield传入的，所以本次是在第5行 return m
+print(&amp;quot;main&amp;quot;, coroutine.resume(co, &amp;quot;x&amp;quot;, &amp;quot;y&amp;quot;))
+print(&amp;quot;main&amp;quot;, coroutine.resume(co, &amp;quot;x&amp;quot;, &amp;quot;y&amp;quot;))
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;co-body	1	10
+foo	2
+main	true	4
+co-body	m
+main	true	11	-9
+co-body	x	y
+main	true	10	end
+main	false	cannot resume dead coroutine
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;python的协程-待续:1a17fb99183985490e9adefe8aecc78f&#34;&gt;python的协程(待续)&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.ibm.com/developerworks/cn/opensource/os-cn-python-yield/&#34;&gt;http://www.ibm.com/developerworks/cn/opensource/os-cn-python-yield/&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h2 id=&#34;golang的协程-待续:1a17fb99183985490e9adefe8aecc78f&#34;&gt;golang的协程(待续)&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/13107958/what-exactly-does-runtime-gosched-do&#34;&gt;http://stackoverflow.com/questions/13107958/what-exactly-does-runtime-gosched-do&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;h2 id=&#34;stm32-contiki-coroutine:1a17fb99183985490e9adefe8aecc78f&#34;&gt;stm32/ contiki/ coroutine&lt;/h2&gt;
 
@@ -3286,6 +3759,19 @@ nghttpd
 &lt;li&gt;抽象工厂模式可以向客户端提供一个接口，使得客户端在不必指定产品的具体类型的情况下，创建多个产品族中的产品对象。这就是抽象工厂的用意。&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;h2 id=&#34;设计模式的不同实现:05beb03bd2b20b37622e83e38123d90b&#34;&gt;设计模式的不同实现&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/dabing1022/LuaAndLove2dLearningTest/tree/master/DesignPattern&#34;&gt;lua&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.qiuzhufu.com/archives/tag/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F&#34;&gt;java&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.jellythink.com/archives/878&#34;&gt;cpp&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/iluwatar/java-design-patterns&#34;&gt;java&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://design-patterns.readthedocs.io/zh_CN/latest/index.html#&#34;&gt;book&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
 </description>
     </item>
     
@@ -3423,235 +3909,6 @@ int main()
 
 }
 &lt;/code&gt;&lt;/pre&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>VFS虚拟文件系统</title>
-      <link>https://bg2bkk.github.io/post/VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</link>
-      <pubDate>Mon, 29 Feb 2016 15:33:32 +0800</pubDate>
-      
-      <guid>https://bg2bkk.github.io/post/VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</guid>
-      <description>
-
-&lt;h2 id=&#34;虚拟文件系统:33c34adef684867bc26f32ab644d7c6f&#34;&gt;虚拟文件系统&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;虚拟文件系统为用户空间程序提供了文件和文件系统的接口&lt;/li&gt;
-&lt;li&gt;通过VFS，程序可以通过标准的UNIX系统调用操作不同的文件系统和介质，包括各种软硬件设备&lt;/li&gt;
-&lt;li&gt;Linux等现代操作系统引入VFS作为抽象层，极大方便系统调用&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;unix文件系统:33c34adef684867bc26f32ab644d7c6f&#34;&gt;Unix文件系统&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;UNIX系统使用了四种和文件系统相关的抽象概念: 文件、目录项、索引结点和挂载点。&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;将文件的相关信息和文件加以区分&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;&lt;em&gt;文件相关信息&lt;/em&gt;&lt;/strong&gt;单独存储在&lt;strong&gt;&lt;em&gt;索引结点&lt;/em&gt;&lt;/strong&gt;中，又称为元数据，包括文件的控制权限、文件大小、属主和创建与访问时间等&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;&lt;em&gt;文件相关信息&lt;/em&gt;&lt;/strong&gt;和&lt;strong&gt;&lt;em&gt;文件系统&lt;/em&gt;&lt;/strong&gt;的相关信息密不可分，后者存储在&lt;strong&gt;&lt;em&gt;超级块(super block)&lt;/em&gt;&lt;/strong&gt;中，超级块是包含文件系统信息的数据结构。&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;&lt;em&gt;文件&lt;/em&gt;&lt;/strong&gt;按照索引结点存储在单独的块中，文件系统的控制信息存在超级块中&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;VFS中有四个主要对象类型&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;超级块对象，代表一个具体的已安装的文件系统&lt;/li&gt;
-&lt;li&gt;索引结点对象，代表一个具体文件
-
-&lt;ul&gt;
-&lt;li&gt;inode才代表具体文件&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;目录项对象，代表一个目录项，是路径的组成部分
-
-&lt;ul&gt;
-&lt;li&gt;目录项不是目录，而是一个文件。不存在目录对象&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;文件对象，代表由进程打开的文件
-
-&lt;ul&gt;
-&lt;li&gt;每个进程都有自己的打开文件列表，文件对象是一个动态生成动态销毁的对象&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;超级块&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;超级块对象 super block
-
-&lt;ul&gt;
-&lt;li&gt;用于存储特定文件系统的信息&lt;/li&gt;
-&lt;li&gt;通常放在磁盘的&lt;a href=&#34;https://support.microsoft.com/zh-cn/kb/100108&#34;&gt;特定扇区&lt;/a&gt;中，所以被称为超级块对象&lt;/li&gt;
-&lt;li&gt;并非基于磁盘的文件系统，内核会现场创建，并保存在内存中&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;超级块操作
-
-&lt;ul&gt;
-&lt;li&gt;super_operations&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;!--   * 超级块操作 super_operations
-        * inode的分配、销毁、读写
-        * 文件系统的挂载、删除--&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;索引结点&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;索引结点对象 inode
-
-&lt;ul&gt;
-&lt;li&gt;索引结点对象包含了内核在操作文件或目录时的所有信息&lt;/li&gt;
-&lt;li&gt;索引结点对象都是在内存中创建的，不会写回硬盘的&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;索引结点操作
-
-&lt;ul&gt;
-&lt;li&gt;inode_operations&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;目录项&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;目录项对象
-
-&lt;ul&gt;
-&lt;li&gt;VFS把目录当做文件对待，解析目录时，将路径中的每个组成部分都是一个索引结点对象，比如&amp;rdquo;/bin/ls&amp;rdquo;中的‘/’、‘bin’和‘ls’。进行路径查找和解析是比较耗时的，为了方便操作，VFS引入了目录项dentry的概念，每个dentry都是路径的组成部分&lt;/li&gt;
-&lt;li&gt;目录项对象都是根据字符串形式现场创建的，并没有保存在磁盘&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;目录项状态
-
-&lt;ul&gt;
-&lt;li&gt;被使用
-
-&lt;ul&gt;
-&lt;li&gt;被使用的dentry对应一个有效的inode，即dentry结构体中d_inode指向的inode&lt;/li&gt;
-&lt;li&gt;该对象的引用计数d_count为正，至少有一个使用者，不能随意丢弃&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;未被使用
-
-&lt;ul&gt;
-&lt;li&gt;未被使用的dentry，其d_inode也指向一个inode，但是d_count为0&lt;/li&gt;
-&lt;li&gt;此时该dentry仍然在缓存中，可能会再次使用。不会立刻被释放，但如果系统要回收内存的话，可以被释放回收&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;负状态
-
-&lt;ul&gt;
-&lt;li&gt;负状态的dentry没有对应的有效inode，原因可能是inode已被删除，或者路径不再正确&lt;/li&gt;
-&lt;li&gt;此时将其缓存起来仍然有些用处，比如一个守护进程一直读一个不存在的文件，缓存dentry不至于让进程总是去搜索&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;目录项缓存
-
-&lt;ul&gt;
-&lt;li&gt;遍历路径名中所有元素并逐个解析成dentry，是非常费时费力的，所以内核引入目录项缓存dcache，将目录项对象都缓存起来&lt;/li&gt;
-&lt;li&gt;目录项缓存包括
-
-&lt;ul&gt;
-&lt;li&gt;&amp;ldquo;被使用的&amp;rdquo;目录项链表
-
-&lt;ul&gt;
-&lt;li&gt;该链表通过inode中的i_dentry指针连接相关inode&lt;/li&gt;
-&lt;li&gt;一个给定的inode可能有多个链接（软硬链接），所有就有可能有多个目录项对象，因此用一个链表链接&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;&amp;ldquo;最近使用的&amp;rdquo;双向链表
-
-&lt;ul&gt;
-&lt;li&gt;该链表包含所有 未被使用的 和 负状态的 dentry&lt;/li&gt;
-&lt;li&gt;总是在表头添加元素，所以回收dentry时从最后开始回收&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;哈希表和相应的哈希函数
-
-&lt;ul&gt;
-&lt;li&gt;快速将给定路径解析为相关目录项对象&lt;/li&gt;
-&lt;li&gt;哈希表由dentry_hashtable数组表示，每个元素都指向一个具有相同键值的目录项对象链表指针&lt;/li&gt;
-&lt;li&gt;哈希函数d_hash()&lt;/li&gt;
-&lt;li&gt;查找函数d_lookup()&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;目录项操作
-
-&lt;ul&gt;
-&lt;li&gt;dentry_operation&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;文件&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;文件对象
-
-&lt;ul&gt;
-&lt;li&gt;表示进程已经打开的文件。文件对象是已打开的文件（物理文件）在内存中的表示&lt;/li&gt;
-&lt;li&gt;多个进程可以打开同一个物理文件，所以一个物理文件会有多个文件对象&lt;/li&gt;
-&lt;li&gt;文件对象指向目录项对象，目录项对象指向索引结点inode&lt;/li&gt;
-&lt;li&gt;具体而言，是文件对象filep中的f_dentry指向目录项对象，目录项对象的d_inode指向索引结点inode&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;文件操作
-
-&lt;ul&gt;
-&lt;li&gt;file_operations&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;相关数据结构&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;file_system_type
-
-&lt;ul&gt;
-&lt;li&gt;用于描述各种特定文件系统类型，用于支持不同文件系统&lt;/li&gt;
-&lt;li&gt;struct file_system_type {}
-
-&lt;ul&gt;
-&lt;li&gt;get_sb()  从磁盘读取超级块，并在文件系统安装时在内存中组装超级块对象&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;每个文件系统只有一个&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;vfsmount
-
-&lt;ul&gt;
-&lt;li&gt;系统挂载时，将有一个vfsmount结构体在挂载点创建，代表文件系统的实例&lt;/li&gt;
-&lt;li&gt;struct vfsmount {}
-
-&lt;ul&gt;
-&lt;li&gt;各种链表&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;和进程相关的数据结构&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;每个进程都有自己的一组打开爱的文件，比如根文件系统、当前工作目录、挂载点等&lt;/li&gt;
-&lt;li&gt;struct files_struct {}
-
-&lt;ul&gt;
-&lt;li&gt;该结构提由进程描述符中的files指向，一般都是current-&amp;gt;files&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;struct fs_struct {}
-
-&lt;ul&gt;
-&lt;li&gt;包含文件系统和进程相关的信息，由fs域指向，一般是current-&amp;gt;fs&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;struct namespace {}&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;使得每个进程在系统中能看到唯一的安装文件系统，mm-&amp;gt;namespace&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;每个进程都有指向自己的fs_struct和files_struct，多个进程可能指向同一个，比如通过带有CLONE_FILES和CLONE_FS标志创建的进程（其实是线程），所以这两个struct都有引用计数，以防出错&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;而对于namespace来说，除非使用CLONE_NEWS标志创建进程，会创建新的namespace结构体，否则所有进程共享一个namespace&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
 </description>
     </item>
     
