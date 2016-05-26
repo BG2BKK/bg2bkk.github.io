@@ -57,7 +57,7 @@
         },
         "datePublished": "2016-05-26",
         "description": "",
-        "wordCount":  1304 
+        "wordCount":  1436 
     }
     </script>
     
@@ -226,11 +226,87 @@ main: 	1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 2
 
 <h2 id="c:2b47536402331bf9a7545f76ebbbb760">c</h2>
 
+<ul>
+<li>volatile: 使用volatile类型的全局变量和sleep函数实现阻塞和互斥</li>
+</ul>
+
+<pre><code class="language-cpp">#include &lt;pthread.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;errno.h&gt;
+#include &lt;ctype.h&gt;
+
+volatile int cond = 0;
+
+void func(int n)
+{
+	int i = 0, j = 0;
+	for(j=0; j&lt;5; j++){
+		while(cond != 0)
+			sleep(1);
+		printf(&quot;\n----------------------------------\n&quot;);
+		printf(&quot;child: &quot;);
+		for(i=0; i &lt; 10; i++ )
+			printf(&quot;%d\t&quot;, i);
+		printf(&quot;\n&quot;);
+		cond = 1;
+	}
+}
+
+int main()
+{
+	pthread_t tid;
+	int s = pthread_create(&amp;tid, NULL, func, 10);
+	if(s != 0){
+		printf(&quot;pthread_create error for %s&quot;, strerror(errno));
+		exit(1);
+	}
+
+	int i = 0, j = 0;
+	for(j=0; j &lt; 5; j++){
+		while(cond != 1)
+			sleep(1);
+		printf(&quot;master: &quot;);
+		for(i=0; i &lt; 100; i++ )
+			printf(&quot;%d\t&quot;, i);
+		printf(&quot;\n&quot;);
+		printf(&quot;==================================\n&quot;);
+		cond = 0;
+	}
+
+	s = pthread_join(tid, NULL);
+	if(s != 0){
+		printf(&quot;pthread_join error for %s&quot;, strerror(errno));
+		exit(1);
+	}
+}
+
+</code></pre>
+
+<ul>
+<li>signal</li>
+<li>semop</li>
+</ul>
+
 <h2 id="python:2b47536402331bf9a7545f76ebbbb760">python</h2>
+
+<ul>
+<li>python yield</li>
+</ul>
 
 <h2 id="golang:2b47536402331bf9a7545f76ebbbb760">golang</h2>
 
+<ul>
+<li>goroutine</li>
+</ul>
+
 <h2 id="shell:2b47536402331bf9a7545f76ebbbb760">shell</h2>
+
+<ul>
+<li>token bucket</li>
+</ul>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
