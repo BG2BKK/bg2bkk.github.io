@@ -1787,6 +1787,35 @@ set python print-stack full
       <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</guid>
       <description>
 
+&lt;h2 id=&#34;linux获取系统调度时间片长度:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;Linux获取系统调度时间片长度&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#define _GNU_SOURCE
+#include &amp;lt;sched.h&amp;gt;
+#include &amp;lt;stdlib.h&amp;gt;
+#include &amp;lt;unistd.h&amp;gt;
+#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;assert.h&amp;gt;
+
+	int
+main(int argc, char *argv[])
+{
+	int ret, i;  
+	struct timespec tp;  
+	ret = sched_rr_get_interval(0, &amp;amp;tp);  
+	if(ret == -1)  
+		printf(&amp;quot;sched_rr_get_interval error.\n&amp;quot;);  
+	printf(&amp;quot;The time is %ds:%ldns.\n&amp;quot;, (int)tp.tv_sec, tp.tv_nsec);  
+	return 0;  
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ ./cpu_time_slice.o 
+The time is 0s:16000000ns.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;可见Ubuntu-16.04 64bit的系统进程时间片是16ms&lt;/p&gt;
+
 &lt;h2 id=&#34;c语言中short-int-long内存占用:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;C语言中short、int、long内存占用&lt;/h2&gt;
 
 &lt;p&gt;随着工作年限的增加，很多基本功反而落了下来，甚至开始怀疑short等类型的内存占用问题了呵呵。印象里一直记得int和long类型都是4字节大小啊&lt;/p&gt;
