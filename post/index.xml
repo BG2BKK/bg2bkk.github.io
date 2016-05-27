@@ -201,9 +201,101 @@ int main()
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;ul&gt;
-&lt;li&gt;signal&lt;/li&gt;
-&lt;li&gt;semop&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;signal: 使用信号，用于进程互相通知对方&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;semop: 使用System V　进行线程同步，控制并发访问&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#include &amp;lt;pthread.h&amp;gt;
+#include &amp;lt;string.h&amp;gt;
+#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;stdlib.h&amp;gt;
+#include &amp;lt;unistd.h&amp;gt;
+#include &amp;lt;errno.h&amp;gt;
+#include &amp;lt;ctype.h&amp;gt;
+#include &amp;lt;signal.h&amp;gt;
+
+#include &amp;lt;sys/types.h&amp;gt;
+#include &amp;lt;sys/ipc.h&amp;gt;
+#include &amp;lt;sys/sem.h&amp;gt;
+
+volatile int cond = 0;
+int semid;
+struct sembuf sem[2];
+
+void func(int n)
+{
+
+//	printf(&amp;quot;ppid = %d, getpid = %d\n&amp;quot;, getppid(), getpid());
+
+	int i = 0, j = 0;
+	for(j=0; j&amp;lt;5; j++){
+
+		sem[1].sem_num = 1;
+		sem[1].sem_op = -1;
+		sem[1].sem_flg = 0;
+		semop(semid, &amp;amp;sem[1], 1);
+
+		printf(&amp;quot;\n----------------------------------\n&amp;quot;);
+		printf(&amp;quot;child: &amp;quot;);
+		for(i=0; i &amp;lt; 10; i++ )
+			printf(&amp;quot;%d\t&amp;quot;, i);
+		printf(&amp;quot;\n&amp;quot;);
+
+		sem[0].sem_num = 0;
+		sem[0].sem_op = 1;
+		sem[0].sem_flg = 0;
+		semop(semid, &amp;amp;sem[0], 1);
+	}
+}
+
+int main()
+{
+	semid = semget(IPC_PRIVATE, 2, 0666| IPC_CREAT);
+	if(semid &amp;lt; 0){
+		printf(&amp;quot;semget error for %s&amp;quot;, strerror(errno));
+		exit(1);
+	}
+
+	pthread_t tid;
+	int s = pthread_create(&amp;amp;tid, NULL, func, getpid());
+	if(s != 0){
+		printf(&amp;quot;pthread_create error for %s&amp;quot;, strerror(errno));
+		exit(1);
+	}
+
+	int i = 0, j = 0;
+	for(j=0; j &amp;lt; 5; j++){
+
+		sem[0].sem_num = 0;
+		sem[0].sem_op = -1;
+		sem[0].sem_flg = 0;
+		sem[1].sem_num = 1;
+		sem[1].sem_op = 1;
+		sem[1].sem_flg = 0;
+
+		semop(semid, &amp;amp;sem[1], 1);
+		semop(semid, &amp;amp;sem[0], 1);
+
+		printf(&amp;quot;master: &amp;quot;);
+		for(i=0; i &amp;lt; 100; i++ )
+			printf(&amp;quot;%d\t&amp;quot;, i);
+		printf(&amp;quot;\n&amp;quot;);
+		printf(&amp;quot;==================================\n&amp;quot;);
+
+		sem[1].sem_num = 1;
+		sem[1].sem_op = 1;
+		sem[1].sem_flg = 0;
+	}
+
+	s = pthread_join(tid, NULL);
+	if(s != 0){
+		printf(&amp;quot;pthread_join error for %s&amp;quot;, strerror(errno));
+		exit(1);
+	}
+}
+
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;h2 id=&#34;python:2b47536402331bf9a7545f76ebbbb760&#34;&gt;python&lt;/h2&gt;
 

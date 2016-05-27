@@ -57,7 +57,7 @@
         },
         "datePublished": "2016-05-26",
         "description": "",
-        "wordCount":  1436 
+        "wordCount":  1644 
     }
     </script>
     
@@ -286,9 +286,101 @@ int main()
 </code></pre>
 
 <ul>
-<li>signal</li>
-<li>semop</li>
+<li><p>signal: 使用信号，用于进程互相通知对方</p></li>
+
+<li><p>semop: 使用System V　进行线程同步，控制并发访问</p></li>
 </ul>
+
+<pre><code class="language-cpp">#include &lt;pthread.h&gt;
+#include &lt;string.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;unistd.h&gt;
+#include &lt;errno.h&gt;
+#include &lt;ctype.h&gt;
+#include &lt;signal.h&gt;
+
+#include &lt;sys/types.h&gt;
+#include &lt;sys/ipc.h&gt;
+#include &lt;sys/sem.h&gt;
+
+volatile int cond = 0;
+int semid;
+struct sembuf sem[2];
+
+void func(int n)
+{
+
+//	printf(&quot;ppid = %d, getpid = %d\n&quot;, getppid(), getpid());
+
+	int i = 0, j = 0;
+	for(j=0; j&lt;5; j++){
+
+		sem[1].sem_num = 1;
+		sem[1].sem_op = -1;
+		sem[1].sem_flg = 0;
+		semop(semid, &amp;sem[1], 1);
+
+		printf(&quot;\n----------------------------------\n&quot;);
+		printf(&quot;child: &quot;);
+		for(i=0; i &lt; 10; i++ )
+			printf(&quot;%d\t&quot;, i);
+		printf(&quot;\n&quot;);
+
+		sem[0].sem_num = 0;
+		sem[0].sem_op = 1;
+		sem[0].sem_flg = 0;
+		semop(semid, &amp;sem[0], 1);
+	}
+}
+
+int main()
+{
+	semid = semget(IPC_PRIVATE, 2, 0666| IPC_CREAT);
+	if(semid &lt; 0){
+		printf(&quot;semget error for %s&quot;, strerror(errno));
+		exit(1);
+	}
+
+	pthread_t tid;
+	int s = pthread_create(&amp;tid, NULL, func, getpid());
+	if(s != 0){
+		printf(&quot;pthread_create error for %s&quot;, strerror(errno));
+		exit(1);
+	}
+
+	int i = 0, j = 0;
+	for(j=0; j &lt; 5; j++){
+
+		sem[0].sem_num = 0;
+		sem[0].sem_op = -1;
+		sem[0].sem_flg = 0;
+		sem[1].sem_num = 1;
+		sem[1].sem_op = 1;
+		sem[1].sem_flg = 0;
+
+		semop(semid, &amp;sem[1], 1);
+		semop(semid, &amp;sem[0], 1);
+
+		printf(&quot;master: &quot;);
+		for(i=0; i &lt; 100; i++ )
+			printf(&quot;%d\t&quot;, i);
+		printf(&quot;\n&quot;);
+		printf(&quot;==================================\n&quot;);
+
+		sem[1].sem_num = 1;
+		sem[1].sem_op = 1;
+		sem[1].sem_flg = 0;
+	}
+
+	s = pthread_join(tid, NULL);
+	if(s != 0){
+		printf(&quot;pthread_join error for %s&quot;, strerror(errno));
+		exit(1);
+	}
+}
+
+</code></pre>
 
 <h2 id="python:2b47536402331bf9a7545f76ebbbb760">python</h2>
 
