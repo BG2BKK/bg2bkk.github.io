@@ -57,7 +57,7 @@
         },
         "datePublished": "2016-05-26",
         "description": "",
-        "wordCount":  1644 
+        "wordCount":  1746 
     }
     </script>
     
@@ -391,8 +391,52 @@ int main()
 <h2 id="golang:2b47536402331bf9a7545f76ebbbb760">golang</h2>
 
 <ul>
-<li>goroutine</li>
+<li>goroutine之间可以通过channel进行多任务同步</li>
 </ul>
+
+<pre><code class="language-go">package main
+
+import &quot;fmt&quot;
+
+var c1 chan int
+var c2 chan int
+
+func task(loop int, times int) {
+
+	for i := 0; i &lt; loop; i++ {
+		&lt;-c1
+		fmt.Println(&quot;------------------------------&quot;)
+		fmt.Print(&quot;child: &quot;)
+		for j := 0; j &lt; times; j++ {
+			fmt.Printf(&quot;%d\t&quot;, j)
+		}
+		fmt.Println()
+		c2 &lt;- 1
+	}
+}
+
+func main() {
+	times := 100
+	loop := 5
+
+	c1 = make(chan int, 1024)
+	c2 = make(chan int, 1024)
+
+	go task(loop, 10)
+
+	for i := 0; i &lt; loop; i++ {
+		c1 &lt;- 1
+		&lt;-c2
+		fmt.Print(&quot;master: &quot;)
+		for j := 0; j &lt; times; j++ {
+			fmt.Printf(&quot;%d\t&quot;, j)
+		}
+		fmt.Println()
+		fmt.Println(&quot;==============================&quot;)
+	}
+}
+
+</code></pre>
 
 <h2 id="shell:2b47536402331bf9a7545f76ebbbb760">shell</h2>
 
