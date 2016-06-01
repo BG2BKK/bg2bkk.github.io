@@ -57,7 +57,7 @@
         },
         "datePublished": "2016-05-26",
         "description": "",
-        "wordCount":  1746 
+        "wordCount":  1841 
     }
     </script>
     
@@ -427,6 +427,51 @@ func main() {
 	for i := 0; i &lt; loop; i++ {
 		c1 &lt;- 1
 		&lt;-c2
+		fmt.Print(&quot;master: &quot;)
+		for j := 0; j &lt; times; j++ {
+			fmt.Printf(&quot;%d\t&quot;, j)
+		}
+		fmt.Println()
+		fmt.Println(&quot;==============================&quot;)
+	}
+}
+
+</code></pre>
+
+<ul>
+<li>其实golang的chan作为阻塞读取的协程通信组件，有一个也就能实现谁先谁后的同步了；毕竟，不光 val &lt;- chan 这种读操作会堵塞，chan &lt;- val这种写操作也会被堵塞</li>
+</ul>
+
+<pre><code class="language-go">package main
+
+import &quot;fmt&quot;
+
+var c1 chan int
+
+func task(loop int, times int) {
+
+	for i := 0; i &lt; loop; i++ {
+
+		fmt.Println(&quot;------------------------------&quot;)
+		fmt.Print(&quot;child: &quot;)
+		for j := 0; j &lt; times; j++ {
+			fmt.Printf(&quot;%d\t&quot;, j)
+		}
+		fmt.Println()
+		c1 &lt;- 1
+	}
+}
+
+func main() {
+	times := 100
+	loop := 5
+
+	c1 = make(chan int)
+	go task(loop, 10)
+
+	for i := 0; i &lt; loop; i++ {
+
+		&lt;-c1
 		fmt.Print(&quot;master: &quot;)
 		for j := 0; j &lt; times; j++ {
 			fmt.Printf(&quot;%d\t&quot;, j)

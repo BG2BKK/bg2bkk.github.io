@@ -732,6 +732,51 @@ func main() {
 
 &lt;/code&gt;&lt;/pre&gt;
 
+&lt;ul&gt;
+&lt;li&gt;其实golang的chan作为阻塞读取的协程通信组件，有一个也就能实现谁先谁后的同步了；毕竟，不光 val &amp;lt;- chan 这种读操作会堵塞，chan &amp;lt;- val这种写操作也会被堵塞&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-go&#34;&gt;package main
+
+import &amp;quot;fmt&amp;quot;
+
+var c1 chan int
+
+func task(loop int, times int) {
+
+	for i := 0; i &amp;lt; loop; i++ {
+
+		fmt.Println(&amp;quot;------------------------------&amp;quot;)
+		fmt.Print(&amp;quot;child: &amp;quot;)
+		for j := 0; j &amp;lt; times; j++ {
+			fmt.Printf(&amp;quot;%d\t&amp;quot;, j)
+		}
+		fmt.Println()
+		c1 &amp;lt;- 1
+	}
+}
+
+func main() {
+	times := 100
+	loop := 5
+
+	c1 = make(chan int)
+	go task(loop, 10)
+
+	for i := 0; i &amp;lt; loop; i++ {
+
+		&amp;lt;-c1
+		fmt.Print(&amp;quot;master: &amp;quot;)
+		for j := 0; j &amp;lt; times; j++ {
+			fmt.Printf(&amp;quot;%d\t&amp;quot;, j)
+		}
+		fmt.Println()
+		fmt.Println(&amp;quot;==============================&amp;quot;)
+	}
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
 &lt;h2 id=&#34;shell:2b47536402331bf9a7545f76ebbbb760&#34;&gt;shell&lt;/h2&gt;
 
 &lt;ul&gt;
@@ -4079,7 +4124,12 @@ main	false	cannot resume dead coroutine
 &lt;h2 id=&#34;python的协程-待续:1a17fb99183985490e9adefe8aecc78f&#34;&gt;python的协程(待续)&lt;/h2&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.ibm.com/developerworks/cn/opensource/os-cn-python-yield/&#34;&gt;http://www.ibm.com/developerworks/cn/opensource/os-cn-python-yield/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.ibm.com/developerworks/cn/opensource/os-cn-python-yield/&#34;&gt;http://www.ibm.com/developerworks/cn/opensource/os-cn-python-yield/&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;简单地讲，yield 的作用就是把一个函数变成一个 generator，带有 yield 的函数不再是一个普通函数，Python 解释器会将其视为一个 generator&lt;/li&gt;
+&lt;li&gt;产生一个iterable对象&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h2 id=&#34;golang的协程-待续:1a17fb99183985490e9adefe8aecc78f&#34;&gt;golang的协程(待续)&lt;/h2&gt;
