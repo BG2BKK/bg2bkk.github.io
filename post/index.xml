@@ -3189,9 +3189,7 @@ print(table.maxn(t))
     * 每个子例程可以转换为一个不带yield的协程
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;p&gt;协程有关的四个概念：&lt;a href=&#34;https://en.wikipedia.org/wiki/Coroutine&#34;&gt;coroutine&lt;/a&gt;、&lt;a href=&#34;https://en.wikipedia.org/wiki/Yield_(multithreading&#34;&gt;yield&lt;/a&gt;、&lt;a href=&#34;https://en.wikipedia.org/wiki/Continuation&#34;&gt;Continuation&lt;/a&gt;、&lt;a href=&#34;https://en.wikipedia.org/wiki/Cooperative_multitasking&#34;&gt;cooperative multitasking&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Call_stack#Unwinding&#34;&gt;call stack&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;协程有关的四个概念：&lt;a href=&#34;https://en.wikipedia.org/wiki/Coroutine&#34;&gt;coroutine&lt;/a&gt;、&lt;a href=&#34;https://en.wikipedia.org/wiki/Yield_(multithreading&#34;&gt;yield&lt;/a&gt;、&lt;a href=&#34;https://en.wikipedia.org/wiki/Continuation&#34;&gt;Continuation&lt;/a&gt;、&lt;a href=&#34;https://en.wikipedia.org/wiki/Cooperative_multitasking&#34;&gt;cooperative multitasking&lt;/a&gt;。以及其他相关概念：&lt;a href=&#34;https://en.wikipedia.org/wiki/Call_stack#Unwinding&#34;&gt;call stack&lt;/a&gt;&lt;/p&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html&#34;&gt;Coroutines in C&lt;/a&gt;
@@ -3273,27 +3271,16 @@ j = 20, func = 20
 &lt;li&gt;可能我们会比较纠结function程序在 i &amp;gt; 10后不再执行return i语句，为什么还会返回自增后的结果呢？
 
 &lt;ul&gt;
-&lt;li&gt;说实话我也并不能很好解释。我通过查看汇编代码，发现仍然会执行将i值转到ecx寄存器，我们的function返回值就从ecx拿到的。&lt;/li&gt;
+&lt;li&gt;从代码的汇编结果来看，每次function返回时，i都在之前赋值给寄存器eax了，而eax存储的是函数的返回值，所以每次function的返回结果是i，即使不执行return语句&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;li&gt;return在这里并不是返回的意思，而是yield的意思&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 
 &lt;li&gt;&lt;p&gt;仍然有两种更优化的写法: &lt;a href=&#34;http://coolshell.cn/articles/10975.html&#34;&gt;左耳朵耗子的例子&lt;/a&gt;和&lt;a href=&#34;http://www.hawkwithwind.net/blog/2011/02/18/%E5%8D%8F%E7%A8%8B%E7%9A%84c%E5%AE%9E%E7%8E%B0/&#34;&gt;上例&lt;/a&gt;的来源都是天才程序员  &lt;a href=&#34;http://www.chiark.greenend.org.uk/~sgtatham/&#34;&gt;imon Tatham&lt;/a&gt;对&lt;a href=&#34;http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html&#34;&gt;协程做的尝试&lt;/a&gt;，以及关于swtich-case写法的duff机器的&lt;a href=&#34;http://bbs.chinaunix.net/thread-1833313-1-1.html&#34;&gt;讨论&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.colaghost.net/os/unix_linux/341&#34;&gt;协程实现的基础&lt;/a&gt;&lt;/p&gt;
+&lt;li&gt;&lt;p&gt;理解&lt;a href=&#34;http://www.colaghost.net/os/unix_linux/341&#34;&gt;协程实现的基础&lt;/a&gt;就是程序中的函数调用导致的&lt;a href=&#34;http://blog.csdn.net/ylyuanlu/article/details/18947951&#34;&gt;栈帧切换&lt;/a&gt;，在切换前先保存被切换subroutine的上下文，在切换时用新subroutine替换当前程序的执行状态。以Linux中用于实现协程的一个api：ucontext来说，makecontext函数将context的eip设置为func参数的地址，所以当该context得以执行时，func函数就开始执行了；swapcontext(old, new)将当前程序处于的old状态切换到new状态，然后new状态的func就得以执行。&lt;/p&gt;&lt;/li&gt;
 
-&lt;ul&gt;
-&lt;li&gt;makecontext函数将context的eip设置为func参数的地址，所以当该context得以执行时，func函数就开始执行了。&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://blog.csdn.net/ylyuanlu/article/details/18947951&#34;&gt;http://blog.csdn.net/ylyuanlu/article/details/18947951&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://blog.csdn.net/yxysdcl/article/details/5569351&#34;&gt;http://blog.csdn.net/yxysdcl/article/details/5569351&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;推荐的一些协程库&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://dunkels.com/adam/pt/&#34;&gt;protothread&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;其实c里面最好的协程库，就是嵌入LuaVM啦。&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;Linux对于协程实现提供了setjmp/longjmp和ucontext两种机制，现有的协程库，比如&lt;a href=&#34;http://dunkels.com/adam/pt/&#34;&gt;protothread&lt;/a&gt;，甚至是LuaVM中的协程实现，也会基于这两种机制之一来实现。当然，您也可以手动切换cpu的所有寄存器状态，以实现协程，也是可以的，但是是极不推荐的。&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h2 id=&#34;setjump-longjmp:1a17fb99183985490e9adefe8aecc78f&#34;&gt;setjump &amp;amp; longjmp&lt;/h2&gt;
@@ -3310,14 +3297,15 @@ SYNOPSIS
        void siglongjmp(sigjmp_buf env, int val);
 
 DESCRIPTION
-       longjmp()  and  setjmp(3) are useful for dealing with errors and interrupts encountered in a low-level subroutine of a program.  longjmp() restores the environment saved by the last call of setjmp(3)
-       with the corresponding env argument.  After longjmp() is completed, program execution continues as if the corresponding call of setjmp(3) had just returned the value val.  longjmp() cannot cause 0 to
-       be returned.  If longjmp() is invoked with a second argument of 0, 1 will be returned instead.
+       longjmp()  and  setjmp(3) are useful for dealing with errors and interrupts encountered in a low-level subroutine of a program. 
+	   
+       longjmp和setjmp在处理程序调用子例程过程中遇到错误或中断时非常有用。
+	   
+       longjmp() restores the environment saved by the last call of setjmp(3) with the corresponding env argument.  After longjmp() is completed, program execution continues as if the corresponding call of setjmp(3) had just returned the value val.  longjmp() cannot cause 0 to be returned.  If longjmp() is invoked with a second argument of 0, 1 will be returned instead.
 
-	   longjmp和setjmp在处理程序调用子例程过程中遇到错误或中断时非常有用。longjmp将恢复最近一次调用setjmp时通过env参数保存的上下文环境。longjmp完成后，原来调用setjmp的地方将会返回，并且setjmp的返回值是longjmp的val参数。longjmp不会返回0。如果longjmp调用时第二个参数是0，那么它将会返回1.
+       longjmp将恢复最近一次调用setjmp时通过env参数保存的上下文环境。longjmp完成后，原来调用setjmp的地方将会返回，并且setjmp的返回值是longjmp的val参数。longjmp不会返回0。如果longjmp调用时第二个参数是0，那么它将会返回1.
 
-       siglongjmp()  is  similar  to longjmp() except for the type of its env argument.  If, and only if, the sigsetjmp(3) call that set this env used a nonzero savesigs flag, siglongjmp() also restores the
-       signal mask that was saved by sigsetjmp(3).
+       siglongjmp()  is  similar  to longjmp() except for the type of its env argument.  If, and only if, the sigsetjmp(3) call that set this env used a nonzero savesigs flag, siglongjmp() also restores the signal mask that was saved by sigsetjmp(3).
 
 RETURN VALUE
        These functions never return.
@@ -3336,8 +3324,11 @@ SYNOPSIS
        int sigsetjmp(sigjmp_buf env, int savesigs);
 	 
 DESCRIPTION
-       setjmp()  and  longjmp(3)  are  useful for dealing with errors and interrupts encountered in a low-level subroutine of a program.  setjmp() saves the stack context/environment in env for later use by
-       longjmp(3).  The stack context will be invalidated if the function which called setjmp() returns.
+       setjmp()  and  longjmp(3)  are  useful for dealing with errors and interrupts encountered in a low-level subroutine of a program.  
+	   
+       setjmp() saves the stack context/environment in env for later use by longjmp(3).  The stack context will be invalidated if the function which called setjmp() returns.
+
+	   setjmp() 在参数env中保存栈帧，稍后longjmp调用时，将从setjmp执行；
 
        sigsetjmp() is similar to setjmp().  If, and only if, savesigs is nonzero, the process&#39;s current signal mask is saved in env and will be restored if a siglongjmp(3) is later performed with this env.
 
