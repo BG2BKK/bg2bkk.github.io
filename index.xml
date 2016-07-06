@@ -5,8 +5,77 @@
     <link>https://bg2bkk.github.io/</link>
     <description>Recent content on BG2BKK Site</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Sun, 05 Jun 2016 22:27:39 +0800</lastBuildDate>
+    <lastBuildDate>Wed, 06 Jul 2016 12:51:05 +0800</lastBuildDate>
     <atom:link href="https://bg2bkk.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>stm32_eclipse_openocd_stlink</title>
+      <link>https://bg2bkk.github.io/post/stm32_eclipse_openocd_stlink/</link>
+      <pubDate>Wed, 06 Jul 2016 12:51:05 +0800</pubDate>
+      
+      <guid>https://bg2bkk.github.io/post/stm32_eclipse_openocd_stlink/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;插件和eclipse环境配置：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://gnuarmeclipse.sourceforge.net/updates&#34;&gt;http://gnuarmeclipse.sourceforge.net/updates&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;gnu arm eclipse plugins的几种安装方法 &lt;a href=&#34;http://gnuarmeclipse.github.io/plugins/install/&#34;&gt;http://gnuarmeclipse.github.io/plugins/install/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://gnuarmeclipse.github.io/eclipse/workspace/preferences/&#34;&gt;http://gnuarmeclipse.github.io/eclipse/workspace/preferences/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://gnuarmeclipse.github.io/plugins/packs-manager/&#34;&gt;http://gnuarmeclipse.github.io/plugins/packs-manager/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;ac6 system workbench: &lt;a href=&#34;http://www.ac6-tools.com/Eclipse-updates/org.openstm32.system-workbench.site/&#34;&gt;http://www.ac6-tools.com/Eclipse-updates/org.openstm32.system-workbench.site/&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;有了它就可以ac6 debugger了，但是没办法，neon不支持&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.emcu.it/STM32/What_should_I_use_to_develop_on_STM32/stm32f0_linux_dvlpt.pdf&#34;&gt;http://www.emcu.it/STM32/What_should_I_use_to_develop_on_STM32/stm32f0_linux_dvlpt.pdf&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;如何使用eclipse新建工程&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;可以安装以上两个插件后，从eclipse新建ac6工程，下载相应库即可，ac6保证这个好使；&lt;/li&gt;
+&lt;li&gt;可以从cube新建工程sw4stm32类型的工程，然后引入SW4STM32工程&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;如何调试工程&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;debugger: AC6     普通的&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;使用ac6调试, &lt;a href=&#34;http://www.xlgps.com/article/387805.html&#34;&gt;http://www.xlgps.com/article/387805.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;debugger: hardware debugger configuration&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://stm32discovery.nano-age.co.uk/open-source-development-with-the-stm32-discovery/getting-hardware-debuging-working-with-eclipse-and-code-sourcey&#34;&gt;http://stm32discovery.nano-age.co.uk/open-source-development-with-the-stm32-discovery/getting-hardware-debuging-working-with-eclipse-and-code-sourcey&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;neon还不支持ac6 debugger，所以只能用后者 &lt;a href=&#34;http://www.openstm32.org/forumthread3023&#34;&gt;http://www.openstm32.org/forumthread3023&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;create debugging configuration&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.openstm32.org/Creating+debug+configuration&#34;&gt;http://www.openstm32.org/Creating+debug+configuration&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;开始debug&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;stlink 驱动&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://erika.tuxfamily.org/wiki/index.php?title=Tutorial:_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain&amp;amp;oldid=5474&#34;&gt;http://erika.tuxfamily.org/wiki/index.php?title=Tutorial:_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain&amp;amp;oldid=5474&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.st.com/content/st_com/en/products/embedded-software/development-tool-software/stsw-link004.html#&#34;&gt;http://www.st.com/content/st_com/en/products/embedded-software/development-tool-software/stsw-link004.html#&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Linux: &lt;a href=&#34;https://github.com/texane/stlink&#34;&gt;https://github.com/texane/stlink&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;用法：&lt;a href=&#34;http://erika.tuxfamily.org/wiki/index.php?title=Tutorial:_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain&amp;amp;oldid=5474&#34;&gt;http://erika.tuxfamily.org/wiki/index.php?title=Tutorial:_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain&amp;amp;oldid=5474&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>insertionSortList_链表插入排序</title>
@@ -593,7 +662,18 @@ data
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/kavu/go_reuseport&#34;&gt;SO_REUSEPORT在golang中的实践&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/kavu/go_reuseport&#34;&gt;SO_REUSEPORT在golang中的实践&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.microhowto.info/howto/listen_on_a_tcp_port_with_connections_in_the_time_wait_state.html&#34;&gt;SO_REUSEADDR的使用场景&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;在某tcp连接处于 TIME_WAIT状态时，它所占用的port不能被立刻使用&lt;/li&gt;
+&lt;li&gt;例如server端服务挂掉后需要重启，重启时发现需要bind的端口处于TIME_WAIT状态，不能立刻使用，错误码为EADDRINUSE，glibc将这个错误码渲染为 &amp;ldquo;Address already in use&amp;rdquo;&lt;/li&gt;
+&lt;li&gt;TIME_WAIT状态持续时间为2MSL，一个MSL通常是30s到2min，所以该状态时长为1min到4min；这是不可忍受的&lt;/li&gt;
+&lt;li&gt;SO_REUSEADDR可以使得进程能够绑定处于TIME_WAIT状态的端口，在服务重启的时候很有用&lt;/li&gt;
+&lt;li&gt;SO_REUSEADDR同样可以使得进程能够绑定处于ESTABLISHED状态的连接&lt;/li&gt;
+&lt;li&gt;无论如何，SO_REUSEADDR不允许相同ip和port的四元组存在&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h2 id=&#34;so-reuseport-和-so-reuseaddr-对比-待续:035fb573c14692e64241442f4294aac6&#34;&gt;SO_REUSEPORT 和 SO_REUSEADDR 对比（待续）&lt;/h2&gt;
@@ -963,6 +1043,41 @@ net.ipv4.tcp_fastopen = 3
       <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20learning/</guid>
       <description>
 
+&lt;h2 id=&#34;awk:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;awk&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.sina.com.cn/s/blog_4a033b090100xo2b.html&#34;&gt;http://blog.sina.com.cn/s/blog_4a033b090100xo2b.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.csdn.net/junjieguo/article/details/7525794&#34;&gt;http://blog.csdn.net/junjieguo/article/details/7525794&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;postgre:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;postgre&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.51yip.com/pgsql/1528.html&#34;&gt;修改表结构&lt;/a&gt;，&lt;a href=&#34;https://wiki.postgresql.org/wiki/ALTER_TABLE&#34;&gt;postgre_wiki&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.ruanyifeng.com/blog/2013/12/getting_started_with_postgresql.html&#34;&gt;插入数据&lt;/a&gt;、&lt;a href=&#34;https://wiki.postgresql.org/wiki/9.1%E7%AC%AC%E5%85%AD%E7%AB%A0&#34;&gt;postgre_wiki&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://my.oschina.net/Kenyon/blog/101432&#34;&gt;清楚pg_xlog&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;python:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;python&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;python魔术方法
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://pycoders-weekly-chinese.readthedocs.io/en/latest/issue6/a-guide-to-pythons-magic-methods.html#id19&#34;&gt;指南&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.csdn.net/wklken/article/details/8126381&#34;&gt;入门&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;http协议:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;[http协议]&lt;/h2&gt;
+
+&lt;p&gt;http协议301和302的区别&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.cnblogs.com/caiyuanzai/archive/2012/04/24/2469013.html&#34;&gt;http://www.cnblogs.com/caiyuanzai/archive/2012/04/24/2469013.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.csdn.net/qmhball/article/details/7838989&#34;&gt;http://blog.csdn.net/qmhball/article/details/7838989&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
 &lt;h2 id=&#34;linux-socket编程样例:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;linux socket编程样例&lt;/h2&gt;
 
 &lt;ul&gt;
@@ -1035,12 +1150,14 @@ net.ipv4.tcp_fastopen = 3
 &lt;h2 id=&#34;nginx配置文件:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;nginx配置文件&lt;/h2&gt;
 
 &lt;ul&gt;
-&lt;li&gt;rewrite:
+&lt;li&gt;&lt;p&gt;rewrite:&lt;/p&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;http://www.xiehaichao.com/articles/428.html&#34;&gt;http://www.xiehaichao.com/articles/428.html&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://seanlook.com/2015/05/17/nginx-location-rewrite/&#34;&gt;http://seanlook.com/2015/05/17/nginx-location-rewrite/&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://stackoverflow.com/questions/13621915/nginx-error-pages-one-location-rule-to-fit-them-all&#34;&gt;nginx配置使用用户自定义错误页面&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h2 id=&#34;lua的学习-使用和源码精读:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;Lua的学习、使用和源码精读&lt;/h2&gt;
@@ -1276,14 +1393,17 @@ main	false	cannot resume dead coroutine
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://www.chenwang.net/2015/12/12/%E5%AE%8C%E6%95%B4%E7%9A%84golang-%E5%A4%9A%E5%8D%8F%E7%A8%8B%E4%BF%A1%E9%81%93-%E4%BB%BB%E5%8A%A1%E5%A4%84%E7%90%86%E7%A4%BA%E4%BE%8B/&#34;&gt;golang多协程channel同步&lt;/a&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://my.oschina.net/goal/blog/196891&#34;&gt;golang的底层数据结构&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://www.chenwang.net/2015/12/12/%E5%AE%8C%E6%95%B4%E7%9A%84golang-%E5%A4%9A%E5%8D%8F%E7%A8%8B%E4%BF%A1%E9%81%93-%E4%BB%BB%E5%8A%A1%E5%A4%84%E7%90%86%E7%A4%BA%E4%BE%8B/&#34;&gt;golang多协程channel同步&lt;/a&gt;&lt;/p&gt;
 
 &lt;ul&gt;
 &lt;li&gt;sync.WaitGroup&lt;/li&gt;
 &lt;li&gt;defer&lt;/li&gt;
 &lt;li&gt;recover&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://blog.csdn.net/gophers/article/details/40505683&#34;&gt;golang闭包与协程使用&lt;/a&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://blog.csdn.net/gophers/article/details/40505683&#34;&gt;golang闭包与协程使用&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h3 id=&#34;golang设计模式:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;golang设计模式&lt;/h3&gt;
@@ -1956,6 +2076,28 @@ set python print-stack full
       
       <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</guid>
       <description>
+
+&lt;h2 id=&#34;docker-设置代理下载镜像:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;docker 设置代理下载镜像&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://stackoverflow.com/questions/23111631/cannot-download-docker-images-behind-a-proxy&#34;&gt;在systemd中设置&lt;/a&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;mkdir /etc/systemd/system/docker.service.d&lt;p&gt;&lt;/li&gt;
+&lt;li&gt;touch /etc/systemd/system/docker.service.d/http-proxy.conf&lt;p&gt;&lt;/li&gt;
+&lt;li&gt;在文件中添加：&lt;p&gt;[Service]&lt;p&gt;Environment=&amp;ldquo;HTTP_PROXY=&lt;a href=&#34;http://proxy.example.com:80/&amp;quot;&#34;&gt;http://proxy.example.com:80/&amp;quot;&lt;/a&gt;&lt;p&gt;&lt;/li&gt;
+&lt;li&gt;重启daemon：&lt;p&gt;sudo systemctl daemon-reload&lt;p&gt;&lt;/li&gt;
+&lt;li&gt;查看设置状态：&lt;p&gt;sudo systemctl show docker &amp;ndash;property Environment&lt;p&gt;&lt;/li&gt;
+&lt;li&gt;重启docker：&lt;p&gt;sudo systemctl restart docker&lt;p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;tested on Ubuntu 16.04&lt;/p&gt;
+
+&lt;h2 id=&#34;用ps查看进程的执行时间:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;用ps查看进程的执行时间&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;ps -eo pid,tty,user,comm,stime,etime | grep main
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;可以打印进程的开始时间和执行时间&lt;/p&gt;
 
 &lt;h2 id=&#34;vim下以16进制查看文本文件:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;vim下以16进制查看文本文件&lt;/h2&gt;
 
@@ -3840,458 +3982,6 @@ main	false	cannot resume dead coroutine
 
 &lt;p&gt;&lt;a href=&#34;http://wiki.csie.ncku.edu.tw/embedded/Lab2&#34;&gt;stm32上的协程实现&lt;/a&gt;
     * &lt;a href=&#34;http://blog.linux.org.tw/~jserv/archives/001848.html&#34;&gt;http://blog.linux.org.tw/~jserv/archives/001848.html&lt;/a&gt;&lt;/p&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>HTTP2的实践过程</title>
-      <link>https://bg2bkk.github.io/post/HTTP2%E7%9A%84%E5%AE%9E%E8%B7%B5%E8%BF%87%E7%A8%8B/</link>
-      <pubDate>Sat, 12 Mar 2016 16:17:52 +0800</pubDate>
-      
-      <guid>https://bg2bkk.github.io/post/HTTP2%E7%9A%84%E5%AE%9E%E8%B7%B5%E8%BF%87%E7%A8%8B/</guid>
-      <description>
-
-&lt;h2 id=&#34;目录:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;目录&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;前言&lt;/li&gt;
-&lt;li&gt;基于openssl自建证书
-
-&lt;ul&gt;
-&lt;li&gt;CentOS&lt;/li&gt;
-&lt;li&gt;Ubuntu&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;nginx的支持HTTP/2的patch&lt;/li&gt;
-&lt;li&gt;nghttp2安装，配置，使用
-
-&lt;ul&gt;
-&lt;li&gt;nghttpd作为http2 server&lt;/li&gt;
-&lt;li&gt;nghttp作为http2 client&lt;/li&gt;
-&lt;li&gt;nghttpx作为proxy，转向nginx后端&lt;/li&gt;
-&lt;li&gt;h2load作为压测工具&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;前言:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;前言&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;在研究HTTP/2协议时，常常和https协议混在一起，而二者之间的关系是怎样的呢？&lt;/li&gt;
-&lt;li&gt;现有的http2 server中，nginx基于1.9.*有HTTP/2协议的patch，还有nghttp2 server，已经有人运行在个人博客做前端。&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;只说实践过程，作为记录。&lt;/p&gt;
-
-&lt;p&gt;关于涉及到的概念等，需要在别的文档中写。&lt;/p&gt;
-
-&lt;h2 id=&#34;基于openssl自建证书:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;基于openssl自建证书&lt;/h2&gt;
-
-&lt;p&gt;在线上配置HTTPS时，需要从权威CA申请证书，在nginx中配置证书crt和私钥key。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;    listen 8443 ssl;
-    ssl_certificate  /usr/lib/ssl/nginx.crt;
-    ssl_certificate_key /usr/lib/ssl/nginx.key;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;而在线下调试时，如果需要配置https，则需要自建和签发证书。
-&lt;a href=&#34;http://segmentfault.com/a/1190000002569859&#34;&gt;基于openssl自建证书&lt;/a&gt;&lt;/p&gt;
-
-&lt;h3 id=&#34;在centos系统上自建证书:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;在CentOS系统上自建证书&lt;/h3&gt;
-
-&lt;p&gt;1.自建CA，颁发证书&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;CA首先需要自建证书，作为颁发证书所用的根证书。CA的openssl配置文件/etc/pki/tls/openssl.cnf：
-
-####################################################################
-[ ca ]
-default_ca	= CA_default		# The default ca section
-
-####################################################################
-[ CA_default ]
-
-dir		= /etc/pki/CA		# Where everything is kept
-certs		= $dir/certs		# Where the issued certs are kept
-crl_dir		= $dir/crl		# Where the issued crl are kept
-database	= $dir/index.txt	# database index file.
-#unique_subject	= no			# Set to &#39;no&#39; to allow creation of
-					# several ctificates with same subject.
-new_certs_dir	= $dir/newcerts		# default place for new certs.
-
-certificate	= $dir/cacert.pem 	# The CA certificate
-serial		= $dir/serial 		# The current serial number
-crlnumber	= $dir/crlnumber	# the current crl number
-					# must be commented out to leave a V1 CRL
-crl		= $dir/crl.pem 		# The current CRL
-private_key	= $dir/private/cakey.pem# The private key
-RANDFILE	= $dir/private/.rand	# private random number file
-
-x509_extensions	= usr_cert		# The extentions to add to the cert
-
-# Comment out the following two lines for the &amp;quot;traditional&amp;quot;
-# (and highly broken) format.
-name_opt 	= ca_default		# Subject Name options
-cert_opt 	= ca_default		# Certificate field options
-
-
-
-default_days	= 365			# how long to certify for
-default_crl_days= 30			# how long before next CRL
-default_md	= default		# use public key default MD
-preserve	= no			# keep passed DN ordering
-
-policy		= policy_match
-
-# For the CA policy
-[ policy_match ]
-countryName		= match
-stateOrProvinceName	= match
-organizationName	= match
-organizationalUnitName	= optional
-commonName		= supplied
-emailAddress		= optional
-...
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;其中我们可以看到根地址在/etc/pki/CA下，且指明了CA证书certificate是该目录下的cacert.pem，私钥在private/cakey.pem中，CA需要匹配countryName、stateOrProvinceName和organizationName，且commonName需要提供，这点比较重要。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;在/etc/pki/CA下创建初始文件
-
-$ touch serial index.txt
-$ echo 01 &amp;gt; serial
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;2.生成根密钥&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ cd /etc/pki/CA
-$ openssl genrsa -out private/cakey.pem 2048
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;3.生成根证书&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;使用req指令，通过私钥，生成自签证书
-$ openssl req -new -x509 -key private/cakey.pem -out cacert.pem
-You are about to be asked to enter information that will be incorporated
-into your certificate request.
-What you are about to enter is what is called a Distinguished Name or a DN.
-There are quite a few fields but you can leave some blank
-For some fields there will be a default value,
-If you enter &#39;.&#39;, the field will be left blank.
------
-Country Name (2 letter code) [XX]:CN
-State or Province Name (full name) []:BeiJing
-Locality Name (eg, city) [Default City]:
-Organization Name (eg, company) [Default Company Ltd]:
-Organizational Unit Name (eg, section) []:
-Common Name (eg, your name or your server&#39;s hostname) []:root
-Email Address []:
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;4.为nginx server生成密钥&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ mkdir /data/zhendong/nginx_ssl
-$ openssl genrsa -out nginx.key 2048
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;5.为nginx生成 证书签署请求&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ openssl req -new -key nginx.key -out nginx.csr
-You are about to be asked to enter information that will be incorporated
-into your certificate request.
-What you are about to enter is what is called a Distinguished Name or a DN.
-There are quite a few fields but you can leave some blank
-For some fields there will be a default value,
-If you enter &#39;.&#39;, the field will be left blank.
------
-Country Name (2 letter code) [XX]:CN
-State or Province Name (full name) []:BeiJing
-Locality Name (eg, city) [Default City]:
-Organization Name (eg, company) [Default Company Ltd]:
-Organizational Unit Name (eg, section) []:
-Common Name (eg, your name or your server&#39;s hostname) []:localhost
-Email Address []:
-
-Please enter the following &#39;extra&#39; attributes
-to be sent with your certificate request
-A challenge password []:
-An optional company name []:
-
-Common Name填成nginx server的server_name用来访问。
-在openssl.cnf中需要match的项目，一定要一样。
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;6.向CA请求证书&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ openssl ca -in nginx.csr -out nginx.crt
-
-如果失败，可以尝试以下命令
-
-$ openssl x509 -req -in nginx.csr -CA /etc/pki/CA/cacert.pem -CAkey /etc/pki/CA/private/cakey.pem -CAcreateserial -out nginx.crt
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;7.配置nginx&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;listen 8443 ssl ;
-ssl_certificate  /data1/zhendong/nginx_ssl/nginx.crt;
-ssl_certificate_key /data1/zhendong/nginx_ssl/nginx.key;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;8.通过curl访问&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ curl --cacert /etc/pki/CA/cacert.pem https://localhost:8443/
-this is abtesting server
-
-$ curl --cacert /etc/pki/CA/cacert.pem https://127.0.0.1:8443/
-curl: (51) SSL: certificate subject name &#39;localhost&#39; does not match target host name &#39;127.0.0.1&#39;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;###在Ubuntu系统上自建证书&lt;/p&gt;
-
-&lt;p&gt;Ubuntu系统与CentOS的不同之处在于软件包管理不同，当克服这部分不同后，就可以执行与CentOS系统一样的操作。&lt;/p&gt;
-
-&lt;p&gt;首先Ubuntu的openssl目录在&lt;strong&gt;/usr/lib/ssl&lt;/strong&gt;下，而实际上这是一个软链接。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;huang@ThinkPad-X220:/usr/lib/ssl$ ll /usr/lib/ssl/ total 52
-drwxr-xr-x   3 root root  4096  8月 27 12:18 ./
-drwxr-xr-x 238 root root 40960  8月 26 11:18 ../
-lrwxrwxrwx   1 root root    14  2月  4  2015 certs -&amp;gt; /etc/ssl/certs/
-drwxr-xr-x   2 root root  4096  7月  8 14:34 misc/
-lrwxrwxrwx   1 root root    20  6月 11 23:35 openssl.cnf -&amp;gt; /etc/ssl/openssl.cnf
-lrwxrwxrwx   1 root root    16  2月  4  2015 private -&amp;gt; /etc/ssl/private/
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;不管怎样，我们的工作将在&lt;strong&gt;/usr/lib/ssl&lt;/strong&gt;进行。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;/usr/lib/ssl/openssl.cnf内容如下：
-####################################################################
-[ ca ]
-default_ca	= CA_default		# The default ca section
-
-####################################################################
-[ CA_default ]
-
-dir		= ./demoCA		# Where everything is kept
-certs		= $dir/certs		# Where the issued certs are kept
-crl_dir		= $dir/crl		# Where the issued crl are kept
-database	= $dir/index.txt	# database index file.
-#unique_subject	= no			# Set to &#39;no&#39; to allow creation of
-					# several ctificates with same subject.
-new_certs_dir	= $dir/newcerts		# default place for new certs.
-
-certificate	= $dir/cacert.pem 	# The CA certificate
-serial		= $dir/serial 		# The current serial number
-crlnumber	= $dir/crlnumber	# the current crl number
-					# must be commented out to leave a V1 CRL
-crl		= $dir/crl.pem 		# The current CRL
-private_key	= $dir/private/cakey.pem# The private key
-RANDFILE	= $dir/private/.rand	# private random number file
-
-x509_extensions	= usr_cert		# The extentions to add to the cert
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;从配置文件中看到，我们需要在&lt;strong&gt;/usr/lib/ssl&lt;/strong&gt;下建立&lt;strong&gt;demoCA&lt;/strong&gt;目录以及其他。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ cd /usr/lib/ssl
-$ mkdir demoCA
-$ mkdir demoCA/newcerts
-$ mkdir demoCA/private
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;余下的操作将与在CentOS系统上没有区别。最后执行情况为：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ curl --cacert /usr/lib/ssl/demoCA/cacert.pem https://localhost:8443
-this is abtesting server
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;nginx的支持http-2的patch:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;nginx的支持HTTP/2的patch&lt;/h2&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;nginx目前已正式支持HTTP/2，包括tengine-2.1.2+ 和 openresty&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;nginx在8月份的时候从1.9.3版本推出了支持HTTP/2的&lt;a href=&#34;http://nginx.org/patches/http2/&#34;&gt;patch&lt;/a&gt;，使用时与标准nginx并无区别。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ cd nginx-1.9.4/
-$ patch -p1 &amp;lt; patch.http2-v3_1.9.4.txt  
-$ ./configure --with-http_v2_module --with-http_ssl_module
-$ make
-$ make install
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;支持http2的nginx关键配置为&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;	listen 8443 http2;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;只需要在listen后加http2就可以了。目前curl在基于nghttp2提供的HTTP/2库后，可以支持访问http2的server，但是目前没有配置成功，所以对支持http2的nginx进行访问的工作，将在介绍完nghttp2后一并记录。&lt;/p&gt;
-
-&lt;h2 id=&#34;nghttp2安装-配置-使用:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;nghttp2安装，配置，使用&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://github.com/tatsuhiro-t/nghttp2&#34;&gt;nghttp2&lt;/a&gt;是由tatsuhiro开发的，之前的spdylay也是他开发的，一直走在http2.0的前列。nghttp2包括了HTTP/2.0的库，基于这个库tatsu实现了HTTP/2.0的server、client和压测工具h2load。&lt;/p&gt;
-
-&lt;p&gt;由于nghttp2所依赖的库太新了，目前只在Ubuntu系统成功安装。安装过程：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ autoreconf -i
-$ automake
-$ autoconf
-$ ./configure
-$ make
-```	
-
-其中**./configure**的结果非常重要
-
-```bash
-    Version:        1.2.2-DEV shared 14:8:0
-    Host type:      x86_64-unknown-linux-gnu
-    Install prefix: /usr/local
-    C compiler:     gcc
-    CFLAGS:         -g -O2
-    WARNCFLAGS:     
-    LDFLAGS:        
-    LIBS:           
-    CPPFLAGS:       
-    C preprocessor: gcc -E
-    C++ compiler:   g++
-    CXXFLAGS:       -g -O2 -std=c++11
-    CXXCPP:         g++ -E
-    Library types:  Shared=yes, Static=yes
-    Python:
-      Python:         /usr/bin/python
-      PYTHON_VERSION: 2.7
-      pyexecdir:      ${exec_prefix}/lib/python2.7/dist-packages
-      Python-dev:     yes
-      PYTHON_CPPFLAGS:-I/usr/include/python2.7
-      PYTHON_LDFLAGS: -L/usr/lib -lpython2.7
-      Cython:         cython
-    Test:
-      CUnit:          yes
-      Failmalloc:     yes
-    Libs:
-      OpenSSL:        yes
-      Libxml2:        yes
-      Libev:          yes
-      Libevent(SSL):  yes
-      Spdylay:        yes
-      Jansson:        yes
-      Jemalloc:       yes
-      Zlib:           yes
-      Boost CPPFLAGS: 
-      Boost LDFLAGS:  
-      Boost::ASIO:    
-      Boost::System:  
-      Boost::Thread:  
-    Features:
-      Applications:   yes
-      HPACK tools:    yes
-      Libnghttp2_asio:no
-      Examples:       yes
-      Python bindings:yes
-      Threading:      yes
-      Third-party:    yes
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;编译帮助文档&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;make html
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h3 id=&#34;nghttpd作为http2-server:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;nghttpd作为http2 server&lt;/h3&gt;
-
-&lt;p&gt;http2-no-tls&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;nghttpd -v 8080   -n 24 --no-tls -d ~/workspace/Nginx_ABTesting/utils/html/ 
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;http2-with-tls&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;nghttpd -v 8080 -n 24 /usr/lib/ssl/nginx.key /usr/lib/ssl/nginx.crt -d ~/workspace/Nginx_ABTesting/utils/html/  
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;关于nghttpd的选项，其实可以与nginx配置做到一一对照的。目前对nghttpd的源码及实现了解的比较少，因其日本人的过于C++代码的风格实在晦涩难懂，所以很少做调优。&lt;/p&gt;
-
-&lt;h3 id=&#34;nghttp作为http2-client:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;nghttp作为http2 client&lt;/h3&gt;
-
-&lt;p&gt;http2-client-no-tls&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;nghttp http://127.0.0.1:8080
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;http2-client-with-tls&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;nghttp --cert /usr/lib/ssl/demoCA/cacert.pem https://127.0.0.1:8080
-
-nghttp https://127.0.0.1:8080
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;经过使用，nghttp也可以对nginx发出http2请求并成功返回。&lt;/p&gt;
-
-&lt;p&gt;通过strace和阅读源码，nghttp（包括压测工具h2load）作为client时，会读取系统的证书/usr/lib/ssl/demoCA/cacert.pem，因此可以不用指定。&lt;/p&gt;
-
-&lt;h3 id=&#34;nghttpx作为proxy-转向nginx后端:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;nghttpx作为proxy，转向nginx后端&lt;/h3&gt;
-
-&lt;p&gt;client ——&amp;gt; http2-proxy-no-tls ——&amp;gt; http1.1 upstream(nginx):&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;# nghttpx -f127.0.0.1,8080 -b127.0.0.1,8022 --frontend-no-tls
-
-# curl 127.0.0.1:8022
-this is beta3 server
-
-# nghttp http://127.0.0.1:8080
-this is beta3 server
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;client ——&amp;gt; http2-proxy-with-tls ——&amp;gt; http1.1 upstream(nginx):&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;# nghttpx -f127.0.0.1,8080 -b127.0.0.1,8022 /usr/lib/ssl/nginx.key /usr/lib/ssl/nginx.crt
-
-# nghttp https://127.0.0.1:8080
-this is beta3 server
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;采用nginx-http2作为proxy，使用方法与nginx-http1.1没有区别。&lt;/p&gt;
-
-&lt;h3 id=&#34;h2load作为压测工具:7c9d76473bce6d4e5d302b3b042a765b&#34;&gt;h2load作为压测工具&lt;/h3&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ h2load -n100 -c10 -t4  https://127.0.0.1:8080
-starting benchmark...
-spawning thread #0: 3 concurrent clients, 25 total requests
-spawning thread #1: 3 concurrent clients, 25 total requests
-spawning thread #2: 2 concurrent clients, 25 total requests
-spawning thread #3: 2 concurrent clients, 25 total requests
-Protocol: TLSv1.2
-Cipher: ECDHE-RSA-AES128-GCM-SHA256
-progress: 8% done
-progress: 16% done
-progress: 24% done
-progress: 32% done
-progress: 40% done
-progress: 48% done
-progress: 56% done
-progress: 64% done
-progress: 72% done
-progress: 80% done
-progress: 88% done
-progress: 96% done
-
-finished in 67.29ms, 1486 req/s, 111.02KB/s
-requests: 100 total, 100 started, 100 done, 100 succeeded, 0 failed, 0 errored
-status codes: 100 2xx, 0 3xx, 0 4xx, 0 5xx
-traffic: 7650 bytes total, 3450 bytes headers, 2100 bytes data
-                     min         max         mean         sd        +/- sd
-time for request:      343us      8.76ms      1.40ms      1.49ms    91.00%
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;h2load的使用与wrk没有区别，参数都是一样的。&lt;/p&gt;
-
-&lt;p&gt;根据不同配置，我们有以下几种场景：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;server/proxy			https
-
-nginx-http/1.1			with-tls
-nginx-http/2			no-tls
-nghttpd
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;相结合，压测场景比较多。幸运的是，不论server是nginx还是nghttpd，其参数和调优都可以指定，比如线程数；不论wrk还是h2load，参数也可以指定，使用起来区别不大。&lt;/p&gt;
 </description>
     </item>
     

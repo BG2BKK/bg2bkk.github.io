@@ -7,24 +7,24 @@
         <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
-        <meta property="og:title" content=" SO_REUSEADDR和SO_REUSEPORT &middot;  BG2BKK Site" />
+        <meta property="og:title" content=" stm32_eclipse_openocd_stlink &middot;  BG2BKK Site" />
         <meta property="og:site_name" content="BG2BKK Site" />
-        <meta property="og:url" content="https://bg2bkk.github.io/post/SO_REUSEADDR%E5%92%8CSO_REUSEPORT/" />
+        <meta property="og:url" content="https://bg2bkk.github.io/post/stm32_eclipse_openocd_stlink/" />
 
     
         <meta property="og:type" content="article" />
-        <meta property="og:article:published_time" content="2016-05-09T16:55:42&#43;08:00" />
+        <meta property="og:article:published_time" content="2016-07-06T12:51:05&#43;08:00" />
         
 
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:site" content="@" />
         <meta name="twitter:creator" content="@" />
-        <meta name="twitter:title" content="SO_REUSEADDR和SO_REUSEPORT" />
+        <meta name="twitter:title" content="stm32_eclipse_openocd_stlink" />
         <meta name="twitter:description" content="" />
-        <meta name="twitter:url" content="https://bg2bkk.github.io/post/SO_REUSEADDR%E5%92%8CSO_REUSEPORT/" />
+        <meta name="twitter:url" content="https://bg2bkk.github.io/post/stm32_eclipse_openocd_stlink/" />
     
 
-        <title> SO_REUSEADDR和SO_REUSEPORT &middot;  BG2BKK Site</title>
+        <title> stm32_eclipse_openocd_stlink &middot;  BG2BKK Site</title>
 
     
         <meta name="description" content="" />
@@ -43,21 +43,21 @@
     
 
     
-        <link rel="canonical" href="https://bg2bkk.github.io/post/SO_REUSEADDR%E5%92%8CSO_REUSEPORT/" />
+        <link rel="canonical" href="https://bg2bkk.github.io/post/stm32_eclipse_openocd_stlink/" />
 
     
     <script type="application/ld+json">
     { 
         "@context": "http://schema.org",
         "@type": "Article",
-        "headline": "SO_REUSEADDR和SO_REUSEPORT",
+        "headline": "stm32_eclipse_openocd_stlink",
         "author": {
             "@type": "Person",
             "name": "http://profiles.google.com/?rel=author"
         },
-        "datePublished": "2016-05-09",
+        "datePublished": "2016-07-06",
         "description": "",
-        "wordCount":  188 
+        "wordCount":  45 
     }
     </script>
     
@@ -91,158 +91,79 @@
 
 <article id="" class="post">
     <div class="post-stamp">
-        <time datetime="2016-05-09T16:55:42&#43;08:00">
-            9 May 2016
+        <time datetime="2016-07-06T12:51:05&#43;08:00">
+            6 Jul 2016
         </time>
         <span class="taglist">
         
         </span>
     </div>
-    <h1 class="post-title">SO_REUSEADDR和SO_REUSEPORT</h1>
-    
-
-<h2 id="结论:035fb573c14692e64241442f4294aac6">结论</h2>
-
-<pre><code>1. SO_REUSEPORT用于多个socket监听同一个TCP链接
-2. SO_REUSEADDR可用于多个进程bind同一端口，但需要TCP连接的四元组不一样。
-3. SO_REUSEPORT比SO_REUSEADDR更加扩展，但是也带来了隐患，需要额外注意
-</code></pre>
-
-<h2 id="引言:035fb573c14692e64241442f4294aac6">引言</h2>
-
-<p>nginx 1.9.1引入了 SO_REUSEPORT选项，在高版本（linux kernel 3.9以上）系统上可用。该选项允许多个socket监听同一个IP:PORT组合，</p>
+    <h1 class="post-title">stm32_eclipse_openocd_stlink</h1>
+    <ul>
+<li><p>插件和eclipse环境配置：</p>
 
 <ul>
-<li>SO_REUSEPORT可以<a href="http://freeprogrammersblog.vhex.net/post/linux-39-introdued-new-way-of-writing-socket-servers/2">简化服务器编程</a></li>
-<li>prefork模式：master预先分配进程池，每一个client连接用一个进程处理
+<li><p><a href="http://gnuarmeclipse.sourceforge.net/updates">http://gnuarmeclipse.sourceforge.net/updates</a></p>
 
 <ul>
-<li>省资源，不用每次都fork，然后再回收</li>
-<li>可控制，预先分配的进程池大小是固定的</li>
+<li>gnu arm eclipse plugins的几种安装方法 <a href="http://gnuarmeclipse.github.io/plugins/install/">http://gnuarmeclipse.github.io/plugins/install/</a></li>
+<li><a href="http://gnuarmeclipse.github.io/eclipse/workspace/preferences/">http://gnuarmeclipse.github.io/eclipse/workspace/preferences/</a></li>
+<li><a href="http://gnuarmeclipse.github.io/plugins/packs-manager/">http://gnuarmeclipse.github.io/plugins/packs-manager/</a></li>
 </ul></li>
-<li>SO_REUSEPORT使得多进程时不用使master再做管理工作，比如管理子进程，设置信号等等，设置不需要一个master进程，只需要子进程监听同一个端口就行。操作系统做了大部分工作。
+
+<li><p>ac6 system workbench: <a href="http://www.ac6-tools.com/Eclipse-updates/org.openstm32.system-workbench.site/">http://www.ac6-tools.com/Eclipse-updates/org.openstm32.system-workbench.site/</a></p>
 
 <ul>
-<li>这里还有个好处是，C写的server模块，python写的server模块，它们可以共存监听同一个端口，灵活性更好</li>
+<li>有了它就可以ac6 debugger了，但是没办法，neon不支持</li>
+<li><a href="http://www.emcu.it/STM32/What_should_I_use_to_develop_on_STM32/stm32f0_linux_dvlpt.pdf">http://www.emcu.it/STM32/What_should_I_use_to_develop_on_STM32/stm32f0_linux_dvlpt.pdf</a></li>
 </ul></li>
-</ul>
-
-<h2 id="听听linux-kernle-维护者怎么说-https-lwn-net-articles-542629:035fb573c14692e64241442f4294aac6">听听linux kernle<a href="https://lwn.net/Articles/542629/">维护者怎么说</a></h2>
-
-<ul>
-<li>允许多个进程绑定host上的同一端口</li>
-<li>只需要第一个绑定端口的进程指定SO_REUSEPORT选项，后继者都可以绑定该端口，所以需要担心的是端口劫持，不希望恶意程序能accept该端口的连接。</li>
-<li>方法是后继者要与第一次绑定端口的进程的USER ID一样，比如用root和普通用户启动程序绑定同一个端口，会报address already in use</li>
-<li>SO_REUSEPORT的负载均衡性能更好
-<!--        * 这里的负载均衡可能指的不是主动分配的，而是当多个线程监听同一端口时，如果某个线程在忙，那么新来的请求自然会被load较低的线程处理，间接的达到均衡效果 --></li>
-<li>TCP和UDP都可以用
-
-<ul>
-<li>UDP场景中，在DNS server的应用比较有意义，可以负载均衡的处理dns请求</li>
-<li>作者指出，SO_REUSEADDR虽然也能让UDP连接绑定同一端口，但是SO_REUSEPORT可以防止劫持，并能将请求均衡的分配给监听的线程</li>
 </ul></li>
-</ul>
 
-<h2 id="传统多线程的工作模式的缺点:035fb573c14692e64241442f4294aac6">传统多线程的工作模式的缺点</h2>
-
-<ul>
-<li>1. 传统的多线程server都是有一个listener线程绑定端口并接受所有的请求，然后传递给其他线程，而这个listener往往会成为瓶颈</li>
-<li>2. master绑定端口，每个slave轮流accept从该端口获取连接（nginx）
+<li><p>如何使用eclipse新建工程</p>
 
 <ul>
-<li>缺点是有可能导致每个slave不能平均的处理连接，unblanced；有的slave处理的过多，有的slave处理的过少，导致cpu资源不能充分利用</li>
-<li>SO_REUSEPORT的实现可以使请求平均的分配给堵塞在accept上的各个进程</li>
+<li>可以安装以上两个插件后，从eclipse新建ac6工程，下载相应库即可，ac6保证这个好使；</li>
+<li>可以从cube新建工程sw4stm32类型的工程，然后引入SW4STM32工程</li>
 </ul></li>
-</ul>
 
-<h2 id="so-reuseport的应用举例:035fb573c14692e64241442f4294aac6">SO_REUSEPORT的应用举例</h2>
-
-<ul>
-<li>server.py</li>
-</ul>
-
-<pre><code class="language-python">import socket
-import os
-
-SO_REUSEPORT = 15
-
-s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.setsockopt(socket.SOL_SOCKET, SO_REUSEPORT, 1)
-s.bind(('', 10000))
-s.listen(1)
-while True:
-    conn, addr = s.accept()
-    print('Connected to {}'.format(os.getpid()))
-    data = conn.recv(1024)
-    conn.send(data)
-    conn.close()
-</code></pre>
-
-<p>启动两个进程，都绑定10000端口；使用nc作为client</p>
-
-<pre><code class="language-bash">$ python server.py&amp;
-[1] 12649
-$ python server.py&amp;
-[2] 12650
-$ echo data | nc localhost 10000
-Connected to 12649
-data
-$ echo data | nc localhost 10000
-Connected to 12650
-data
-$ echo data | nc localhost 10000
-Connected to 12649
-data
-$ echo data | nc localhost 10000
-Connected to 12650
-data
-</code></pre>
-
-<p>再启动一个新的进程显然也是可以的</p>
-
-<pre><code class="language-bash">$ python server.py&amp;
-[3] 14021
-$ echo data | nc localhost 10000
-Connected to 12650
-data
-$ echo data | nc localhost 10000
-Connected to 14021
-data
-</code></pre>
+<li><p>如何调试工程</p>
 
 <ul>
-<li><p><a href="https://github.com/kavu/go_reuseport">SO_REUSEPORT在golang中的实践</a></p></li>
-
-<li><p><a href="http://www.microhowto.info/howto/listen_on_a_tcp_port_with_connections_in_the_time_wait_state.html">SO_REUSEADDR的使用场景</a></p>
+<li><p>debugger: AC6     普通的</p>
 
 <ul>
-<li>在某tcp连接处于 TIME_WAIT状态时，它所占用的port不能被立刻使用</li>
-<li>例如server端服务挂掉后需要重启，重启时发现需要bind的端口处于TIME_WAIT状态，不能立刻使用，错误码为EADDRINUSE，glibc将这个错误码渲染为 &ldquo;Address already in use&rdquo;</li>
-<li>TIME_WAIT状态持续时间为2MSL，一个MSL通常是30s到2min，所以该状态时长为1min到4min；这是不可忍受的</li>
-<li>SO_REUSEADDR可以使得进程能够绑定处于TIME_WAIT状态的端口，在服务重启的时候很有用</li>
-<li>SO_REUSEADDR同样可以使得进程能够绑定处于ESTABLISHED状态的连接</li>
-<li>无论如何，SO_REUSEADDR不允许相同ip和port的四元组存在</li>
+<li>使用ac6调试, <a href="http://www.xlgps.com/article/387805.html">http://www.xlgps.com/article/387805.html</a></li>
 </ul></li>
-</ul>
 
-<h2 id="so-reuseport-和-so-reuseaddr-对比-待续:035fb573c14692e64241442f4294aac6">SO_REUSEPORT 和 SO_REUSEADDR 对比（待续）</h2>
-
-<ul>
-<li>前者可以防止端口被恶意进程劫持</li>
-<li>前者可以使请求平均分配给各个进程</li>
-</ul>
-
-<h2 id="参考链接:035fb573c14692e64241442f4294aac6">参考链接</h2>
+<li><p>debugger: hardware debugger configuration</p>
 
 <ul>
-<li><a href="https://lwn.net/Articles/542629/">lwn: the SO_REUSEPORT socket option</a></li>
-<li><a href="http://stackoverflow.com/questions/14388706/socket-options-so-reuseaddr-and-so-reuseport-how-do-they-differ-do-they-mean-t">topic on so_reuseaddr and so_reuseport on stackoverflow</a></li>
+<li><a href="http://stm32discovery.nano-age.co.uk/open-source-development-with-the-stm32-discovery/getting-hardware-debuging-working-with-eclipse-and-code-sourcey">http://stm32discovery.nano-age.co.uk/open-source-development-with-the-stm32-discovery/getting-hardware-debuging-working-with-eclipse-and-code-sourcey</a></li>
+<li>neon还不支持ac6 debugger，所以只能用后者 <a href="http://www.openstm32.org/forumthread3023">http://www.openstm32.org/forumthread3023</a></li>
+</ul></li>
+
+<li><p>create debugging configuration</p>
+
+<ul>
+<li><a href="http://www.openstm32.org/Creating+debug+configuration">http://www.openstm32.org/Creating+debug+configuration</a></li>
+<li>开始debug</li>
+</ul></li>
+</ul></li>
+
+<li><p>stlink 驱动</p>
+
+<ul>
+<li><a href="http://erika.tuxfamily.org/wiki/index.php?title=Tutorial:_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain&amp;oldid=5474">http://erika.tuxfamily.org/wiki/index.php?title=Tutorial:_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain&amp;oldid=5474</a></li>
+<li><a href="http://www.st.com/content/st_com/en/products/embedded-software/development-tool-software/stsw-link004.html#">http://www.st.com/content/st_com/en/products/embedded-software/development-tool-software/stsw-link004.html#</a></li>
+<li>Linux: <a href="https://github.com/texane/stlink">https://github.com/texane/stlink</a></li>
+<li>用法：<a href="http://erika.tuxfamily.org/wiki/index.php?title=Tutorial:_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain&amp;oldid=5474">http://erika.tuxfamily.org/wiki/index.php?title=Tutorial:_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain&amp;oldid=5474</a></li>
+</ul></li>
 </ul>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
-          <a href="mailto:?subject=SO_REUSEADDR%e5%92%8cSO_REUSEPORT&amp;body=https://bg2bkk.github.io/post/SO_REUSEADDR%E5%92%8CSO_REUSEPORT/">
+          <a href="mailto:?subject=stm32_eclipse_openocd_stlink&amp;body=https://bg2bkk.github.io/post/stm32_eclipse_openocd_stlink/">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path transform="scale(0.014,-0.014) translate(0,-1670)" d="M1792 826v-794q0 -66 -47 -113t-113 -47h-1472q-66 0 -113 47t-47 113v794q44 -49 101 -87q362 -246 497 -345q57 -42 92.5 -65.5t94.5 -48t110 -24.5h1h1q51 0 110 24.5t94.5 48t92.5 65.5q170 123 498 345q57 39 100 87zM1792 1120q0 -79 -49 -151t-122 -123 q-376 -261 -468 -325q-10 -7 -42.5 -30.5t-54 -38t-52 -32.5t-57.5 -27t-50 -9h-1h-1q-23 0 -50 9t-57.5 27t-52 32.5t-54 38t-42.5 30.5q-91 64 -262 182.5t-205 142.5q-62 42 -117 115.5t-55 136.5q0 78 41.5 130t118.5 52h1472q65 0 112.5 -47t47.5 -113z"/>
@@ -252,7 +173,7 @@ data
           </a>
       </li>
       <li class="facebook">
-          <a href="https://www.facebook.com/sharer/sharer.php?u=https://bg2bkk.github.io/post/SO_REUSEADDR%E5%92%8CSO_REUSEPORT/" class="popup">
+          <a href="https://www.facebook.com/sharer/sharer.php?u=https://bg2bkk.github.io/post/stm32_eclipse_openocd_stlink/" class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M27.825,4.783c0-2.427-2.182-4.608-4.608-4.608H4.783c-2.422,0-4.608,2.182-4.608,4.608v18.434 c0,2.427,2.181,4.608,4.608,4.608H14V17.379h-3.379v-4.608H14v-1.795c0-3.089,2.335-5.885,5.192-5.885h3.718v4.608h-3.726 c-0.408,0-0.884,0.492-0.884,1.236v1.836h4.609v4.608h-4.609v10.446h4.916c2.422,0,4.608-2.188,4.608-4.608V4.783z"/>
@@ -262,7 +183,7 @@ data
           </a>
       </li>
 			<li class="twitter">
-          <a href="http://twitter.com/home?status=SO_REUSEADDR%e5%92%8cSO_REUSEPORT%20https://bg2bkk.github.io/post/SO_REUSEADDR%E5%92%8CSO_REUSEPORT/" class="popup">
+          <a href="http://twitter.com/home?status=stm32_eclipse_openocd_stlink%20https://bg2bkk.github.io/post/stm32_eclipse_openocd_stlink/" class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
 		                  <path d="M24.253,8.756C24.689,17.08,18.297,24.182,9.97,24.62c-3.122,0.162-6.219-0.646-8.861-2.32 c2.703,0.179,5.376-0.648,7.508-2.321c-2.072-0.247-3.818-1.661-4.489-3.638c0.801,0.128,1.62,0.076,2.399-0.155 C4.045,15.72,2.215,13.6,2.115,11.077c0.688,0.275,1.426,0.407,2.168,0.386c-2.135-1.65-2.729-4.621-1.394-6.965 C5.575,7.816,9.54,9.84,13.803,10.071c-0.842-2.739,0.694-5.64,3.434-6.482c2.018-0.623,4.212,0.044,5.546,1.683 c1.186-0.213,2.318-0.662,3.329-1.317c-0.385,1.256-1.247,2.312-2.399,2.942c1.048-0.106,2.069-0.394,3.019-0.851 C26.275,7.229,25.39,8.196,24.253,8.756z"/>
@@ -272,7 +193,7 @@ data
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/SO_REUSEADDR%E5%92%8CSO_REUSEPORT/&amp;title=SO_REUSEADDR%e5%92%8cSO_REUSEPORT&amp;summary=%e7%bb%93%e8%ae%ba%201.%20SO_REUSEPORT%e7%94%a8%e4%ba%8e%e5%a4%9a%e4%b8%aasocket%e7%9b%91%e5%90%ac%e5%90%8c%e4%b8%80%e4%b8%aaTCP%e9%93%be%e6%8e%a5%202.%20SO_REUSEADDR%e5%8f%af%e7%94%a8%e4%ba%8e%e5%a4%9a%e4%b8%aa%e8%bf%9b%e7%a8%8bbind%e5%90%8c%e4%b8%80%e7%ab%af%e5%8f%a3%ef%bc%8c%e4%bd%86%e9%9c%80%e8%a6%81TCP%e8%bf%9e%e6%8e%a5%e7%9a%84%e5%9b%9b%e5%85%83%e7%bb%84%e4%b8%8d%e4%b8%80%e6%a0%b7%e3%80%82%203.%20SO_REUSEPORT%e6%af%94SO_REUSEADDR%e6%9b%b4%e5%8a%a0%e6%89%a9%e5%b1%95%ef%bc%8c%e4%bd%86%e6%98%af%e4%b9%9f%e5%b8%a6%e6%9d%a5%e4%ba%86%e9%9a%90%e6%82%a3%ef%bc%8c%e9%9c%80%e8%a6%81%e9%a2%9d%e5%a4%96%e6%b3%a8%e6%84%8f%20%e5%bc%95%e8%a8%80%20nginx%201.9.1%e5%bc%95%e5%85%a5%e4%ba%86%20SO_REUSEPORT%e9%80%89%e9%a1%b9%ef%bc%8c%e5%9c%a8%e9%ab%98%e7%89%88%e6%9c%ac%ef%bc%88linux%20kernel%203.9%e4%bb%a5%e4%b8%8a%ef%bc%89%e7%b3%bb%e7%bb%9f%e4%b8%8a%e5%8f%af%e7%94%a8%e3%80%82%e8%af%a5%e9%80%89%e9%a1%b9%e5%85%81%e8%ae%b8%e5%a4%9a%e4%b8%aasocket%e7%9b%91%e5%90%ac%e5%90%8c%e4%b8%80%e4%b8%aaIP%3aPORT%e7%bb%84%e5%90%88%ef%bc%8c%20SO_REUSEPORT%e5%8f%af%e4%bb%a5%e7%ae%80%e5%8c%96%e6%9c%8d%e5%8a%a1%e5%99%a8%e7%bc%96%e7%a8%8b%20prefork%e6%a8%a1%e5%bc%8f%ef%bc%9amaster%e9%a2%84%e5%85%88%e5%88%86%e9%85%8d%e8%bf%9b%e7%a8%8b%e6%b1%a0%ef%bc%8c%e6%af%8f%e4%b8%80%e4%b8%aaclient%e8%bf%9e%e6%8e%a5%e7%94%a8%e4%b8%80%e4%b8%aa%e8%bf%9b%e7%a8%8b%e5%a4%84%e7%90%86%20%e7%9c%81%e8%b5%84%e6%ba%90%ef%bc%8c%e4%b8%8d%e7%94%a8%e6%af%8f%e6%ac%a1%e9%83%bdfork%ef%bc%8c%e7%84%b6%e5%90%8e%e5%86%8d%e5%9b%9e%e6%94%b6%20%e5%8f%af%e6%8e%a7%e5%88%b6%ef%bc%8c%e9%a2%84%e5%85%88%e5%88%86%e9%85%8d%e7%9a%84%e8%bf%9b%e7%a8%8b%e6%b1%a0%e5%a4%a7%e5%b0%8f%e6%98%af%e5%9b%ba%e5%ae%9a%e7%9a%84%20SO_REUSEPORT%e4%bd%bf%e5%be%97%e5%a4%9a%e8%bf%9b%e7%a8%8b%e6%97%b6%e4%b8%8d%e7%94%a8%e4%bd%bfmaster%e5%86%8d%e5%81%9a%e7%ae%a1%e7%90%86%e5%b7%a5%e4%bd%9c%ef%bc%8c%e6%af%94%e5%a6%82%e7%ae%a1%e7%90%86%e5%ad%90%e8%bf%9b%e7%a8%8b%ef%bc%8c%e8%ae%be%e7%bd%ae%e4%bf%a1%e5%8f%b7%e7%ad%89%e7%ad%89%ef%bc%8c%e8%ae%be%e7%bd%ae%e4%b8%8d%e9%9c%80%e8%a6%81%e4%b8%80%e4%b8%aamaster%e8%bf%9b%e7%a8%8b%ef%bc%8c%e5%8f%aa%e9%9c%80%e8%a6%81%e5%ad%90%e8%bf%9b%e7%a8%8b%e7%9b%91%e5%90%ac%e5%90%8c%e4%b8%80%e4%b8%aa%e7%ab%af%e5%8f%a3%e5%b0%b1%e8%a1%8c%e3%80%82%e6%93%8d%e4%bd%9c%e7%b3%bb%e7%bb%9f%e5%81%9a%e4%ba%86%e5%a4%a7%e9%83%a8%e5%88%86%e5%b7%a5%e4%bd%9c%e3%80%82%20%e8%bf%99%e9%87%8c%e8%bf%98%e6%9c%89%e4%b8%aa%e5%a5%bd%e5%a4%84%e6%98%af%ef%bc%8cC%e5%86%99%e7%9a%84server%e6%a8%a1%e5%9d%97%ef%bc%8cpython%e5%86%99%e7%9a%84server%e6%a8%a1%e5%9d%97%ef%bc%8c%e5%ae%83%e4%bb%ac%e5%8f%af%e4%bb%a5%e5%85%b1%e5%ad%98%e7%9b%91%e5%90%ac%e5%90%8c%e4%b8%80%e4%b8%aa%e7%ab%af%e5%8f%a3%ef%bc%8c%e7%81%b5%e6%b4%bb%e6%80%a7%e6%9b%b4%e5%a5%bd%20%e5%90%ac%e5%90%aclinux%20kernle%e7%bb%b4%e6%8a%a4%e8%80%85%e6%80%8e%e4%b9%88%e8%af%b4%20%e5%85%81%e8%ae%b8%e5%a4%9a%e4%b8%aa%e8%bf%9b%e7%a8%8b%e7%bb%91%e5%ae%9ahost%e4%b8%8a%e7%9a%84%e5%90%8c%e4%b8%80%e7%ab%af%e5%8f%a3%20%e5%8f%aa%e9%9c%80%e8%a6%81%e7%ac%ac%e4%b8%80%e4%b8%aa%e7%bb%91%e5%ae%9a%e7%ab%af%e5%8f%a3%e7%9a%84%e8%bf%9b%e7%a8%8b%e6%8c%87%e5%ae%9aSO_REUSEPORT%e9%80%89%e9%a1%b9%ef%bc%8c%e5%90%8e%e7%bb%a7%e8%80%85%e9%83%bd%e5%8f%af%e4%bb%a5%e7%bb%91%e5%ae%9a%e8%af%a5%e7%ab%af%e5%8f%a3%ef%bc%8c%e6%89%80%e4%bb%a5%e9%9c%80%e8%a6%81%e6%8b%85%e5%bf%83%e7%9a%84%e6%98%af%e7%ab%af%e5%8f%a3%e5%8a%ab%e6%8c%81%ef%bc%8c%e4%b8%8d%e5%b8%8c%e6%9c%9b%e6%81%b6%e6%84%8f%e7%a8%8b%e5%ba%8f%e8%83%bdaccept%e8%af%a5%e7%ab%af%e5%8f%a3%e7%9a%84%e8%bf%9e%e6%8e%a5%e3%80%82%20%e6%96%b9%e6%b3%95%e6%98%af%e5%90%8e%e7%bb%a7%e8%80%85%e8%a6%81%e4%b8%8e%e7%ac%ac%e4%b8%80%e6%ac%a1%e7%bb%91%e5%ae%9a%e7%ab%af%e5%8f%a3%e7%9a%84%e8%bf%9b%e7%a8%8b%e7%9a%84USER%20ID%e4%b8%80%e6%a0%b7%ef%bc%8c%e6%af%94%e5%a6%82%e7%94%a8root%e5%92%8c%e6%99%ae%e9%80%9a%e7%94%a8%e6%88%b7%e5%90%af%e5%8a%a8%e7%a8%8b%e5%ba%8f%e7%bb%91%e5%ae%9a%e5%90%8c%e4%b8%80%e4%b8%aa%e7%ab%af%e5%8f%a3%ef%bc%8c%e4%bc%9a%e6%8a%a5address%20already%20in%20use%20SO_REUSEPORT%e7%9a%84%e8%b4%9f%e8%bd%bd%e5%9d%87%e8%a1%a1%e6%80%a7%e8%83%bd%e6%9b%b4%e5%a5%bd%20TCP%e5%92%8cUDP%e9%83%bd%e5%8f%af%e4%bb%a5%e7%94%a8%20UDP%e5%9c%ba%e6%99%af%e4%b8%ad%ef%bc%8c%e5%9c%a8DNS%20server%e7%9a%84%e5%ba%94%e7%94%a8%e6%af%94%e8%be%83%e6%9c%89%e6%84%8f%e4%b9%89%ef%bc%8c%e5%8f%af%e4%bb%a5%e8%b4%9f%e8%bd%bd%e5%9d%87%e8%a1%a1%e7%9a%84%e5%a4%84%e7%90%86dns%e8%af%b7%e6%b1%82%20%e4%bd%9c%e8%80%85%e6%8c%87%e5%87%ba%ef%bc%8cSO_REUSEADDR%e8%99%bd%e7%84%b6%e4%b9%9f%e8%83%bd%e8%ae%a9UDP%e8%bf%9e%e6%8e%a5%e7%bb%91%e5%ae%9a%e5%90%8c%e4%b8%80%e7%ab%af%e5%8f%a3%ef%bc%8c%e4%bd%86%e6%98%afSO_REUSEPORT%e5%8f%af%e4%bb%a5%e9%98%b2%e6%ad%a2%e5%8a%ab%e6%8c%81%ef%bc%8c%e5%b9%b6%e8%83%bd%e5%b0%86%e8%af%b7%e6%b1%82%e5%9d%87%e8%a1%a1%e7%9a%84%e5%88%86%e9%85%8d%e7%bb%99%e7%9b%91%e5%90%ac%e7%9a%84%e7%ba%bf%e7%a8%8b%20%e4%bc%a0%e7%bb%9f%e5%a4%9a%e7%ba%bf%e7%a8%8b%e7%9a%84%e5%b7%a5%e4%bd%9c%e6%a8%a1%e5%bc%8f%e7%9a%84%e7%bc%ba%e7%82%b9%201.%20%e4%bc%a0%e7%bb%9f%e7%9a%84%e5%a4%9a%e7%ba%bf%e7%a8%8bserver%e9%83%bd%e6%98%af%e6%9c%89%e4%b8%80%e4%b8%aalistener%e7%ba%bf%e7%a8%8b%e7%bb%91%e5%ae%9a%e7%ab%af%e5%8f%a3%e5%b9%b6%e6%8e%a5%e5%8f%97%e6%89%80%e6%9c%89%e7%9a%84%e8%af%b7%e6%b1%82%ef%bc%8c%e7%84%b6%e5%90%8e%e4%bc%a0%e9%80%92%e7%bb%99%e5%85%b6%e4%bb%96%e7%ba%bf%e7%a8%8b%ef%bc%8c%e8%80%8c%e8%bf%99%e4%b8%aalistener%e5%be%80%e5%be%80%e4%bc%9a%e6%88%90%e4%b8%ba%e7%93%b6%e9%a2%88%202.%20master%e7%bb%91%e5%ae%9a%e7%ab%af%e5%8f%a3%ef%bc%8c%e6%af%8f%e4%b8%aaslave%e8%bd%ae%e6%b5%81accept%e4%bb%8e%e8%af%a5%e7%ab%af%e5%8f%a3%e8%8e%b7%e5%8f%96%e8%bf%9e%e6%8e%a5%ef%bc%88nginx%ef%bc%89%20%e7%bc%ba%e7%82%b9%e6%98%af%e6%9c%89%e5%8f%af%e8%83%bd%e5%af%bc%e8%87%b4%e6%af%8f%e4%b8%aaslave%e4%b8%8d%e8%83%bd%e5%b9%b3%e5%9d%87%e7%9a%84%e5%a4%84%e7%90%86%e8%bf%9e%e6%8e%a5%ef%bc%8cunblanced%ef%bc%9b%e6%9c%89%e7%9a%84slave%e5%a4%84%e7%90%86%e7%9a%84%e8%bf%87%e5%a4%9a%ef%bc%8c%e6%9c%89%e7%9a%84slave%e5%a4%84%e7%90%86%e7%9a%84%e8%bf%87%e5%b0%91%ef%bc%8c%e5%af%bc%e8%87%b4cpu%e8%b5%84%e6%ba%90%e4%b8%8d%e8%83%bd%e5%85%85%e5%88%86%e5%88%a9%e7%94%a8%20SO_REUSEPORT%e7%9a%84%e5%ae%9e%e7%8e%b0%e5%8f%af%e4%bb%a5%e4%bd%bf%e8%af%b7%e6%b1%82%e5%b9%b3%e5%9d%87%e7%9a%84%e5%88%86%e9%85%8d%e7%bb%99%e5%a0%b5%e5%a1%9e%e5%9c%a8accept%e4%b8%8a%e7%9a%84%e5%90%84%e4%b8%aa%e8%bf%9b%e7%a8%8b%20SO_REUSEPORT%e7%9a%84%e5%ba%94%e7%94%a8%e4%b8%be%e4%be%8b%20server.py%20import%20socket%20import%20os%20SO_REUSEPORT%20%3d%2015%20s%20%3d%20socket.socket%28socket.AF_INET%2c%20socket.SOCK_STREAM%29%20s.setsockopt%28socket.SOL_SOCKET%2c%20SO_REUSEPORT%2c%201%29%20s.bind%28%28%27%27%2c%2010000%29%29%20s.listen%281%29%20while%20True%3a%20conn%2c%20addr%20%3d%20s.accept%28%29%20print%28%27Connected%20to%20%7b%7d%27.format%28os.getpid%28%29%29%29%20data%20%3d..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/stm32_eclipse_openocd_stlink/&amp;title=stm32_eclipse_openocd_stlink&amp;summary=%e6%8f%92%e4%bb%b6%e5%92%8ceclipse%e7%8e%af%e5%a2%83%e9%85%8d%e7%bd%ae%ef%bc%9a%20http%3a%2f%2fgnuarmeclipse.sourceforge.net%2fupdates%20gnu%20arm%20eclipse%20plugins%e7%9a%84%e5%87%a0%e7%a7%8d%e5%ae%89%e8%a3%85%e6%96%b9%e6%b3%95%20http%3a%2f%2fgnuarmeclipse.github.io%2fplugins%2finstall%2f%20http%3a%2f%2fgnuarmeclipse.github.io%2feclipse%2fworkspace%2fpreferences%2f%20http%3a%2f%2fgnuarmeclipse.github.io%2fplugins%2fpacks-manager%2f%20ac6%20system%20workbench%3a%20http%3a%2f%2fwww.ac6-tools.com%2fEclipse-updates%2forg.openstm32.system-workbench.site%2f%20%e6%9c%89%e4%ba%86%e5%ae%83%e5%b0%b1%e5%8f%af%e4%bb%a5ac6%20debugger%e4%ba%86%ef%bc%8c%e4%bd%86%e6%98%af%e6%b2%a1%e5%8a%9e%e6%b3%95%ef%bc%8cneon%e4%b8%8d%e6%94%af%e6%8c%81%20http%3a%2f%2fwww.emcu.it%2fSTM32%2fWhat_should_I_use_to_develop_on_STM32%2fstm32f0_linux_dvlpt.pdf%20%e5%a6%82%e4%bd%95%e4%bd%bf%e7%94%a8eclipse%e6%96%b0%e5%bb%ba%e5%b7%a5%e7%a8%8b%20%e5%8f%af%e4%bb%a5%e5%ae%89%e8%a3%85%e4%bb%a5%e4%b8%8a%e4%b8%a4%e4%b8%aa%e6%8f%92%e4%bb%b6%e5%90%8e%ef%bc%8c%e4%bb%8eeclipse%e6%96%b0%e5%bb%baac6%e5%b7%a5%e7%a8%8b%ef%bc%8c%e4%b8%8b%e8%bd%bd%e7%9b%b8%e5%ba%94%e5%ba%93%e5%8d%b3%e5%8f%af%ef%bc%8cac6%e4%bf%9d%e8%af%81%e8%bf%99%e4%b8%aa%e5%a5%bd%e4%bd%bf%ef%bc%9b%20%e5%8f%af%e4%bb%a5%e4%bb%8ecube%e6%96%b0%e5%bb%ba%e5%b7%a5%e7%a8%8bsw4stm32%e7%b1%bb%e5%9e%8b%e7%9a%84%e5%b7%a5%e7%a8%8b%ef%bc%8c%e7%84%b6%e5%90%8e%e5%bc%95%e5%85%a5SW4STM32%e5%b7%a5%e7%a8%8b%20%e5%a6%82%e4%bd%95%e8%b0%83%e8%af%95%e5%b7%a5%e7%a8%8b%20debugger%3a%20AC6%20%e6%99%ae%e9%80%9a%e7%9a%84%20%e4%bd%bf%e7%94%a8ac6%e8%b0%83%e8%af%95%2c%20http%3a%2f%2fwww.xlgps.com%2farticle%2f387805.html%20debugger%3a%20hardware%20debugger%20configuration%20http%3a%2f%2fstm32discovery.nano-age.co.uk%2fopen-source-development-with-the-stm32-discovery%2fgetting-hardware-debuging-working-with-eclipse-and-code-sourcey%20neon%e8%bf%98%e4%b8%8d%e6%94%af%e6%8c%81ac6%20debugger%ef%bc%8c%e6%89%80%e4%bb%a5%e5%8f%aa%e8%83%bd%e7%94%a8%e5%90%8e%e8%80%85%20http%3a%2f%2fwww.openstm32.org%2fforumthread3023%20create%20debugging%20configuration%20http%3a%2f%2fwww.openstm32.org%2fCreating%2bdebug%2bconfiguration%20%e5%bc%80%e5%a7%8bdebug%20stlink%20%e9%a9%b1%e5%8a%a8%20http%3a%2f%2ferika.tuxfamily.org%2fwiki%2findex.php%3ftitle%3dTutorial%3a_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain%26amp%3boldid%3d5474%20http%3a%2f%2fwww.st.com%2fcontent%2fst_com%2fen%2fproducts%2fembedded-software%2fdevelopment-tool-software%2fstsw-link004.html%23%20Linux%3a%20https%3a%2f%2fgithub.com%2ftexane%2fstlink%20%e7%94%a8%e6%b3%95%ef%bc%9ahttp%3a%2f%2ferika.tuxfamily.org%2fwiki%2findex.php%3ftitle%3dTutorial%3a_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain%26amp%3boldid%3d5474..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
@@ -283,7 +204,7 @@ data
       </li>
       <li class="tumblr">
 					<script>
-						document.write('<a href="http://www.tumblr.com/share?v=3&amp;u=' + encodeURIComponent('https:\/\/bg2bkk.github.io\/post\/SO_REUSEADDR%E5%92%8CSO_REUSEPORT\/') + '&amp;t=SO_REUSEADDR和SO_REUSEPORT" class="popup">');
+						document.write('<a href="http://www.tumblr.com/share?v=3&amp;u=' + encodeURIComponent('https:\/\/bg2bkk.github.io\/post\/stm32_eclipse_openocd_stlink\/') + '&amp;t=stm32_eclipse_openocd_stlink" class="popup">');
 					</script>
               <span class="icon">
                   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
@@ -294,7 +215,7 @@ data
           <script>document.write('</a>');</script>
       </li>
       <li class="reddit">
-          <a href="http://www.reddit.com/submit?url=https://bg2bkk.github.io/post/SO_REUSEADDR%E5%92%8CSO_REUSEPORT/">
+          <a href="http://www.reddit.com/submit?url=https://bg2bkk.github.io/post/stm32_eclipse_openocd_stlink/">
               <span class="icon">
                   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
 											<g>
@@ -309,7 +230,7 @@ data
           </a>
       </li>
       <li class="googleplus">
-          <a href="https://plus.google.com/share?url=https://bg2bkk.github.io/post/SO_REUSEADDR%E5%92%8CSO_REUSEPORT/" class="popup">
+          <a href="https://plus.google.com/share?url=https://bg2bkk.github.io/post/stm32_eclipse_openocd_stlink/" class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <g>
@@ -328,7 +249,7 @@ data
 						if (firstimg !== undefined) {
 							imgurl = firstimg.src;
 						}
-						document.write('<a href="http://pinterest.com/pin/create/button/?url=https:\/\/bg2bkk.github.io\/post\/SO_REUSEADDR%E5%92%8CSO_REUSEPORT\/&amp;media=' + imgurl + '&amp;description=SO_REUSEADDR和SO_REUSEPORT" class="popup">');
+						document.write('<a href="http://pinterest.com/pin/create/button/?url=https:\/\/bg2bkk.github.io\/post\/stm32_eclipse_openocd_stlink\/&amp;media=' + imgurl + '&amp;description=stm32_eclipse_openocd_stlink" class="popup">');
 					</script>
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
@@ -339,7 +260,7 @@ data
           <script>document.write('</a>');</script>
       </li>
       <li class="pocket">
-          <a href="https://getpocket.com/save?url=https://bg2bkk.github.io/post/SO_REUSEADDR%E5%92%8CSO_REUSEPORT/"  class="popup">
+          <a href="https://getpocket.com/save?url=https://bg2bkk.github.io/post/stm32_eclipse_openocd_stlink/"  class="popup">
               <span class="icon">
                   <svg width="32px" height="28px" viewBox="0 0 32 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
                       <path d="M28.7817528,0.00172488695 C30.8117487,0.00431221738 31.9749312,1.12074529 31.9644402,3.10781507 C31.942147,6.67703739 32.1336065,10.2669583 31.8057648,13.8090137 C30.7147076,25.5813672 17.2181194,31.8996281 7.20714461,25.3808491 C2.71833574,22.4571656 0.196577202,18.3122624 0.0549495772,12.9357897 C-0.0342233715,9.5774348 0.00642900214,6.21519891 0.0300336062,2.85555035 C0.0405245414,1.1129833 1.21157517,0.0146615391 3.01995012,0.00819321302 C7.34746087,-0.00603710433 11.6775944,0.00431221738 16.0064164,0.00172488695 C20.2644248,0.00172488695 24.5237444,-0.00215610869 28.7817528,0.00172488695 L28.7817528,0.00172488695 Z M8.64885184,7.85611511 C7.38773662,7.99113854 6.66148108,8.42606978 6.29310958,9.33228474 C5.90114134,10.2969233 6.17774769,11.1421181 6.89875951,11.8276216 C9.35282156,14.161969 11.8108164,16.4924215 14.2976518,18.7943114 C15.3844131,19.7966007 16.5354102,19.7836177 17.6116843,18.7813283 C20.0185529,16.5495467 22.4070683,14.2982907 24.7824746,12.0327533 C25.9845979,10.8850542 26.1012707,9.56468083 25.1469132,8.60653379 C24.1361858,7.59255976 22.8449191,7.6743528 21.5890476,8.85191291 C19.9936451,10.3488554 18.3680912,11.8172352 16.8395462,13.3777945 C16.1342655,14.093159 15.7200114,14.0048744 15.0566806,13.3440386 C13.4599671,11.7484252 11.8081945,10.2060421 10.1262706,8.70001155 C9.65564653,8.27936164 9.00411403,8.05345704 8.64885184,7.85611511 L8.64885184,7.85611511 L8.64885184,7.85611511 Z"></path>

@@ -3,8 +3,13 @@
   
   <url>
     <loc>https://bg2bkk.github.io/</loc>
-    <lastmod>2016-06-05T22:27:39+08:00</lastmod>
+    <lastmod>2016-07-06T12:51:05+08:00</lastmod>
     <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://bg2bkk.github.io/post/stm32_eclipse_openocd_stlink/</loc>
+    <lastmod>2016-07-06T12:51:05+08:00</lastmod>
   </url>
   
   <url>
