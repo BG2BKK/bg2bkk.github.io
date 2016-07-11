@@ -57,7 +57,7 @@
         },
         "datePublished": "2016-03-24",
         "description": "",
-        "wordCount":  2075 
+        "wordCount":  2104 
     }
     </script>
     
@@ -100,6 +100,26 @@
     </div>
     <h1 class="post-title">effective tips in daily work</h1>
     
+
+<h2 id="unix获取时间戳:1350fa5c56171e9d9c8991f08929cd14">unix获取时间戳</h2>
+
+<pre><code class="language-bash">date '+%s'
+
+export timestamp=`date '+%s'`; echo $timestamp
+
+# 标准时间格式转unix时间戳
+date -d &quot;2011-03-02 15:00&quot; +%s
+
+# unix时间戳转为标准格式
+date -d '1970-01-01 UTC 1299049200 seconds'
+
+# 或者
+
+date -d &quot;@1279592730&quot; 
+
+</code></pre>
+
+<p><a href="http://blog.csdn.net/hittata/article/details/7640974">链接</a>中提到了各种各样的格式，以后写shell脚本就不担心时间戳问题了</p>
 
 <h2 id="docker-设置代理下载镜像:1350fa5c56171e9d9c8991f08929cd14">docker 设置代理下载镜像</h2>
 
@@ -1050,7 +1070,7 @@ tcpdump -ni any port 9001 and 'tcp[13] &amp; 4 != 0 ' -s0  -w rst.cap -vvv
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/&amp;title=effective%20tips%20in%20daily%20work&amp;summary=docker%20%e8%ae%be%e7%bd%ae%e4%bb%a3%e7%90%86%e4%b8%8b%e8%bd%bd%e9%95%9c%e5%83%8f%20%e5%9c%a8systemd%e4%b8%ad%e8%ae%be%e7%bd%ae%20mkdir%20%2fetc%2fsystemd%2fsystem%2fdocker.service.d%20touch%20%2fetc%2fsystemd%2fsystem%2fdocker.service.d%2fhttp-proxy.conf%20%e5%9c%a8%e6%96%87%e4%bb%b6%e4%b8%ad%e6%b7%bb%e5%8a%a0%ef%bc%9a%5bService%5dEnvironment%3d%26ldquo%3bHTTP_PROXY%3dhttp%3a%2f%2fproxy.example.com%3a80%2f%26quot%3b%20%e9%87%8d%e5%90%afdaemon%ef%bc%9asudo%20systemctl%20daemon-reload%20%e6%9f%a5%e7%9c%8b%e8%ae%be%e7%bd%ae%e7%8a%b6%e6%80%81%ef%bc%9asudo%20systemctl%20show%20docker%20%26ndash%3bproperty%20Environment%20%e9%87%8d%e5%90%afdocker%ef%bc%9asudo%20systemctl%20restart%20docker%20tested%20on%20Ubuntu%2016.04%20%e7%94%a8ps%e6%9f%a5%e7%9c%8b%e8%bf%9b%e7%a8%8b%e7%9a%84%e6%89%a7%e8%a1%8c%e6%97%b6%e9%97%b4%20ps%20-eo%20pid%2ctty%2cuser%2ccomm%2cstime%2cetime%20%7c%20grep%20main%20%e5%8f%af%e4%bb%a5%e6%89%93%e5%8d%b0%e8%bf%9b%e7%a8%8b%e7%9a%84%e5%bc%80%e5%a7%8b%e6%97%b6%e9%97%b4%e5%92%8c%e6%89%a7%e8%a1%8c%e6%97%b6%e9%97%b4%20vim%e4%b8%8b%e4%bb%a516%e8%bf%9b%e5%88%b6%e6%9f%a5%e7%9c%8b%e6%96%87%e6%9c%ac%e6%96%87%e4%bb%b6%20vim%e7%9a%84%e5%8a%9f%e8%83%bd%e5%ae%9e%e5%9c%a8%e6%98%af%e5%a4%aa%e5%bc%ba%e5%a4%a7%e4%ba%86%ef%bc%8c%e5%8f%af%e4%bb%a5%e4%bb%a516%e8%bf%9b%e5%88%b6%e6%9f%a5%e7%9c%8b%e6%96%87%e6%9c%ac%e4%bf%a1%e6%81%af%ef%bc%9a%20%e5%8d%81%e5%85%ad%e8%bf%9b%e5%88%b6%e6%98%be%e7%a4%ba%20%3a%25%21xxd%20%e6%ad%a3%e5%b8%b8%e6%98%be%e7%a4%ba%20%3a%25%21xxd%20-r%20Linux%e8%8e%b7%e5%8f%96%e7%b3%bb%e7%bb%9f%e8%b0%83%e5%ba%a6%e6%97%b6%e9%97%b4%e7%89%87%e9%95%bf%e5%ba%a6%20%23define%20_GNU_SOURCE%20%23include%20%26lt%3bsched.h%26gt%3b%20%23include%20%26lt%3bstdlib.h%26gt%3b%20%23include%20%26lt%3bunistd.h%26gt%3b%20%23include%20%26lt%3bstdio.h%26gt%3b%20%23include%20%26lt%3bassert.h%26gt%3b%20int%20main%28int%20argc%2c%20char%20%2aargv%5b%5d%29%20%7b%20int%20ret%2c%20i%3b%20struct%20timespec%20tp%3b%20ret%20%3d%20sched_rr_get_interval%280%2c%20%26amp%3btp%29%3b%20if%28ret%20%3d%3d%20-1%29%20printf%28%26quot%3bsched_rr_get_interval%20error.%5cn%26quot%3b%29%3b%20printf%28%26quot%3bThe%20time%20is%20%25ds%3a%25ldns.%5cn%26quot%3b%2c%20%28int%29tp.tv_sec%2c%20tp.tv_nsec%29%3b%20return%200%3b%20%7d%20%24%20.%2fcpu_time_slice.o%20The%20time%20is%200s%3a16000000ns...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/&amp;title=effective%20tips%20in%20daily%20work&amp;summary=unix%e8%8e%b7%e5%8f%96%e6%97%b6%e9%97%b4%e6%88%b3%20date%20%27%2b%25s%27%20export%20timestamp%3d%60date%20%27%2b%25s%27%60%3b%20echo%20%24timestamp%20%23%20%e6%a0%87%e5%87%86%e6%97%b6%e9%97%b4%e6%a0%bc%e5%bc%8f%e8%bd%acunix%e6%97%b6%e9%97%b4%e6%88%b3%20date%20-d%20%26quot%3b2011-03-02%2015%3a00%26quot%3b%20%2b%25s%20%23%20unix%e6%97%b6%e9%97%b4%e6%88%b3%e8%bd%ac%e4%b8%ba%e6%a0%87%e5%87%86%e6%a0%bc%e5%bc%8f%20date%20-d%20%271970-01-01%20UTC%201299049200%20seconds%27%20%23%20%e6%88%96%e8%80%85%20date%20-d%20%26quot%3b%401279592730%26quot%3b%20%e9%93%be%e6%8e%a5%e4%b8%ad%e6%8f%90%e5%88%b0%e4%ba%86%e5%90%84%e7%a7%8d%e5%90%84%e6%a0%b7%e7%9a%84%e6%a0%bc%e5%bc%8f%ef%bc%8c%e4%bb%a5%e5%90%8e%e5%86%99shell%e8%84%9a%e6%9c%ac%e5%b0%b1%e4%b8%8d%e6%8b%85%e5%bf%83%e6%97%b6%e9%97%b4%e6%88%b3%e9%97%ae%e9%a2%98%e4%ba%86%20docker%20%e8%ae%be%e7%bd%ae%e4%bb%a3%e7%90%86%e4%b8%8b%e8%bd%bd%e9%95%9c%e5%83%8f%20%e5%9c%a8systemd%e4%b8%ad%e8%ae%be%e7%bd%ae%20mkdir%20%2fetc%2fsystemd%2fsystem%2fdocker.service.d%20touch%20%2fetc%2fsystemd%2fsystem%2fdocker.service.d%2fhttp-proxy.conf%20%e5%9c%a8%e6%96%87%e4%bb%b6%e4%b8%ad%e6%b7%bb%e5%8a%a0%ef%bc%9a%5bService%5dEnvironment%3d%26ldquo%3bHTTP_PROXY%3dhttp%3a%2f%2fproxy.example.com%3a80%2f%26quot%3b%20%e9%87%8d%e5%90%afdaemon%ef%bc%9asudo%20systemctl%20daemon-reload%20%e6%9f%a5%e7%9c%8b%e8%ae%be%e7%bd%ae%e7%8a%b6%e6%80%81%ef%bc%9asudo%20systemctl%20show%20docker%20%26ndash%3bproperty%20Environment%20%e9%87%8d%e5%90%afdocker%ef%bc%9asudo%20systemctl%20restart%20docker%20tested%20on%20Ubuntu%2016.04%20%e7%94%a8ps%e6%9f%a5%e7%9c%8b%e8%bf%9b%e7%a8%8b%e7%9a%84%e6%89%a7%e8%a1%8c%e6%97%b6%e9%97%b4%20ps%20-eo%20pid%2ctty%2cuser%2ccomm%2cstime%2cetime%20%7c%20grep%20main%20%e5%8f%af%e4%bb%a5%e6%89%93%e5%8d%b0%e8%bf%9b%e7%a8%8b%e7%9a%84%e5%bc%80%e5%a7%8b%e6%97%b6%e9%97%b4%e5%92%8c%e6%89%a7%e8%a1%8c%e6%97%b6%e9%97%b4%20vim%e4%b8%8b%e4%bb%a516%e8%bf%9b%e5%88%b6%e6%9f%a5%e7%9c%8b%e6%96%87%e6%9c%ac%e6%96%87%e4%bb%b6%20vim%e7%9a%84%e5%8a%9f%e8%83%bd%e5%ae%9e%e5%9c%a8%e6%98%af%e5%a4%aa%e5%bc%ba%e5%a4%a7%e4%ba%86%ef%bc%8c%e5%8f%af%e4%bb%a5%e4%bb%a516%e8%bf%9b%e5%88%b6%e6%9f%a5%e7%9c%8b%e6%96%87%e6%9c%ac%e4%bf%a1%e6%81%af%ef%bc%9a%20%e5%8d%81%e5%85%ad%e8%bf%9b%e5%88%b6%e6%98%be%e7%a4%ba%20%3a%25%21xxd%20%e6%ad%a3%e5%b8%b8%e6%98%be%e7%a4%ba%20%3a%25%21xxd%20-r%20Linux%e8%8e%b7%e5%8f%96%e7%b3%bb%e7%bb%9f%e8%b0%83%e5%ba%a6%e6%97%b6%e9%97%b4%e7%89%87%e9%95%bf%e5%ba%a6%20%23define%20_GNU_SOURCE%20%23include%20%26lt%3bsched.h%26gt%3b%20%23include%20%26lt%3bstdlib.h%26gt%3b%20%23include%20%26lt%3bunistd.h%26gt%3b%20%23include%20%26lt%3bstdio.h%26gt%3b%20%23include%20%26lt%3bassert.h%26gt%3b%20int%20main%28int%20argc%2c%20char%20%2aargv%5b%5d%29%20%7b%20int%20ret%2c%20i%3b%20struct%20timespec%20tp%3b%20ret%20%3d%20sched_rr_get_interval%280%2c%20%26amp%3btp%29%3b%20if%28ret%20%3d%3d%20-1%29%20printf%28%26quot%3bsched_rr_get_interval%20error.%5cn%26quot%3b%29%3b%20printf%28%26quot%3bThe%20time%20is%20%25ds%3a%25ldns.%5cn%26quot%3b%2c%20%28int%29tp.tv_sec%2c%20tp.tv_nsec%29%3b%20return%200%3b%20%7d%20%24%20.%2fcpu_time_slice.o%20The%20time%20is%200s%3a16000000ns...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

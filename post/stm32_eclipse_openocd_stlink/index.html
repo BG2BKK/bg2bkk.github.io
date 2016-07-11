@@ -57,7 +57,7 @@
         },
         "datePublished": "2016-07-06",
         "description": "",
-        "wordCount":  45 
+        "wordCount":  161 
     }
     </script>
     
@@ -100,9 +100,48 @@
     </div>
     <h1 class="post-title">stm32_eclipse_openocd_stlink</h1>
     <ul>
+<li><p>eclipse下载</p>
+
+<ul>
+<li>neon <a href="http://ftp.jaist.ac.jp/pub/eclipse/technology/epp/downloads/release/neon/R/eclipse-jee-neon-R-linux-gtk-x86_64.tar.gz">http://ftp.jaist.ac.jp/pub/eclipse/technology/epp/downloads/release/neon/R/eclipse-jee-neon-R-linux-gtk-x86_64.tar.gz</a></li>
+<li>system workbench:</li>
+</ul></li>
+
+<li><p>stlink 驱动</p>
+
+<ul>
+<li><a href="http://erika.tuxfamily.org/wiki/index.php?title=Tutorial:_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain&amp;oldid=5474">http://erika.tuxfamily.org/wiki/index.php?title=Tutorial:_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain&amp;oldid=5474</a></li>
+<li><a href="http://www.st.com/content/st_com/en/products/embedded-software/development-tool-software/stsw-link004.html#">http://www.st.com/content/st_com/en/products/embedded-software/development-tool-software/stsw-link004.html#</a></li>
+<li>Linux: <a href="https://github.com/texane/stlink">https://github.com/texane/stlink</a>
+
+<ul>
+<li>sudo apt-get install autoreconf</li>
+<li>sudo apt-get install libusb-1.0-0 libusb-1.0-0-dev</li>
+<li>make &amp;&amp; make -j &amp;&amp; make install</li>
+<li>sudo ./st-util
+
+<ul>
+<li>之前还需要做udev.rules，现在发现不需要</li>
+</ul></li>
+</ul></li>
+<li>用法：<a href="http://erika.tuxfamily.org/wiki/index.php?title=Tutorial:_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain&amp;oldid=5474">http://erika.tuxfamily.org/wiki/index.php?title=Tutorial:_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain&amp;oldid=5474</a></li>
+</ul></li>
+
+<li><p>arm gcc compiler</p>
+
+<ul>
+<li>sudo apt-get install gcc-arm-none-eabi</li>
+</ul></li>
+
 <li><p>插件和eclipse环境配置：</p>
 
 <ul>
+<li>eclipse cdt 插件
+
+<ul>
+<li><a href="https://eclipse.org/cdt/downloads.php">https://eclipse.org/cdt/downloads.php</a></li>
+</ul></li>
+
 <li><p><a href="http://gnuarmeclipse.sourceforge.net/updates">http://gnuarmeclipse.sourceforge.net/updates</a></p>
 
 <ul>
@@ -150,15 +189,33 @@
 </ul></li>
 </ul></li>
 
-<li><p>stlink 驱动</p>
+<li><p>st-flash 烧录工具 <a href="https://www.youtube.com/watch?v=HKX12hJApZM">https://www.youtube.com/watch?v=HKX12hJApZM</a></p></li>
+
+<li><p>openocd <a href="https://www.youtube.com/watch?v=ZeUQXjTg-8c">https://www.youtube.com/watch?v=ZeUQXjTg-8c</a></p>
 
 <ul>
-<li><a href="http://erika.tuxfamily.org/wiki/index.php?title=Tutorial:_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain&amp;oldid=5474">http://erika.tuxfamily.org/wiki/index.php?title=Tutorial:_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain&amp;oldid=5474</a></li>
-<li><a href="http://www.st.com/content/st_com/en/products/embedded-software/development-tool-software/stsw-link004.html#">http://www.st.com/content/st_com/en/products/embedded-software/development-tool-software/stsw-link004.html#</a></li>
-<li>Linux: <a href="https://github.com/texane/stlink">https://github.com/texane/stlink</a></li>
-<li>用法：<a href="http://erika.tuxfamily.org/wiki/index.php?title=Tutorial:_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain&amp;oldid=5474">http://erika.tuxfamily.org/wiki/index.php?title=Tutorial:_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain&amp;oldid=5474</a></li>
+<li>./configure &ndash;enable-verbose &ndash;enable-verbose-jtag-io &ndash;enable-parport &ndash;enable-jlink &ndash;enable-ulink &ndash;enable-stlink &ndash;enable-ti-icdi</li>
+<li>make -j &amp;&amp; sudo make install</li>
+<li>openocd -f tcl/board/stm32f4discovery.cfg</li>
 </ul></li>
+
+<li><p>openocd是debug server，3333端口</p></li>
+
+<li><p>eclipse需要debug configuration</p></li>
+
+<li><p>eclipse的设置</p>
+
+<ul>
+<li>代码自动提示：<a href="http://blog.csdn.net/u012750578/article/details/16811227">http://blog.csdn.net/u012750578/article/details/16811227</a></li>
+</ul></li>
+
+<li><p>elua</p></li>
 </ul>
+
+<pre><code class="language-bash">openocd -f ../../openocd-0.9.0/tcl/board/stm32f429discovery.cfg   -c &quot;init&quot;    -c &quot;reset halt&quot;    -c &quot;sleep 100&quot;    -c &quot;wait_halt 2&quot;    -c &quot;echo \&quot;--- Writing elua_lua_stm32f4discovery.bin\&quot;&quot;    -c &quot;flash write_image erase elua_lua_stm32f4discovery.bin 0x08000000&quot;    -c &quot;sleep 100&quot;    -c &quot;echo \&quot;--- Verifying\&quot;&quot;    -c &quot;verify_image elua_lua_stm32f4discovery.bin 0x08000000&quot;    -c &quot;sleep 100&quot;    -c &quot;echo \&quot;--- Done\&quot;&quot;    -c &quot;resume&quot;    -c &quot;shutdown&quot;
+
+st-flash --reset write elua_lua_stm32f4discovery.bin 0x8000000
+</code></pre>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
@@ -193,7 +250,7 @@
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/stm32_eclipse_openocd_stlink/&amp;title=stm32_eclipse_openocd_stlink&amp;summary=%e6%8f%92%e4%bb%b6%e5%92%8ceclipse%e7%8e%af%e5%a2%83%e9%85%8d%e7%bd%ae%ef%bc%9a%20http%3a%2f%2fgnuarmeclipse.sourceforge.net%2fupdates%20gnu%20arm%20eclipse%20plugins%e7%9a%84%e5%87%a0%e7%a7%8d%e5%ae%89%e8%a3%85%e6%96%b9%e6%b3%95%20http%3a%2f%2fgnuarmeclipse.github.io%2fplugins%2finstall%2f%20http%3a%2f%2fgnuarmeclipse.github.io%2feclipse%2fworkspace%2fpreferences%2f%20http%3a%2f%2fgnuarmeclipse.github.io%2fplugins%2fpacks-manager%2f%20ac6%20system%20workbench%3a%20http%3a%2f%2fwww.ac6-tools.com%2fEclipse-updates%2forg.openstm32.system-workbench.site%2f%20%e6%9c%89%e4%ba%86%e5%ae%83%e5%b0%b1%e5%8f%af%e4%bb%a5ac6%20debugger%e4%ba%86%ef%bc%8c%e4%bd%86%e6%98%af%e6%b2%a1%e5%8a%9e%e6%b3%95%ef%bc%8cneon%e4%b8%8d%e6%94%af%e6%8c%81%20http%3a%2f%2fwww.emcu.it%2fSTM32%2fWhat_should_I_use_to_develop_on_STM32%2fstm32f0_linux_dvlpt.pdf%20%e5%a6%82%e4%bd%95%e4%bd%bf%e7%94%a8eclipse%e6%96%b0%e5%bb%ba%e5%b7%a5%e7%a8%8b%20%e5%8f%af%e4%bb%a5%e5%ae%89%e8%a3%85%e4%bb%a5%e4%b8%8a%e4%b8%a4%e4%b8%aa%e6%8f%92%e4%bb%b6%e5%90%8e%ef%bc%8c%e4%bb%8eeclipse%e6%96%b0%e5%bb%baac6%e5%b7%a5%e7%a8%8b%ef%bc%8c%e4%b8%8b%e8%bd%bd%e7%9b%b8%e5%ba%94%e5%ba%93%e5%8d%b3%e5%8f%af%ef%bc%8cac6%e4%bf%9d%e8%af%81%e8%bf%99%e4%b8%aa%e5%a5%bd%e4%bd%bf%ef%bc%9b%20%e5%8f%af%e4%bb%a5%e4%bb%8ecube%e6%96%b0%e5%bb%ba%e5%b7%a5%e7%a8%8bsw4stm32%e7%b1%bb%e5%9e%8b%e7%9a%84%e5%b7%a5%e7%a8%8b%ef%bc%8c%e7%84%b6%e5%90%8e%e5%bc%95%e5%85%a5SW4STM32%e5%b7%a5%e7%a8%8b%20%e5%a6%82%e4%bd%95%e8%b0%83%e8%af%95%e5%b7%a5%e7%a8%8b%20debugger%3a%20AC6%20%e6%99%ae%e9%80%9a%e7%9a%84%20%e4%bd%bf%e7%94%a8ac6%e8%b0%83%e8%af%95%2c%20http%3a%2f%2fwww.xlgps.com%2farticle%2f387805.html%20debugger%3a%20hardware%20debugger%20configuration%20http%3a%2f%2fstm32discovery.nano-age.co.uk%2fopen-source-development-with-the-stm32-discovery%2fgetting-hardware-debuging-working-with-eclipse-and-code-sourcey%20neon%e8%bf%98%e4%b8%8d%e6%94%af%e6%8c%81ac6%20debugger%ef%bc%8c%e6%89%80%e4%bb%a5%e5%8f%aa%e8%83%bd%e7%94%a8%e5%90%8e%e8%80%85%20http%3a%2f%2fwww.openstm32.org%2fforumthread3023%20create%20debugging%20configuration%20http%3a%2f%2fwww.openstm32.org%2fCreating%2bdebug%2bconfiguration%20%e5%bc%80%e5%a7%8bdebug%20stlink%20%e9%a9%b1%e5%8a%a8%20http%3a%2f%2ferika.tuxfamily.org%2fwiki%2findex.php%3ftitle%3dTutorial%3a_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain%26amp%3boldid%3d5474%20http%3a%2f%2fwww.st.com%2fcontent%2fst_com%2fen%2fproducts%2fembedded-software%2fdevelopment-tool-software%2fstsw-link004.html%23%20Linux%3a%20https%3a%2f%2fgithub.com%2ftexane%2fstlink%20%e7%94%a8%e6%b3%95%ef%bc%9ahttp%3a%2f%2ferika.tuxfamily.org%2fwiki%2findex.php%3ftitle%3dTutorial%3a_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain%26amp%3boldid%3d5474..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/stm32_eclipse_openocd_stlink/&amp;title=stm32_eclipse_openocd_stlink&amp;summary=eclipse%e4%b8%8b%e8%bd%bd%20neon%20http%3a%2f%2fftp.jaist.ac.jp%2fpub%2feclipse%2ftechnology%2fepp%2fdownloads%2frelease%2fneon%2fR%2feclipse-jee-neon-R-linux-gtk-x86_64.tar.gz%20system%20workbench%3a%20stlink%20%e9%a9%b1%e5%8a%a8%20http%3a%2f%2ferika.tuxfamily.org%2fwiki%2findex.php%3ftitle%3dTutorial%3a_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain%26amp%3boldid%3d5474%20http%3a%2f%2fwww.st.com%2fcontent%2fst_com%2fen%2fproducts%2fembedded-software%2fdevelopment-tool-software%2fstsw-link004.html%23%20Linux%3a%20https%3a%2f%2fgithub.com%2ftexane%2fstlink%20sudo%20apt-get%20install%20autoreconf%20sudo%20apt-get%20install%20libusb-1.0-0%20libusb-1.0-0-dev%20make%20%26amp%3b%26amp%3b%20make%20-j%20%26amp%3b%26amp%3b%20make%20install%20sudo%20.%2fst-util%20%e4%b9%8b%e5%89%8d%e8%bf%98%e9%9c%80%e8%a6%81%e5%81%9audev.rules%ef%bc%8c%e7%8e%b0%e5%9c%a8%e5%8f%91%e7%8e%b0%e4%b8%8d%e9%9c%80%e8%a6%81%20%e7%94%a8%e6%b3%95%ef%bc%9ahttp%3a%2f%2ferika.tuxfamily.org%2fwiki%2findex.php%3ftitle%3dTutorial%3a_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain%26amp%3boldid%3d5474%20arm%20gcc%20compiler%20sudo%20apt-get%20install%20gcc-arm-none-eabi%20%e6%8f%92%e4%bb%b6%e5%92%8ceclipse%e7%8e%af%e5%a2%83%e9%85%8d%e7%bd%ae%ef%bc%9a%20eclipse%20cdt%20%e6%8f%92%e4%bb%b6%20https%3a%2f%2feclipse.org%2fcdt%2fdownloads.php%20http%3a%2f%2fgnuarmeclipse.sourceforge.net%2fupdates%20gnu%20arm%20eclipse%20plugins%e7%9a%84%e5%87%a0%e7%a7%8d%e5%ae%89%e8%a3%85%e6%96%b9%e6%b3%95%20http%3a%2f%2fgnuarmeclipse.github.io%2fplugins%2finstall%2f%20http%3a%2f%2fgnuarmeclipse.github.io%2feclipse%2fworkspace%2fpreferences%2f%20http%3a%2f%2fgnuarmeclipse.github.io%2fplugins%2fpacks-manager%2f%20ac6%20system%20workbench%3a%20http%3a%2f%2fwww.ac6-tools.com%2fEclipse-updates%2forg.openstm32.system-workbench.site%2f%20%e6%9c%89%e4%ba%86%e5%ae%83%e5%b0%b1%e5%8f%af%e4%bb%a5ac6%20debugger%e4%ba%86%ef%bc%8c%e4%bd%86%e6%98%af%e6%b2%a1%e5%8a%9e%e6%b3%95%ef%bc%8cneon%e4%b8%8d%e6%94%af%e6%8c%81%20http%3a%2f%2fwww.emcu.it%2fSTM32%2fWhat_should_I_use_to_develop_on_STM32%2fstm32f0_linux_dvlpt.pdf%20%e5%a6%82%e4%bd%95%e4%bd%bf%e7%94%a8eclipse%e6%96%b0%e5%bb%ba%e5%b7%a5%e7%a8%8b%20%e5%8f%af%e4%bb%a5%e5%ae%89%e8%a3%85%e4%bb%a5%e4%b8%8a%e4%b8%a4%e4%b8%aa%e6%8f%92%e4%bb%b6%e5%90%8e%ef%bc%8c%e4%bb%8eeclipse%e6%96%b0%e5%bb%baac6%e5%b7%a5%e7%a8%8b%ef%bc%8c%e4%b8%8b%e8%bd%bd%e7%9b%b8%e5%ba%94%e5%ba%93%e5%8d%b3%e5%8f%af%ef%bc%8cac6%e4%bf%9d%e8%af%81%e8%bf%99%e4%b8%aa%e5%a5%bd%e4%bd%bf%ef%bc%9b%20%e5%8f%af%e4%bb%a5%e4%bb%8ecube%e6%96%b0%e5%bb%ba%e5%b7%a5%e7%a8%8bsw4stm32%e7%b1%bb%e5%9e%8b%e7%9a%84%e5%b7%a5%e7%a8%8b%ef%bc%8c%e7%84%b6%e5%90%8e%e5%bc%95%e5%85%a5SW4STM32%e5%b7%a5%e7%a8%8b%20%e5%a6%82%e4%bd%95%e8%b0%83%e8%af%95%e5%b7%a5%e7%a8%8b%20debugger%3a%20AC6%20%e6%99%ae%e9%80%9a%e7%9a%84%20%e4%bd%bf%e7%94%a8ac6%e8%b0%83%e8%af%95%2c%20http%3a%2f%2fwww.xlgps.com%2farticle%2f387805.html%20debugger%3a%20hardware%20debugger..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

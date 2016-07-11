@@ -15,9 +15,48 @@
       
       <guid>https://bg2bkk.github.io/post/stm32_eclipse_openocd_stlink/</guid>
       <description>&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;eclipse下载&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;neon &lt;a href=&#34;http://ftp.jaist.ac.jp/pub/eclipse/technology/epp/downloads/release/neon/R/eclipse-jee-neon-R-linux-gtk-x86_64.tar.gz&#34;&gt;http://ftp.jaist.ac.jp/pub/eclipse/technology/epp/downloads/release/neon/R/eclipse-jee-neon-R-linux-gtk-x86_64.tar.gz&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;system workbench:&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;stlink 驱动&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://erika.tuxfamily.org/wiki/index.php?title=Tutorial:_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain&amp;amp;oldid=5474&#34;&gt;http://erika.tuxfamily.org/wiki/index.php?title=Tutorial:_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain&amp;amp;oldid=5474&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.st.com/content/st_com/en/products/embedded-software/development-tool-software/stsw-link004.html#&#34;&gt;http://www.st.com/content/st_com/en/products/embedded-software/development-tool-software/stsw-link004.html#&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Linux: &lt;a href=&#34;https://github.com/texane/stlink&#34;&gt;https://github.com/texane/stlink&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;sudo apt-get install autoreconf&lt;/li&gt;
+&lt;li&gt;sudo apt-get install libusb-1.0-0 libusb-1.0-0-dev&lt;/li&gt;
+&lt;li&gt;make &amp;amp;&amp;amp; make -j &amp;amp;&amp;amp; make install&lt;/li&gt;
+&lt;li&gt;sudo ./st-util
+
+&lt;ul&gt;
+&lt;li&gt;之前还需要做udev.rules，现在发现不需要&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;用法：&lt;a href=&#34;http://erika.tuxfamily.org/wiki/index.php?title=Tutorial:_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain&amp;amp;oldid=5474&#34;&gt;http://erika.tuxfamily.org/wiki/index.php?title=Tutorial:_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain&amp;amp;oldid=5474&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;arm gcc compiler&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;sudo apt-get install gcc-arm-none-eabi&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
 &lt;li&gt;&lt;p&gt;插件和eclipse环境配置：&lt;/p&gt;
 
 &lt;ul&gt;
+&lt;li&gt;eclipse cdt 插件
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://eclipse.org/cdt/downloads.php&#34;&gt;https://eclipse.org/cdt/downloads.php&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
 &lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://gnuarmeclipse.sourceforge.net/updates&#34;&gt;http://gnuarmeclipse.sourceforge.net/updates&lt;/a&gt;&lt;/p&gt;
 
 &lt;ul&gt;
@@ -65,15 +104,33 @@
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 
-&lt;li&gt;&lt;p&gt;stlink 驱动&lt;/p&gt;
+&lt;li&gt;&lt;p&gt;st-flash 烧录工具 &lt;a href=&#34;https://www.youtube.com/watch?v=HKX12hJApZM&#34;&gt;https://www.youtube.com/watch?v=HKX12hJApZM&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;openocd &lt;a href=&#34;https://www.youtube.com/watch?v=ZeUQXjTg-8c&#34;&gt;https://www.youtube.com/watch?v=ZeUQXjTg-8c&lt;/a&gt;&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://erika.tuxfamily.org/wiki/index.php?title=Tutorial:_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain&amp;amp;oldid=5474&#34;&gt;http://erika.tuxfamily.org/wiki/index.php?title=Tutorial:_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain&amp;amp;oldid=5474&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.st.com/content/st_com/en/products/embedded-software/development-tool-software/stsw-link004.html#&#34;&gt;http://www.st.com/content/st_com/en/products/embedded-software/development-tool-software/stsw-link004.html#&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Linux: &lt;a href=&#34;https://github.com/texane/stlink&#34;&gt;https://github.com/texane/stlink&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;用法：&lt;a href=&#34;http://erika.tuxfamily.org/wiki/index.php?title=Tutorial:_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain&amp;amp;oldid=5474&#34;&gt;http://erika.tuxfamily.org/wiki/index.php?title=Tutorial:_STM32_-_Integrated_Debugging_in_Eclipse_using_GNU_toolchain&amp;amp;oldid=5474&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;./configure &amp;ndash;enable-verbose &amp;ndash;enable-verbose-jtag-io &amp;ndash;enable-parport &amp;ndash;enable-jlink &amp;ndash;enable-ulink &amp;ndash;enable-stlink &amp;ndash;enable-ti-icdi&lt;/li&gt;
+&lt;li&gt;make -j &amp;amp;&amp;amp; sudo make install&lt;/li&gt;
+&lt;li&gt;openocd -f tcl/board/stm32f4discovery.cfg&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;openocd是debug server，3333端口&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;eclipse需要debug configuration&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;eclipse的设置&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;代码自动提示：&lt;a href=&#34;http://blog.csdn.net/u012750578/article/details/16811227&#34;&gt;http://blog.csdn.net/u012750578/article/details/16811227&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;elua&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;openocd -f ../../openocd-0.9.0/tcl/board/stm32f429discovery.cfg   -c &amp;quot;init&amp;quot;    -c &amp;quot;reset halt&amp;quot;    -c &amp;quot;sleep 100&amp;quot;    -c &amp;quot;wait_halt 2&amp;quot;    -c &amp;quot;echo \&amp;quot;--- Writing elua_lua_stm32f4discovery.bin\&amp;quot;&amp;quot;    -c &amp;quot;flash write_image erase elua_lua_stm32f4discovery.bin 0x08000000&amp;quot;    -c &amp;quot;sleep 100&amp;quot;    -c &amp;quot;echo \&amp;quot;--- Verifying\&amp;quot;&amp;quot;    -c &amp;quot;verify_image elua_lua_stm32f4discovery.bin 0x08000000&amp;quot;    -c &amp;quot;sleep 100&amp;quot;    -c &amp;quot;echo \&amp;quot;--- Done\&amp;quot;&amp;quot;    -c &amp;quot;resume&amp;quot;    -c &amp;quot;shutdown&amp;quot;
+
+st-flash --reset write elua_lua_stm32f4discovery.bin 0x8000000
+&lt;/code&gt;&lt;/pre&gt;
 </description>
     </item>
     
@@ -2076,6 +2133,26 @@ set python print-stack full
       
       <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</guid>
       <description>
+
+&lt;h2 id=&#34;unix获取时间戳:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;unix获取时间戳&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;date &#39;+%s&#39;
+
+export timestamp=`date &#39;+%s&#39;`; echo $timestamp
+
+# 标准时间格式转unix时间戳
+date -d &amp;quot;2011-03-02 15:00&amp;quot; +%s
+
+# unix时间戳转为标准格式
+date -d &#39;1970-01-01 UTC 1299049200 seconds&#39;
+
+# 或者
+
+date -d &amp;quot;@1279592730&amp;quot; 
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://blog.csdn.net/hittata/article/details/7640974&#34;&gt;链接&lt;/a&gt;中提到了各种各样的格式，以后写shell脚本就不担心时间戳问题了&lt;/p&gt;
 
 &lt;h2 id=&#34;docker-设置代理下载镜像:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;docker 设置代理下载镜像&lt;/h2&gt;
 
