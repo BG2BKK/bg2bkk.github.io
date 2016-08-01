@@ -5,8 +5,1054 @@
     <link>https://bg2bkk.github.io/</link>
     <description>Recent content on BG2BKK Site</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Wed, 06 Jul 2016 12:51:05 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 01 Aug 2016 13:26:07 +0800</lastBuildDate>
     <atom:link href="https://bg2bkk.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>redis过期清除机制及应用方法</title>
+      <link>https://bg2bkk.github.io/post/redis%E8%BF%87%E6%9C%9F%E6%B8%85%E9%99%A4%E6%9C%BA%E5%88%B6%E5%8F%8A%E5%BA%94%E7%94%A8%E6%96%B9%E6%B3%95/</link>
+      <pubDate>Mon, 01 Aug 2016 13:26:07 +0800</pubDate>
+      
+      <guid>https://bg2bkk.github.io/post/redis%E8%BF%87%E6%9C%9F%E6%B8%85%E9%99%A4%E6%9C%BA%E5%88%B6%E5%8F%8A%E5%BA%94%E7%94%A8%E6%96%B9%E6%B3%95/</guid>
+      <description>
+
+&lt;h2 id=&#34;redis过期清除和淘汰机制:15f341755a194cb3fa2a102ac1aec971&#34;&gt;redis过期清除和淘汰机制&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;过期时间设置&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;expire key seconds&lt;/li&gt;
+&lt;li&gt;该命令设置指定key超时的秒数，超过该时间后，可以将被删除&lt;/li&gt;
+&lt;li&gt;在超时之前，如果该key被修改，与之关联的超时将被移除
+
+&lt;ul&gt;
+&lt;li&gt;persist key 持久化该key，超时时间移除&lt;/li&gt;
+&lt;li&gt;set key newvalue 设置新值，会清除过期时间&lt;/li&gt;
+&lt;li&gt;del key   显然会清除过期时间&lt;/li&gt;
+&lt;li&gt;例外情况：
+
+&lt;ul&gt;
+&lt;li&gt;lpush, zset, incr等操作，在高版本（2.1.3++）之后不会清除过期时间，毕竟修改的不是key本身&lt;/li&gt;
+&lt;li&gt;rename 也不会清除过期时间，只是改key名字&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;过期处理&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;redis对过期key采用lazy expiration方式，在访问key的时候才判定该key是否过期&lt;/li&gt;
+&lt;li&gt;此外，每秒还会抽取volatile keys进行抽样，处理删除过期键&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.marser.cn/archives/87/&#34;&gt;过期键删除策略种类&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;定时删除
+
+&lt;ul&gt;
+&lt;li&gt;每个键都有一个定时器，到期时触发处理事件，在事件中删除&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;惰性删除
+
+&lt;ul&gt;
+&lt;li&gt;每次访问时才检查，如果没过期，正常返回，否则删除该键并返回空&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;定期删除&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;每隔一段时间，检查所有设置了过期时间的key，删除已过期的键&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;redis采用后两种结合的方式&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;读写一个key时，触发惰性删除策略&lt;/li&gt;
+&lt;li&gt;惰性删除策略不能及时处理冷数据，因此redis会定期主动淘汰一批已过期的key&lt;/li&gt;
+&lt;li&gt;内存超过maxmemory时，触发删除操作&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://blueswind8306.iteye.com/blog/2240088&#34;&gt;http://blueswind8306.iteye.com/blog/2240088&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.cnblogs.com/chenpingzhao/p/5022467.html&#34;&gt;http://www.cnblogs.com/chenpingzhao/p/5022467.html&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>effective tips in daily work</title>
+      <link>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</link>
+      <pubDate>Sun, 24 Jul 2016 16:36:33 +0800</pubDate>
+      
+      <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</guid>
+      <description>
+
+&lt;h2 id=&#34;redis批量删除key:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;redis批量删除key&lt;/h2&gt;
+
+&lt;p&gt;手动清理redis中的key时，很想通过 &lt;strong&gt;&lt;em&gt;del keys&lt;/em&gt;&lt;/strong&gt;* 的方式实现批量删除，而redis却没有提供这样的选项，因此需要借助外部工具&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;1、sehll 命令行&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;redis-cli keys ip:* | xargs redis-cli del&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;2、lua脚本&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;redis-cli eval &amp;ldquo;redis.call(&amp;lsquo;del&amp;rsquo;, unpack(redis.call(&amp;lsquo;keys&amp;rsquo;,&amp;lsquo;ip*&amp;lsquo;)))&amp;rdquo; 0&lt;br /&gt;&lt;/li&gt;
+&lt;li&gt;这种方式受限于lua的unpack函数，一次删除的key不能太多&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;3、借助客户端&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.redisfans.com/?p=71&#34;&gt;php&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.csdn.net/tuposky/article/details/45364107&#34;&gt;jedis&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;unix获取时间戳:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;unix获取时间戳&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;date &#39;+%s&#39;
+
+export timestamp=`date &#39;+%s&#39;`; echo $timestamp
+
+# 标准时间格式转unix时间戳
+date -d &amp;quot;2011-03-02 15:00&amp;quot; +%s
+
+# unix时间戳转为标准格式
+date -d &#39;1970-01-01 UTC 1299049200 seconds&#39;
+
+# 或者
+
+date -d &amp;quot;@1279592730&amp;quot; 
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://blog.csdn.net/hittata/article/details/7640974&#34;&gt;链接&lt;/a&gt;中提到了各种各样的格式，以后写shell脚本就不担心时间戳问题了&lt;/p&gt;
+
+&lt;h2 id=&#34;docker-设置代理下载镜像:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;docker 设置代理下载镜像&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://stackoverflow.com/questions/23111631/cannot-download-docker-images-behind-a-proxy&#34;&gt;在systemd中设置&lt;/a&gt;&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;mkdir /etc/systemd/system/docker.service.d&lt;p&gt;&lt;/li&gt;
+&lt;li&gt;touch /etc/systemd/system/docker.service.d/http-proxy.conf&lt;p&gt;&lt;/li&gt;
+&lt;li&gt;在文件中添加：&lt;p&gt;[Service]&lt;p&gt;Environment=&amp;ldquo;HTTP_PROXY=&lt;a href=&#34;http://proxy.example.com:80/&amp;quot;&#34;&gt;http://proxy.example.com:80/&amp;quot;&lt;/a&gt;&lt;p&gt;&lt;/li&gt;
+&lt;li&gt;重启daemon：&lt;p&gt;sudo systemctl daemon-reload&lt;p&gt;&lt;/li&gt;
+&lt;li&gt;查看设置状态：&lt;p&gt;sudo systemctl show docker &amp;ndash;property Environment&lt;p&gt;&lt;/li&gt;
+&lt;li&gt;重启docker：&lt;p&gt;sudo systemctl restart docker&lt;p&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;tested on Ubuntu 16.04&lt;/p&gt;
+
+&lt;h2 id=&#34;用ps查看进程的执行时间:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;用ps查看进程的执行时间&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;ps -eo pid,tty,user,comm,stime,etime | grep main
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;可以打印进程的开始时间和执行时间&lt;/p&gt;
+
+&lt;h2 id=&#34;vim下以16进制查看文本文件:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;vim下以16进制查看文本文件&lt;/h2&gt;
+
+&lt;p&gt;vim的功能实在是太强大了，&lt;a href=&#34;http://blog.sina.com.cn/s/blog_4c451e0e0100h4nl.html&#34;&gt;可以以16进制查看文本信息&lt;/a&gt;：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;十六进制显示
+:%!xxd
+正常显示
+:%!xxd -r
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;linux获取系统调度时间片长度:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;Linux获取系统调度时间片长度&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#define _GNU_SOURCE
+#include &amp;lt;sched.h&amp;gt;
+#include &amp;lt;stdlib.h&amp;gt;
+#include &amp;lt;unistd.h&amp;gt;
+#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;assert.h&amp;gt;
+
+	int
+main(int argc, char *argv[])
+{
+	int ret, i;  
+	struct timespec tp;  
+	ret = sched_rr_get_interval(0, &amp;amp;tp);  
+	if(ret == -1)  
+		printf(&amp;quot;sched_rr_get_interval error.\n&amp;quot;);  
+	printf(&amp;quot;The time is %ds:%ldns.\n&amp;quot;, (int)tp.tv_sec, tp.tv_nsec);  
+	return 0;  
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ ./cpu_time_slice.o 
+The time is 0s:16000000ns.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;可见Ubuntu-16.04 64bit的系统进程时间片是16ms&lt;/p&gt;
+
+&lt;h2 id=&#34;c语言中short-int-long内存占用:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;C语言中short、int、long内存占用&lt;/h2&gt;
+
+&lt;p&gt;随着工作年限的增加，很多基本功反而落了下来，甚至开始怀疑short等类型的内存占用问题了呵呵。印象里一直记得int和long类型都是4字节大小啊&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#include &amp;lt;stdio.h&amp;gt;
+#include &amp;lt;stdlib.h&amp;gt;
+
+struct test{
+	char *ch1;
+	int i;
+	long ch2;
+} aa;
+
+int main()
+{
+	printf(&amp;quot;Linux-64Bit-platform\n&amp;quot;);
+	printf(&amp;quot;	%lu\n&amp;quot;, (unsigned long)sizeof(aa));
+	printf(&amp;quot;	sizeof short : %d\n&amp;quot;, sizeof(short));
+	printf(&amp;quot;	sizeof int   : %d\n&amp;quot;, sizeof(int));
+	printf(&amp;quot;	sizeof long  : %d\n&amp;quot;, sizeof(long));
+	
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;
+Linux-64Bit-platform
+	24
+	sizeof short : 2
+	sizeof int   : 4
+	sizeof long  : 8
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;
+Linux-32Bit-platform
+	24
+	sizeof short : 2
+	sizeof int   : 4
+	sizeof long  : 4
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;看来，long和int大小一样已经是32位机器的老黄历了，基础知识还是应该常用常新啊&lt;/p&gt;
+
+&lt;h2 id=&#34;文件操作的线程安全相关-待续:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;文件操作的线程安全相关（待续）&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://stackoverflow.com/questions/29981050/concurrent-writing-to-a-file&#34;&gt;http://stackoverflow.com/questions/29981050/concurrent-writing-to-a-file&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;ubuntu关闭键盘和触摸板的方法:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;ubuntu关闭键盘和触摸板的方法&lt;/h2&gt;
+
+&lt;p&gt;家里的猫就是喜欢趴在笔记本键盘上看你干活，我只能再买一个键盘，然后笔记本键盘留给猫大爷了。&lt;/p&gt;
+
+&lt;p&gt;然而它还喜欢在键盘上跳舞，这样太影响输入了，只能想办法把笔记本键盘关掉。&lt;/p&gt;
+
+&lt;p&gt;在ubuntu下，键盘鼠标触控板都属于xinput设备，可以通过以下命令查看：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;
+$ xinput  --list
+⎡ Virtual core pointer                    	id=2	[master pointer  (3)]
+⎜   ↳ Virtual core XTEST pointer              	id=4	[slave  pointer  (2)]
+⎜   ↳ SynPS/2 Synaptics TouchPad              	id=16	[slave  pointer  (2)]
+⎜   ↳ Rapoo Rapoo Gaming Keyboard             	id=11	[slave  pointer  (2)]
+⎜   ↳ RAPOO Rapoo 2.4G Wireless Device        	id=12	[slave  pointer  (2)]
+⎜   ↳ Wacom ISDv4 E6 Pen stylus               	id=13	[slave  pointer  (2)]
+⎜   ↳ Wacom ISDv4 E6 Finger touch             	id=14	[slave  pointer  (2)]
+⎜   ↳ Wacom ISDv4 E6 Pen eraser               	id=18	[slave  pointer  (2)]
+⎜   ↳ TPPS/2 IBM TrackPoint                   	id=19	[slave  pointer  (2)]
+⎣ Virtual core keyboard                   	id=3	[master keyboard (2)]
+    ↳ Virtual core XTEST keyboard             	id=5	[slave  keyboard (3)]
+    ↳ Power Button                            	id=6	[slave  keyboard (3)]
+    ↳ Video Bus                               	id=7	[slave  keyboard (3)]
+    ↳ Sleep Button                            	id=8	[slave  keyboard (3)]
+    ↳ Integrated Camera                       	id=9	[slave  keyboard (3)]
+    ↳ Rapoo Rapoo Gaming Keyboard             	id=10	[slave  keyboard (3)]
+    ↳ AT Translated Set 2 keyboard            	id=15	[slave  keyboard (3)]
+    ↳ ThinkPad Extra Buttons                  	id=17	[slave  keyboard (3)]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;可以看到笔记本键盘是&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;    ↳ AT Translated Set 2 keyboard            	id=15	[slave  keyboard (3)]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;而触控板是&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;⎜   ↳ SynPS/2 Synaptics TouchPad              	id=16	[slave  pointer  (2)]
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;他们的id分别是 15和 16，所以采用以下命令关掉就可以&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;sudo sudo xinput set-prop 15 &amp;quot;Device Enabled&amp;quot; 0
+sudo sudo xinput set-prop 16 &amp;quot;Device Enabled&amp;quot; 0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;附送shell脚本&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#!/bin/bash
+
+keyboard=`xinput --list | grep AT | awk -F&#39;=&#39; &#39;{print $2}&#39; | awk &#39;{print $1}&#39;`
+touchpad=`xinput --list | grep Synaptics | awk -F&#39;=&#39; &#39;{print $2}&#39; | awk &#39;{print $1}&#39;`
+
+function doit() {
+	echo &#39;关闭  笔记本键盘&#39;
+	`sudo xinput set-prop $keyboard &amp;quot;Device Enabled&amp;quot; 0`			
+	echo &#39;关闭  笔记本触摸板&#39;
+	`sudo xinput set-prop $touchpad &amp;quot;Device Enabled&amp;quot; 0`
+}
+
+doit 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;小于1024的保留端口都有哪些:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;小于1024的保留端口都有哪些&lt;/h2&gt;
+
+&lt;p&gt;我们会遇到如下情况：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ sudo tcpdump -i any port 1080
+tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
+listening on any, link-type LINUX_SLL (Linux cooked), capture size 262144 bytes
+15:08:42.421693 IP localhost.55092 &amp;gt; localhost.socks: Flags [.], ack 1960200857, win 342, options [nop,nop,TS val 4687328 ecr 4676064], length 0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;我想监听1080端口，tcpdump为什么不乖乖显示1080，而是出现个socks呢？（可以通过&lt;strong&gt;&lt;em&gt;-n&lt;/em&gt;&lt;/strong&gt;参数解决）为什么1080是socks，而不是别的呢？&lt;/p&gt;
+
+&lt;p&gt;这是因为低于1024的保留端口大多有自己的名字，他们&lt;a href=&#34;http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml&#34;&gt;由IANA分配&lt;/a&gt;，通常用于系统进程，而我们可以在&lt;strong&gt;&lt;em&gt;/etc/services&lt;/em&gt;&lt;/strong&gt;文件中找到：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#
+# From ``Assigned Numbers&#39;&#39;:
+#
+#&amp;gt; The Registered Ports are not controlled by the IANA and on most systems
+#&amp;gt; can be used by ordinary user processes or programs executed by ordinary
+#&amp;gt; users.
+#
+#&amp;gt; Ports are used in the TCP [45,106] to name the ends of logical
+#&amp;gt; connections which carry long term conversations.  For the purpose of
+#&amp;gt; providing services to unknown callers, a service contact port is
+#&amp;gt; defined.  This list specifies the port used by the server process as its
+#&amp;gt; contact port.  While the IANA can not control uses of these ports it
+#&amp;gt; does register or list uses of these ports as a convienence to the
+#&amp;gt; community.
+#
+socks		1080/tcp			# socks proxy server
+socks		1080/udp
+proofd		1093/tcp
+proofd		1093/udp
+rootd		1094/tcp
+rootd		1094/udp
+openvpn		1194/tcp
+openvpn		1194/udp
+rmiregistry	1099/tcp			# Java RMI Registry
+rmiregistry	1099/udp
+kazaa		1214/tcp
+kazaa		1214/udp
+nessus		1241/tcp			# Nessus vulnerability
+nessus		1241/udp			#  assessment scanner
+lotusnote	1352/tcp	lotusnotes	# Lotus Note
+lotusnote	1352/udp	lotusnotes
+ms-sql-s	1433/tcp			# Microsoft SQL Server
+ms-sql-s	1433/udp
+ms-sql-m	1434/tcp			# Microsoft SQL Monitor
+ms-sql-m	1434/udp
+ingreslock	1524/tcp
+ingreslock	1524/udp
+prospero-np	1525/tcp			# Prospero non-privileged
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;git修改默认分支名:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;git修改默认分支名&lt;/h2&gt;
+
+&lt;p&gt;在develop分支改动太大了，导致merge 到master分支时非常被动，这个时候我想，干脆将develop分支作为分支好了。还好碰到&lt;a href=&#34;http://stackoverflow.com/questions/1485578/change-a-git-remote-head-to-point-to-something-besides-master&#34;&gt;stackoverflow的一个帖子&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;git branch -m master oldmaster&lt;/li&gt;
+&lt;li&gt;git branch -m develop master&lt;/li&gt;
+&lt;li&gt;git push -f origin master&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;另一个方法是从github的&lt;a href=&#34;https://help.github.com/articles/setting-the-default-branch/&#34;&gt;项目主页上更改&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;编译openssl-1-0-2g:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;编译openssl 1.0.2g&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;./config shared -fPIC zlib-dynamic &amp;amp;&amp;amp; make depend -j   &amp;amp;&amp;amp; make -j
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;编译nginx-tengine-cpp模块:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;编译nginx/tengine: CPP模块&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;./configure --add-module=../cpp_module  --with-ld-opt=&amp;quot;-lstdc++&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;curl-i-和-i的区别:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;curl -i 和 -I的区别&lt;/h2&gt;
+
+&lt;p&gt;man page:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;	-i, --include
+		(HTTP) Include the HTTP-header in the output. The HTTP-header includes things like server-name, date of the document, HTTP-version and more...
+		
+	-I, --head
+		(HTTP/FTP/FILE) Fetch the HTTP-header only! HTTP-servers feature the command HEAD which this uses to get nothing but the header of a document. When used on an FTP or FILE file, curl displays the file size and last modification time only.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;-i选项会打印出HTTP头部的一些信息，这个选项是curl软件的选项，这些信息本来就是存在的&lt;/p&gt;
+
+&lt;p&gt;-I选项会发送HEAD请求，获取信息&lt;/p&gt;
+
+&lt;h2 id=&#34;linux系统如何将父子进程一起kill掉:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;linux系统如何将父子进程一起kill掉&lt;/h2&gt;
+
+&lt;p&gt;对于普通进程而言，kill掉父进程将会连带着把子进程kill掉；而对于daemon等类型进程而言，kill掉父进程，子进程会被daemon接管，所以如果想父子一起kill掉的话，不能直接kill父进程。&lt;/p&gt;
+
+&lt;p&gt;有&lt;a href=&#34;http://blog.csdn.net/lalaguozhe/article/details/11142855&#34;&gt;两种方法&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;kill &amp;ndash; -PPID&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;PPID前面有&lt;strong&gt;&lt;em&gt;-&lt;/em&gt;&lt;/strong&gt;号，可以将父子进程kill掉&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;使用exec或者xargs来kill掉他们&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;dns查询中-域名是否可以有多个cname呢:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;dns查询中，域名是否可以有多个cname呢？&lt;/h2&gt;
+
+&lt;p&gt;不可以
+    * &lt;a href=&#34;http://serverfault.com/questions/574072/can-we-have-multiple-cnames-for-a-single-name&#34;&gt;http://serverfault.com/questions/574072/can-we-have-multiple-cnames-for-a-single-name&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;git代理访问:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;git代理访问&lt;/h2&gt;
+
+&lt;p&gt;git config &amp;ndash;global http.proxy 10.8.0.1:8118&lt;/p&gt;
+
+&lt;h2 id=&#34;ubuntu操作-挂载-格式化sd卡:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;ubuntu操作、挂载、格式化SD卡&lt;/h2&gt;
+
+&lt;p&gt;玩树莓派等板子的时候，需要从host机器将os镜像烧进sd卡，然后启动。那么ubuntu如何操作呢？&lt;/p&gt;
+
+&lt;p&gt;fdisk -l命令可以用来查看系统中的存储硬件&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;
+
+Disk /dev/sda: 111.8 GiB, 120034123776 bytes, 234441648 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: gpt
+Disk identifier: C27256BB-CE04-48C2-96F4-8F79FAE2AE87
+
+Device     Start       End   Sectors   Size Type
+/dev/sda1   2048 234440703 234438656 111.8G Linux filesystem
+
+
+Disk /dev/sdb: 167.7 GiB, 180045766656 bytes, 351651888 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x42b438a2
+
+Device     Boot     Start       End   Sectors  Size Id Type
+/dev/sdb1  *         2048 105887743 105885696 50.5G  7 HPFS/NTFS/exFAT
+/dev/sdb2       105887744 187807665  81919922 39.1G 83 Linux
+/dev/sdb3       187807744 228767743  40960000 19.5G  7 HPFS/NTFS/exFAT
+/dev/sdb4       228769790 351649791 122880002 58.6G  f W95 Ext&#39;d (LBA)
+/dev/sdb5       228769792 351649791 122880000 58.6G  7 HPFS/NTFS/exFAT
+
+
+Disk /dev/sdc: 14.9 GiB, 16021192704 bytes, 31291392 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x00000000
+
+Device     Boot Start      End  Sectors  Size Id Type
+/dev/sdc1        8192 31291391 31283200 14.9G  c W95 FAT32 (LBA)
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如果sd卡（tf卡）通过usb 读卡器接入电脑，则会显示为 /dev/sdc&lt;/p&gt;
+
+&lt;p&gt;如果是标准sd卡（大卡），则会显示为 /dev/mmblck0&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;
+Disk /dev/mmcblk0: 14.9 GiB, 16021192704 bytes, 31291392 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x00000000
+
+Device         Boot Start      End  Sectors  Size Id Type
+/dev/mmcblk0p1       8192 31291391 31283200 14.9G  c W95 FAT32 (LBA)
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;推荐使用USB读卡器，速度较为快一些。&lt;/p&gt;
+
+&lt;h2 id=&#34;lua库文件的加载路径:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;Lua库文件的加载路径&lt;/h2&gt;
+
+&lt;p&gt;Lua 提供一个名为 &lt;a href=&#34;http://www.lua.org/manual/5.1/manual.html#pdf-require&#34;&gt;require&lt;/a&gt; 的函数来加载模块，使用也很简单，它只有一个参数，这个参数就是要指定加载的模块名，&lt;a href=&#34;http://dhq.me/lua-learning-notes-package-and-module&#34;&gt;例如&lt;/a&gt;：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-lua&#34;&gt;require(&amp;quot;&amp;lt;模块名&amp;gt;&amp;quot;)
+-- 或者是
+-- require &amp;quot;&amp;lt;模块名&amp;gt;&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;然后会返回一个由模块常量或函数组成的 table，并且还会定义一个包含该 table 的全局变量。&lt;/p&gt;
+
+&lt;p&gt;或者给加载的模块定义一个别名变量，方便调用：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-lua&#34;&gt;local m = require(&amp;quot;module&amp;quot;)
+print(m.constant)
+m.func3()
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;对于自定义的模块，模块文件不是放在哪个文件目录都行，函数 require 有它自己的文件路径加载策略，它会尝试从 Lua 文件或 C 程序库中加载模块。&lt;/p&gt;
+
+&lt;p&gt;require 用于搜索 Lua 文件的路径是存放在全局变量 package.path 中，当 Lua 启动后，会以环境变量 LUA_PATH 的值来初始这个环境变量。如果没有找到该环境变量，则使用一个编译时定义的默认路径来初始化。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;
+Lua 5.1.5  Copyright (C) 1994-2012 Lua.org, PUC-Rio
+&amp;gt;  print(package.path)
+~/lua/?.lua;/usr/local/share/lua/5.1/?.lua;/home/huang/workspace/luactor/?.lua;./?.lua;/usr/local/share/lua/5.1/?.lua;/usr/local/share/lua/5.1/?/init.lua;/usr/local/lib/lua/5.1/?.lua;/usr/local/lib/lua/5.1/?/init.lua;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如果没有 LUA_PATH 这个环境变量，也可以自定义设置&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;huang@ThinkPad-X220:~/workspace/luapkg/luasocket-2.0.2$ export LUA_PATH=&amp;quot;4;;&amp;quot;
+huang@ThinkPad-X220:~/workspace/luapkg/luasocket-2.0.2$ lua
+Lua 5.1.5  Copyright (C) 1994-2012 Lua.org, PUC-Rio
+&amp;gt;  print(package.path)
+4;./?.lua;/usr/local/share/lua/5.1/?.lua;/usr/local/share/lua/5.1/?/init.lua;/usr/local/lib/lua/5.1/?.lua;/usr/local/lib/lua/5.1/?/init.lua;
+&amp;gt; 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;可以看到，随便加的环境变量&amp;rdquo;4;&amp;ldquo;写在了package.path中。&lt;/p&gt;
+
+&lt;p&gt;而为什么4需要两个&amp;rsquo;；&amp;rsquo;号呢：文件路径以 &amp;ldquo;;&amp;rdquo; 号分隔，最后的 2 个 &amp;ldquo;;;&amp;rdquo; 表示新加的路径后面加上原来的默认路径。&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;huang@ThinkPad-X220:~/workspace/luapkg/luasocket-2.0.2$ export LUA_PATH=&amp;quot;4;&amp;quot;
+huang@ThinkPad-X220:~/workspace/luapkg/luasocket-2.0.2$ lua
+Lua 5.1.5  Copyright (C) 1994-2012 Lua.org, PUC-Rio
+&amp;gt; print(package.path)
+4;
+&amp;gt; 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;可见如果只有一个；号，将只采用这个分号。&lt;/p&gt;
+
+&lt;p&gt;如果找过目标文件，则会调用 package.loadfile 来加载模块。否则，就会去找 C 程序库。搜索的文件路径是从全局变量 package.cpath 获取，而这个变量则是通过环境变量 LUA_CPATH 来初始。搜索的策略跟上面的一样，只不过现在换成搜索的是 so 或 dll 类型的文件。如果找得到，那么 require 就会通过 package.loadlib 来加载它。&lt;/p&gt;
+
+&lt;p&gt;我们也可以在lua代码中&lt;a href=&#34;https://github.com/rtsisyk/luafun&#34;&gt;动态修改package.path变量&lt;/a&gt;，&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;package.path = &amp;quot;../?.lua;&amp;quot;..package.path
+require &amp;quot;fun&amp;quot;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这点对于我们自己的lua project的设置来说无疑是很方便的。
+&lt;a href=&#34;http://www.runoob.com/lua/lua-modules-packages.html&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;cpp调用c函数:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;cpp调用c函数&lt;/h2&gt;
+
+&lt;p&gt;由于CPP在链接时与C不太一样，因此在调用C函数时，&lt;a href=&#34;http://www.cnblogs.com/skynet/archive/2010/07/10/1774964.html&#34;&gt;需要做一定处理。&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;将C函数的声明房子 &lt;strong&gt;&lt;em&gt;#ifdef __cplusplus&lt;/em&gt;&lt;/strong&gt; 块中&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#ifdef __cplusplus
+extern &amp;quot;C&amp;quot; {
+#endif
+ 
+/*.
+ * c functions declarations
+..*/
+
+#ifdef __cplusplus
+}
+#endif
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;多少人在猜你机器的密码呢:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;多少人在猜你机器的密码呢&lt;/h2&gt;
+
+&lt;p&gt;VPS在公网就是个待宰的肥肉，都想去登陆，那&lt;a href=&#34;https://plus.google.com/+AlbertSu2015/posts/Uu1vbeJY1Hw&#34;&gt;都谁猜我的IP了呢？&lt;/a&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;sudo grep &amp;quot;Failed password for root&amp;quot; /var/log/auth.log | awk &#39;{print $11}&#39; | sort | uniq -c | sort -nr | more
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;grep的简单使用-与-或-非:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;grep的简单使用，与 或 非&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;或操作&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;grep -E &#39;123|abc&#39; filename  // 找出文件（filename）中包含123或者包含abc的行
+egrep &#39;123|abc&#39; filename    // 用egrep同样可以实现
+awk &#39;/123|abc/&#39; filename   // awk 的实现方式
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;与操作&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;grep pattern1 files | grep pattern2 ：显示既匹配 pattern1 又匹配 pattern2 的行。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;其他操作&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;
+grep -i pattern files ：不区分大小写地搜索。默认情况区分大小写，
+grep -l pattern files ：只列出匹配的文件名，
+grep -L pattern files ：列出不匹配的文件名，
+grep -w pattern files ：只匹配整个单词，而不是字符串的一部分（如匹配‘magic’，而不是‘magical’），
+grep -v pattern files ：不匹配pattern
+grep -C number pattern files ：匹配的上下文分别显示[number]行，
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;iptables的简单使用:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;iptables的简单使用&lt;/h2&gt;
+
+&lt;p&gt;其实并不想写iptables相关的内容，因为用的不熟，但是一些常用的命令还是记一下吧&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://linux.cn/article-1586-1.html&#34;&gt;iptables的详细解释&lt;/a&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;Linux系统中,防火墙(Firewall),网址转换(NAT),数据包(package)记录,流量统计,这些功能是由Netfilter子系统所提供的，而iptables是控制Netfilter的工具。iptables将许多复杂的规则组织成成容易控制的方式，以便管理员可以进行分组测试，或关闭、启动某组规则。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;https://blog.phpgao.com/vps_iptables.html
+http://www.tabyouto.com/bandwagon-vps-for-shadowsocks-was-hacked.html
+http://my.oschina.net/yqc/blog/82111?fromerr=VxVIazGW
+http://www.vpser.net/security/linux-iptables.html
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# 列出所有规则
+iptables -L -n
+
+# 更新iptables规则，规则写在/etc/iptables.rules
+iptables-restore &amp;lt; /etc/iptables.rules
+
+# 保存iptables规则，规则写在/etc/iptables.rules
+iptables-save &amp;gt; /etc/iptables.rules
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;需要注意的是Debian/Ubuntu上iptables是不会保存规则的。&lt;/p&gt;
+
+&lt;p&gt;需要按如下步骤进行，让网卡关闭是保存iptables规则，启动时加载iptables规则：&lt;/p&gt;
+
+&lt;p&gt;创建/etc/network/if-post-down.d/iptables 文件，添加如下内容：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#!/bin/bash
+iptables-save &amp;gt; /etc/iptables.rules
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;执行：chmod +x /etc/network/if-post-down.d/iptables 添加执行权限。&lt;/p&gt;
+
+&lt;p&gt;创建/etc/network/if-pre-up.d/iptables 文件，添加如下内容：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#!/bin/bash
+iptables-restore &amp;lt; /etc/iptables.rules
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;执行：chmod +x /etc/network/if-pre-up.d/iptables 添加执行权限。&lt;/p&gt;
+
+&lt;p&gt;iptables的一些常用规则：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#允许ping
+iptables -A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如果想清空的话，先执行&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/sbin/iptables -P INPUT ACCEPT
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;然后执行&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;/sbin/iptables -F
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;vps简单的ssh登陆设置:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;VPS简单的ssh登陆设置&lt;/h2&gt;
+
+&lt;p&gt;初次使用VPS，不懂得安全的重要性，直到扣款时候才心疼，这个时候，弱口令，密码登陆什么的，还是都放弃吧，只用ssh登陆，并且换一个自己的端口。&lt;a href=&#34;https://imququ.com/post/bandwagon-vps-and-basicly-usage.html&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;简单来说，任何一台主机想登陆VPS的主机都需要有本身的ssh公钥私钥&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;cd ~/.ssh/
+ssh-keygen -t rsa -C &amp;quot;username@gmail.com&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;然后复制~/.ssh/id_rsa.pub中的内容，就是本机的公钥。&lt;/p&gt;
+
+&lt;p&gt;将公钥添加到VPS服务器的/home/username/.ssh/authorized_keys中，本机就能以username用户名登陆VPS了&lt;/p&gt;
+
+&lt;p&gt;然后在/etc/ssh/sshd_config中禁用禁用 VPS 的密码登录和 root 帐号登录，将以下两项改为no&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;PasswordAuthentication no
+PermitRootLogin no
+
+Port 11111
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;随后重启SSH服务&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;sudo service ssh restart
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;vim删除空行:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;vim删除空行&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;从网页上copy下代码后，发现很多情况下有不想要的空行，非常影响阅读，通过&lt;a href=&#34;http://bbs.chinaunix.net/thread-510754-1-1.html&#34;&gt;vim的正则&lt;/a&gt;可以解决
+
+&lt;ul&gt;
+&lt;li&gt;Delete all blank lines (^ is start of line; \s* is zero or more whitespace characters; $ is end of line)&lt;/li&gt;
+&lt;li&gt;删除所有空白行(^是行的开始，\s*是零个或者多个空白字符；$是行尾)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;:g/^\s*$/d
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;ubuntu通过命令设置系统时间:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;ubuntu通过命令设置系统时间&lt;/h2&gt;
+
+&lt;p&gt;在嵌入式开发中，在pcduino或者rpi板子上安装好linux后，系统时间是UTC时间1970年，对于有些软件来说可能影响安装，所以需要命令行修改date&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;sudo date -s &amp;quot;13 DEC 2015 20:43&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;ubuntu终端下中文设置:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;ubuntu终端下中文设置&lt;/h2&gt;
+
+&lt;p&gt;在安装完ubuntu系统后，我们发现中文支持的不好，主要体现在locale的错误，&lt;a href=&#34;http://www.linuxidc.com/Linux/2015-08/122501.htm&#34;&gt;解决方法：&lt;/a&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;perl: warning: Setting locale failed.
+perl: warning: Please check that your locale settings:
+	LANGUAGE = (unset),
+	LC_ALL = (unset),
+	LC_PAPER = &amp;quot;zh_CN.UTF-8&amp;quot;,
+	LC_ADDRESS = &amp;quot;zh_CN.UTF-8&amp;quot;,
+	LC_MONETARY = &amp;quot;zh_CN.UTF-8&amp;quot;,
+	LC_NUMERIC = &amp;quot;zh_CN.UTF-8&amp;quot;,
+	LC_TELEPHONE = &amp;quot;zh_CN.UTF-8&amp;quot;,
+	LC_IDENTIFICATION = &amp;quot;zh_CN.UTF-8&amp;quot;,
+	LC_MEASUREMENT = &amp;quot;zh_CN.UTF-8&amp;quot;,
+	LC_TIME = &amp;quot;zh_CN.UTF-8&amp;quot;,
+	LC_NAME = &amp;quot;zh_CN.UTF-8&amp;quot;,
+	LANG = &amp;quot;en_US.UTF-8&amp;quot;
+    are supported and installed on your system.
+perl: warning: Falling back to the standard locale (&amp;quot;C&amp;quot;).
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这是因为中文包没有安装好的缘故，如下命令就可以解决：&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;添加简体中文支持
+sudo apt-get -y install language-pack-zh-hans language-pack-zh-hans-base
+
+添加繁体中文支持
+sudo apt-get -y install language-pack-zh-hant language-pack-zh-hant-base
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如果还不行，先观察下locale的配置&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;huang@localhost:~$ locale
+locale: Cannot set LC_CTYPE to default locale: No such file or directory
+locale: Cannot set LC_MESSAGES to default locale: No such file or directory
+locale: Cannot set LC_ALL to default locale: No such file or directory
+LANG=en_US.UTF-8
+LANGUAGE=
+LC_CTYPE=&amp;quot;en_US.UTF-8&amp;quot;
+LC_NUMERIC=zh_CN.UTF-8
+LC_TIME=zh_CN.UTF-8
+LC_COLLATE=&amp;quot;en_US.UTF-8&amp;quot;
+LC_MONETARY=zh_CN.UTF-8
+LC_MESSAGES=&amp;quot;en_US.UTF-8&amp;quot;
+LC_PAPER=zh_CN.UTF-8
+LC_NAME=zh_CN.UTF-8
+LC_ADDRESS=zh_CN.UTF-8
+LC_TELEPHONE=zh_CN.UTF-8
+LC_MEASUREMENT=zh_CN.UTF-8
+LC_IDENTIFICATION=zh_CN.UTF-8
+LC_ALL=
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;再重新配置下语言包&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;huang@localhost:~$  sudo locale-gen &amp;quot;en_US.UTF-8&amp;quot;
+Generating locales...
+  en_US.UTF-8... done
+Generation complete.
+huang@localhost:~$ sudo  pip install shadowsocks^C
+huang@localhost:~$  sudo locale-gen &amp;quot;zh_CN.UTF-8&amp;quot;
+Generating locales...
+  zh_CN.UTF-8... done
+Generation complete.
+huang@localhost:~$ sudo dpkg-reconfigure locales
+Generating locales...
+  en_US.UTF-8... done
+  zh_CN.UTF-8... up-to-date
+  zh_HK.UTF-8... done
+  zh_SG.UTF-8... done
+  zh_TW.UTF-8... done
+Generation complete.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;一般就都能解决&lt;/p&gt;
+
+&lt;h2 id=&#34;linux终端下的颜色设置输出:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;Linux终端下的颜色设置输出&lt;/h2&gt;
+
+&lt;p&gt;Linux终端下，如果有一个彩色的终端，可以明显提升人的阅读兴趣，通过printf的简单设置即可&lt;a href=&#34;http://www.w2bc.com/Article/39141&#34;&gt;实现彩色输出&lt;/a&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;\033[显示方式;前景色;背景色m
+
+    显示方式、前景色、背景色至少一个存在即可。
+    格式：\033[显示方式;前景色;背景色m
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;前景色  背景色  颜色
+30  40  黑色
+31  41  红色
+32  42  绿色
+33  43  黃色
+34  44  蓝色
+35  45  紫红色
+36  46  青蓝色
+37  47  白色
+
+
+显示方式    意义
+0   终端默认设置
+1   高亮显示
+4   使用下划线
+5   闪烁
+7   反白显示
+8   不可见
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;\033[1;31;40m    &amp;lt;!--1-高亮显示 31-前景色红色  40-背景色黑色--&amp;gt;
+\033[0m          &amp;lt;!--采用终端默认设置，即取消颜色设置--&amp;gt;
+
+printf(&amp;quot;\033[1;31;40m&amp;quot;);
+printf(&amp;quot;\033[0m&amp;quot;);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;tsar监控系统负载和nginx运行情况:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;tsar监控系统负载和nginx运行情况&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/alibaba/tsar&#34;&gt;tsar&lt;/a&gt;是阿里巴巴发布的一款能够实时监控系统状态的命令行工具，并且支持第三方模块扩展，其中比较注明的是nginx模块。使用tsar时，可以将系统负载和nginx运行情况同步同时打出，可以用来定位系统瓶颈，所以广受好评。&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;tsar -li1&lt;/em&gt;&lt;/strong&gt; 是其最经典的用法，可以将一般我们感兴趣的监控项每秒更新一次并输出&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;Time              ---cpu-- ---mem-- ---tcp-- -----traffic---- --sda---  ---load- 
+Time                util     util   retran    bytin  bytout     util     load1   
+25/03/16-19:03:30   0.08    10.22     0.00     1.4K    1.2K     0.00     0.33  
+25/03/16-19:03:31   0.08    10.21     0.00   424.00  468.00     0.00     0.33   
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;如果想使能nginx模块，需要对其进行配置&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;1. mkdir /etc/tsar/conf.d
+2. touch /etc/tsar/conf.d/nginx.conf
+
+3. 写入如下内容并保存
+mod_nginx on
+
+####add it to tsar default output
+output_stdio_mod mod_nginx
+
+####add it to center db
+#output_db_mod mod_nginx
+
+####add it to nagios send
+####set nagios threshold for alert
+#output_nagios_mod mod_nginx
+
+#threshold nginx.value1;N;N;N;N;
+#threshold nginx.value2;N;N;N;N;
+#threshold nginx.value3;N;N;N;N;
+
+表示使能nginx模块，并使用stdio输出
+
+4. tsar -li1
+
+Time              ---cpu-- ---mem-- ---tcp-- -----traffic---- --sda---  ---load- ------------------nginx----------------- 
+Time                util     util   retran    bytin  bytout     util     load1      qps      rt  sslqps  spdyps  sslhst   
+25/03/16-19:06:19   0.08    11.40     7.14   302.00  546.00     0.00     0.02     1.00    0.00    0.00    0.00    0.00   
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;wrk在centos系统上的编译方法:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;wrk在CentOS系统上的编译方法&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://github.com/wg/wrk&#34;&gt;wrk&lt;/a&gt;作为一款可以内嵌lua脚本的，支持多线程的压测工具，受到了广泛欢迎。在高版本CentOS 7上，直接在wrk目录下执行make，可以首先编译deps/luajit，得到deps/luajit/libluajit.a，然而在低版本上，CentOS 6.5系统中，会报一些莫名奇妙的错误。&lt;/p&gt;
+
+&lt;p&gt;解决方法是，查看wrk的Makefile，发现wrk依赖于luajit，那么首先进入deps/luajit编译它，并且是静态编译&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;cd wrk
+cd deps/luajit
+make -j24 BUILDMODE=static
+
+cd ../..
+make -j24
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;rpmbuild环境的快速初始化:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;rpmbuild环境的快速初始化&lt;/h2&gt;
+
+&lt;p&gt;需要将代码打包为CentOS的RPM包时，可以先自己在本地新建一个环境&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;1. mkdir -p ~/rpmbuild/{SOURCES,BUILD,BUILDROOT,RPMS,SRPMS,SPECS}
+2. 将代打包的代码压缩包 software.tar.gz 放入SOURCES文件夹
+3. 将 software.spec 放入SPECS文件夹
+4. rpmbuild -ba path/to/software.spec 即可
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;git记住密码-不用每次都输密码才登入:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;git记住密码，不用每次都输密码才登入&lt;/h2&gt;
+
+&lt;p&gt;git有两种方式，一种是ssh方式，配置公钥私钥，对于新手而言还是比较麻烦的；另一种是http方式，这里有一个办法可以让git记住密码，避免每次都需要输入密码&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;1. touch ~/.git-credentials
+2. 将  https://{username}:{password}@github.com  写入该文件
+3. git config --global credential.helper store  就可以使得git记住密码了
+4. 此时查看 ~/.gitconfig，发现多了一项
+    
+    [credential] 
+    helper = store 
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;centos系统上某些软件-比如gcc-python等版本过低的解决方案:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;centos系统上某些软件，比如gcc、python等版本过低的解决方案&lt;/h2&gt;
+
+&lt;p&gt;在CentOS Server上，经常会遇到某些软件依赖版本过低的问题，比如CentOS 6.5的python是2.7版本的，gcc是4.2版本的，那么我们如何获得一个干净的、与原版本无冲突的运行环境呢。CentOS系提供了一个叫SCL的工具，可以帮我们实现目的&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ sudo wget http://people.centos.org/tru/devtools-1.1/devtools-1.1.repo -P /etc/yum.repos.d
+$ sudo sh -c &#39;echo &amp;quot;enabled=1&amp;quot; &amp;gt;&amp;gt; /etc/yum.repos.d/devtools-1.1.repo&#39;
+$ sudo yum install devtoolset-1.1
+$ scl enable devtoolset-1.1 bash
+$ gcc --version
+# 通过devtoolset工具可以暂时提高gcc版本，而不更改之前服务器的配置，这个很有效果，高版本的gcc会智能保留symbol。
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# CentOS 6.5
+sudo yum install centos-release-SCL
+sudo yum install python27
+scl enable python27 bash
+python --version
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h2 id=&#34;ubuntu系统上某些软件-比如gcc等版本过高的解决方案:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;ubuntu系统上某些软件，比如gcc等版本过高的解决方案&lt;/h2&gt;
+
+&lt;p&gt;与CentOS相反，debian系发行版的软件版本都很高，Ubuntu 16.04的gcc 版本已经到了5.2，然而编译一些早期linux内核的话，需要gcc-4.7左右的版本，这时候我们怎么办呢，有两个方法：
+* 通过apt安装低版本gcc
+    * sudo apt-get install gcc-4.7
+    * 在编译linux 内核时， make CC=gcc-4.7 即可
+* update-alternatives可以帮忙更改符号链接，指向不同版本的gcc
+    * &lt;a href=&#34;http://www.metsky.com/archives/607.html&#34;&gt;参考链接1&lt;/a&gt;
+    * &lt;a href=&#34;http://blog.csdn.net/zyxlinux888/article/details/6708775&#34;&gt;参考链接2&lt;/a&gt; &lt;a href=&#34;http://blog.csdn.net/zyxlinux888/article/details/6709036&#34;&gt;附赠&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;python的matplotlib库实现绘制图标:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;python的matplotlib库实现绘制图标&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;sudo apt-get install python-matplotlib&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://matplotlib.org/index.html&#34;&gt;参考链接&lt;/a&gt;
+&lt;a href=&#34;http://matplotlib.org/examples/index.html&#34;&gt;example&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;python使用requests库发送http请求:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;python使用requests库发送http请求&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://cn.python-requests.org/zh_CN/latest/user/quickstart.html#json&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;python解析命令行参数-argparse:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;python解析命令行参数：argparse&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://blog.xiayf.cn/2013/03/30/argparse/&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;git比较两次commit的差异:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;git比较两次commit的差异&lt;/h2&gt;
+
+&lt;p&gt;通过比较两次commit的代码差异，能够快速理解此次commit的目的，理解作者意图&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;git log
+
+&lt;ul&gt;
+&lt;li&gt;查看commit历史&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;commit 2279c3f4a8a42e696a0f34e6e9b6289487da92c1
+Author: bg2bkk &amp;lt;bg2bkk@gmail.com&amp;gt;
+Date:   Sun Mar 13 09:12:26 2016 +0800
+
+    add SO_REUSEADDR和SO_REUSEPORT.md
+
+commit 2b9d85f8427c5ca9e4f9c128c22acd280eb94405
+Author: bg2bkk &amp;lt;bg2bkk@gmail.com&amp;gt;
+Date:   Sat Mar 12 01:16:00 2016 +0800
+
+    add 采用二级指针实现单链表操作 单链表翻转 删除单链表结点
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;git diff commit 2279c3f4a8a42e696a0f34e6e9b6289487da92c1 2b9d85f8427c5ca9e4f9c128c22acd280eb94405&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;git返回强制返回某次提交:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;git返回强制返回某次提交&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;git log&lt;/li&gt;
+&lt;li&gt;git reset 5f4769a98985b5acfea45462df27830e51a75145 &amp;ndash;hard
+
+&lt;ul&gt;
+&lt;li&gt;可见commit号很重要&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;iptables允许端口被外网访问:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;iptables允许端口被外网访问&lt;/h2&gt;
+
+&lt;p&gt;防火墙设置，配置1985端口可以被外网访问&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;sudo iptables -A INPUT -m state &amp;ndash;state NEW -m tcp -p tcp &amp;ndash;dport 1985 -j ACCEPT&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;tcpdump过滤指定标志的packet:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;tcpdump过滤指定标志的packet&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# tcp包里有个flags字段表示包的类型，tcpdump可以根据该字段抓取相应类型的包：
+# tcp[13] 就是 TCP flags (URG,ACK,PSH,RST,SYN,FIN)
+# Unskilled 32
+# Attackers 16
+# Pester     8
+# Real       4
+# Security   2
+# Folks      1
+
+#抓取fin包：
+tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 1 != 0 &#39; -s0  -w fin.cap -vvv
+#抓取syn+fin包：
+tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 3 != 0 &#39; -s0  -w syn_fin.cap -vvv
+#抓取rst包：
+tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.cap -vvv
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://babyhe.blog.51cto.com/1104064/1395489&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;查看进程的内存占用情况:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;查看进程的内存占用情况&lt;/h2&gt;
+
+&lt;p&gt;用Ternary Search Tree代替Trie Tree后，我想知道我的进程内存占用有多大区别。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;ps -e -o &amp;lsquo;pid,comm,args,pcpu,rsz,vsz,stime,user,uid&amp;rsquo; | grep MyDict&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;rsz是实际占用内存，单位是KB&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;pmap -d pid&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>stm32_eclipse_openocd_stlink</title>
@@ -1100,6 +2146,20 @@ net.ipv4.tcp_fastopen = 3
       <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20learning/</guid>
       <description>
 
+&lt;h2 id=&#34;前端开发:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;前端开发&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;如何使textarea的大小随着其内容增加而变化呢？&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;解决方法&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;1、&lt;a href=&#34;http://audi.tw/Blog/Javascript/javascript.textarea.autogrow.asp&#34;&gt;http://audi.tw/Blog/Javascript/javascript.textarea.autogrow.asp&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;2、&lt;a href=&#34;http://www.cnblogs.com/xmmcn/archive/2012/12/18/2822968.html&#34;&gt;http://www.cnblogs.com/xmmcn/archive/2012/12/18/2822968.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;3、jquery 插件: &lt;a href=&#34;https://bobscript.com/archives/419/&#34;&gt;https://bobscript.com/archives/419/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
 &lt;h2 id=&#34;awk:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;awk&lt;/h2&gt;
 
 &lt;ul&gt;
@@ -2127,952 +3187,6 @@ set python print-stack full
     </item>
     
     <item>
-      <title>effective tips in daily work</title>
-      <link>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</link>
-      <pubDate>Thu, 24 Mar 2016 16:36:33 +0800</pubDate>
-      
-      <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</guid>
-      <description>
-
-&lt;h2 id=&#34;unix获取时间戳:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;unix获取时间戳&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;date &#39;+%s&#39;
-
-export timestamp=`date &#39;+%s&#39;`; echo $timestamp
-
-# 标准时间格式转unix时间戳
-date -d &amp;quot;2011-03-02 15:00&amp;quot; +%s
-
-# unix时间戳转为标准格式
-date -d &#39;1970-01-01 UTC 1299049200 seconds&#39;
-
-# 或者
-
-date -d &amp;quot;@1279592730&amp;quot; 
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://blog.csdn.net/hittata/article/details/7640974&#34;&gt;链接&lt;/a&gt;中提到了各种各样的格式，以后写shell脚本就不担心时间戳问题了&lt;/p&gt;
-
-&lt;h2 id=&#34;docker-设置代理下载镜像:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;docker 设置代理下载镜像&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://stackoverflow.com/questions/23111631/cannot-download-docker-images-behind-a-proxy&#34;&gt;在systemd中设置&lt;/a&gt;&lt;/p&gt;
-
-&lt;ol&gt;
-&lt;li&gt;mkdir /etc/systemd/system/docker.service.d&lt;p&gt;&lt;/li&gt;
-&lt;li&gt;touch /etc/systemd/system/docker.service.d/http-proxy.conf&lt;p&gt;&lt;/li&gt;
-&lt;li&gt;在文件中添加：&lt;p&gt;[Service]&lt;p&gt;Environment=&amp;ldquo;HTTP_PROXY=&lt;a href=&#34;http://proxy.example.com:80/&amp;quot;&#34;&gt;http://proxy.example.com:80/&amp;quot;&lt;/a&gt;&lt;p&gt;&lt;/li&gt;
-&lt;li&gt;重启daemon：&lt;p&gt;sudo systemctl daemon-reload&lt;p&gt;&lt;/li&gt;
-&lt;li&gt;查看设置状态：&lt;p&gt;sudo systemctl show docker &amp;ndash;property Environment&lt;p&gt;&lt;/li&gt;
-&lt;li&gt;重启docker：&lt;p&gt;sudo systemctl restart docker&lt;p&gt;&lt;/li&gt;
-&lt;/ol&gt;
-
-&lt;p&gt;tested on Ubuntu 16.04&lt;/p&gt;
-
-&lt;h2 id=&#34;用ps查看进程的执行时间:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;用ps查看进程的执行时间&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;ps -eo pid,tty,user,comm,stime,etime | grep main
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;可以打印进程的开始时间和执行时间&lt;/p&gt;
-
-&lt;h2 id=&#34;vim下以16进制查看文本文件:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;vim下以16进制查看文本文件&lt;/h2&gt;
-
-&lt;p&gt;vim的功能实在是太强大了，&lt;a href=&#34;http://blog.sina.com.cn/s/blog_4c451e0e0100h4nl.html&#34;&gt;可以以16进制查看文本信息&lt;/a&gt;：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;十六进制显示
-:%!xxd
-正常显示
-:%!xxd -r
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;linux获取系统调度时间片长度:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;Linux获取系统调度时间片长度&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#define _GNU_SOURCE
-#include &amp;lt;sched.h&amp;gt;
-#include &amp;lt;stdlib.h&amp;gt;
-#include &amp;lt;unistd.h&amp;gt;
-#include &amp;lt;stdio.h&amp;gt;
-#include &amp;lt;assert.h&amp;gt;
-
-	int
-main(int argc, char *argv[])
-{
-	int ret, i;  
-	struct timespec tp;  
-	ret = sched_rr_get_interval(0, &amp;amp;tp);  
-	if(ret == -1)  
-		printf(&amp;quot;sched_rr_get_interval error.\n&amp;quot;);  
-	printf(&amp;quot;The time is %ds:%ldns.\n&amp;quot;, (int)tp.tv_sec, tp.tv_nsec);  
-	return 0;  
-}
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ ./cpu_time_slice.o 
-The time is 0s:16000000ns.
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;可见Ubuntu-16.04 64bit的系统进程时间片是16ms&lt;/p&gt;
-
-&lt;h2 id=&#34;c语言中short-int-long内存占用:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;C语言中short、int、long内存占用&lt;/h2&gt;
-
-&lt;p&gt;随着工作年限的增加，很多基本功反而落了下来，甚至开始怀疑short等类型的内存占用问题了呵呵。印象里一直记得int和long类型都是4字节大小啊&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#include &amp;lt;stdio.h&amp;gt;
-#include &amp;lt;stdlib.h&amp;gt;
-
-struct test{
-	char *ch1;
-	int i;
-	long ch2;
-} aa;
-
-int main()
-{
-	printf(&amp;quot;Linux-64Bit-platform\n&amp;quot;);
-	printf(&amp;quot;	%lu\n&amp;quot;, (unsigned long)sizeof(aa));
-	printf(&amp;quot;	sizeof short : %d\n&amp;quot;, sizeof(short));
-	printf(&amp;quot;	sizeof int   : %d\n&amp;quot;, sizeof(int));
-	printf(&amp;quot;	sizeof long  : %d\n&amp;quot;, sizeof(long));
-	
-}
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;
-Linux-64Bit-platform
-	24
-	sizeof short : 2
-	sizeof int   : 4
-	sizeof long  : 8
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;
-Linux-32Bit-platform
-	24
-	sizeof short : 2
-	sizeof int   : 4
-	sizeof long  : 4
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;看来，long和int大小一样已经是32位机器的老黄历了，基础知识还是应该常用常新啊&lt;/p&gt;
-
-&lt;h2 id=&#34;文件操作的线程安全相关-待续:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;文件操作的线程安全相关（待续）&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://stackoverflow.com/questions/29981050/concurrent-writing-to-a-file&#34;&gt;http://stackoverflow.com/questions/29981050/concurrent-writing-to-a-file&lt;/a&gt;&lt;/p&gt;
-
-&lt;h2 id=&#34;ubuntu关闭键盘和触摸板的方法:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;ubuntu关闭键盘和触摸板的方法&lt;/h2&gt;
-
-&lt;p&gt;家里的猫就是喜欢趴在笔记本键盘上看你干活，我只能再买一个键盘，然后笔记本键盘留给猫大爷了。&lt;/p&gt;
-
-&lt;p&gt;然而它还喜欢在键盘上跳舞，这样太影响输入了，只能想办法把笔记本键盘关掉。&lt;/p&gt;
-
-&lt;p&gt;在ubuntu下，键盘鼠标触控板都属于xinput设备，可以通过以下命令查看：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;
-$ xinput  --list
-⎡ Virtual core pointer                    	id=2	[master pointer  (3)]
-⎜   ↳ Virtual core XTEST pointer              	id=4	[slave  pointer  (2)]
-⎜   ↳ SynPS/2 Synaptics TouchPad              	id=16	[slave  pointer  (2)]
-⎜   ↳ Rapoo Rapoo Gaming Keyboard             	id=11	[slave  pointer  (2)]
-⎜   ↳ RAPOO Rapoo 2.4G Wireless Device        	id=12	[slave  pointer  (2)]
-⎜   ↳ Wacom ISDv4 E6 Pen stylus               	id=13	[slave  pointer  (2)]
-⎜   ↳ Wacom ISDv4 E6 Finger touch             	id=14	[slave  pointer  (2)]
-⎜   ↳ Wacom ISDv4 E6 Pen eraser               	id=18	[slave  pointer  (2)]
-⎜   ↳ TPPS/2 IBM TrackPoint                   	id=19	[slave  pointer  (2)]
-⎣ Virtual core keyboard                   	id=3	[master keyboard (2)]
-    ↳ Virtual core XTEST keyboard             	id=5	[slave  keyboard (3)]
-    ↳ Power Button                            	id=6	[slave  keyboard (3)]
-    ↳ Video Bus                               	id=7	[slave  keyboard (3)]
-    ↳ Sleep Button                            	id=8	[slave  keyboard (3)]
-    ↳ Integrated Camera                       	id=9	[slave  keyboard (3)]
-    ↳ Rapoo Rapoo Gaming Keyboard             	id=10	[slave  keyboard (3)]
-    ↳ AT Translated Set 2 keyboard            	id=15	[slave  keyboard (3)]
-    ↳ ThinkPad Extra Buttons                  	id=17	[slave  keyboard (3)]
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;可以看到笔记本键盘是&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;    ↳ AT Translated Set 2 keyboard            	id=15	[slave  keyboard (3)]
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;而触控板是&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;⎜   ↳ SynPS/2 Synaptics TouchPad              	id=16	[slave  pointer  (2)]
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;他们的id分别是 15和 16，所以采用以下命令关掉就可以&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;sudo sudo xinput set-prop 15 &amp;quot;Device Enabled&amp;quot; 0
-sudo sudo xinput set-prop 16 &amp;quot;Device Enabled&amp;quot; 0
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;附送shell脚本&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#!/bin/bash
-
-keyboard=`xinput --list | grep AT | awk -F&#39;=&#39; &#39;{print $2}&#39; | awk &#39;{print $1}&#39;`
-touchpad=`xinput --list | grep Synaptics | awk -F&#39;=&#39; &#39;{print $2}&#39; | awk &#39;{print $1}&#39;`
-
-function doit() {
-	echo &#39;关闭  笔记本键盘&#39;
-	`sudo xinput set-prop $keyboard &amp;quot;Device Enabled&amp;quot; 0`			
-	echo &#39;关闭  笔记本触摸板&#39;
-	`sudo xinput set-prop $touchpad &amp;quot;Device Enabled&amp;quot; 0`
-}
-
-doit 
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;小于1024的保留端口都有哪些:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;小于1024的保留端口都有哪些&lt;/h2&gt;
-
-&lt;p&gt;我们会遇到如下情况：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ sudo tcpdump -i any port 1080
-tcpdump: verbose output suppressed, use -v or -vv for full protocol decode
-listening on any, link-type LINUX_SLL (Linux cooked), capture size 262144 bytes
-15:08:42.421693 IP localhost.55092 &amp;gt; localhost.socks: Flags [.], ack 1960200857, win 342, options [nop,nop,TS val 4687328 ecr 4676064], length 0
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;我想监听1080端口，tcpdump为什么不乖乖显示1080，而是出现个socks呢？（可以通过&lt;strong&gt;&lt;em&gt;-n&lt;/em&gt;&lt;/strong&gt;参数解决）为什么1080是socks，而不是别的呢？&lt;/p&gt;
-
-&lt;p&gt;这是因为低于1024的保留端口大多有自己的名字，他们&lt;a href=&#34;http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml&#34;&gt;由IANA分配&lt;/a&gt;，通常用于系统进程，而我们可以在&lt;strong&gt;&lt;em&gt;/etc/services&lt;/em&gt;&lt;/strong&gt;文件中找到：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#
-# From ``Assigned Numbers&#39;&#39;:
-#
-#&amp;gt; The Registered Ports are not controlled by the IANA and on most systems
-#&amp;gt; can be used by ordinary user processes or programs executed by ordinary
-#&amp;gt; users.
-#
-#&amp;gt; Ports are used in the TCP [45,106] to name the ends of logical
-#&amp;gt; connections which carry long term conversations.  For the purpose of
-#&amp;gt; providing services to unknown callers, a service contact port is
-#&amp;gt; defined.  This list specifies the port used by the server process as its
-#&amp;gt; contact port.  While the IANA can not control uses of these ports it
-#&amp;gt; does register or list uses of these ports as a convienence to the
-#&amp;gt; community.
-#
-socks		1080/tcp			# socks proxy server
-socks		1080/udp
-proofd		1093/tcp
-proofd		1093/udp
-rootd		1094/tcp
-rootd		1094/udp
-openvpn		1194/tcp
-openvpn		1194/udp
-rmiregistry	1099/tcp			# Java RMI Registry
-rmiregistry	1099/udp
-kazaa		1214/tcp
-kazaa		1214/udp
-nessus		1241/tcp			# Nessus vulnerability
-nessus		1241/udp			#  assessment scanner
-lotusnote	1352/tcp	lotusnotes	# Lotus Note
-lotusnote	1352/udp	lotusnotes
-ms-sql-s	1433/tcp			# Microsoft SQL Server
-ms-sql-s	1433/udp
-ms-sql-m	1434/tcp			# Microsoft SQL Monitor
-ms-sql-m	1434/udp
-ingreslock	1524/tcp
-ingreslock	1524/udp
-prospero-np	1525/tcp			# Prospero non-privileged
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;git修改默认分支名:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;git修改默认分支名&lt;/h2&gt;
-
-&lt;p&gt;在develop分支改动太大了，导致merge 到master分支时非常被动，这个时候我想，干脆将develop分支作为分支好了。还好碰到&lt;a href=&#34;http://stackoverflow.com/questions/1485578/change-a-git-remote-head-to-point-to-something-besides-master&#34;&gt;stackoverflow的一个帖子&lt;/a&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;git branch -m master oldmaster&lt;/li&gt;
-&lt;li&gt;git branch -m develop master&lt;/li&gt;
-&lt;li&gt;git push -f origin master&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;另一个方法是从github的&lt;a href=&#34;https://help.github.com/articles/setting-the-default-branch/&#34;&gt;项目主页上更改&lt;/a&gt;&lt;/p&gt;
-
-&lt;h2 id=&#34;编译openssl-1-0-2g:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;编译openssl 1.0.2g&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;./config shared -fPIC zlib-dynamic &amp;amp;&amp;amp; make depend -j   &amp;amp;&amp;amp; make -j
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;编译nginx-tengine-cpp模块:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;编译nginx/tengine: CPP模块&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;./configure --add-module=../cpp_module  --with-ld-opt=&amp;quot;-lstdc++&amp;quot;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;curl-i-和-i的区别:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;curl -i 和 -I的区别&lt;/h2&gt;
-
-&lt;p&gt;man page:&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;	-i, --include
-		(HTTP) Include the HTTP-header in the output. The HTTP-header includes things like server-name, date of the document, HTTP-version and more...
-		
-	-I, --head
-		(HTTP/FTP/FILE) Fetch the HTTP-header only! HTTP-servers feature the command HEAD which this uses to get nothing but the header of a document. When used on an FTP or FILE file, curl displays the file size and last modification time only.
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;-i选项会打印出HTTP头部的一些信息，这个选项是curl软件的选项，这些信息本来就是存在的&lt;/p&gt;
-
-&lt;p&gt;-I选项会发送HEAD请求，获取信息&lt;/p&gt;
-
-&lt;h2 id=&#34;linux系统如何将父子进程一起kill掉:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;linux系统如何将父子进程一起kill掉&lt;/h2&gt;
-
-&lt;p&gt;对于普通进程而言，kill掉父进程将会连带着把子进程kill掉；而对于daemon等类型进程而言，kill掉父进程，子进程会被daemon接管，所以如果想父子一起kill掉的话，不能直接kill父进程。&lt;/p&gt;
-
-&lt;p&gt;有&lt;a href=&#34;http://blog.csdn.net/lalaguozhe/article/details/11142855&#34;&gt;两种方法&lt;/a&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;kill &amp;ndash; -PPID&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;PPID前面有&lt;strong&gt;&lt;em&gt;-&lt;/em&gt;&lt;/strong&gt;号，可以将父子进程kill掉&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;使用exec或者xargs来kill掉他们&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;dns查询中-域名是否可以有多个cname呢:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;dns查询中，域名是否可以有多个cname呢？&lt;/h2&gt;
-
-&lt;p&gt;不可以
-    * &lt;a href=&#34;http://serverfault.com/questions/574072/can-we-have-multiple-cnames-for-a-single-name&#34;&gt;http://serverfault.com/questions/574072/can-we-have-multiple-cnames-for-a-single-name&lt;/a&gt;&lt;/p&gt;
-
-&lt;h2 id=&#34;git代理访问:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;git代理访问&lt;/h2&gt;
-
-&lt;p&gt;git config &amp;ndash;global http.proxy 10.8.0.1:8118&lt;/p&gt;
-
-&lt;h2 id=&#34;ubuntu操作-挂载-格式化sd卡:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;ubuntu操作、挂载、格式化SD卡&lt;/h2&gt;
-
-&lt;p&gt;玩树莓派等板子的时候，需要从host机器将os镜像烧进sd卡，然后启动。那么ubuntu如何操作呢？&lt;/p&gt;
-
-&lt;p&gt;fdisk -l命令可以用来查看系统中的存储硬件&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;
-
-Disk /dev/sda: 111.8 GiB, 120034123776 bytes, 234441648 sectors
-Units: sectors of 1 * 512 = 512 bytes
-Sector size (logical/physical): 512 bytes / 512 bytes
-I/O size (minimum/optimal): 512 bytes / 512 bytes
-Disklabel type: gpt
-Disk identifier: C27256BB-CE04-48C2-96F4-8F79FAE2AE87
-
-Device     Start       End   Sectors   Size Type
-/dev/sda1   2048 234440703 234438656 111.8G Linux filesystem
-
-
-Disk /dev/sdb: 167.7 GiB, 180045766656 bytes, 351651888 sectors
-Units: sectors of 1 * 512 = 512 bytes
-Sector size (logical/physical): 512 bytes / 512 bytes
-I/O size (minimum/optimal): 512 bytes / 512 bytes
-Disklabel type: dos
-Disk identifier: 0x42b438a2
-
-Device     Boot     Start       End   Sectors  Size Id Type
-/dev/sdb1  *         2048 105887743 105885696 50.5G  7 HPFS/NTFS/exFAT
-/dev/sdb2       105887744 187807665  81919922 39.1G 83 Linux
-/dev/sdb3       187807744 228767743  40960000 19.5G  7 HPFS/NTFS/exFAT
-/dev/sdb4       228769790 351649791 122880002 58.6G  f W95 Ext&#39;d (LBA)
-/dev/sdb5       228769792 351649791 122880000 58.6G  7 HPFS/NTFS/exFAT
-
-
-Disk /dev/sdc: 14.9 GiB, 16021192704 bytes, 31291392 sectors
-Units: sectors of 1 * 512 = 512 bytes
-Sector size (logical/physical): 512 bytes / 512 bytes
-I/O size (minimum/optimal): 512 bytes / 512 bytes
-Disklabel type: dos
-Disk identifier: 0x00000000
-
-Device     Boot Start      End  Sectors  Size Id Type
-/dev/sdc1        8192 31291391 31283200 14.9G  c W95 FAT32 (LBA)
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;如果sd卡（tf卡）通过usb 读卡器接入电脑，则会显示为 /dev/sdc&lt;/p&gt;
-
-&lt;p&gt;如果是标准sd卡（大卡），则会显示为 /dev/mmblck0&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;
-Disk /dev/mmcblk0: 14.9 GiB, 16021192704 bytes, 31291392 sectors
-Units: sectors of 1 * 512 = 512 bytes
-Sector size (logical/physical): 512 bytes / 512 bytes
-I/O size (minimum/optimal): 512 bytes / 512 bytes
-Disklabel type: dos
-Disk identifier: 0x00000000
-
-Device         Boot Start      End  Sectors  Size Id Type
-/dev/mmcblk0p1       8192 31291391 31283200 14.9G  c W95 FAT32 (LBA)
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;推荐使用USB读卡器，速度较为快一些。&lt;/p&gt;
-
-&lt;h2 id=&#34;lua库文件的加载路径:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;Lua库文件的加载路径&lt;/h2&gt;
-
-&lt;p&gt;Lua 提供一个名为 &lt;a href=&#34;http://www.lua.org/manual/5.1/manual.html#pdf-require&#34;&gt;require&lt;/a&gt; 的函数来加载模块，使用也很简单，它只有一个参数，这个参数就是要指定加载的模块名，&lt;a href=&#34;http://dhq.me/lua-learning-notes-package-and-module&#34;&gt;例如&lt;/a&gt;：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-lua&#34;&gt;require(&amp;quot;&amp;lt;模块名&amp;gt;&amp;quot;)
--- 或者是
--- require &amp;quot;&amp;lt;模块名&amp;gt;&amp;quot;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;然后会返回一个由模块常量或函数组成的 table，并且还会定义一个包含该 table 的全局变量。&lt;/p&gt;
-
-&lt;p&gt;或者给加载的模块定义一个别名变量，方便调用：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-lua&#34;&gt;local m = require(&amp;quot;module&amp;quot;)
-print(m.constant)
-m.func3()
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;对于自定义的模块，模块文件不是放在哪个文件目录都行，函数 require 有它自己的文件路径加载策略，它会尝试从 Lua 文件或 C 程序库中加载模块。&lt;/p&gt;
-
-&lt;p&gt;require 用于搜索 Lua 文件的路径是存放在全局变量 package.path 中，当 Lua 启动后，会以环境变量 LUA_PATH 的值来初始这个环境变量。如果没有找到该环境变量，则使用一个编译时定义的默认路径来初始化。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;
-Lua 5.1.5  Copyright (C) 1994-2012 Lua.org, PUC-Rio
-&amp;gt;  print(package.path)
-~/lua/?.lua;/usr/local/share/lua/5.1/?.lua;/home/huang/workspace/luactor/?.lua;./?.lua;/usr/local/share/lua/5.1/?.lua;/usr/local/share/lua/5.1/?/init.lua;/usr/local/lib/lua/5.1/?.lua;/usr/local/lib/lua/5.1/?/init.lua;
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;如果没有 LUA_PATH 这个环境变量，也可以自定义设置&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;huang@ThinkPad-X220:~/workspace/luapkg/luasocket-2.0.2$ export LUA_PATH=&amp;quot;4;;&amp;quot;
-huang@ThinkPad-X220:~/workspace/luapkg/luasocket-2.0.2$ lua
-Lua 5.1.5  Copyright (C) 1994-2012 Lua.org, PUC-Rio
-&amp;gt;  print(package.path)
-4;./?.lua;/usr/local/share/lua/5.1/?.lua;/usr/local/share/lua/5.1/?/init.lua;/usr/local/lib/lua/5.1/?.lua;/usr/local/lib/lua/5.1/?/init.lua;
-&amp;gt; 
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;可以看到，随便加的环境变量&amp;rdquo;4;&amp;ldquo;写在了package.path中。&lt;/p&gt;
-
-&lt;p&gt;而为什么4需要两个&amp;rsquo;；&amp;rsquo;号呢：文件路径以 &amp;ldquo;;&amp;rdquo; 号分隔，最后的 2 个 &amp;ldquo;;;&amp;rdquo; 表示新加的路径后面加上原来的默认路径。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;huang@ThinkPad-X220:~/workspace/luapkg/luasocket-2.0.2$ export LUA_PATH=&amp;quot;4;&amp;quot;
-huang@ThinkPad-X220:~/workspace/luapkg/luasocket-2.0.2$ lua
-Lua 5.1.5  Copyright (C) 1994-2012 Lua.org, PUC-Rio
-&amp;gt; print(package.path)
-4;
-&amp;gt; 
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;可见如果只有一个；号，将只采用这个分号。&lt;/p&gt;
-
-&lt;p&gt;如果找过目标文件，则会调用 package.loadfile 来加载模块。否则，就会去找 C 程序库。搜索的文件路径是从全局变量 package.cpath 获取，而这个变量则是通过环境变量 LUA_CPATH 来初始。搜索的策略跟上面的一样，只不过现在换成搜索的是 so 或 dll 类型的文件。如果找得到，那么 require 就会通过 package.loadlib 来加载它。&lt;/p&gt;
-
-&lt;p&gt;我们也可以在lua代码中&lt;a href=&#34;https://github.com/rtsisyk/luafun&#34;&gt;动态修改package.path变量&lt;/a&gt;，&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;package.path = &amp;quot;../?.lua;&amp;quot;..package.path
-require &amp;quot;fun&amp;quot;
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;这点对于我们自己的lua project的设置来说无疑是很方便的。
-&lt;a href=&#34;http://www.runoob.com/lua/lua-modules-packages.html&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
-
-&lt;h2 id=&#34;cpp调用c函数:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;cpp调用c函数&lt;/h2&gt;
-
-&lt;p&gt;由于CPP在链接时与C不太一样，因此在调用C函数时，&lt;a href=&#34;http://www.cnblogs.com/skynet/archive/2010/07/10/1774964.html&#34;&gt;需要做一定处理。&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;将C函数的声明房子 &lt;strong&gt;&lt;em&gt;#ifdef __cplusplus&lt;/em&gt;&lt;/strong&gt; 块中&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#ifdef __cplusplus
-extern &amp;quot;C&amp;quot; {
-#endif
- 
-/*.
- * c functions declarations
-..*/
-
-#ifdef __cplusplus
-}
-#endif
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;多少人在猜你机器的密码呢:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;多少人在猜你机器的密码呢&lt;/h2&gt;
-
-&lt;p&gt;VPS在公网就是个待宰的肥肉，都想去登陆，那&lt;a href=&#34;https://plus.google.com/+AlbertSu2015/posts/Uu1vbeJY1Hw&#34;&gt;都谁猜我的IP了呢？&lt;/a&gt;&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;sudo grep &amp;quot;Failed password for root&amp;quot; /var/log/auth.log | awk &#39;{print $11}&#39; | sort | uniq -c | sort -nr | more
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;grep的简单使用-与-或-非:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;grep的简单使用，与 或 非&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;或操作&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;grep -E &#39;123|abc&#39; filename  // 找出文件（filename）中包含123或者包含abc的行
-egrep &#39;123|abc&#39; filename    // 用egrep同样可以实现
-awk &#39;/123|abc/&#39; filename   // awk 的实现方式
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;ul&gt;
-&lt;li&gt;与操作&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;grep pattern1 files | grep pattern2 ：显示既匹配 pattern1 又匹配 pattern2 的行。
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;ul&gt;
-&lt;li&gt;其他操作&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;
-grep -i pattern files ：不区分大小写地搜索。默认情况区分大小写，
-grep -l pattern files ：只列出匹配的文件名，
-grep -L pattern files ：列出不匹配的文件名，
-grep -w pattern files ：只匹配整个单词，而不是字符串的一部分（如匹配‘magic’，而不是‘magical’），
-grep -v pattern files ：不匹配pattern
-grep -C number pattern files ：匹配的上下文分别显示[number]行，
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;iptables的简单使用:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;iptables的简单使用&lt;/h2&gt;
-
-&lt;p&gt;其实并不想写iptables相关的内容，因为用的不熟，但是一些常用的命令还是记一下吧&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://linux.cn/article-1586-1.html&#34;&gt;iptables的详细解释&lt;/a&gt;&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;Linux系统中,防火墙(Firewall),网址转换(NAT),数据包(package)记录,流量统计,这些功能是由Netfilter子系统所提供的，而iptables是控制Netfilter的工具。iptables将许多复杂的规则组织成成容易控制的方式，以便管理员可以进行分组测试，或关闭、启动某组规则。
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;https://blog.phpgao.com/vps_iptables.html
-http://www.tabyouto.com/bandwagon-vps-for-shadowsocks-was-hacked.html
-http://my.oschina.net/yqc/blog/82111?fromerr=VxVIazGW
-http://www.vpser.net/security/linux-iptables.html
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# 列出所有规则
-iptables -L -n
-
-# 更新iptables规则，规则写在/etc/iptables.rules
-iptables-restore &amp;lt; /etc/iptables.rules
-
-# 保存iptables规则，规则写在/etc/iptables.rules
-iptables-save &amp;gt; /etc/iptables.rules
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;需要注意的是Debian/Ubuntu上iptables是不会保存规则的。&lt;/p&gt;
-
-&lt;p&gt;需要按如下步骤进行，让网卡关闭是保存iptables规则，启动时加载iptables规则：&lt;/p&gt;
-
-&lt;p&gt;创建/etc/network/if-post-down.d/iptables 文件，添加如下内容：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#!/bin/bash
-iptables-save &amp;gt; /etc/iptables.rules
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;执行：chmod +x /etc/network/if-post-down.d/iptables 添加执行权限。&lt;/p&gt;
-
-&lt;p&gt;创建/etc/network/if-pre-up.d/iptables 文件，添加如下内容：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#!/bin/bash
-iptables-restore &amp;lt; /etc/iptables.rules
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;执行：chmod +x /etc/network/if-pre-up.d/iptables 添加执行权限。&lt;/p&gt;
-
-&lt;p&gt;iptables的一些常用规则：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#允许ping
-iptables -A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;如果想清空的话，先执行&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;/sbin/iptables -P INPUT ACCEPT
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;然后执行&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;/sbin/iptables -F
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;vps简单的ssh登陆设置:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;VPS简单的ssh登陆设置&lt;/h2&gt;
-
-&lt;p&gt;初次使用VPS，不懂得安全的重要性，直到扣款时候才心疼，这个时候，弱口令，密码登陆什么的，还是都放弃吧，只用ssh登陆，并且换一个自己的端口。&lt;a href=&#34;https://imququ.com/post/bandwagon-vps-and-basicly-usage.html&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
-
-&lt;p&gt;简单来说，任何一台主机想登陆VPS的主机都需要有本身的ssh公钥私钥&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;cd ~/.ssh/
-ssh-keygen -t rsa -C &amp;quot;username@gmail.com&amp;quot;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;然后复制~/.ssh/id_rsa.pub中的内容，就是本机的公钥。&lt;/p&gt;
-
-&lt;p&gt;将公钥添加到VPS服务器的/home/username/.ssh/authorized_keys中，本机就能以username用户名登陆VPS了&lt;/p&gt;
-
-&lt;p&gt;然后在/etc/ssh/sshd_config中禁用禁用 VPS 的密码登录和 root 帐号登录，将以下两项改为no&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;PasswordAuthentication no
-PermitRootLogin no
-
-Port 11111
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;随后重启SSH服务&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;sudo service ssh restart
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;vim删除空行:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;vim删除空行&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;从网页上copy下代码后，发现很多情况下有不想要的空行，非常影响阅读，通过&lt;a href=&#34;http://bbs.chinaunix.net/thread-510754-1-1.html&#34;&gt;vim的正则&lt;/a&gt;可以解决
-
-&lt;ul&gt;
-&lt;li&gt;Delete all blank lines (^ is start of line; \s* is zero or more whitespace characters; $ is end of line)&lt;/li&gt;
-&lt;li&gt;删除所有空白行(^是行的开始，\s*是零个或者多个空白字符；$是行尾)&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;:g/^\s*$/d
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;ubuntu通过命令设置系统时间:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;ubuntu通过命令设置系统时间&lt;/h2&gt;
-
-&lt;p&gt;在嵌入式开发中，在pcduino或者rpi板子上安装好linux后，系统时间是UTC时间1970年，对于有些软件来说可能影响安装，所以需要命令行修改date&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;sudo date -s &amp;quot;13 DEC 2015 20:43&amp;quot;
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;ubuntu终端下中文设置:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;ubuntu终端下中文设置&lt;/h2&gt;
-
-&lt;p&gt;在安装完ubuntu系统后，我们发现中文支持的不好，主要体现在locale的错误，&lt;a href=&#34;http://www.linuxidc.com/Linux/2015-08/122501.htm&#34;&gt;解决方法：&lt;/a&gt;&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;perl: warning: Setting locale failed.
-perl: warning: Please check that your locale settings:
-	LANGUAGE = (unset),
-	LC_ALL = (unset),
-	LC_PAPER = &amp;quot;zh_CN.UTF-8&amp;quot;,
-	LC_ADDRESS = &amp;quot;zh_CN.UTF-8&amp;quot;,
-	LC_MONETARY = &amp;quot;zh_CN.UTF-8&amp;quot;,
-	LC_NUMERIC = &amp;quot;zh_CN.UTF-8&amp;quot;,
-	LC_TELEPHONE = &amp;quot;zh_CN.UTF-8&amp;quot;,
-	LC_IDENTIFICATION = &amp;quot;zh_CN.UTF-8&amp;quot;,
-	LC_MEASUREMENT = &amp;quot;zh_CN.UTF-8&amp;quot;,
-	LC_TIME = &amp;quot;zh_CN.UTF-8&amp;quot;,
-	LC_NAME = &amp;quot;zh_CN.UTF-8&amp;quot;,
-	LANG = &amp;quot;en_US.UTF-8&amp;quot;
-    are supported and installed on your system.
-perl: warning: Falling back to the standard locale (&amp;quot;C&amp;quot;).
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;这是因为中文包没有安装好的缘故，如下命令就可以解决：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;添加简体中文支持
-sudo apt-get -y install language-pack-zh-hans language-pack-zh-hans-base
-
-添加繁体中文支持
-sudo apt-get -y install language-pack-zh-hant language-pack-zh-hant-base
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;如果还不行，先观察下locale的配置&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;huang@localhost:~$ locale
-locale: Cannot set LC_CTYPE to default locale: No such file or directory
-locale: Cannot set LC_MESSAGES to default locale: No such file or directory
-locale: Cannot set LC_ALL to default locale: No such file or directory
-LANG=en_US.UTF-8
-LANGUAGE=
-LC_CTYPE=&amp;quot;en_US.UTF-8&amp;quot;
-LC_NUMERIC=zh_CN.UTF-8
-LC_TIME=zh_CN.UTF-8
-LC_COLLATE=&amp;quot;en_US.UTF-8&amp;quot;
-LC_MONETARY=zh_CN.UTF-8
-LC_MESSAGES=&amp;quot;en_US.UTF-8&amp;quot;
-LC_PAPER=zh_CN.UTF-8
-LC_NAME=zh_CN.UTF-8
-LC_ADDRESS=zh_CN.UTF-8
-LC_TELEPHONE=zh_CN.UTF-8
-LC_MEASUREMENT=zh_CN.UTF-8
-LC_IDENTIFICATION=zh_CN.UTF-8
-LC_ALL=
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;再重新配置下语言包&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;huang@localhost:~$  sudo locale-gen &amp;quot;en_US.UTF-8&amp;quot;
-Generating locales...
-  en_US.UTF-8... done
-Generation complete.
-huang@localhost:~$ sudo  pip install shadowsocks^C
-huang@localhost:~$  sudo locale-gen &amp;quot;zh_CN.UTF-8&amp;quot;
-Generating locales...
-  zh_CN.UTF-8... done
-Generation complete.
-huang@localhost:~$ sudo dpkg-reconfigure locales
-Generating locales...
-  en_US.UTF-8... done
-  zh_CN.UTF-8... up-to-date
-  zh_HK.UTF-8... done
-  zh_SG.UTF-8... done
-  zh_TW.UTF-8... done
-Generation complete.
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;一般就都能解决&lt;/p&gt;
-
-&lt;h2 id=&#34;linux终端下的颜色设置输出:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;Linux终端下的颜色设置输出&lt;/h2&gt;
-
-&lt;p&gt;Linux终端下，如果有一个彩色的终端，可以明显提升人的阅读兴趣，通过printf的简单设置即可&lt;a href=&#34;http://www.w2bc.com/Article/39141&#34;&gt;实现彩色输出&lt;/a&gt;&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;\033[显示方式;前景色;背景色m
-
-    显示方式、前景色、背景色至少一个存在即可。
-    格式：\033[显示方式;前景色;背景色m
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;前景色  背景色  颜色
-30  40  黑色
-31  41  红色
-32  42  绿色
-33  43  黃色
-34  44  蓝色
-35  45  紫红色
-36  46  青蓝色
-37  47  白色
-
-
-显示方式    意义
-0   终端默认设置
-1   高亮显示
-4   使用下划线
-5   闪烁
-7   反白显示
-8   不可见
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;\033[1;31;40m    &amp;lt;!--1-高亮显示 31-前景色红色  40-背景色黑色--&amp;gt;
-\033[0m          &amp;lt;!--采用终端默认设置，即取消颜色设置--&amp;gt;
-
-printf(&amp;quot;\033[1;31;40m&amp;quot;);
-printf(&amp;quot;\033[0m&amp;quot;);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;tsar监控系统负载和nginx运行情况:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;tsar监控系统负载和nginx运行情况&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://github.com/alibaba/tsar&#34;&gt;tsar&lt;/a&gt;是阿里巴巴发布的一款能够实时监控系统状态的命令行工具，并且支持第三方模块扩展，其中比较注明的是nginx模块。使用tsar时，可以将系统负载和nginx运行情况同步同时打出，可以用来定位系统瓶颈，所以广受好评。&lt;/p&gt;
-
-&lt;p&gt;&lt;strong&gt;&lt;em&gt;tsar -li1&lt;/em&gt;&lt;/strong&gt; 是其最经典的用法，可以将一般我们感兴趣的监控项每秒更新一次并输出&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;Time              ---cpu-- ---mem-- ---tcp-- -----traffic---- --sda---  ---load- 
-Time                util     util   retran    bytin  bytout     util     load1   
-25/03/16-19:03:30   0.08    10.22     0.00     1.4K    1.2K     0.00     0.33  
-25/03/16-19:03:31   0.08    10.21     0.00   424.00  468.00     0.00     0.33   
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;如果想使能nginx模块，需要对其进行配置&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;1. mkdir /etc/tsar/conf.d
-2. touch /etc/tsar/conf.d/nginx.conf
-
-3. 写入如下内容并保存
-mod_nginx on
-
-####add it to tsar default output
-output_stdio_mod mod_nginx
-
-####add it to center db
-#output_db_mod mod_nginx
-
-####add it to nagios send
-####set nagios threshold for alert
-#output_nagios_mod mod_nginx
-
-#threshold nginx.value1;N;N;N;N;
-#threshold nginx.value2;N;N;N;N;
-#threshold nginx.value3;N;N;N;N;
-
-表示使能nginx模块，并使用stdio输出
-
-4. tsar -li1
-
-Time              ---cpu-- ---mem-- ---tcp-- -----traffic---- --sda---  ---load- ------------------nginx----------------- 
-Time                util     util   retran    bytin  bytout     util     load1      qps      rt  sslqps  spdyps  sslhst   
-25/03/16-19:06:19   0.08    11.40     7.14   302.00  546.00     0.00     0.02     1.00    0.00    0.00    0.00    0.00   
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;wrk在centos系统上的编译方法:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;wrk在CentOS系统上的编译方法&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://github.com/wg/wrk&#34;&gt;wrk&lt;/a&gt;作为一款可以内嵌lua脚本的，支持多线程的压测工具，受到了广泛欢迎。在高版本CentOS 7上，直接在wrk目录下执行make，可以首先编译deps/luajit，得到deps/luajit/libluajit.a，然而在低版本上，CentOS 6.5系统中，会报一些莫名奇妙的错误。&lt;/p&gt;
-
-&lt;p&gt;解决方法是，查看wrk的Makefile，发现wrk依赖于luajit，那么首先进入deps/luajit编译它，并且是静态编译&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;cd wrk
-cd deps/luajit
-make -j24 BUILDMODE=static
-
-cd ../..
-make -j24
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;rpmbuild环境的快速初始化:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;rpmbuild环境的快速初始化&lt;/h2&gt;
-
-&lt;p&gt;需要将代码打包为CentOS的RPM包时，可以先自己在本地新建一个环境&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;1. mkdir -p ~/rpmbuild/{SOURCES,BUILD,BUILDROOT,RPMS,SRPMS,SPECS}
-2. 将代打包的代码压缩包 software.tar.gz 放入SOURCES文件夹
-3. 将 software.spec 放入SPECS文件夹
-4. rpmbuild -ba path/to/software.spec 即可
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;git记住密码-不用每次都输密码才登入:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;git记住密码，不用每次都输密码才登入&lt;/h2&gt;
-
-&lt;p&gt;git有两种方式，一种是ssh方式，配置公钥私钥，对于新手而言还是比较麻烦的；另一种是http方式，这里有一个办法可以让git记住密码，避免每次都需要输入密码&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;1. touch ~/.git-credentials
-2. 将  https://{username}:{password}@github.com  写入该文件
-3. git config --global credential.helper store  就可以使得git记住密码了
-4. 此时查看 ~/.gitconfig，发现多了一项
-    
-    [credential] 
-    helper = store 
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;centos系统上某些软件-比如gcc-python等版本过低的解决方案:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;centos系统上某些软件，比如gcc、python等版本过低的解决方案&lt;/h2&gt;
-
-&lt;p&gt;在CentOS Server上，经常会遇到某些软件依赖版本过低的问题，比如CentOS 6.5的python是2.7版本的，gcc是4.2版本的，那么我们如何获得一个干净的、与原版本无冲突的运行环境呢。CentOS系提供了一个叫SCL的工具，可以帮我们实现目的&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ sudo wget http://people.centos.org/tru/devtools-1.1/devtools-1.1.repo -P /etc/yum.repos.d
-$ sudo sh -c &#39;echo &amp;quot;enabled=1&amp;quot; &amp;gt;&amp;gt; /etc/yum.repos.d/devtools-1.1.repo&#39;
-$ sudo yum install devtoolset-1.1
-$ scl enable devtoolset-1.1 bash
-$ gcc --version
-# 通过devtoolset工具可以暂时提高gcc版本，而不更改之前服务器的配置，这个很有效果，高版本的gcc会智能保留symbol。
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# CentOS 6.5
-sudo yum install centos-release-SCL
-sudo yum install python27
-scl enable python27 bash
-python --version
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;ubuntu系统上某些软件-比如gcc等版本过高的解决方案:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;ubuntu系统上某些软件，比如gcc等版本过高的解决方案&lt;/h2&gt;
-
-&lt;p&gt;与CentOS相反，debian系发行版的软件版本都很高，Ubuntu 16.04的gcc 版本已经到了5.2，然而编译一些早期linux内核的话，需要gcc-4.7左右的版本，这时候我们怎么办呢，有两个方法：
-* 通过apt安装低版本gcc
-    * sudo apt-get install gcc-4.7
-    * 在编译linux 内核时， make CC=gcc-4.7 即可
-* update-alternatives可以帮忙更改符号链接，指向不同版本的gcc
-    * &lt;a href=&#34;http://www.metsky.com/archives/607.html&#34;&gt;参考链接1&lt;/a&gt;
-    * &lt;a href=&#34;http://blog.csdn.net/zyxlinux888/article/details/6708775&#34;&gt;参考链接2&lt;/a&gt; &lt;a href=&#34;http://blog.csdn.net/zyxlinux888/article/details/6709036&#34;&gt;附赠&lt;/a&gt;&lt;/p&gt;
-
-&lt;h2 id=&#34;python的matplotlib库实现绘制图标:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;python的matplotlib库实现绘制图标&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;sudo apt-get install python-matplotlib&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://matplotlib.org/index.html&#34;&gt;参考链接&lt;/a&gt;
-&lt;a href=&#34;http://matplotlib.org/examples/index.html&#34;&gt;example&lt;/a&gt;&lt;/p&gt;
-
-&lt;h2 id=&#34;python使用requests库发送http请求:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;python使用requests库发送http请求&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://cn.python-requests.org/zh_CN/latest/user/quickstart.html#json&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
-
-&lt;h2 id=&#34;python解析命令行参数-argparse:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;python解析命令行参数：argparse&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://blog.xiayf.cn/2013/03/30/argparse/&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
-
-&lt;h2 id=&#34;git比较两次commit的差异:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;git比较两次commit的差异&lt;/h2&gt;
-
-&lt;p&gt;通过比较两次commit的代码差异，能够快速理解此次commit的目的，理解作者意图&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;git log
-
-&lt;ul&gt;
-&lt;li&gt;查看commit历史&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;commit 2279c3f4a8a42e696a0f34e6e9b6289487da92c1
-Author: bg2bkk &amp;lt;bg2bkk@gmail.com&amp;gt;
-Date:   Sun Mar 13 09:12:26 2016 +0800
-
-    add SO_REUSEADDR和SO_REUSEPORT.md
-
-commit 2b9d85f8427c5ca9e4f9c128c22acd280eb94405
-Author: bg2bkk &amp;lt;bg2bkk@gmail.com&amp;gt;
-Date:   Sat Mar 12 01:16:00 2016 +0800
-
-    add 采用二级指针实现单链表操作 单链表翻转 删除单链表结点
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;ul&gt;
-&lt;li&gt;git diff commit 2279c3f4a8a42e696a0f34e6e9b6289487da92c1 2b9d85f8427c5ca9e4f9c128c22acd280eb94405&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;git返回强制返回某次提交:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;git返回强制返回某次提交&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;git log&lt;/li&gt;
-&lt;li&gt;git reset 5f4769a98985b5acfea45462df27830e51a75145 &amp;ndash;hard
-
-&lt;ul&gt;
-&lt;li&gt;可见commit号很重要&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;iptables允许端口被外网访问:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;iptables允许端口被外网访问&lt;/h2&gt;
-
-&lt;p&gt;防火墙设置，配置1985端口可以被外网访问&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;sudo iptables -A INPUT -m state &amp;ndash;state NEW -m tcp -p tcp &amp;ndash;dport 1985 -j ACCEPT&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;tcpdump过滤指定标志的packet:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;tcpdump过滤指定标志的packet&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# tcp包里有个flags字段表示包的类型，tcpdump可以根据该字段抓取相应类型的包：
-# tcp[13] 就是 TCP flags (URG,ACK,PSH,RST,SYN,FIN)
-# Unskilled 32
-# Attackers 16
-# Pester     8
-# Real       4
-# Security   2
-# Folks      1
-
-#抓取fin包：
-tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 1 != 0 &#39; -s0  -w fin.cap -vvv
-#抓取syn+fin包：
-tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 3 != 0 &#39; -s0  -w syn_fin.cap -vvv
-#抓取rst包：
-tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.cap -vvv
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://babyhe.blog.51cto.com/1104064/1395489&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
-
-&lt;h2 id=&#34;查看进程的内存占用情况:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;查看进程的内存占用情况&lt;/h2&gt;
-
-&lt;p&gt;用Ternary Search Tree代替Trie Tree后，我想知道我的进程内存占用有多大区别。&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;ps -e -o &amp;lsquo;pid,comm,args,pcpu,rsz,vsz,stime,user,uid&amp;rsquo; | grep MyDict&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;rsz是实际占用内存，单位是KB&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;pmap -d pid&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
       <title>New evolvement of Epoll</title>
       <link>https://bg2bkk.github.io/post/New%20Evolvement%20of%20Epoll/</link>
       <pubDate>Tue, 22 Mar 2016 01:48:41 +0800</pubDate>
@@ -3371,694 +3485,6 @@ print(table.maxn(t))
 
 &lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;    sudo ./ngx-lua-conn-pools  --luajit20 -p 28261
 &lt;/code&gt;&lt;/pre&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>coroutine and goroutine</title>
-      <link>https://bg2bkk.github.io/post/coroutine%20and%20goroutine/</link>
-      <pubDate>Sun, 13 Mar 2016 17:59:29 +0800</pubDate>
-      
-      <guid>https://bg2bkk.github.io/post/coroutine%20and%20goroutine/</guid>
-      <description>
-
-&lt;h4 id=&#34;协程是什么-what-is-coroutine:1a17fb99183985490e9adefe8aecc78f&#34;&gt;协程是什么？ what is coroutine ?&lt;/h4&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Coroutine&#34;&gt;协程的概念&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;blockquote&gt;
-&lt;p&gt;Coroutines are computer program components that generalize subroutines for nonpreemptive multitasking, by allowing multiple entry points for suspending and resuming execution at certain locations. Coroutines are well-suited for implementing more familiar program components such as cooperative tasks, exceptions, event loop, iterators, infinite lists and pipes.&lt;/p&gt;
-
-&lt;p&gt;According to Donald Knuth, the term coroutine was coined by Melvin Conway in 1958, after he applied it to construction of an assembly program.[1] The first published explanation of the coroutine appeared later, in 1963.[2]&lt;/p&gt;
-&lt;/blockquote&gt;
-
-&lt;p&gt;协程是为实现非抢占式多任务而提出的计算机子程序，通过提供多个程序入口使得程序可以在特定地址挂起和恢复执行。协程天生的支持实现常见程序组件，比如协作式任务、异常、时间循环、迭代器、无边界列表和管道等。&lt;/p&gt;
-
-&lt;p&gt;根据祖师爷高纳德节说，协程的概念由Melvin Conway在1958年提出，随后他将协程应用在编写汇编程序上。协程的第一个公开发表的解释出现在1963年。&lt;/p&gt;
-
-&lt;p&gt;可见协程的概念比多线程还早，而且按照Knuth的说法，&lt;a href=&#34;http://coolshell.cn/articles/10975.html&#34;&gt;”子例程是协程的特例“，一次子例程调用就是一次子函数调用&lt;/a&gt;，协程是类函数一样的组件，我们可以在单线程中创建N多个协程，只要内存够用。&lt;/p&gt;
-
-&lt;pre&gt;&lt;code&gt;* 协程与子例程的[区别](https://en.wikipedia.org/wiki/Coroutine)
-    * 子例程只有一个调用入口起点，子例程退出后，执行结束；子例程只返回一次，在两次调用之间不保存状态；
-    * 协程有多个入口，调用起始点、或者从上一次返回点接着执行；从协程自己的角度来看，他放弃执行时不是退出，而是去调用另一个协程，或者说将CPU主动让给另一个协程；协程保存状态;
-        * 计算机科学中，[yield](https://en.wikipedia.org/wiki/Yield_(multithreading))用于使处理器放弃当前运行的线程thread，并将它放入运行队列的末尾
-        * 协程coroutine中的yield需要显式调用
-    * 每个子例程可以转换为一个不带yield的协程
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;协程有关的四个概念：&lt;a href=&#34;https://en.wikipedia.org/wiki/Coroutine&#34;&gt;coroutine&lt;/a&gt;、&lt;a href=&#34;https://en.wikipedia.org/wiki/Yield_(multithreading&#34;&gt;yield&lt;/a&gt;、&lt;a href=&#34;https://en.wikipedia.org/wiki/Continuation&#34;&gt;Continuation&lt;/a&gt;、&lt;a href=&#34;https://en.wikipedia.org/wiki/Cooperative_multitasking&#34;&gt;cooperative multitasking&lt;/a&gt;。以及其他相关概念：&lt;a href=&#34;https://en.wikipedia.org/wiki/Call_stack#Unwinding&#34;&gt;call stack&lt;/a&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html&#34;&gt;Coroutines in C&lt;/a&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.hawkwithwind.net/blog/2011/02/18/%E5%8D%8F%E7%A8%8B%E7%9A%84c%E5%AE%9E%E7%8E%B0/&#34;&gt;给你一个直观的认识&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#include &amp;lt;stdio.h&amp;gt;
-#include &amp;lt;stdlib.h&amp;gt;
-int function(void) {
-	static int i, state = 0;
-	switch (state) {
-		case 0: goto LABEL0;
-		case 1: goto LABEL1;
-	}
-LABEL0: /* start of function */
-	for (i = 0; i &amp;lt; 10; i++) {
-		printf(&amp;quot;\t\t\ti = %d\n&amp;quot;, i);
-		state = 1; /* so we will come back to LABEL1 */
-		return i;
-LABEL1:
-		; /* resume control straight after the return */
-	}
-}
-
-int main(){
-	int j = 0;
-	for ( j = 0; j &amp;lt; 21; j++){
-		printf(&amp;quot;j = %d, func = %d\n&amp;quot;, j, function());
-	}
-}
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;执行结果&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;			i = 0
-j = 0, func = 0
-			i = 1
-j = 1, func = 1
-			i = 2
-j = 2, func = 2
-			i = 3
-j = 3, func = 3
-			i = 4
-j = 4, func = 4
-			i = 5
-j = 5, func = 5
-			i = 6
-j = 6, func = 6
-			i = 7
-j = 7, func = 7
-			i = 8
-j = 8, func = 8
-			i = 9
-j = 9, func = 9
-j = 10, func = 10
-j = 11, func = 11
-j = 12, func = 12
-j = 13, func = 13
-j = 14, func = 14
-j = 15, func = 15
-j = 16, func = 16
-j = 17, func = 17
-j = 18, func = 18
-j = 19, func = 19
-j = 20, func = 20
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;执行结果分析&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;变量i 和 state 都是 static类型的，是文件全局作用域的&lt;/li&gt;
-&lt;li&gt;首次执行function函数时，state = 0，goto 到 LABEL0，然后进行正常循环和返回&lt;/li&gt;
-&lt;li&gt;当function调用次数超过十次后，每次进入function函数内部时，由switch分发到LABEL1；执行完循环体后，对i增1，然后进行判断是否 i &amp;lt; 10，发现不满足，退出程序&lt;/li&gt;
-&lt;li&gt;可能我们会比较纠结function程序在 i &amp;gt; 10后不再执行return i语句，为什么还会返回自增后的结果呢？
-
-&lt;ul&gt;
-&lt;li&gt;从代码的汇编结果来看，每次function返回时，i都在之前赋值给寄存器eax了，而eax存储的是函数的返回值，所以每次function的返回结果是i，即使不执行return语句&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;return在这里并不是返回的意思，而是yield的意思&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;仍然有两种更优化的写法: &lt;a href=&#34;http://coolshell.cn/articles/10975.html&#34;&gt;左耳朵耗子的例子&lt;/a&gt;和&lt;a href=&#34;http://www.hawkwithwind.net/blog/2011/02/18/%E5%8D%8F%E7%A8%8B%E7%9A%84c%E5%AE%9E%E7%8E%B0/&#34;&gt;上例&lt;/a&gt;的来源都是天才程序员  &lt;a href=&#34;http://www.chiark.greenend.org.uk/~sgtatham/&#34;&gt;imon Tatham&lt;/a&gt;对&lt;a href=&#34;http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html&#34;&gt;协程做的尝试&lt;/a&gt;，以及关于swtich-case写法的duff机器的&lt;a href=&#34;http://bbs.chinaunix.net/thread-1833313-1-1.html&#34;&gt;讨论&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;理解&lt;a href=&#34;http://www.colaghost.net/os/unix_linux/341&#34;&gt;协程实现的基础&lt;/a&gt;就是程序中的函数调用导致的&lt;a href=&#34;http://blog.csdn.net/ylyuanlu/article/details/18947951&#34;&gt;栈帧切换&lt;/a&gt;，在切换前先保存被切换subroutine的上下文，在切换时用新subroutine替换当前程序的执行状态。以Linux中用于实现协程的一个api：ucontext来说，makecontext函数将context的eip设置为func参数的地址，所以当该context得以执行时，func函数就开始执行了；swapcontext(old, new)将当前程序处于的old状态切换到new状态，然后new状态的func就得以执行。&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Linux对于协程实现提供了setjmp/longjmp和ucontext两种机制，现有的协程库，比如&lt;a href=&#34;http://dunkels.com/adam/pt/&#34;&gt;protothread&lt;/a&gt;，甚至是LuaVM中的协程实现，也会基于这两种机制之一来实现。当然，您也可以手动切换cpu的所有寄存器状态，以实现协程，也是可以的，但是是极不推荐的。&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;setjump-longjmp:1a17fb99183985490e9adefe8aecc78f&#34;&gt;setjump &amp;amp; longjmp&lt;/h2&gt;
-
-&lt;h5 id=&#34;man-longjmp:1a17fb99183985490e9adefe8aecc78f&#34;&gt;man longjmp&lt;/h5&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;NAME
-       longjmp, siglongjmp - nonlocal jump to a saved stack context
-
-SYNOPSIS
-       #include &amp;lt;setjmp.h&amp;gt;
-
-       void longjmp(jmp_buf env, int val);
-       void siglongjmp(sigjmp_buf env, int val);
-
-DESCRIPTION
-       longjmp()  and  setjmp(3) are useful for dealing with errors and interrupts encountered in a low-level subroutine of a program. 
-	   
-       longjmp和setjmp在处理程序调用子例程过程中遇到错误或中断时非常有用。
-	   
-       longjmp() restores the environment saved by the last call of setjmp(3) with the corresponding env argument.  After longjmp() is completed, program execution continues as if the corresponding call of setjmp(3) had just returned the value val.  longjmp() cannot cause 0 to be returned.  If longjmp() is invoked with a second argument of 0, 1 will be returned instead.
-
-       longjmp将恢复最近一次调用setjmp时通过env参数保存的上下文环境。longjmp完成后，原来调用setjmp的地方将会返回，并且setjmp的返回值是longjmp的val参数。longjmp不会返回0。如果longjmp调用时第二个参数是0，那么它将会返回1.
-
-       siglongjmp()  is  similar  to longjmp() except for the type of its env argument.  If, and only if, the sigsetjmp(3) call that set this env used a nonzero savesigs flag, siglongjmp() also restores the signal mask that was saved by sigsetjmp(3).
-
-RETURN VALUE
-       These functions never return.
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h5 id=&#34;man-setjmp:1a17fb99183985490e9adefe8aecc78f&#34;&gt;man setjmp&lt;/h5&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;NAME
-       setjmp, sigsetjmp - save stack context for nonlocal goto
-
-SYNOPSIS
-       #include &amp;lt;setjmp.h&amp;gt;
-
-       int setjmp(jmp_buf env);
-       int sigsetjmp(sigjmp_buf env, int savesigs);
-	 
-DESCRIPTION
-       setjmp()  and  longjmp(3)  are  useful for dealing with errors and interrupts encountered in a low-level subroutine of a program.  
-	   
-       setjmp() saves the stack context/environment in env for later use by longjmp(3).  The stack context will be invalidated if the function which called setjmp() returns.
-
-	   setjmp() 在参数env中保存栈帧，稍后longjmp调用时，将从setjmp执行；
-
-       sigsetjmp() is similar to setjmp().  If, and only if, savesigs is nonzero, the process&#39;s current signal mask is saved in env and will be restored if a siglongjmp(3) is later performed with this env.
-
-RETURN VALUE
-       setjmp() and sigsetjmp() return 0 if returning directly, and nonzero when returning from longjmp(3) or siglongjmp(3) using the saved context.
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h5 id=&#34;示例代码:1a17fb99183985490e9adefe8aecc78f&#34;&gt;示例代码&lt;/h5&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://blog.linux.org.tw/~jserv/archives/001848.html&#34;&gt;代码地址&lt;/a&gt; 博客评论区&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#include &amp;lt;stdio.h&amp;gt;                                                                                  
-#include &amp;lt;unistd.h&amp;gt;
-#include &amp;lt;setjmp.h&amp;gt;
-
-jmp_buf jmpbuf_th0;
-jmp_buf jmpbuf_th1;
-
-static int cnt1 = 0;
-static int cnt0 = 0;
-
-static void thread_0()
-{
-	printf(&amp;quot;%s \n\n&amp;quot;, __FUNCTION__);
-	sleep(1);
-	longjmp(jmpbuf_th0, cnt0++);
-}
-
-static void thread_1()
-{
-	printf(&amp;quot;%s \n\n&amp;quot;, __FUNCTION__);
-	sleep(1);
-	longjmp(jmpbuf_th1, cnt1++);
-}
-
-
-int main()
-{
-	int rc0, rc1 = 0;
-
-entry_thread_0:
-	rc0 = setjmp(jmpbuf_th0);
-	printf(&amp;quot;rc0 = %d\n&amp;quot;, rc0);
-	if (rc0 != 0)
-		thread_1();
-entry_thread_1:
-	rc1 = setjmp(jmpbuf_th1);
-	printf(&amp;quot;rc1 = %d\n&amp;quot;, rc1);
-	thread_0();
-
-	return 0;
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;执行结果&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;rc0 = 0
-rc1 = 0
-thread_0 
-
-rc0 = 1
-thread_1 
-
-rc1 = 1
-thread_0 
-
-rc0 = 1
-thread_1 
-
-rc1 = 1
-thread_0 
-
-rc0 = 2
-thread_1 
-
-rc1 = 2
-thread_0 
-
-rc0 = 3
-thread_1 
-
-rc1 = 3
-thread_0 
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;执行过程分析&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;setjmp和longjmp都是基于程序空间中额外的jmpbuf&lt;/li&gt;
-&lt;li&gt;setjmp将当前环境存储在jmpbuf中，longjmp到同一个jmpbuf时，setjmp将会再次返回，返回值是longjmp的第二个参数val&lt;/li&gt;
-&lt;li&gt;如果setjmp不是因为longjmp返回的，返回值为0&lt;/li&gt;
-&lt;li&gt;不知道为什么执行结果中，自增的cnt0和cnt1在值为1的时候停顿了一次？&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/nasrallahmounir/context-switch-setjmp-longjm&#34;&gt;setjump &amp;amp; longjmp 进阶实现&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/mrquincle/event-abbey&#34;&gt;setjump &amp;amp; longjmp 进阶实现&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;ucontext:1a17fb99183985490e9adefe8aecc78f&#34;&gt;ucontext&lt;/h2&gt;
-
-&lt;h5 id=&#34;man-getcontext:1a17fb99183985490e9adefe8aecc78f&#34;&gt;man getcontext&lt;/h5&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;In  a  System  V-like  environment,  one has the two types mcontext_t and ucontext_t defined in &amp;lt;ucontext.h&amp;gt; and the four functions getcontext(), setcontext(), makecontext(3), and swapcontext(3) that
-allow user-level context switching between multiple threads of control within a process.
-
-The mcontext_t type is machine-dependent and opaque.  The ucontext_t type is a structure that has at least the following fields:
-
-    typedef struct ucontext {
-        struct ucontext *uc_link;
-        sigset_t         uc_sigmask;
-        stack_t          uc_stack;
-        mcontext_t       uc_mcontext;
-        ...
-    } ucontext_t;
-
-with sigset_t and stack_t defined in &amp;lt;signal.h&amp;gt;.  Here uc_link points to the context that will be resumed when the current context terminates (in case the current context was created  using  makecon‐
-text(3)),  uc_sigmask is the set of signals blocked in this context (see sigprocmask(2)), uc_stack is the stack used by this context (see sigaltstack(2)), and uc_mcontext is the machine-specific rep‐
-resentation of the saved context, that includes the calling thread&#39;s machine registers.
-
-The function getcontext() initializes the structure pointed at by ucp to the currently active context.
-
-The function setcontext() restores the user context pointed at by ucp.  A successful call does not return.  The context should have been obtained by a call  of  getcontext(),  or  makecontext(3),  or
-passed as third argument to a signal handler.
-
-If the context was obtained by a call of getcontext(), program execution continues as if this call just returned.
-
-If the context was obtained by a call of makecontext(3), program execution continues by a call to the function func specified as the second argument of that call to makecontext(3).  When the function
-func returns, we continue with the uc_link member of the structure ucp specified as the first argument of that call to makecontext(3).  When this member is NULL, the thread exits.
-
-If the context was obtained by a call to a signal handler, then old standard text says that &amp;quot;program execution continues with the program instruction following the instruction interrupted by the sig‐
-nal&amp;quot;.  However, this sentence was removed in SUSv2, and the present verdict is &amp;quot;the result is unspecified&amp;quot;.
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h5 id=&#34;man-makecontext:1a17fb99183985490e9adefe8aecc78f&#34;&gt;man makecontext&lt;/h5&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;In  a  System  V-like  environment,  one has the type ucontext_t defined in &amp;lt;ucontext.h&amp;gt; and the four functions getcontext(3), setcontext(3), makecontext() and swapcontext() that allow user-level context switching between multiple threads of control within a
-process.
-
-在类System V环境下，结构体ucontext_t和四个函数 getcontext、setcontext、makecontext和swapcontext提供了在一个进程内通过用户级上下文切换的方式实现多线程的方式
-
-For the type and the first two functions, see getcontext(3).
-
-The makecontext() function modifies the context pointed to by ucp (which was obtained from a call to getcontext(3)).  Before invoking makecontext(), the caller must allocate a new stack for this context and assign its address to ucp-&amp;gt;uc_stack, and  define  a
-successor context and assign its address to ucp-&amp;gt;uc_link.
-
-makecontext函数将修改ucp指向的 ucontext_t（必须是从getcontext获得的对象），在调用makecontext前，调用者必须为改上下文分配一个新的栈，并将ucp-&amp;gt;uc_stack指向栈的地址，同时将ucp-&amp;gt;uc_link指向下一个context
-
-When  this  context  is  later activated (using setcontext(3) or swapcontext()) the function func is called, and passed the series of integer (int) arguments that follow argc; the caller must specify the number of these arguments in argc.  When this function
-returns, the successor context is activated.  If the successor context pointer is NULL, the thread exits.
-
-当该context稍后被激活(通过setcontext或者swapcontext)，makecontext函数参数中的func将被调用，同时向func传递argc个参数。当func返回时，下一个context将被激活调用。如果下一个context是null的话，该线程结束。
-
-The swapcontext() function saves the current context in the structure pointed to by oucp, and then activates the context pointed to by ucp.
-
-swapcontext函数将当前context保存在oucp结构体，同时激活ucp指向的context。
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h5 id=&#34;man-page-中的例子:1a17fb99183985490e9adefe8aecc78f&#34;&gt;man page 中的例子&lt;/h5&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;#include &amp;lt;ucontext.h&amp;gt;
-#include &amp;lt;stdio.h&amp;gt;
-#include &amp;lt;stdlib.h&amp;gt;
-
-static ucontext_t uctx_main, uctx_func1, uctx_func2;
-
-#define handle_error(msg) \
-    do { perror(msg); exit(EXIT_FAILURE); } while (0)
-
-static void
-func1(void)
-{
-    printf(&amp;quot;func1: started\n&amp;quot;);
-    printf(&amp;quot;func1: swapcontext(&amp;amp;uctx_func1, &amp;amp;uctx_func2)\n&amp;quot;);
-    if (swapcontext(&amp;amp;uctx_func1, &amp;amp;uctx_func2) == -1)
-        handle_error(&amp;quot;swapcontext&amp;quot;);
-    printf(&amp;quot;func1: returning\n&amp;quot;);
-}
-
-static void
-func2(void)
-{
-    printf(&amp;quot;func2: started\n&amp;quot;);
-    printf(&amp;quot;func2: swapcontext(&amp;amp;uctx_func2, &amp;amp;uctx_func1)\n&amp;quot;);
-    if (swapcontext(&amp;amp;uctx_func2, &amp;amp;uctx_func1) == -1)
-        handle_error(&amp;quot;swapcontext&amp;quot;);
-    printf(&amp;quot;func2: returning\n&amp;quot;);
-}
-
-int
-main(int argc, char *argv[])
-{
-    char func1_stack[16384];
-    char func2_stack[16384];
-
-    if (getcontext(&amp;amp;uctx_func1) == -1)
-        handle_error(&amp;quot;getcontext&amp;quot;);
-    uctx_func1.uc_stack.ss_sp = func1_stack;
-    uctx_func1.uc_stack.ss_size = sizeof(func1_stack);
-    uctx_func1.uc_link = &amp;amp;uctx_main;
-    makecontext(&amp;amp;uctx_func1, func1, 0);
-
-    if (getcontext(&amp;amp;uctx_func2) == -1)
-        handle_error(&amp;quot;getcontext&amp;quot;);
-    uctx_func2.uc_stack.ss_sp = func2_stack;
-    uctx_func2.uc_stack.ss_size = sizeof(func2_stack);
-    /* Successor context is f1(), unless argc &amp;gt; 1 */
-    uctx_func2.uc_link = (argc &amp;gt; 1) ? NULL : &amp;amp;uctx_func1;
-    makecontext(&amp;amp;uctx_func2, func2, 0);
-
-    printf(&amp;quot;main: swapcontext(&amp;amp;uctx_main, &amp;amp;uctx_func2)\n&amp;quot;);
-    if (swapcontext(&amp;amp;uctx_main, &amp;amp;uctx_func2) == -1)
-        handle_error(&amp;quot;swapcontext&amp;quot;);
-
-    printf(&amp;quot;main: exiting\n&amp;quot;);
-    exit(EXIT_SUCCESS);
-}
-
-
-// http://stackoverflow.com/questions/20778735/is-the-type-stack-t-no-longer-defined-on-linux
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;执行结果：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ gcc context.c -o context.o
-
-$ ./context.o 
-main: swapcontext(&amp;amp;uctx_main, &amp;amp;uctx_func2)
-func2: started
-func2: swapcontext(&amp;amp;uctx_func2, &amp;amp;uctx_func1)
-func1: started
-func1: swapcontext(&amp;amp;uctx_func1, &amp;amp;uctx_func2)
-func2: returning
-func1: returning
-main: exiting
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;通过manpage中提供的ucontext_t源码，结合man page中的解释，我们对此做一分析。&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;执行过程详解
-
-&lt;ul&gt;
-&lt;li&gt;getcontext(&amp;amp;uctx_func2) 用当前上下文初始化ucontext_t结构体对象：uctx_func2&lt;/li&gt;
-&lt;li&gt;在调用makecontext前，调用者为该上下文分配一个新的栈，并将成员uc_stack指向栈的地址，同时将uc_link指向下一个context。此时argc为0，所以uctx_func2的uc_link指向uctx_func1，也就是说当uctx_func2执行完后，会自动激活uctx_func1执行&lt;/li&gt;
-&lt;li&gt;makecontext(&amp;amp;uctx_func2, func2, 0) 函数设置当uctx_func2激活时，调用func2函数，参数为0个；当func2返回时，下一个context将被激活，在这里是uctx_func1&lt;/li&gt;
-&lt;li&gt;swapcontext(&amp;amp;uctx_main, &amp;amp;uctx_func2) 函数将进程当前执行的上下文保存在uctx_main中，并激活uctx_func2；uctx_func2开始执行，首先被执行的是func2函数，
-
-&lt;ul&gt;
-&lt;li&gt;func2: started&lt;/li&gt;
-&lt;li&gt;func2: swapcontext(&amp;amp;uctx_func2, &amp;amp;uctx_func1)&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;随后func2函数调用 swapcontext(&amp;amp;uctx_func2, &amp;amp;uctx_func1)，将当前上下文环境保存在uctx_func2中，激活uctx_func1；uctx_func1开始执行，首先执行的是func1，打印出：
-
-&lt;ul&gt;
-&lt;li&gt;func1: started&lt;/li&gt;
-&lt;li&gt;func1: swapcontext(&amp;amp;uctx_func1, &amp;amp;uctx_func2)&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;随后func1函数调用swapcontext(&amp;amp;uctx_func1, &amp;amp;uctx_func2)，将当前上下文环境保存在uctx_func1中，并激活uctx_func2；上一次uctx_func2保存的上下文环境将被回复，然后进程执行返回到上次被swap_context的点，打印出:
-
-&lt;ul&gt;
-&lt;li&gt;func2: returning&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;func2函数返回后，uctx_func2也就返回了，下一个context将被激活，也就是uctx_func1；打印出：
-
-&lt;ul&gt;
-&lt;li&gt;func1: returning&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;uctx_func1也执行结束，而它的下一个context是uctx_main，在main函数中最开始调用swap_context(&amp;amp;uctx_main, &amp;amp;uctx_func2)时，当时程序执行的上下文的地址就是这句，那么在main中继续执行，打印出：
-
-&lt;ul&gt;
-&lt;li&gt;main: exiting&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;$ ./context.o x
-main: swapcontext(&amp;amp;uctx_main, &amp;amp;uctx_func2)
-func2: started
-func2: swapcontext(&amp;amp;uctx_func2, &amp;amp;uctx_func1)
-func1: started
-func1: swapcontext(&amp;amp;uctx_func1, &amp;amp;uctx_func2)
-func2: returning
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;ul&gt;
-&lt;li&gt;执行过程详解
-
-&lt;ul&gt;
-&lt;li&gt;当argc个数不为0时，uctx_func2的uc_link为NULL，所以如果uctx_func2结束生命周期，那么整个进程将会退出&lt;/li&gt;
-&lt;li&gt;在第一次swap_context(&amp;amp;uctx_main, &amp;amp;uctx_func2)时开始调用func2，func2中打印出：
-
-&lt;ul&gt;
-&lt;li&gt;func2: started&lt;/li&gt;
-&lt;li&gt;func2: swapcontext(&amp;amp;uctx_func2, &amp;amp;uctx_func1)&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;随后swap执行uctx_func1，打印：
-
-&lt;ul&gt;
-&lt;li&gt;func1: started&lt;/li&gt;
-&lt;li&gt;func1: swapcontext(&amp;amp;uctx_func1, &amp;amp;uctx_func2)&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;随后swap返回uctx_func2，打印：
-
-&lt;ul&gt;
-&lt;li&gt;func2: returning&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;而func2返回时，由于uctx_func2-&amp;gt;uc_link为NULL，所以整个进程退出，并不会返回到之前保存过的uctx_main执行上下文中。&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;通过以上分析，您有没有对协程有一个直观的认识呢？本质上，协程调度只是将当前执行的上下文保存起来；调度协程的时候就是将两个执行上下文context切换；指定context的下一个context，在本context执行结束后自动激活下一个context，实现协作；本context执行过程中，通过swap_context主动让出CPU，而不是被抢占放弃CPU。&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;可以参考下&lt;a href=&#34;http://courses.cs.vt.edu/~cs3214/spring2016/examples/threads/coroutines.c&#34;&gt;进一步的实现&lt;/a&gt;，加深下印象：&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#include &amp;lt;stdio.h&amp;gt;
-#include &amp;lt;stdbool.h&amp;gt;
-#include &amp;lt;ucontext.h&amp;gt;
-
-static char stack[2][65536];            // a stack for each coroutine
-static ucontext_t coroutine_state[2];   // container to remember context
-
-// switch current coroutine (0 -&amp;gt; 1 -&amp;gt; 0 -&amp;gt; 1 ...)
-static inline void
-yield_to_next(void) 
-{
-    static int current = 0;
-
-    int prev = current;
-    int next = 1 - current;
-
-    current = next;
-    swapcontext(&amp;amp;coroutine_state[prev], &amp;amp;coroutine_state[next]);
-}
-
-static void
-coroutine(int coroutine_number)
-{
-    int i;
-    for (i = 0; i &amp;lt; 5; i++) {
-        printf(&amp;quot;Coroutine %d counts i=%d (&amp;amp;i=%p)\n&amp;quot;, coroutine_number, i, &amp;amp;i);
-        yield_to_next();
-    }
-}
-
-int
-main()
-{
-    ucontext_t return_to_main;
-
-    // set up
-    int i;
-    for (i = 0; i &amp;lt; 2; i++) {
-        // initialize ucontext_t
-        getcontext(&amp;amp;coroutine_state[i]);
-        // set up per-context stack
-        coroutine_state[i].uc_stack.ss_sp = stack[i];
-        coroutine_state[i].uc_stack.ss_size = sizeof(stack[i]);
-        // when done, resume &#39;return_to_main&#39; context
-        coroutine_state[i].uc_link = &amp;amp;return_to_main;
-        // let context[i] perform a call to coroutine(i) when swapped to
-        makecontext(&amp;amp;coroutine_state[i], (void (*)(void))coroutine, 1, i);
-    }
-
-    printf(&amp;quot;Starting coroutines...\n&amp;quot;);
-    swapcontext(&amp;amp;return_to_main, &amp;amp;coroutine_state[0]);
-    printf(&amp;quot;Done.\n&amp;quot;);
-    return 0;
-}
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://1234n.com/?post/aukxju&#34;&gt;another demo&lt;/a&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://1234n.com/?post/4vzsvm&#34;&gt;lib&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://www.gnu.org/software/pth/&#34;&gt;gnu portable threads&lt;/a&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.ossp.org/pkg/lib/pth/&#34;&gt;pt&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://swtch.com/libtask/&#34;&gt;libtask&lt;/a&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.cnblogs.com/foxmailed/p/3509359.html&#34;&gt;libtask的coroutine&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/cloudwu/coroutine&#34;&gt;云风的实现&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;其他一些应用&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/colaghost/coroutine_event&#34;&gt;coroutine-libevent&lt;/a&gt;
-
-&lt;ul&gt;
-&lt;li&gt;在libevent里通过协程实现同步&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;lua的协程:1a17fb99183985490e9adefe8aecc78f&#34;&gt;Lua的协程&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;lua不支持那种真正的多线程（共享同一地址空间的抢占式线程），原因是&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;ANSI C没有原生的多线程，所以lua不能直接调用实现&lt;/li&gt;
-&lt;li&gt;最重要的原因是，我们不认为多线程在lua中是个好主意&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;多线程是提供给底层编程的。多线程的同步机制，比如信号量和监控都是在操作系统上下文实现的，而非应用程序。调试多线程比较麻烦。而且，由于程序临界区的同步和竞争，多线程也会引起性能下降。&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;多线程引起的问题，主要是抢占式线程和共享内存导致的，lua解决这两个问题的方法是：lua coroutine是协作式的，非抢占式的，所以能避免线程切换导致的问题；lua coroutine之间不共享内存。&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;我见过的最lua的&lt;a href=&#34;https://techsingular.org/2012/12/22/programming-in-lua%EF%BC%88%E5%9B%9B%EF%BC%89%EF%BC%8D-nil-%E5%92%8C-list/&#34;&gt;lua代码和博客&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;lua的&lt;a href=&#34;https://techsingular.org/2013/05/09/programming-in-lua%EF%BC%88%E4%BA%94%EF%BC%89%EF%BC%8D-coroutine-lua-stack/&#34;&gt;coroutine and stack&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;lua的c runtime stack和lua runtime stack是&lt;a href=&#34;https://techsingular.org/2013/07/14/programming-in-lua%EF%BC%88%E5%85%AD%EF%BC%89%EF%BC%8Dcontinuation/&#34;&gt;什么样子的&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://www.zhihu.com/question/21483863&#34;&gt;https://www.zhihu.com/question/21483863&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://www.zhihu.com/question/30133749&#34;&gt;lua协程调度&lt;/a&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;lua内部
-
-&lt;ul&gt;
-&lt;li&gt;当resume的时候，就切换lua_state环境，然后setjmp，紧接着由于pc指向新地址，所以会直接跳转到该位置&lt;/li&gt;
-&lt;li&gt;当yield时，直接回复环境，然后longjmp到该resume点&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;lua with C
-
-&lt;ul&gt;
-&lt;li&gt;当在C函数内入yield时，会恢复环境，longjmp到resume点，之后再次resume的时候，会因为环境被破坏，导致resume出错，此时lua会调用k系列函数，让resume继续下去&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.ibm.com/developerworks/cn/opensource/os-cn-python-yield/&#34;&gt;lua实现调度器&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://www.lua.org/pil/9.2.html&#34;&gt;consumer-producer&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.lua.org/manual/5.2/manual.html#2.6&#34;&gt;lua yield 和 resume&lt;/a&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.lua.org/manual/5.2/manual.html#pdf-coroutine.resume&#34;&gt;http://www.lua.org/manual/5.2/manual.html#pdf-coroutine.resume&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-lua&#34;&gt;-- http://my.oschina.net/wangxuanyihaha/blog/186401
-
-function foo(a)
-    print(&amp;quot;foo&amp;quot;, a)
-    return coroutine.yield(2 * a)
-end
-
-co = coroutine.create(function ( a, b )
-    print(&amp;quot;co-body&amp;quot;, a, b)
-    local r = foo(a + 1)
-    print(&amp;quot;co-body&amp;quot;, r)
-    local r, s = coroutine.yield(a + b, a - b)
-    print(&amp;quot;co-body&amp;quot;, r, s)
-    return b, &amp;quot;end&amp;quot;
-end)
-
-print(&amp;quot;main&amp;quot;, coroutine.resume(co, 1, 10))
-print(&amp;quot;main&amp;quot;, coroutine.resume(co, &amp;quot;m&amp;quot;))	-- resume的参数 &#39;m&#39; 是在调用yield传入的，所以本次是在第5行 return m
-print(&amp;quot;main&amp;quot;, coroutine.resume(co, &amp;quot;x&amp;quot;, &amp;quot;y&amp;quot;))
-print(&amp;quot;main&amp;quot;, coroutine.resume(co, &amp;quot;x&amp;quot;, &amp;quot;y&amp;quot;))
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;co-body	1	10
-foo	2
-main	true	4
-co-body	m
-main	true	11	-9
-co-body	x	y
-main	true	10	end
-main	false	cannot resume dead coroutine
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;python的协程-待续:1a17fb99183985490e9adefe8aecc78f&#34;&gt;python的协程(待续)&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.ibm.com/developerworks/cn/opensource/os-cn-python-yield/&#34;&gt;http://www.ibm.com/developerworks/cn/opensource/os-cn-python-yield/&lt;/a&gt;
-
-&lt;ul&gt;
-&lt;li&gt;简单地讲，yield 的作用就是把一个函数变成一个 generator，带有 yield 的函数不再是一个普通函数，Python 解释器会将其视为一个 generator&lt;/li&gt;
-&lt;li&gt;产生一个iterable对象&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;golang的协程-待续:1a17fb99183985490e9adefe8aecc78f&#34;&gt;golang的协程(待续)&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/13107958/what-exactly-does-runtime-gosched-do&#34;&gt;http://stackoverflow.com/questions/13107958/what-exactly-does-runtime-gosched-do&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;stm32-contiki-coroutine:1a17fb99183985490e9adefe8aecc78f&#34;&gt;stm32/ contiki/ coroutine&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&#34;http://wiki.csie.ncku.edu.tw/embedded/Lab2&#34;&gt;stm32上的协程实现&lt;/a&gt;
-    * &lt;a href=&#34;http://blog.linux.org.tw/~jserv/archives/001848.html&#34;&gt;http://blog.linux.org.tw/~jserv/archives/001848.html&lt;/a&gt;&lt;/p&gt;
 </description>
     </item>
     
