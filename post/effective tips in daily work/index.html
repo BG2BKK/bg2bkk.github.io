@@ -57,7 +57,7 @@
         },
         "datePublished": "2016-07-24",
         "description": "",
-        "wordCount":  2128 
+        "wordCount":  2276 
     }
     </script>
     
@@ -100,6 +100,101 @@
     </div>
     <h1 class="post-title">effective tips in daily work</h1>
     
+
+<h2 id="sed合并相邻两行:1350fa5c56171e9d9c8991f08929cd14">sed合并相邻两行</h2>
+
+<p>从redis中取出一个键的所有内容时，比如hgetall，得到的结果并不是排序好的，类似于这样</p>
+
+<pre><code class="language-bash">11485) &quot;1470347460&quot;
+11486) &quot;69&quot;
+11487) &quot;1470262350&quot;
+11488) &quot;34&quot;
+11489) &quot;1470262170&quot;
+11490) &quot;68&quot;
+11491) &quot;1470242400&quot;
+11492) &quot;21&quot;
+11493) &quot;1470288030&quot;
+11494) &quot;65&quot;
+11495) &quot;1470303390&quot;
+11496) &quot;54&quot;
+11497) &quot;1470205320&quot;
+11498) &quot;85&quot;
+11499) &quot;1470318330&quot;
+11500) &quot;92&quot;
+11501) &quot;1470167040&quot;
+11502) &quot;1&quot;
+11503) &quot;1470281880&quot;
+11504) &quot;14&quot;
+11505) &quot;1470298140&quot;
+11506) &quot;113&quot;
+
+</code></pre>
+
+<p>该hash的key为unix时间戳，val为数值，如果想手动看分布的话，需要将相邻两行合并然后排序，在此我们<a href="http://blog.chinaunix.net/uid-9950859-id-98222.html">借助sed</a></p>
+
+<pre><code class="language-bash">sed '$!N;s/\n/\t/' filename 
+</code></pre>
+
+<h2 id="redis分析实例中所有key和单个key的内存占用情况:1350fa5c56171e9d9c8991f08929cd14">redis分析实例中所有key和单个key的内存占用情况</h2>
+
+<p>采用<a href="https://github.com/sripathikrishnan/redis-rdb-tools">rdb工具</a></p>
+
+<pre><code class="language-bash">rdb -c memory /path/to/ab-dump.rdb &gt; memory.csv
+</code></pre>
+
+<h2 id="sort进行多重排序:1350fa5c56171e9d9c8991f08929cd14">sort进行多重排序</h2>
+
+<p>sort和uniq在文本处理，尤其是日志处理中用的较多的工具，记得当年校招时候准备面试，用到这两个命令，惊为天人，非常shock。在日常工作中，用的也非常多。</p>
+
+<p>目前有这样的需求，拿到两列数据，第一列是ip，第二列是访问计数，想看一下分布，要求ip要按文本排序，访问计数按数值排序。</p>
+
+<pre><code class="language-bash">221.179.175.109	97
+221.179.175.164	101
+221.179.175.46	8
+221.179.175.164	102
+221.179.175.178	78
+221.179.175.46	9
+221.179.175.109	98
+221.179.175.178	79
+120.239.141.197	96
+221.179.175.70	114
+218.202.7.121	70
+221.179.175.178	80
+218.202.7.121	71
+221.179.175.134	83
+120.239.141.197	97
+221.179.175.46	10
+221.179.175.178	81
+221.179.175.47	24
+120.239.141.197	98
+221.179.175.70	115
+221.179.175.70	116
+120.239.141.197	99
+221.179.175.134	84
+
+</code></pre>
+
+<p><a href="http://blog.chinaunix.net/uid-25504049-id-3075909.html">解决方法</a></p>
+
+<pre><code class="language-bash">sort -t ' ' -k1,1 -k2n,2 data
+
+
+其中 -t ' ' 指定使用空格分列
+-k1,1  指定以第一列为关键字排序
+-k2n,2 指定以第二列为关键字做数据排序
+</code></pre>
+
+<p><a href="http://blog.csdn.net/dabingxiaozu/article/details/6213851">也可以</a></p>
+
+<pre><code class="language-bash">sort -k1 -k2n out
+</code></pre>
+
+<h2 id="shell脚本批量处理文本:1350fa5c56171e9d9c8991f08929cd14">shell脚本批量处理文本</h2>
+
+<p>善用awk、grep、xargs、bash、sed等工具，可以提高生产力</p>
+
+<pre><code class="language-bash">grep 'config.config' . -r | awk -F':' '{print $1}' | grep 'lua$' | xargs sed &quot;s/config.config')/config.config').ab/g&quot; -i
+</code></pre>
 
 <h2 id="redis批量删除key:1350fa5c56171e9d9c8991f08929cd14">redis批量删除key</h2>
 
@@ -1096,7 +1191,7 @@ tcpdump -ni any port 9001 and 'tcp[13] &amp; 4 != 0 ' -s0  -w rst.cap -vvv
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/&amp;title=effective%20tips%20in%20daily%20work&amp;summary=redis%e6%89%b9%e9%87%8f%e5%88%a0%e9%99%a4key%20%e6%89%8b%e5%8a%a8%e6%b8%85%e7%90%86redis%e4%b8%ad%e7%9a%84key%e6%97%b6%ef%bc%8c%e5%be%88%e6%83%b3%e9%80%9a%e8%bf%87%20del%20keys%2a%20%e7%9a%84%e6%96%b9%e5%bc%8f%e5%ae%9e%e7%8e%b0%e6%89%b9%e9%87%8f%e5%88%a0%e9%99%a4%ef%bc%8c%e8%80%8credis%e5%8d%b4%e6%b2%a1%e6%9c%89%e6%8f%90%e4%be%9b%e8%bf%99%e6%a0%b7%e7%9a%84%e9%80%89%e9%a1%b9%ef%bc%8c%e5%9b%a0%e6%ad%a4%e9%9c%80%e8%a6%81%e5%80%9f%e5%8a%a9%e5%a4%96%e9%83%a8%e5%b7%a5%e5%85%b7%201%e3%80%81sehll%20%e5%91%bd%e4%bb%a4%e8%a1%8c%20redis-cli%20keys%20ip%3a%2a%20%7c%20xargs%20redis-cli%20del%202%e3%80%81lua%e8%84%9a%e6%9c%ac%20redis-cli%20eval%20%26ldquo%3bredis.call%28%26lsquo%3bdel%26rsquo%3b%2c%20unpack%28redis.call%28%26lsquo%3bkeys%26rsquo%3b%2c%26lsquo%3bip%2a%26lsquo%3b%29%29%29%26rdquo%3b%200%20%e8%bf%99%e7%a7%8d%e6%96%b9%e5%bc%8f%e5%8f%97%e9%99%90%e4%ba%8elua%e7%9a%84unpack%e5%87%bd%e6%95%b0%ef%bc%8c%e4%b8%80%e6%ac%a1%e5%88%a0%e9%99%a4%e7%9a%84key%e4%b8%8d%e8%83%bd%e5%a4%aa%e5%a4%9a%203%e3%80%81%e5%80%9f%e5%8a%a9%e5%ae%a2%e6%88%b7%e7%ab%af%20php%20jedis%20unix%e8%8e%b7%e5%8f%96%e6%97%b6%e9%97%b4%e6%88%b3%20date%20%27%2b%25s%27%20export%20timestamp%3d%60date%20%27%2b%25s%27%60%3b%20echo%20%24timestamp%20%23%20%e6%a0%87%e5%87%86%e6%97%b6%e9%97%b4%e6%a0%bc%e5%bc%8f%e8%bd%acunix%e6%97%b6%e9%97%b4%e6%88%b3%20date%20-d%20%26quot%3b2011-03-02%2015%3a00%26quot%3b%20%2b%25s%20%23%20unix%e6%97%b6%e9%97%b4%e6%88%b3%e8%bd%ac%e4%b8%ba%e6%a0%87%e5%87%86%e6%a0%bc%e5%bc%8f%20date%20-d%20%271970-01-01%20UTC%201299049200%20seconds%27%20%23%20%e6%88%96%e8%80%85%20date%20-d%20%26quot%3b%401279592730%26quot%3b%20%e9%93%be%e6%8e%a5%e4%b8%ad%e6%8f%90%e5%88%b0%e4%ba%86%e5%90%84%e7%a7%8d%e5%90%84%e6%a0%b7%e7%9a%84%e6%a0%bc%e5%bc%8f%ef%bc%8c%e4%bb%a5%e5%90%8e%e5%86%99shell%e8%84%9a%e6%9c%ac%e5%b0%b1%e4%b8%8d%e6%8b%85%e5%bf%83%e6%97%b6%e9%97%b4%e6%88%b3%e9%97%ae%e9%a2%98%e4%ba%86%20docker%20%e8%ae%be%e7%bd%ae%e4%bb%a3%e7%90%86%e4%b8%8b%e8%bd%bd%e9%95%9c%e5%83%8f%20%e5%9c%a8systemd%e4%b8%ad%e8%ae%be%e7%bd%ae%20mkdir%20%2fetc%2fsystemd%2fsystem%2fdocker.service.d%20touch%20%2fetc%2fsystemd%2fsystem%2fdocker.service.d%2fhttp-proxy.conf%20%e5%9c%a8%e6%96%87%e4%bb%b6%e4%b8%ad%e6%b7%bb%e5%8a%a0%ef%bc%9a%5bService%5dEnvironment%3d%26ldquo%3bHTTP_PROXY%3dhttp%3a%2f%2fproxy.example.com%3a80%2f%26quot%3b%20%e9%87%8d%e5%90%afdaemon%ef%bc%9asudo%20systemctl%20daemon-reload%20%e6%9f%a5%e7%9c%8b%e8%ae%be%e7%bd%ae%e7%8a%b6%e6%80%81%ef%bc%9asudo%20systemctl%20show%20docker%20%26ndash%3bproperty%20Environment%20%e9%87%8d%e5%90%afdocker%ef%bc%9asudo%20systemctl%20restart%20docker%20tested%20on%20Ubuntu%2016.04%20%e7%94%a8ps%e6%9f%a5%e7%9c%8b%e8%bf%9b%e7%a8%8b%e7%9a%84%e6%89%a7%e8%a1%8c%e6%97%b6%e9%97%b4%20ps%20-eo%20pid%2ctty%2cuser%2ccomm%2cstime%2cetime%20%7c%20grep%20main%20%e5%8f%af%e4%bb%a5%e6%89%93%e5%8d%b0%e8%bf%9b%e7%a8%8b%e7%9a%84%e5%bc%80%e5%a7%8b%e6%97%b6%e9%97%b4%e5%92%8c%e6%89%a7%e8%a1%8c%e6%97%b6%e9%97%b4%20vim%e4%b8%8b%e4%bb%a516%e8%bf%9b%e5%88%b6%e6%9f%a5%e7%9c%8b%e6%96%87%e6%9c%ac%e6%96%87%e4%bb%b6%20vim%e7%9a%84%e5%8a%9f%e8%83%bd%e5%ae%9e%e5%9c%a8%e6%98%af%e5%a4%aa%e5%bc%ba%e5%a4%a7%e4%ba%86%ef%bc%8c%e5%8f%af%e4%bb%a5%e4%bb%a516%e8%bf%9b%e5%88%b6%e6%9f%a5%e7%9c%8b%e6%96%87%e6%9c%ac%e4%bf%a1%e6%81%af%ef%bc%9a%20%e5%8d%81%e5%85%ad%e8%bf%9b%e5%88%b6%e6%98%be%e7%a4%ba%20%3a%25%21xxd%20%e6%ad%a3%e5%b8%b8%e6%98%be%e7%a4%ba%20%3a%25%21xxd%20-r%20Linux%e8%8e%b7%e5%8f%96%e7%b3%bb%e7%bb%9f%e8%b0%83%e5%ba%a6%e6%97%b6%e9%97%b4%e7%89%87%e9%95%bf%e5%ba%a6%20%23define%20_GNU_SOURCE%20%23include%20%26lt%3bsched.h%26gt%3b%20%23include%20%26lt%3bstdlib.h%26gt%3b%20%23include%20%26lt%3bunistd.h%26gt%3b%20%23include%20%26lt%3bstdio.h%26gt%3b%20%23include%20%26lt%3bassert.h%26gt%3b%20int%20main%28int%20argc%2c%20char%20%2aargv%5b%5d%29%20%7b%20int%20ret%2c%20i%3b%20struct%20timespec%20tp%3b%20ret%20%3d%20sched_rr_get_interval%280%2c%20%26amp%3btp%29%3b%20if%28ret%20%3d%3d%20-1%29%20printf%28%26quot%3bsched_rr_get_interval%20error.%5cn%26quot%3b%29%3b%20printf%28%26quot%3bThe%20time%20is%20%25ds%3a%25ldns.%5cn%26quot%3b%2c%20%28int%29tp.tv_sec%2c%20tp.tv_nsec%29%3b%20return%200%3b%20%7d%20%24%20.%2fcpu_time_slice.o%20The%20time%20is%200s%3a16000000ns...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/&amp;title=effective%20tips%20in%20daily%20work&amp;summary=sed%e5%90%88%e5%b9%b6%e7%9b%b8%e9%82%bb%e4%b8%a4%e8%a1%8c%20%e4%bb%8eredis%e4%b8%ad%e5%8f%96%e5%87%ba%e4%b8%80%e4%b8%aa%e9%94%ae%e7%9a%84%e6%89%80%e6%9c%89%e5%86%85%e5%ae%b9%e6%97%b6%ef%bc%8c%e6%af%94%e5%a6%82hgetall%ef%bc%8c%e5%be%97%e5%88%b0%e7%9a%84%e7%bb%93%e6%9e%9c%e5%b9%b6%e4%b8%8d%e6%98%af%e6%8e%92%e5%ba%8f%e5%a5%bd%e7%9a%84%ef%bc%8c%e7%b1%bb%e4%bc%bc%e4%ba%8e%e8%bf%99%e6%a0%b7%2011485%29%20%26quot%3b1470347460%26quot%3b%2011486%29%20%26quot%3b69%26quot%3b%2011487%29%20%26quot%3b1470262350%26quot%3b%2011488%29%20%26quot%3b34%26quot%3b%2011489%29%20%26quot%3b1470262170%26quot%3b%2011490%29%20%26quot%3b68%26quot%3b%2011491%29%20%26quot%3b1470242400%26quot%3b%2011492%29%20%26quot%3b21%26quot%3b%2011493%29%20%26quot%3b1470288030%26quot%3b%2011494%29%20%26quot%3b65%26quot%3b%2011495%29%20%26quot%3b1470303390%26quot%3b%2011496%29%20%26quot%3b54%26quot%3b%2011497%29%20%26quot%3b1470205320%26quot%3b%2011498%29%20%26quot%3b85%26quot%3b%2011499%29%20%26quot%3b1470318330%26quot%3b%2011500%29%20%26quot%3b92%26quot%3b%2011501%29%20%26quot%3b1470167040%26quot%3b%2011502%29%20%26quot%3b1%26quot%3b%2011503%29%20%26quot%3b1470281880%26quot%3b%2011504%29%20%26quot%3b14%26quot%3b%2011505%29%20%26quot%3b1470298140%26quot%3b%2011506%29%20%26quot%3b113%26quot%3b%20%e8%af%a5hash%e7%9a%84key%e4%b8%baunix%e6%97%b6%e9%97%b4%e6%88%b3%ef%bc%8cval%e4%b8%ba%e6%95%b0%e5%80%bc%ef%bc%8c%e5%a6%82%e6%9e%9c%e6%83%b3%e6%89%8b%e5%8a%a8%e7%9c%8b%e5%88%86%e5%b8%83%e7%9a%84%e8%af%9d%ef%bc%8c%e9%9c%80%e8%a6%81%e5%b0%86%e7%9b%b8%e9%82%bb%e4%b8%a4%e8%a1%8c%e5%90%88%e5%b9%b6%e7%84%b6%e5%90%8e%e6%8e%92%e5%ba%8f%ef%bc%8c%e5%9c%a8%e6%ad%a4%e6%88%91%e4%bb%ac%e5%80%9f%e5%8a%a9sed%20sed%20%27%24%21N%3bs%2f%5cn%2f%5ct%2f%27%20filename%20redis%e5%88%86%e6%9e%90%e5%ae%9e%e4%be%8b%e4%b8%ad%e6%89%80%e6%9c%89key%e5%92%8c%e5%8d%95%e4%b8%aakey%e7%9a%84%e5%86%85%e5%ad%98%e5%8d%a0%e7%94%a8%e6%83%85%e5%86%b5%20%e9%87%87%e7%94%a8rdb%e5%b7%a5%e5%85%b7%20rdb%20-c%20memory%20%2fpath%2fto%2fab-dump.rdb%20%26gt%3b%20memory.csv%20sort%e8%bf%9b%e8%a1%8c%e5%a4%9a%e9%87%8d%e6%8e%92%e5%ba%8f%20sort%e5%92%8cuniq%e5%9c%a8%e6%96%87%e6%9c%ac%e5%a4%84%e7%90%86%ef%bc%8c%e5%b0%a4%e5%85%b6%e6%98%af%e6%97%a5%e5%bf%97%e5%a4%84%e7%90%86%e4%b8%ad%e7%94%a8%e7%9a%84%e8%be%83%e5%a4%9a%e7%9a%84%e5%b7%a5%e5%85%b7%ef%bc%8c%e8%ae%b0%e5%be%97%e5%bd%93%e5%b9%b4%e6%a0%a1%e6%8b%9b%e6%97%b6%e5%80%99%e5%87%86%e5%a4%87%e9%9d%a2%e8%af%95%ef%bc%8c%e7%94%a8%e5%88%b0%e8%bf%99%e4%b8%a4%e4%b8%aa%e5%91%bd%e4%bb%a4%ef%bc%8c%e6%83%8a%e4%b8%ba%e5%a4%a9%e4%ba%ba%ef%bc%8c%e9%9d%9e%e5%b8%b8shock%e3%80%82%e5%9c%a8%e6%97%a5%e5%b8%b8%e5%b7%a5%e4%bd%9c%e4%b8%ad%ef%bc%8c%e7%94%a8%e7%9a%84%e4%b9%9f%e9%9d%9e%e5%b8%b8%e5%a4%9a%e3%80%82%20%e7%9b%ae%e5%89%8d%e6%9c%89%e8%bf%99%e6%a0%b7%e7%9a%84%e9%9c%80%e6%b1%82%ef%bc%8c%e6%8b%bf%e5%88%b0%e4%b8%a4%e5%88%97%e6%95%b0%e6%8d%ae%ef%bc%8c%e7%ac%ac%e4%b8%80%e5%88%97%e6%98%afip%ef%bc%8c%e7%ac%ac%e4%ba%8c%e5%88%97%e6%98%af%e8%ae%bf%e9%97%ae%e8%ae%a1%e6%95%b0%ef%bc%8c%e6%83%b3%e7%9c%8b%e4%b8%80%e4%b8%8b%e5%88%86%e5%b8%83%ef%bc%8c%e8%a6%81%e6%b1%82ip%e8%a6%81%e6%8c%89%e6%96%87%e6%9c%ac%e6%8e%92%e5%ba%8f%ef%bc%8c%e8%ae%bf%e9%97%ae%e8%ae%a1%e6%95%b0%e6%8c%89%e6%95%b0%e5%80%bc%e6%8e%92%e5%ba%8f%e3%80%82%20221.179.175.109%2097%20221.179.175.164%20101%20221.179.175.46%208%20221.179.175.164%20102%20221.179.175.178%2078%20221.179.175.46%209%20221.179.175.109%2098%20221.179.175.178%2079%20120.239.141.197%2096%20221.179.175.70%20114%20218.202.7.121%2070%20221.179.175.178%2080%20218.202.7.121%2071%20221.179.175.134%2083%20120.239.141.197%2097%20221.179.175.46%2010%20221.179.175.178%2081%20221.179.175.47%2024%20120.239.141.197%2098%20221.179.175.70%20115%20221.179.175.70%20116%20120.239.141.197%2099%20221.179.175.134%2084%20%e8%a7%a3%e5%86%b3%e6%96%b9%e6%b3%95%20sort%20-t%20%27%20%27%20-k1%2c1%20-k2n%2c2%20data%20%e5%85%b6%e4%b8%ad%20-t%20%27%20%27%20%e6%8c%87%e5%ae%9a%e4%bd%bf%e7%94%a8%e7%a9%ba%e6%a0%bc%e5%88%86%e5%88%97%20-k1%2c1%20%e6%8c%87%e5%ae%9a%e4%bb%a5%e7%ac%ac%e4%b8%80%e5%88%97%e4%b8%ba%e5%85%b3%e9%94%ae%e5%ad%97%e6%8e%92%e5%ba%8f%20-k2n%2c2%20%e6%8c%87%e5%ae%9a%e4%bb%a5%e7%ac%ac%e4%ba%8c%e5%88%97%e4%b8%ba%e5%85%b3%e9%94%ae%e5%ad%97%e5%81%9a%e6%95%b0%e6%8d%ae%e6%8e%92%e5%ba%8f%20%e4%b9%9f%e5%8f%af%e4%bb%a5%20sort%20-k1%20-k2n%20out%20shell%e8%84%9a%e6%9c%ac%e6%89%b9%e9%87%8f%e5%a4%84%e7%90%86%e6%96%87%e6%9c%ac%20%e5%96%84%e7%94%a8awk%e3%80%81grep%e3%80%81xargs%e3%80%81bash%e3%80%81sed%e7%ad%89%e5%b7%a5%e5%85%b7%ef%bc%8c%e5%8f%af%e4%bb%a5%e6%8f%90%e9%ab%98%e7%94%9f%e4%ba%a7%e5%8a%9b%20grep%20%27config.config%27%20...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
