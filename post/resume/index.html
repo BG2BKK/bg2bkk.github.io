@@ -57,7 +57,7 @@
         },
         "datePublished": "2016-04-22",
         "description": "",
-        "wordCount":  178 
+        "wordCount":  216 
     }
     </script>
     
@@ -159,9 +159,52 @@
 
 <h2 id="项目经历:c59a67a3c7bc5faa453847420267045e">项目经历</h2>
 
-<h4 id="新浪微博-系统开发工程师-2015年1月-2016年3月:c59a67a3c7bc5faa453847420267045e">新浪微博 系统开发工程师 （ 2015年1月 ~ 2016年3月 ）</h4>
+<h4 id="新浪微博-系统开发工程师-2015年1月-2016年8月:c59a67a3c7bc5faa453847420267045e">新浪微博 系统开发工程师 （ 2015年1月 ~ 2016年8月 ）</h4>
 
 <ul>
+<li><p>微博防抓站系统</p>
+
+<ul>
+<li>手机微博、PC微博以及Wap版微博的防抓站系统
+
+<ul>
+<li>微博访问量日益增长，恶意抓站同时增多</li>
+<li>封禁非法访问的IP，阻止恶意抓站</li>
+</ul></li>
+<li>防抓站系统的松耦合架构
+
+<ul>
+<li>管理节点
+
+<ul>
+<li>ngx_lua开发</li>
+<li>管理节点提供提交封禁IP、解禁IP、白名单等接口，微博安全组分析得出恶意IP向管理节点提交</li>
+<li>管理节点将封禁IP等信息写入redis中</li>
+</ul></li>
+<li>封禁节点
+
+<ul>
+<li>ngx_lua开发</li>
+<li>封禁节点的nginx worker启动定时任务，定期从远程redis拉取新的封禁信息，并将获取到的封禁IP加入到ngx_lua的shared dict共享内存中</li>
+<li>封禁模块工作在nginx的access阶段，获取用户请求的IP，从shared dict查询是否是封禁IP，如果是，则返回403终止用户访问，否则放行</li>
+</ul></li>
+<li>可靠性
+
+<ul>
+<li>对于nginx的定时任务，由于脱离worker主进程，所以即使出错，不影响原有nginx业务</li>
+<li>对于封禁模块，采用lua的类try-catch机制的xpcall方法，保证即使access阶段的lua代码出错时，会将用户请求放行，所以最坏情况下是不封禁所有IP</li>
+<li>对于redis资源，采用一主多从结构，每个封禁节点部署twemproxy保证redis访问可靠性</li>
+<li>日志监控，监控定时任务执行，实时报警；收集封禁数据，统计IP拦截量</li>
+</ul></li>
+<li>运行情况
+
+<ul>
+<li>封禁模块嵌入在微博前端机的nginx中，承载全量访问</li>
+<li>封禁模块执行任务最轻，仅仅获取用户IP以及查询nginx的shm，用时低于1ms</li>
+</ul></li>
+</ul></li>
+</ul></li>
+
 <li><p>手机微博七层动态调度系统dygateway</p>
 
 <ul>
@@ -216,7 +259,11 @@
 
 <ul>
 <li>参与golang server的架构设计及系统开发</li>
-<li>开发golang 版本的edns查询模块</li>
+<li>开发golang 版本的edns查询模块和并发更新模块
+
+<ul>
+<li>全量并发更新域名对应IP的DNS记录，每个域名对应26万段IP，更新时间低于3分钟</li>
+</ul></li>
 </ul></li>
 <li>httpdns server端一期已上线，手机微博客户端采用渠道包灰度；二期已完成edns查询模块。</li>
 </ul></li>
@@ -247,7 +294,7 @@
 <h2 id="项目-演讲和讲义:c59a67a3c7bc5faa453847420267045e">项目 演讲和讲义</h2>
 
 <ul>
-<li><a href="https://github.com/WEIBOMSRE/ABTestingGateway">ABTestingGateway</a>：手机微博七层动态调度系统中关于灰度发布和动态分流的子项目，660+ stars。</li>
+<li><a href="https://github.com/WEIBOMSRE/ABTestingGateway">ABTestingGateway</a>：手机微博七层动态调度系统中关于灰度发布和动态分流的子项目，780+ stars。</li>
 <li>2015年OSC源创会运维专场：<a href="https://github.com/WEIBOMSRE/ABTestingGateway/blob/master/doc/%E5%9F%BA%E4%BA%8E%E5%8A%A8%E6%80%81%E7%AD%96%E7%95%A5%E7%9A%84%E7%81%B0%E5%BA%A6%E5%8F%91%E5%B8%83%E7%B3%BB%E7%BB%9F.pdf">基于动态策略的灰度发布系统</a></li>
 </ul>
 
@@ -286,6 +333,23 @@
 <h2 id="个人项目:c59a67a3c7bc5faa453847420267045e">个人项目</h2>
 
 <ul>
+<li><p><a href="https://github.com/BG2BKK/smarthome">smarthome</a></p>
+
+<ul>
+<li>基于ESP8266单片机的家庭环境参数监测模块，目前支持温度、湿度、PM2.5等参数</li>
+<li>通过wifi上传监测参数和心跳到远程server</li>
+<li>通过mqtt进行远程推送和远程控制</li>
+<li>server端采用nginx+nodejs+redis实现</li>
+<li>使用nginx的rtmp模块实现实时视频监控</li>
+<li>TODO LIST
+
+<ul>
+<li>opencv抓取关键帧上报</li>
+<li>android app简易开发</li>
+<li>使用dart 甲醛传感器监测室内甲醛气体</li>
+</ul></li>
+</ul></li>
+
 <li><p><a href="https://github.com/BG2BKK/MyDict">MyDict</a></p>
 
 <ul>

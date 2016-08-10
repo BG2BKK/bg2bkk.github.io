@@ -49,10 +49,11 @@
 &lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.marser.cn/archives/87/&#34;&gt;过期键删除策略种类&lt;/a&gt;&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;定时删除
+&lt;li&gt;事件删除
 
 &lt;ul&gt;
 &lt;li&gt;每个键都有一个定时器，到期时触发处理事件，在事件中删除&lt;/li&gt;
+&lt;li&gt;缺点是需要为每个key维护定时器，key的量大时，cpu消耗较大&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;li&gt;惰性删除
 
@@ -71,7 +72,7 @@
 &lt;ul&gt;
 &lt;li&gt;读写一个key时，触发惰性删除策略&lt;/li&gt;
 &lt;li&gt;惰性删除策略不能及时处理冷数据，因此redis会定期主动淘汰一批已过期的key&lt;/li&gt;
-&lt;li&gt;内存超过maxmemory时，触发删除操作&lt;/li&gt;
+&lt;li&gt;内存超过maxmemory时，触发主动清理&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 
@@ -89,6 +90,18 @@
       
       <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</guid>
       <description>
+
+&lt;h2 id=&#34;epoll是同步非阻塞的:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;epoll是同步非阻塞的&lt;/h2&gt;
+
+&lt;p&gt;epoll、select等多路服用IO，将fd加入等待时间的队列中，每隔一段时间去轮询一次，因此是同步的；优点是能够在等待任务的时间里去做别的任务；缺点是任务完成的响应延迟增大，因为每隔一段时间去轮询他们，在时间间隔内任务可能已经完成而等待处理等待了一段时间了。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://ring0.me/2014/11/sync-async-blocked/&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;同步/异步指的是被调用方的通知方式，被调用方完成后，主动通知调用方，还是等待调用方发现。前者是异步，后者是同步。从这里也可以看出，&lt;a href=&#34;https://segmentfault.com/a/1190000003063859&#34;&gt;异步IO通知调用方时，数据已经就绪&lt;/a&gt;，对于网络IO来说，异步IO已经将数据从内核复制到用户空间了。&lt;/p&gt;
+
+&lt;p&gt;阻塞/非阻塞是调用方的等待方式，是一直等待在做的事件完成，还是去做别的事情，等到在做的事件完成后再接着进行处理。前者是阻塞，后者是非阻塞&lt;/p&gt;
+
+&lt;p&gt;因此epoll是同步和非阻塞的。&lt;/p&gt;
 
 &lt;h2 id=&#34;sed合并相邻两行:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;sed合并相邻两行&lt;/h2&gt;
 
@@ -183,6 +196,11 @@
 &lt;p&gt;善用awk、grep、xargs、bash、sed等工具，可以提高生产力&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;grep &#39;config.config&#39; . -r | awk -F&#39;:&#39; &#39;{print $1}&#39; | grep &#39;lua$&#39; | xargs sed &amp;quot;s/config.config&#39;)/config.config&#39;).ab/g&amp;quot; -i
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;shell循环&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;for j in {a..z}; do echo $j; done
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;h2 id=&#34;redis批量删除key:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;redis批量删除key&lt;/h2&gt;
@@ -2713,9 +2731,52 @@ main	false	cannot resume dead coroutine
 
 &lt;h2 id=&#34;项目经历:c59a67a3c7bc5faa453847420267045e&#34;&gt;项目经历&lt;/h2&gt;
 
-&lt;h4 id=&#34;新浪微博-系统开发工程师-2015年1月-2016年3月:c59a67a3c7bc5faa453847420267045e&#34;&gt;新浪微博 系统开发工程师 （ 2015年1月 ~ 2016年3月 ）&lt;/h4&gt;
+&lt;h4 id=&#34;新浪微博-系统开发工程师-2015年1月-2016年8月:c59a67a3c7bc5faa453847420267045e&#34;&gt;新浪微博 系统开发工程师 （ 2015年1月 ~ 2016年8月 ）&lt;/h4&gt;
 
 &lt;ul&gt;
+&lt;li&gt;&lt;p&gt;微博防抓站系统&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;手机微博、PC微博以及Wap版微博的防抓站系统
+
+&lt;ul&gt;
+&lt;li&gt;微博访问量日益增长，恶意抓站同时增多&lt;/li&gt;
+&lt;li&gt;封禁非法访问的IP，阻止恶意抓站&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;防抓站系统的松耦合架构
+
+&lt;ul&gt;
+&lt;li&gt;管理节点
+
+&lt;ul&gt;
+&lt;li&gt;ngx_lua开发&lt;/li&gt;
+&lt;li&gt;管理节点提供提交封禁IP、解禁IP、白名单等接口，微博安全组分析得出恶意IP向管理节点提交&lt;/li&gt;
+&lt;li&gt;管理节点将封禁IP等信息写入redis中&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;封禁节点
+
+&lt;ul&gt;
+&lt;li&gt;ngx_lua开发&lt;/li&gt;
+&lt;li&gt;封禁节点的nginx worker启动定时任务，定期从远程redis拉取新的封禁信息，并将获取到的封禁IP加入到ngx_lua的shared dict共享内存中&lt;/li&gt;
+&lt;li&gt;封禁模块工作在nginx的access阶段，获取用户请求的IP，从shared dict查询是否是封禁IP，如果是，则返回403终止用户访问，否则放行&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;可靠性
+
+&lt;ul&gt;
+&lt;li&gt;对于nginx的定时任务，由于脱离worker主进程，所以即使出错，不影响原有nginx业务&lt;/li&gt;
+&lt;li&gt;对于封禁模块，采用lua的类try-catch机制的xpcall方法，保证即使access阶段的lua代码出错时，会将用户请求放行，所以最坏情况下是不封禁所有IP&lt;/li&gt;
+&lt;li&gt;对于redis资源，采用一主多从结构，每个封禁节点部署twemproxy保证redis访问可靠性&lt;/li&gt;
+&lt;li&gt;日志监控，监控定时任务执行，实时报警；收集封禁数据，统计IP拦截量&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;运行情况
+
+&lt;ul&gt;
+&lt;li&gt;封禁模块嵌入在微博前端机的nginx中，承载全量访问&lt;/li&gt;
+&lt;li&gt;封禁模块执行任务最轻，仅仅获取用户IP以及查询nginx的shm，用时低于1ms&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
 &lt;li&gt;&lt;p&gt;手机微博七层动态调度系统dygateway&lt;/p&gt;
 
 &lt;ul&gt;
@@ -2770,7 +2831,11 @@ main	false	cannot resume dead coroutine
 
 &lt;ul&gt;
 &lt;li&gt;参与golang server的架构设计及系统开发&lt;/li&gt;
-&lt;li&gt;开发golang 版本的edns查询模块&lt;/li&gt;
+&lt;li&gt;开发golang 版本的edns查询模块和并发更新模块
+
+&lt;ul&gt;
+&lt;li&gt;全量并发更新域名对应IP的DNS记录，每个域名对应26万段IP，更新时间低于3分钟&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;li&gt;httpdns server端一期已上线，手机微博客户端采用渠道包灰度；二期已完成edns查询模块。&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
@@ -2801,7 +2866,7 @@ main	false	cannot resume dead coroutine
 &lt;h2 id=&#34;项目-演讲和讲义:c59a67a3c7bc5faa453847420267045e&#34;&gt;项目 演讲和讲义&lt;/h2&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/WEIBOMSRE/ABTestingGateway&#34;&gt;ABTestingGateway&lt;/a&gt;：手机微博七层动态调度系统中关于灰度发布和动态分流的子项目，660+ stars。&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/WEIBOMSRE/ABTestingGateway&#34;&gt;ABTestingGateway&lt;/a&gt;：手机微博七层动态调度系统中关于灰度发布和动态分流的子项目，780+ stars。&lt;/li&gt;
 &lt;li&gt;2015年OSC源创会运维专场：&lt;a href=&#34;https://github.com/WEIBOMSRE/ABTestingGateway/blob/master/doc/%E5%9F%BA%E4%BA%8E%E5%8A%A8%E6%80%81%E7%AD%96%E7%95%A5%E7%9A%84%E7%81%B0%E5%BA%A6%E5%8F%91%E5%B8%83%E7%B3%BB%E7%BB%9F.pdf&#34;&gt;基于动态策略的灰度发布系统&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
@@ -2840,6 +2905,23 @@ main	false	cannot resume dead coroutine
 &lt;h2 id=&#34;个人项目:c59a67a3c7bc5faa453847420267045e&#34;&gt;个人项目&lt;/h2&gt;
 
 &lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/BG2BKK/smarthome&#34;&gt;smarthome&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;基于ESP8266单片机的家庭环境参数监测模块，目前支持温度、湿度、PM2.5等参数&lt;/li&gt;
+&lt;li&gt;通过wifi上传监测参数和心跳到远程server&lt;/li&gt;
+&lt;li&gt;通过mqtt进行远程推送和远程控制&lt;/li&gt;
+&lt;li&gt;server端采用nginx+nodejs+redis实现&lt;/li&gt;
+&lt;li&gt;使用nginx的rtmp模块实现实时视频监控&lt;/li&gt;
+&lt;li&gt;TODO LIST
+
+&lt;ul&gt;
+&lt;li&gt;opencv抓取关键帧上报&lt;/li&gt;
+&lt;li&gt;android app简易开发&lt;/li&gt;
+&lt;li&gt;使用dart 甲醛传感器监测室内甲醛气体&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
 &lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/BG2BKK/MyDict&#34;&gt;MyDict&lt;/a&gt;&lt;/p&gt;
 
 &lt;ul&gt;
