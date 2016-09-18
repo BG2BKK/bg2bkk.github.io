@@ -2,18 +2,34 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>BG2BKK Site</title>
-    <link>https://bg2bkk.github.io/</link>
+    <link>http://bg2bkk.github.io/</link>
     <description>Recent content on BG2BKK Site</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Tue, 23 Aug 2016 19:52:25 +0800</lastBuildDate>
-    <atom:link href="https://bg2bkk.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 18 Sep 2016 19:43:59 +0800</lastBuildDate>
+    <atom:link href="http://bg2bkk.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>为什么我喜欢读书</title>
+      <link>http://bg2bkk.github.io/post/why_to_read/</link>
+      <pubDate>Sun, 18 Sep 2016 19:43:59 +0800</pubDate>
+      
+      <guid>http://bg2bkk.github.io/post/why_to_read/</guid>
+      <description>&lt;p&gt;我们都知道实验新药的时候首先要在实验大鼠身上实行，有些时候我们发现，明明在大鼠身上具有良好功效的药品，在人身上的临床效果并不明显。我们此时可能会从鼠和人类的基因的区别、体质等方面找原因，这是受过基本科研训练的人会有的正常想法：控制变量法。其实我们可能忽略了一个点，那就是，实验大鼠从小生活在无菌环境下，而人并不是。实验大鼠在无菌环境下出生和长大，并不会遇到某些细菌，自然不会建立起免疫机制，可与之类比的大概是人类婴儿吧。科学家们通过对比实验大鼠和农场中生活的野鼠，确认野鼠体质与成年人类更为接近，因此在实验新药的时候会更倾向于使用农场大鼠。这个案例告诉我们，遇到问题时，我们一般会从受到过的训练中获取方法，快速反应去比对变量，但同时眼睛将固定于自己更想看到的部分，而没有跳出来看问题。在分析系统性能问题时，对某个瓶颈点百思不得其解时，这个时候是否可以把自己跳出来，多想想其他变量，甚至是其他更显得“弱智”的因素。&lt;/p&gt;
+
+&lt;p&gt;有时候阅读一些技术文章时，会有这样一种感觉：这和理论不太一样啊。读林佩满的wireshark的书时，他分析过这样一个问题：某厂某个文件传输的产品在竞标时，发现大文件通过网络传输，从上海发往北京时很慢，需要很长时间才能将文件发送完成，而同时测试网速发现完全不是瓶颈，带宽利用率低到个位数；林在通过wireshark抓包时，发现有非常多的数据包被重传了多次，并且是毫无意义的重传；配管人员配置数据传送采用UDP方式，理论上讲不需要三次握手，且不需要发送确认的UDP传输更适合发送大文件，比如FTP协议就是基于UDP实现的，课本上都这么说。然而实际情况是，发送数据从上海到北京，会经过多多少少的中间结点，客户端发送较大的数据包，中途转发时，一些设备可能将大包拆成小包发送，对于UDP协议而言，如果最终小包里有一个包传输失败，那么需要将整个大包重传，而对于TCP协议而言，哪个小包没有收到，由于TCP头部的序号，客户端将只需要重传丢失的这个小包即可，避免了大量的无意义的重传；将传输方式改为TCP传输后，带宽利用率果然一下就上去了，这里我们的结论是远途传输大文件或大数据包时，TCP的性能由于UDP，这和课本上讲的很不一样。很多知识都不是一成不变的，会根据落地情况而调整、而改变，更有可能进化成不同形态。我想起前几天在火车上看到的一篇文章，城市里的灯光将会吸引虫子，趋光的虫子绕着灯泡一圈圈转，最后力竭饿死，这是个老知识了；而科学家经过实验，从城市和郊区抓取同样数量的飞虫，放在一个房间里观察，发现郊区的飞虫全部围绕着灯泡，而城市中的飞虫则有一小部分对灯光不感兴趣。科学家做出的结论是，城市中的飞虫有一部分进化出了不那么趋光的特性，基因得以保留。所以，我们看到，知识不是一成不变的，尽量做到不先入为主，从实际情况出发来分析问题。&lt;/p&gt;
+
+&lt;p&gt;说到实际情况出发，与一个朋友聊epoll在实际使用中会遇到的一些问题，对于多进程（线程）程序而言，具有父子关系的两个进程共享一个epoll fd，A进程通过epoll_ctl将fd添加进epfd的监听fd列表中，如果有fd有事件发生，发生事件的fd有的是A添加的，有的是B添加的，如果此时唤醒的是B进程，B进程将该epfd监听的所有有事件发生的fd取出，进行处理时，遇到有些不是自己添加的fd时，这个fd对B进程而言是无效的，如果不做处理，去read或者write它，可能会导致core dump，当然，我还没有自己做实验验证，但是理论上讲，这是会发生的。&lt;/p&gt;
+
+&lt;p&gt;在技术书之外，其实还有非常多的有趣的书，使人明事里、断情势，提升人的气质，这是一个大的范畴，我愿接下来一点点的分享我的读书感受。&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>C&#43;&#43;基础知识学习</title>
-      <link>https://bg2bkk.github.io/post/cpp_basis/</link>
+      <link>http://bg2bkk.github.io/post/cpp_basis/</link>
       <pubDate>Tue, 23 Aug 2016 19:52:25 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/cpp_basis/</guid>
+      <guid>http://bg2bkk.github.io/post/cpp_basis/</guid>
       <description>
 
 &lt;h2 id=&#34;static和const关键字各自的作用:2404ccd5838a6732564bda89dd9448a6&#34;&gt;static和const关键字各自的作用&lt;/h2&gt;
@@ -120,10 +136,10 @@ String obj(other);
     
     <item>
       <title>redis过期清除机制及应用方法</title>
-      <link>https://bg2bkk.github.io/post/redis%E8%BF%87%E6%9C%9F%E6%B8%85%E9%99%A4%E6%9C%BA%E5%88%B6%E5%8F%8A%E5%BA%94%E7%94%A8%E6%96%B9%E6%B3%95/</link>
+      <link>http://bg2bkk.github.io/post/redis%E8%BF%87%E6%9C%9F%E6%B8%85%E9%99%A4%E6%9C%BA%E5%88%B6%E5%8F%8A%E5%BA%94%E7%94%A8%E6%96%B9%E6%B3%95/</link>
       <pubDate>Mon, 01 Aug 2016 13:26:07 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/redis%E8%BF%87%E6%9C%9F%E6%B8%85%E9%99%A4%E6%9C%BA%E5%88%B6%E5%8F%8A%E5%BA%94%E7%94%A8%E6%96%B9%E6%B3%95/</guid>
+      <guid>http://bg2bkk.github.io/post/redis%E8%BF%87%E6%9C%9F%E6%B8%85%E9%99%A4%E6%9C%BA%E5%88%B6%E5%8F%8A%E5%BA%94%E7%94%A8%E6%96%B9%E6%B3%95/</guid>
       <description>
 
 &lt;h2 id=&#34;redis过期清除和淘汰机制:15f341755a194cb3fa2a102ac1aec971&#34;&gt;redis过期清除和淘汰机制&lt;/h2&gt;
@@ -195,10 +211,10 @@ String obj(other);
     
     <item>
       <title>effective tips in daily work</title>
-      <link>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</link>
+      <link>http://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</link>
       <pubDate>Sun, 24 Jul 2016 16:36:33 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</guid>
+      <guid>http://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</guid>
       <description>
 
 &lt;h2 id=&#34;epoll是同步非阻塞的:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;epoll是同步非阻塞的&lt;/h2&gt;
@@ -1279,10 +1295,10 @@ tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.ca
     
     <item>
       <title>stm32_eclipse_openocd_stlink</title>
-      <link>https://bg2bkk.github.io/post/stm32_eclipse_openocd_stlink/</link>
+      <link>http://bg2bkk.github.io/post/stm32_eclipse_openocd_stlink/</link>
       <pubDate>Wed, 06 Jul 2016 12:51:05 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/stm32_eclipse_openocd_stlink/</guid>
+      <guid>http://bg2bkk.github.io/post/stm32_eclipse_openocd_stlink/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;&lt;p&gt;eclipse下载&lt;/p&gt;
 
@@ -1405,10 +1421,10 @@ st-flash --reset write elua_lua_stm32f4discovery.bin 0x8000000
     
     <item>
       <title>insertionSortList_链表插入排序</title>
-      <link>https://bg2bkk.github.io/post/insertionSortList_%E9%93%BE%E8%A1%A8%E6%8F%92%E5%85%A5%E6%8E%92%E5%BA%8F/</link>
+      <link>http://bg2bkk.github.io/post/insertionSortList_%E9%93%BE%E8%A1%A8%E6%8F%92%E5%85%A5%E6%8E%92%E5%BA%8F/</link>
       <pubDate>Sun, 05 Jun 2016 22:27:39 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/insertionSortList_%E9%93%BE%E8%A1%A8%E6%8F%92%E5%85%A5%E6%8E%92%E5%BA%8F/</guid>
+      <guid>http://bg2bkk.github.io/post/insertionSortList_%E9%93%BE%E8%A1%A8%E6%8F%92%E5%85%A5%E6%8E%92%E5%BA%8F/</guid>
       <description>&lt;p&gt;写go并发代码有点疲劳，那就A个题吧。我觉得LintCode上的题目都很不错，有难有易，循序渐进的，随手选一道题来做吧。&lt;/p&gt;
 
 &lt;p&gt;选择了&lt;a href=&#34;http://www.lintcode.com/zh-cn/problem/insertion-sort-list/&#34;&gt;链表插入排序&lt;/a&gt;，写起来不那么容易，但是也有调试的快感，其实对于难题，我们需要做到的是心思缜密、抽丝剥茧一步步实现；对于中等题目，我们需要抓住本质，一击制敌；在编码过程中，心里有时刻有代码执行时间复杂度和空间占用的底，逐渐养成这个习惯；编码过程中同样重要的还有编码风格，如果能够简洁明了的表达程序逻辑，就追求简洁，如果变量较多，需要在变量命名的时候注意甄别，对于写出的代码，尽量追求逻辑清晰风格良好，这是一个程序员的基本素质。&lt;/p&gt;
@@ -1474,10 +1490,10 @@ class Solution {
     
     <item>
       <title>一道多线程面试题</title>
-      <link>https://bg2bkk.github.io/post/%E4%B8%80%E9%81%93%E5%A4%9A%E7%BA%BF%E7%A8%8B%E9%9D%A2%E8%AF%95%E9%A2%98/</link>
+      <link>http://bg2bkk.github.io/post/%E4%B8%80%E9%81%93%E5%A4%9A%E7%BA%BF%E7%A8%8B%E9%9D%A2%E8%AF%95%E9%A2%98/</link>
       <pubDate>Thu, 26 May 2016 01:39:59 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/%E4%B8%80%E9%81%93%E5%A4%9A%E7%BA%BF%E7%A8%8B%E9%9D%A2%E8%AF%95%E9%A2%98/</guid>
+      <guid>http://bg2bkk.github.io/post/%E4%B8%80%E9%81%93%E5%A4%9A%E7%BA%BF%E7%A8%8B%E9%9D%A2%E8%AF%95%E9%A2%98/</guid>
       <description>
 
 &lt;p&gt;最近突然看协程和并发编程比较多，遇到这样&lt;a href=&#34;http://blog.csdn.net/liuxuejiang158blog/article/details/21977009&#34;&gt;一道题&lt;/a&gt;&lt;/p&gt;
@@ -1872,10 +1888,10 @@ func main() {
     
     <item>
       <title>SO_REUSEADDR和SO_REUSEPORT</title>
-      <link>https://bg2bkk.github.io/post/SO_REUSEADDR%E5%92%8CSO_REUSEPORT/</link>
+      <link>http://bg2bkk.github.io/post/SO_REUSEADDR%E5%92%8CSO_REUSEPORT/</link>
       <pubDate>Mon, 09 May 2016 16:55:42 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/SO_REUSEADDR%E5%92%8CSO_REUSEPORT/</guid>
+      <guid>http://bg2bkk.github.io/post/SO_REUSEADDR%E5%92%8CSO_REUSEPORT/</guid>
       <description>
 
 &lt;h2 id=&#34;结论:035fb573c14692e64241442f4294aac6&#34;&gt;结论&lt;/h2&gt;
@@ -2021,10 +2037,10 @@ data
     
     <item>
       <title>tcp_fast_open的概念 作用以及实现</title>
-      <link>https://bg2bkk.github.io/post/tcp_fast_open%E7%9A%84%E6%A6%82%E5%BF%B5%20%E4%BD%9C%E7%94%A8%E4%BB%A5%E5%8F%8A%E5%AE%9E%E7%8E%B0/</link>
+      <link>http://bg2bkk.github.io/post/tcp_fast_open%E7%9A%84%E6%A6%82%E5%BF%B5%20%E4%BD%9C%E7%94%A8%E4%BB%A5%E5%8F%8A%E5%AE%9E%E7%8E%B0/</link>
       <pubDate>Mon, 09 May 2016 15:53:34 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/tcp_fast_open%E7%9A%84%E6%A6%82%E5%BF%B5%20%E4%BD%9C%E7%94%A8%E4%BB%A5%E5%8F%8A%E5%AE%9E%E7%8E%B0/</guid>
+      <guid>http://bg2bkk.github.io/post/tcp_fast_open%E7%9A%84%E6%A6%82%E5%BF%B5%20%E4%BD%9C%E7%94%A8%E4%BB%A5%E5%8F%8A%E5%AE%9E%E7%8E%B0/</guid>
       <description>
 
 &lt;h2 id=&#34;引言:dcfa70d5873a9471dad227ae4d6ecbe0&#34;&gt;引言&lt;/h2&gt;
@@ -2364,10 +2380,10 @@ net.ipv4.tcp_fastopen = 3
     
     <item>
       <title>effective tips in daily learning</title>
-      <link>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20learning/</link>
+      <link>http://bg2bkk.github.io/post/effective%20tips%20in%20daily%20learning/</link>
       <pubDate>Fri, 06 May 2016 11:39:48 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20learning/</guid>
+      <guid>http://bg2bkk.github.io/post/effective%20tips%20in%20daily%20learning/</guid>
       <description>
 
 &lt;h2 id=&#34;内存管理:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;内存管理&lt;/h2&gt;
@@ -2429,8 +2445,26 @@ net.ipv4.tcp_fastopen = 3
 &lt;h2 id=&#34;linux-socket编程样例:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;linux socket编程样例&lt;/h2&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://alas.matf.bg.ac.rs/manuals/lspe/snode=106.html&#34;&gt;http://alas.matf.bg.ac.rs/manuals/lspe/snode=106.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://alas.matf.bg.ac.rs/manuals/lspe/snode=106.html&#34;&gt;http://alas.matf.bg.ac.rs/manuals/lspe/snode=106.html&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://blog.csdn.net/win_lin/article/details/7760951&#34;&gt;进程间传递fd&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;h2 id=&#34;linux-apue编程:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;linux apue编程&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;epoll是同步非阻塞的&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;epoll、select等多路服用IO，将fd加入等待时间的队列中，每隔一段时间去轮询一次，因此是同步的；优点是能够在等待任务的时间里去做别的任务；缺点是任务完成的响应延迟增大，因为每隔一段时间去轮询他们，在时间间隔内任务可能已经完成而等待处理等待了一段时间了。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://ring0.me/2014/11/sync-async-blocked/&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;同步/异步指的是被调用方的通知方式，被调用方完成后，主动通知调用方，还是等待调用方发现。前者是异步，后者是同步。从这里也可以看出，&lt;a href=&#34;https://segmentfault.com/a/1190000003063859&#34;&gt;异步IO通知调用方时，数据已经就绪&lt;/a&gt;，对于网络IO来说，异步IO已经将数据从内核复制到用户空间了。&lt;/p&gt;
+
+&lt;p&gt;阻塞/非阻塞是调用方的等待方式，是一直等待在做的事件完成，还是去做别的事情，等到在做的事件完成后再接着进行处理。前者是阻塞，后者是非阻塞&lt;/p&gt;
+
+&lt;p&gt;因此epoll是同步和非阻塞的。&lt;/p&gt;
 
 &lt;h2 id=&#34;分布式存储:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;分布式存储&lt;/h2&gt;
 
@@ -2785,10 +2819,10 @@ main	false	cannot resume dead coroutine
     
     <item>
       <title>resume</title>
-      <link>https://bg2bkk.github.io/post/resume/</link>
+      <link>http://bg2bkk.github.io/post/resume/</link>
       <pubDate>Fri, 22 Apr 2016 11:25:56 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/resume/</guid>
+      <guid>http://bg2bkk.github.io/post/resume/</guid>
       <description>
 
 &lt;h1 id=&#34;黄振栋简历:c59a67a3c7bc5faa453847420267045e&#34;&gt;黄振栋简历&lt;/h1&gt;
@@ -3069,10 +3103,10 @@ main	false	cannot resume dead coroutine
     
     <item>
       <title>DNS with golang</title>
-      <link>https://bg2bkk.github.io/post/DNS%20with%20golang/</link>
+      <link>http://bg2bkk.github.io/post/DNS%20with%20golang/</link>
       <pubDate>Wed, 13 Apr 2016 11:37:24 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/DNS%20with%20golang/</guid>
+      <guid>http://bg2bkk.github.io/post/DNS%20with%20golang/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;http://www.cnblogs.com/cobbliu/archive/2013/04/02/2996333.html&#34;&gt;DNS消息格式&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://www.cnblogs.com/cobbliu/p/3188632.html&#34;&gt;EDNS详解&lt;/a&gt;&lt;/li&gt;
@@ -3270,10 +3304,10 @@ bit 5 (FIN) sender finished&lt;/td&gt;
     
     <item>
       <title>github 上那些令我感到惊艳又实用的项目</title>
-      <link>https://bg2bkk.github.io/post/github%20%E4%B8%8A%E9%82%A3%E4%BA%9B%E4%BB%A4%E6%88%91%E6%84%9F%E5%88%B0%E6%83%8A%E8%89%B3%E5%8F%88%E5%AE%9E%E7%94%A8%E7%9A%84%E9%A1%B9%E7%9B%AE/</link>
+      <link>http://bg2bkk.github.io/post/github%20%E4%B8%8A%E9%82%A3%E4%BA%9B%E4%BB%A4%E6%88%91%E6%84%9F%E5%88%B0%E6%83%8A%E8%89%B3%E5%8F%88%E5%AE%9E%E7%94%A8%E7%9A%84%E9%A1%B9%E7%9B%AE/</link>
       <pubDate>Tue, 12 Apr 2016 10:19:38 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/github%20%E4%B8%8A%E9%82%A3%E4%BA%9B%E4%BB%A4%E6%88%91%E6%84%9F%E5%88%B0%E6%83%8A%E8%89%B3%E5%8F%88%E5%AE%9E%E7%94%A8%E7%9A%84%E9%A1%B9%E7%9B%AE/</guid>
+      <guid>http://bg2bkk.github.io/post/github%20%E4%B8%8A%E9%82%A3%E4%BA%9B%E4%BB%A4%E6%88%91%E6%84%9F%E5%88%B0%E6%83%8A%E8%89%B3%E5%8F%88%E5%AE%9E%E7%94%A8%E7%9A%84%E9%A1%B9%E7%9B%AE/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/phodal&#34;&gt;https://github.com/phodal&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 
@@ -3343,10 +3377,10 @@ bit 5 (FIN) sender finished&lt;/td&gt;
     
     <item>
       <title>shadowsocks go through the Fuck GFW</title>
-      <link>https://bg2bkk.github.io/post/shadowsocks%20go%20through%20the%20F%2A%2Ak%20GFW/</link>
+      <link>http://bg2bkk.github.io/post/shadowsocks%20go%20through%20the%20F%2A%2Ak%20GFW/</link>
       <pubDate>Mon, 11 Apr 2016 00:33:17 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/shadowsocks%20go%20through%20the%20F%2A%2Ak%20GFW/</guid>
+      <guid>http://bg2bkk.github.io/post/shadowsocks%20go%20through%20the%20F%2A%2Ak%20GFW/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;&lt;p&gt;买VPS，vultr的设备，使用起来还是蛮简单的。信用卡一张，注册并扣费0.1美元会送50美元，两个月内用完。我开始部署了一个日本的最便宜的5美元一月的vps，使用起来还不错，youtube 480P没问题；但是我通过这送的50美元实验了以下几个配置的机器速度，洛杉矶机房20美元，洛杉矶机房5美元，日本机房5美元，日本机房10美元，发现ping vps-ip时美国机房都是170ms，日本机房是220ms，原因可能是即使日本离得近，去日本的路由也要绕道美国才到日本的，所以我们直接选择美国机房好了。位于西海岸的洛杉矶机房，让你打开youtube 1080P毫无压力，白天晚上都没问题。&lt;/p&gt;&lt;/li&gt;
 
@@ -3406,10 +3440,10 @@ sudo ./debian_shadowsocks_tennfy.sh
     
     <item>
       <title>nginx gdb utils的编译 安装和使用</title>
-      <link>https://bg2bkk.github.io/post/nginx-gdb-utils%E7%9A%84%E7%BC%96%E8%AF%91%20%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8/</link>
+      <link>http://bg2bkk.github.io/post/nginx-gdb-utils%E7%9A%84%E7%BC%96%E8%AF%91%20%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8/</link>
       <pubDate>Fri, 25 Mar 2016 20:16:51 +0800</pubDate>
       
-      <guid>https://bg2bkk.github.io/post/nginx-gdb-utils%E7%9A%84%E7%BC%96%E8%AF%91%20%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8/</guid>
+      <guid>http://bg2bkk.github.io/post/nginx-gdb-utils%E7%9A%84%E7%BC%96%E8%AF%91%20%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;1、想用&lt;a href=&#34;https://github.com/openresty/nginx-gdb-utils&#34;&gt;nginx-gdb-utils&lt;/a&gt;来监控ngx_lua的内存使用情况&lt;/li&gt;
 &lt;li&gt;2、在CentOS 6.5上，gdb为7.2，python为2.6，没有一个符合的，想强上，没上了，只能在7上搞&lt;/li&gt;
@@ -3477,116 +3511,6 @@ set python print-stack full
 &lt;li&gt;&lt;/li&gt;
 &lt;li&gt;11、自此就可以愉快的玩耍了。这些工具还是很有意思的。&lt;/li&gt;
 &lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>New evolvement of Epoll</title>
-      <link>https://bg2bkk.github.io/post/New%20Evolvement%20of%20Epoll/</link>
-      <pubDate>Tue, 22 Mar 2016 01:48:41 +0800</pubDate>
-      
-      <guid>https://bg2bkk.github.io/post/New%20Evolvement%20of%20Epoll/</guid>
-      <description>
-
-&lt;h2 id=&#34;epoll在linux-内核中的新发展:b489f0f2178b22438ad2d1ac9c25dd2c&#34;&gt;EPOLL在linux 内核中的新发展&lt;/h2&gt;
-
-&lt;p&gt;Epoll是linux专有的系统调用，用于快速地高效轮询大规模文件描述符fd。这个API在kernel-2.5版本时就已经合并，并使用至今。即使如此，epoll和其他接口一样，仍然有提升空间。现在有两个patch为epoll系列系统调用添加了新的功能。&lt;/p&gt;
-
-&lt;h2 id=&#34;epoll概述:b489f0f2178b22438ad2d1ac9c25dd2c&#34;&gt;epoll概述&lt;/h2&gt;
-
-&lt;p&gt;epoll的功能与select或者poll类似，但是epoll在应对轮询处理大规模文件描述符时拥有更灵活的选项和更高的性能。每次调用select和poll，都会将被轮询的fd集合复制，生成新的fd集合，所以内核需要检查每一个描述符是否合法，是否IO就绪，然后将执行监听的进程添加到相应的唤醒等待队列。但实际上，一般情况下，在两次select或者poll调用之间，有事件产生的fd并不多，所以对每个fd都进行前述流程实际上有很多不必要的重复性操作。Epoll将设置被监听fd和轮询fd是否就绪这两个任务分开，从而解决这一问题。&lt;/p&gt;
-
-&lt;p&gt;使用epoll的话，必须首先新建epoll fd用于轮询，新建epfd通过如下调用：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;    #include &amp;lt;sys/poll.h&amp;gt;
-
-    int epoll_create(int size);
-    int epoll_create1(int flags);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;两者都返回epoll fd，而epoll_create()的size参数已经不再有意义，epoll_create1()的flag参数可以设置epfd的CLOSE_ON_EXEC标志。&lt;/p&gt;
-
-&lt;p&gt;第二步是添加所有被监听的fd，通过调用：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;    int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;参数op是EPOLL_CTL_ADD时，fd将被添加进epfd轮询的fd集合中，event参数用于指定哪个类型的事件被轮询，读事件、写事件或者其他事件，详情参考&lt;a href=&#34;http://man7.org/linux/man-pages/man2/epoll_ctl.2.html&#34;&gt;man page&lt;/a&gt;。&lt;/p&gt;
-
-&lt;p&gt;最后，等待集合中fd是否就绪的工作由以下函数实现：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;    int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout);
-    int epoll_pwait(int epfd, struct epoll_event *events, int maxevents, 
-                                                int timeout, const sigset_t *sigmask);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;有事件发生时，epoll_wait将返回，产生的时间存在参数events中，最多maxevents个事件。如果timeout时间内没有事件发生，epoll_wait也将返回，timeout的单位是ms。epoll_pwait可以使用信号集sigmask来屏蔽特定信号，可以使应用程序安全的等待fd就绪或者捕获信号。二者的关系和select与pselect关系一样。&lt;/p&gt;
-
-&lt;h2 id=&#34;patch-1-epoll-ctl-batch-和-epoll-pwait1:b489f0f2178b22438ad2d1ac9c25dd2c&#34;&gt;patch 1：epoll_ctl_batch() 和 epoll_pwait1()&lt;/h2&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://lwn.net/Articles/633195/&#34;&gt;Fam Zheng为epoll引入了两个新的系统调用&lt;/a&gt;。&lt;/p&gt;
-
-&lt;p&gt;Fam的第一个系统调用是&lt;strong&gt;&lt;em&gt;epoll_ctl_batch&lt;/em&gt;&lt;/strong&gt;，用来解决一个性能问题：每次调用epoll_ctl，都只能添加、修改和删除一个fd，如果有大量fd需要修改，那么需要调用相应次数的epoll_ctl来实现，这会导致大量系统调用发生，而这个场景却是经常发生的。Fam引入的epoll_ctl_batch()通过在一个系统调用中添加多个fd来解决这个问题：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;    int epoll_ctl_batch(int epfd, int flags, int ncmds, struct epoll_ctl_cmd *cmds);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;结构体epoll_ctl_cmd用于描述一个待添加的事件，可以看作是epoll_ctl参数的一次打包：&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;struct epoll_ctl_cmd {
-      /* Reserved flags for future extension, must be 0. */
-      int flags;
-      /* The same as epoll_ctl() op parameter. */
-      int op;
-      /* The same as epoll_ctl() fd parameter. */
-      int fd;
-      /* The same as the &amp;quot;events&amp;quot; field in struct epoll_event. */
-      uint32_t events;
-      /* The same as the &amp;quot;data&amp;quot; field in struct epoll_event. */
-      uint64_t data;
-      /* Output field, will be set to the return code after this
-       * command is executed by kernel */
-      int result;
-};
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;将一个epoll_ctl_cmd数组cmds传入，则epoll_ctl_batch可以在一次系统调用中添加多个fd。&lt;/p&gt;
-
-&lt;p&gt;Fam的第二个系统调用是&lt;strong&gt;&lt;em&gt;epoll_pwait1&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;    struct epoll_wait_params{
-        int clockid;
-        struct timespec timeout;
-        sigset_t *sigmask;
-        size_t sigsetsize;
-    }
-
-    int epoll_pwait(int epfd, int flags, struct epoll_event *events, int maxevents, 
-                                                struct epoll_wait_params *params);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;本版本的epoll_pwait1()添加了一个flags参数，但是并未定义任何flag值，所以flags置为0即可。其他参数，包括时间控制、信号屏蔽设置，都写在params参数中，目的是为应用程序提供更精细的时间控制。对于epoll_wait()来说，毫秒级的时钟分辨率已经被证明在一些场景中过于粗糙，新的系统供调用提供了纳秒级别的精度，解决了这个问题。&lt;/p&gt;
-
-&lt;h2 id=&#34;patch2-多线程环境下更好的性能-解决-惊群-问题:b489f0f2178b22438ad2d1ac9c25dd2c&#34;&gt;patch2: 多线程环境下更好的性能，解决“惊群”问题&lt;/h2&gt;
-
-&lt;p&gt;Jason Baron（Akamai公司）主要解决一个相对来说不那么常见的场景下，epoll现有的一个问题。通常情况下，一个给定的fd只被一个进程轮询，但是在Jason的场景中，会有多个进程轮询同一个fd集合。在这个场景设定下，一个fd有事件产生时将会唤醒所有监听进程，即使最后只有一个进程能够得到处理该事件的机会，这就是所谓的“惊群”问题。&lt;/p&gt;
-
-&lt;p&gt;&lt;a href=&#34;https://lwn.net/Articles/632590/&#34;&gt;Jason的解决方案&lt;/a&gt;是通过epoll_ctl向被轮询的fd再添加两个新的flag，第一个是&lt;strong&gt;&lt;em&gt;EPOLLEXCLUSIVE&lt;/em&gt;&lt;/strong&gt;，保证只有一个进程能被唤醒然后处理事件。该flag使得，有事件发生时，简单的用add_wait_queue_exclusive()代替add_wait_queue()，互斥的将进程放入等待队列中。很明显，所有轮询同一个fd的进程都要使用互斥模式来实现只有一个进程唤醒的效果。&lt;/p&gt;
-
-&lt;p&gt;不过，这个变化没有完全解决问题，因为这会导致当有事件发生时，唤醒的都是同一个进程。由于Epoll存在的一个原因是，在两次epoll_wait()调用之间,，进程能留在epfd的等待唤醒队列中，处于等待队列头部的进程仍然在队列头部，所以这个进程将被唤醒并处理所有互斥模式的fd（这句翻译我有疑问）。但是我们的目的是，多个进程轮询同一fd集合时，能够散开执行，而每次都唤醒的是同一个进程与此相悖。为解决这个问题，Jason添加了另一个flag，叫做 EPOLLROUNDROBIN，使得内核按顺序处理唤醒每个进程。&lt;/p&gt;
-
-&lt;p&gt;引入一个新的等待队列函数用来支持实现这种方式&lt;/p&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;    void add_wait_queue_rr(wait_queue_head_t *q, wait_queue_t *wait);
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;使用该函数后，当wait返回时，只有一个进程被唤醒，效果和add_wait_queue_exclusive()一样。但是，这个被唤醒的进程，将被从队列头移到队列尾，直到它前面的所有进程都得到唤醒机会后，才能再次被唤醒。&lt;/p&gt;
-
-&lt;p&gt;Jason的提交patch的同时也提交了一个用于压测的程序，压测结果显示，互斥模式使得执行时间降低了50%，当有大量的唤醒发生时，“惊群”效应带来的性能损耗就不会发生了。&lt;/p&gt;
-
-&lt;h2 id=&#34;结语:b489f0f2178b22438ad2d1ac9c25dd2c&#34;&gt;结语&lt;/h2&gt;
-
-&lt;p&gt;以上提到的两个patch已经被多次review和comments，Fam的patch自从&lt;a href=&#34;https://lwn.net/Articles/630097/&#34;&gt;1月份提出&lt;/a&gt;后进行了多次修改。现在的编辑们对API相关的patch投入了越来越多的关注和审视，这是对的，因为API将会长期有效，(API lives forever),甚至是永远有效。所以最好在向用户推出之前就搞定所有bug，以提供永久支持的态度提交。这些patch目前看来已经接近就绪，可能将会在下一个窗口中合并。&lt;/p&gt;
 </description>
     </item>
     
