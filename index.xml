@@ -217,6 +217,44 @@ String obj(other);
       <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</guid>
       <description>
 
+&lt;h2 id=&#34;redis设置和清除密码:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;redis设置和清除密码&lt;/h2&gt;
+
+&lt;p&gt;正规项目终于要对redis设置密码了，&lt;a href=&#34;http://blog.csdn.net/zyz511919766/article/details/42268219&#34;&gt;如何加密码呢&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;配置文件中添加密码&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;配置文件中的requirepass配置指令用于配置密码&lt;/li&gt;
+&lt;li&gt;配置文件中的masterauth用于配置从机登陆主机的密码&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;运行中添加密码&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;config set requirepass PASSWORD&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;运行中删除密码&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;config set requirepass &amp;ldquo;&amp;rdquo;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;获取密码&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;config get requirepass&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;配置从机&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;config set masterauth MASTER_PASSWORD&lt;/li&gt;
+&lt;li&gt;config set requirepass SLAVE_AUTH&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
 &lt;h2 id=&#34;epoll是同步非阻塞的:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;epoll是同步非阻塞的&lt;/h2&gt;
 
 &lt;p&gt;epoll、select等多路服用IO，将fd加入等待时间的队列中，每隔一段时间去轮询一次，因此是同步的；优点是能够在等待任务的时间里去做别的任务；缺点是任务完成的响应延迟增大，因为每隔一段时间去轮询他们，在时间间隔内任务可能已经完成而等待处理等待了一段时间了。&lt;/p&gt;
