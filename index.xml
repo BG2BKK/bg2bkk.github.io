@@ -217,6 +217,16 @@ String obj(other);
       <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</guid>
       <description>
 
+&lt;h2 id=&#34;ubuntu下解压zip文件出现乱码的解决办法:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;ubuntu下解压zip文件出现乱码的解决办法&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://www.zhihu.com/question/20523036&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;由于zip格式中并没有指定编码格式，Windows下生成的zip文件中的编码是GBK/GB2312等，因此，导致这些zip文件在Linux下解压时出现乱码问题，因为Linux下的默认编码是UTF8。&lt;/p&gt;
+
+&lt;p&gt;目前网上流传一种unzip -O cp936的方法，但一些unzip是没有-O这个选项的。&lt;/p&gt;
+
+&lt;p&gt;亲测好用，不好用的看链接&lt;/p&gt;
+
 &lt;h2 id=&#34;redis设置和清除密码:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;redis设置和清除密码&lt;/h2&gt;
 
 &lt;p&gt;正规项目终于要对redis设置密码了，&lt;a href=&#34;http://blog.csdn.net/zyz511919766/article/details/42268219&#34;&gt;如何加密码呢&lt;/a&gt;&lt;/p&gt;
