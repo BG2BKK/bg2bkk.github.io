@@ -5,8 +5,51 @@
     <link>https://bg2bkk.github.io/</link>
     <description>Recent content on BG2BKK Site</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Sun, 18 Sep 2016 19:43:59 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 13 Oct 2016 13:57:31 +0800</lastBuildDate>
     <atom:link href="https://bg2bkk.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>futex和linux的线程同步机制</title>
+      <link>https://bg2bkk.github.io/post/futex%E5%92%8Clinux%E7%9A%84%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6/</link>
+      <pubDate>Thu, 13 Oct 2016 13:57:31 +0800</pubDate>
+      
+      <guid>https://bg2bkk.github.io/post/futex%E5%92%8Clinux%E7%9A%84%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.csdn.net/nellson/article/details/5400360#&#34;&gt;futex初体验&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.sina.com.cn/s/blog_e59371cc0102v29b.html&#34;&gt;阿里云&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.dbafree.net/?p=1128&#34;&gt;linux线程同步机制&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Linux中的线程同步机制(二)–In Glibc
+
+&lt;ul&gt;
+&lt;li&gt;大部分的glibc的同步方式，mutex或者semaphore，大多基于futex的方式，首先进行用户态检查，未果的话进行futex系统调用。这是我疑惑为什么futex这么常用却在代码层面上看不到它，原因是我们使用的都是基于futex的机制&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;[man page]()
+
+&lt;ul&gt;
+&lt;li&gt;先通过__sync_bool_compare_and_swap等原子操作比对futex的值是否有变化，如果没有，说明没有进程竞争。这里都是用户态执行的&lt;/li&gt;
+&lt;li&gt;如果有变化，说明有进程竞争了，所以这时系统调用futex进行FUTEX_WAIT，使得本进程休眠或休眠一段时间，直到有别的进程FUTEX_WAKE它&lt;/li&gt;
+&lt;li&gt;说白了，futex针对有些同步场景中，尽管没有竞争发生，但是还要陷入内核态去获得锁或者标志位然后同步的情况，futex可以仅通过原子性的内核态即可实现线程安全&lt;/li&gt;
+&lt;li&gt;提供futex_demo.c
+
+&lt;ul&gt;
+&lt;li&gt;如果将futex1和futex2互换下，画面太美不敢看，CPU暴涨100%&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable)
+futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable)
+futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable)
+futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable)
+futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable)
+futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable)
+futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable)
+&lt;/code&gt;&lt;/pre&gt;
+</description>
+    </item>
     
     <item>
       <title>为什么我喜欢读书</title>
@@ -2514,6 +2557,12 @@ net.ipv4.tcp_fastopen = 3
 
 &lt;p&gt;因此epoll是同步和非阻塞的。&lt;/p&gt;
 
+&lt;h2 id=&#34;性能分析:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;性能分析&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://sourceware.org/systemtap/examples/keyword-index.html#FUTEX&#34;&gt;有用的systemtap脚本&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
 &lt;h2 id=&#34;分布式存储:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;分布式存储&lt;/h2&gt;
 
 &lt;ul&gt;
@@ -3482,82 +3531,6 @@ sudo ./debian_shadowsocks_tennfy.sh
 &lt;/ul&gt;&lt;/li&gt;
 
 &lt;li&gt;&lt;p&gt;如果您觉得shadowsocks很容易搭建起来，想试一下的话，可以通过的推荐链接来注册，这样会有一定奖励:&lt;a href=&#34;http://www.vultr.com/?ref=6870148&#34;&gt;http://www.vultr.com/?ref=6870148&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>nginx gdb utils的编译 安装和使用</title>
-      <link>https://bg2bkk.github.io/post/nginx-gdb-utils%E7%9A%84%E7%BC%96%E8%AF%91%20%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8/</link>
-      <pubDate>Fri, 25 Mar 2016 20:16:51 +0800</pubDate>
-      
-      <guid>https://bg2bkk.github.io/post/nginx-gdb-utils%E7%9A%84%E7%BC%96%E8%AF%91%20%E5%AE%89%E8%A3%85%E5%92%8C%E4%BD%BF%E7%94%A8/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;1、想用&lt;a href=&#34;https://github.com/openresty/nginx-gdb-utils&#34;&gt;nginx-gdb-utils&lt;/a&gt;来监控ngx_lua的内存使用情况&lt;/li&gt;
-&lt;li&gt;2、在CentOS 6.5上，gdb为7.2，python为2.6，没有一个符合的，想强上，没上了，只能在7上搞&lt;/li&gt;
-&lt;li&gt;3、CentSO 7的gdb是7.6，版本也很老，对于nginx-gdb-utils来说。python倒是2.7，可以搞&lt;/li&gt;
-&lt;li&gt;4、&lt;a href=&#34;http://www.linuxfromscratch.org/blfs/view/svn/general/gdb.html&#34;&gt;gdb&lt;/a&gt;需要编译安装，首先下载gdb-7.11&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;    cd gdb-7.11
-    ./configure --with-python=python2.7
-    报错，报python2.7找不到，换成
-
-    ./configure --with-python=/usr/bin/python2.7
-    依然报错
-    很奇怪，难道不是要python2.7吗，怎么报找不到。
-    后来才知道，需要python，要的不是python2.7的可执行文件，而是python的库文件等待
-
-    sudo yum install python2.7-devel
-
-    make -j24 --with-python
-    注意我这里不用写--with-python=blahblah了
-    终于不报错了
-
-    make -C gdb install 
-    报错，报没有makeinfo的错误，经查，makeinfo是texinfo的一部分，用来生成说明文档的，因为它而不能安装，蛋疼
-
-    sudo yum install texinfo
-
-    make -C gdb install
-    安装在/usr/local/bin/gdb
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;ul&gt;
-&lt;li&gt;5、将nginx-gdb-utils写入gdb初始化文件中，这样以后就不用每次加载py文件了&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;vim ~/.gdbinit
-
-directory /path/to/nginx-gdb-utils
-
-py import sys
-py sys.path.append(&amp;quot;/path/to/nginx-gdb-utils&amp;quot;)
-
-source luajit20.gdb
-source ngx-lua.gdb
-source luajit21.py
-source ngx-raw-req.py
-set python print-stack full
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;p&gt;但其实一般而言我们都是用root用户的，所以在sudo或者直接是root用户下时，需要重新写~/.gdbinit，这时应该是在/root/.gdbinit了&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;6、/usr/local/bin/gdb -p 12345&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;7、lgcstat&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;p&gt;发现报一些函数或者变量找不到，比如Lgref找不到，这个原因是相关软件没有把用 -g 选项把符号编译进去&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;8、对于LuaJit而言，make CCDEBUG=-g -B -j8&lt;/li&gt;
-&lt;li&gt;9、对于lua-cjson而言，make CCDEBUG=-g -B -j8&lt;/li&gt;
-&lt;li&gt;10、对于tengine、nginx或者openresty而言，CFLAGS=&amp;ldquo;-g -O2&amp;rdquo; ./configure&lt;/li&gt;
-&lt;li&gt;&lt;/li&gt;
-&lt;li&gt;11、自此就可以愉快的玩耍了。这些工具还是很有意思的。&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>
