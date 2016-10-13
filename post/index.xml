@@ -16,7 +16,7 @@
       <guid>https://bg2bkk.github.io/post/futex%E5%92%8Clinux%E7%9A%84%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6/</guid>
       <description>&lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;http://blog.csdn.net/nellson/article/details/5400360#&#34;&gt;futex初体验&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://blog.sina.com.cn/s/blog_e59371cc0102v29b.html&#34;&gt;阿里云&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.sina.com.cn/s/blog_e59371cc0102v29b.html&#34;&gt;阿里基础架构事业群的博客关于futex的文章&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://www.dbafree.net/?p=1128&#34;&gt;linux线程同步机制&lt;/a&gt;
 
 &lt;ul&gt;
@@ -26,7 +26,7 @@
 &lt;li&gt;大部分的glibc的同步方式，mutex或者semaphore，大多基于futex的方式，首先进行用户态检查，未果的话进行futex系统调用。这是我疑惑为什么futex这么常用却在代码层面上看不到它，原因是我们使用的都是基于futex的机制&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;[man page]()
+&lt;li&gt;man page
 
 &lt;ul&gt;
 &lt;li&gt;先通过__sync_bool_compare_and_swap等原子操作比对futex的值是否有变化，如果没有，说明没有进程竞争。这里都是用户态执行的&lt;/li&gt;
