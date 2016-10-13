@@ -25,6 +25,12 @@
 &lt;ul&gt;
 &lt;li&gt;大部分的glibc的同步方式，mutex或者semaphore，大多基于futex的方式，首先进行用户态检查，未果的话进行futex系统调用。这是我疑惑为什么futex这么常用却在代码层面上看不到它，原因是我们使用的都是基于futex的机制&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Linux中的线程同步机制(三)–Practice
+
+&lt;ul&gt;
+&lt;li&gt;pthread库中的pthread_join也是基于futex的哦，当父进程执行pthread_join它的某一个子线程时，如果子线程已经执行完毕，则父进程不会调用futex系统调用，如果子线程仍然执行中，那么父进程调用futex系统调用进行FUTEX_WAIT休眠，等待子线程的唤醒&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;好文章，值得深挖和思考&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;li&gt;man page
 
