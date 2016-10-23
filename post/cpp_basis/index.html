@@ -57,7 +57,7 @@
         },
         "datePublished": "2016-08-23",
         "description": "",
-        "wordCount":  139 
+        "wordCount":  150 
     }
     </script>
     
@@ -101,13 +101,13 @@
     <h1 class="post-title">C&#43;&#43;基础知识学习</h1>
     
 
-<h2 id="static和const关键字各自的作用:2404ccd5838a6732564bda89dd9448a6">static和const关键字各自的作用</h2>
+<h2 id="static和const关键字各自的作用">static和const关键字各自的作用</h2>
 
 <ul>
 <li><p>static关键字</p>
 
 <ul>
-<li>在函数体内，static变量只分配一次，作用域范围也在该函数体内；当下次调用该函数时，该值保持不变</li>
+<li>在函数体内声明的话，static变量只分配一次，作用域范围也在该函数体内；当下次调用该函数时，该值保持不变</li>
 <li>模块内的static变量的作用域是模块内</li>
 <li>类的static变量属于整个类，而不是某个对象，所有对象都共有这一份拷贝</li>
 </ul></li>
@@ -121,9 +121,9 @@
 </ul></li>
 </ul>
 
-<h2 id="拷贝构造函数和赋值构造函数:2404ccd5838a6732564bda89dd9448a6">拷贝构造函数和赋值构造函数</h2>
+<h2 id="拷贝构造函数和赋值构造函数">拷贝构造函数和赋值构造函数</h2>
 
-<p>C++的拷贝构造函数、重载赋值构造函数，以及析构函数，属于C++复制控制的范畴</p>
+<p>C++的拷贝构造函数、重载赋值构造函数，以及析构函数，属于C++赋值控制的范畴</p>
 
 <p>如果没有手动实现，编译器会自动生成一个；编译器会自动生成以下四个成员函数</p>
 
@@ -201,6 +201,21 @@ String obj(other);
 
 <p>在赋值构造函数中，<strong><em>=</em></strong>缺省操作是将成员变量的值赋值，这时函数成员的旧值自然被丢弃，比如指针被赋予新值，旧值丢弃；然而指针旧值指向的内存却并未释放；因此包含动态分配成员的类提供拷贝构造函数外，还应该考虑重载<strong><em>=</em></strong>赋值操作符</p>
 
+<h2 id="抽象类与纯虚函数">抽象类与纯虚函数</h2>
+
+<p>纯虚函数是在基类中声明的虚函数，在基类中没有定义，声明方法是在函数原型后加<strong><em>=0</em></strong>，例如</p>
+
+<pre><code class="language-cpp">virtual void function() = 0;
+</code></pre>
+
+<p>纯虚函数要求基类的所有派生类都要定义自己的实现方法，除非派生类也是抽象类，因此纯虚函数主要功能是实现接口声明。至少含有一个纯虚函数的类被称为抽象类。</p>
+
+<h2 id="基类的虚析构函数">基类的虚析构函数</h2>
+
+<p>在多态使用时，如果new一个子类对象，而用父类类型指针指向它来使用，delete父类类型指针的时候，只释放父类类型的资源，子类的虚构函数并不存在，导致资源不能及时释放。因此将父类的析构函数设置为虚函数，释放派生类对象时，链式调用析构函数，派生类析构函数先调用，父类的析构函数后调用。<a href="http://blog.csdn.net/starlee/article/details/619827">参考链接</a></p>
+
+<p>一句话，基类的析构函数设置为虚，可以在释放时链式释放子类对象内存，防止内存泄露。不过这个机制，还是无法释放类中的动态分配的内存，所以良好的编程习惯是不挖坑的基础。</p>
+
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
       <li class="email">
@@ -234,7 +249,7 @@ String obj(other);
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/cpp_basis/&amp;title=C%2b%2b%e5%9f%ba%e7%a1%80%e7%9f%a5%e8%af%86%e5%ad%a6%e4%b9%a0&amp;summary=static%e5%92%8cconst%e5%85%b3%e9%94%ae%e5%ad%97%e5%90%84%e8%87%aa%e7%9a%84%e4%bd%9c%e7%94%a8%20static%e5%85%b3%e9%94%ae%e5%ad%97%20%e5%9c%a8%e5%87%bd%e6%95%b0%e4%bd%93%e5%86%85%ef%bc%8cstatic%e5%8f%98%e9%87%8f%e5%8f%aa%e5%88%86%e9%85%8d%e4%b8%80%e6%ac%a1%ef%bc%8c%e4%bd%9c%e7%94%a8%e5%9f%9f%e8%8c%83%e5%9b%b4%e4%b9%9f%e5%9c%a8%e8%af%a5%e5%87%bd%e6%95%b0%e4%bd%93%e5%86%85%ef%bc%9b%e5%bd%93%e4%b8%8b%e6%ac%a1%e8%b0%83%e7%94%a8%e8%af%a5%e5%87%bd%e6%95%b0%e6%97%b6%ef%bc%8c%e8%af%a5%e5%80%bc%e4%bf%9d%e6%8c%81%e4%b8%8d%e5%8f%98%20%e6%a8%a1%e5%9d%97%e5%86%85%e7%9a%84static%e5%8f%98%e9%87%8f%e7%9a%84%e4%bd%9c%e7%94%a8%e5%9f%9f%e6%98%af%e6%a8%a1%e5%9d%97%e5%86%85%20%e7%b1%bb%e7%9a%84static%e5%8f%98%e9%87%8f%e5%b1%9e%e4%ba%8e%e6%95%b4%e4%b8%aa%e7%b1%bb%ef%bc%8c%e8%80%8c%e4%b8%8d%e6%98%af%e6%9f%90%e4%b8%aa%e5%af%b9%e8%b1%a1%ef%bc%8c%e6%89%80%e6%9c%89%e5%af%b9%e8%b1%a1%e9%83%bd%e5%85%b1%e6%9c%89%e8%bf%99%e4%b8%80%e4%bb%bd%e6%8b%b7%e8%b4%9d%20const%e5%85%b3%e9%94%ae%e5%ad%97%20%e5%ae%9a%e4%b9%89%e5%b8%b8%e9%87%8f%ef%bc%9b%e9%a6%96%e6%ac%a1%e5%ae%9a%e4%b9%89%e5%bf%85%e9%a1%bb%e5%88%9d%e5%a7%8b%e5%8c%96%ef%bc%8c%e4%b9%8b%e5%90%8e%e4%b8%8d%e8%83%bd%e8%b5%8b%e5%80%bc%20%e5%87%bd%e6%95%b0%e5%a3%b0%e6%98%8e%e6%97%b6%ef%bc%8c%e7%94%a8const%e4%bf%ae%e9%a5%b0%e5%bd%a2%e5%8f%82%ef%bc%8c%e5%8f%af%e4%bb%a5%e4%bf%9d%e8%af%81%e4%b8%8d%e8%a2%ab%e5%87%bd%e6%95%b0%e4%bd%93%e4%bf%ae%e6%94%b9%20%e5%8f%af%e4%bb%a5%e4%bf%ae%e9%a5%b0%e7%b1%bb%e7%9a%84%e6%88%90%e5%91%98%e5%87%bd%e6%95%b0%ef%bc%8c%e4%bf%9d%e8%af%81%e5%85%b6%e8%bf%94%e5%9b%9e%e5%80%bc%e4%b8%8d%e4%b8%ba%e2%80%9c%e5%b7%a6%e5%80%bc%e2%80%9d%20%e6%8b%b7%e8%b4%9d%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%e5%92%8c%e8%b5%8b%e5%80%bc%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%20C%2b%2b%e7%9a%84%e6%8b%b7%e8%b4%9d%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%e3%80%81%e9%87%8d%e8%bd%bd%e8%b5%8b%e5%80%bc%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%ef%bc%8c%e4%bb%a5%e5%8f%8a%e6%9e%90%e6%9e%84%e5%87%bd%e6%95%b0%ef%bc%8c%e5%b1%9e%e4%ba%8eC%2b%2b%e5%a4%8d%e5%88%b6%e6%8e%a7%e5%88%b6%e7%9a%84%e8%8c%83%e7%95%b4%20%e5%a6%82%e6%9e%9c%e6%b2%a1%e6%9c%89%e6%89%8b%e5%8a%a8%e5%ae%9e%e7%8e%b0%ef%bc%8c%e7%bc%96%e8%af%91%e5%99%a8%e4%bc%9a%e8%87%aa%e5%8a%a8%e7%94%9f%e6%88%90%e4%b8%80%e4%b8%aa%ef%bc%9b%e7%bc%96%e8%af%91%e5%99%a8%e4%bc%9a%e8%87%aa%e5%8a%a8%e7%94%9f%e6%88%90%e4%bb%a5%e4%b8%8b%e5%9b%9b%e4%b8%aa%e6%88%90%e5%91%98%e5%87%bd%e6%95%b0%201.%20%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%202.%20%e6%9e%90%e6%9e%84%e5%87%bd%e6%95%b0%203.%20%e6%8b%b7%e8%b4%9d%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%204.%20%e8%b5%8b%e5%80%bc%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%20class%20String%20%7b%20public%3a%20String%28const%20char%20%2a%29%3b%20%2f%2f%20%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%20String%28const%20String%20%26amp%3bother%29%3b%20%2f%2f%20%e6%8b%b7%e8%b4%9d%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%20String%20%26amp%3b%20operator%3d%28%20const%20String%20%26amp%3bother%29%3b%20%2f%2f%20%e8%b5%8b%e5%80%bc%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%20~String%28%29%3b%20%2f%2f%20%e6%9e%90%e6%9e%84%e5%87%bd%e6%95%b0%20private%3a%20char%20%2am_data%3b%20%7d%20%e5%a6%82%e6%9e%9c%e6%9c%89%e6%89%8b%e5%8a%a8%e5%ae%9e%e7%8e%b0%ef%bc%8c%e5%88%99%e4%bc%9a%e6%9b%bf%e4%bb%a3%e7%bc%96%e8%af%91%e5%99%a8%e7%9a%84%e8%a1%8c%e4%b8%ba%ef%bc%9b%e9%99%a4%e4%ba%86%e6%9e%90%e6%9e%84%e5%87%bd%e6%95%b0%ef%bc%8c%e6%9e%90%e6%9e%84%e5%87%bd%e6%95%b0%e7%94%a8%e4%ba%8e%e5%ae%8c%e6%88%90%e5%af%b9%e8%b1%a1%e7%9a%84%e9%87%8a%e6%94%be%e6%93%8d%e4%bd%9c%ef%bc%8c%e5%8d%b3%e4%bd%bf%e6%88%91%e4%bb%ac%e6%89%8b%e5%8a%a8%e5%ae%9e%e7%8e%b0%ef%bc%8c%e7%bc%96%e8%af%91%e5%99%a8%e4%b9%9f%e4%bc%9a%e5%ae%9e%e7%8e%b0%e4%b8%80%e4%bb%bd%ef%bc%8c%e8%bf%99%e6%97%b6%e6%9e%90%e6%9e%84%e5%87%bd%e6%95%b0%e5%8f%af%e4%bb%a5%e8%ae%a9%e6%88%91%e4%bb%ac%e7%94%a8%e6%9d%a5%e9%87%8a%e6%94%be%e5%8a%a8%e6%80%81%e5%88%86%e9%85%8d%e7%9a%84%e5%86%85%e5%ad%98.%20%e6%8b%b7%e8%b4%9d%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%20String%3a%3aString%28const%20String%20%26amp%3bother%29%20%7b%20int%20len%20%3d%20strlen%28other.m_data%29%3b%20m_data%20%3d%20new%20char%5blen%20%2b%201%5d%3b%20strcpy%28m_data%2c%20other.m_data%29%3b%20%7d%20%2a%20%e5%a6%82%e4%b8%8b%e5%87%a0%e7%a7%8d%e6%83%85%e5%86%b5%e4%b8%8b%ef%bc%8c%e6%8b%b7%e8%b4%9d%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%e8%a2%ab%e8%b0%83%e7%94%a8%3a%20%2a%201...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/cpp_basis/&amp;title=C%2b%2b%e5%9f%ba%e7%a1%80%e7%9f%a5%e8%af%86%e5%ad%a6%e4%b9%a0&amp;summary=static%e5%92%8cconst%e5%85%b3%e9%94%ae%e5%ad%97%e5%90%84%e8%87%aa%e7%9a%84%e4%bd%9c%e7%94%a8%20static%e5%85%b3%e9%94%ae%e5%ad%97%20%e5%9c%a8%e5%87%bd%e6%95%b0%e4%bd%93%e5%86%85%e5%a3%b0%e6%98%8e%e7%9a%84%e8%af%9d%ef%bc%8cstatic%e5%8f%98%e9%87%8f%e5%8f%aa%e5%88%86%e9%85%8d%e4%b8%80%e6%ac%a1%ef%bc%8c%e4%bd%9c%e7%94%a8%e5%9f%9f%e8%8c%83%e5%9b%b4%e4%b9%9f%e5%9c%a8%e8%af%a5%e5%87%bd%e6%95%b0%e4%bd%93%e5%86%85%ef%bc%9b%e5%bd%93%e4%b8%8b%e6%ac%a1%e8%b0%83%e7%94%a8%e8%af%a5%e5%87%bd%e6%95%b0%e6%97%b6%ef%bc%8c%e8%af%a5%e5%80%bc%e4%bf%9d%e6%8c%81%e4%b8%8d%e5%8f%98%20%e6%a8%a1%e5%9d%97%e5%86%85%e7%9a%84static%e5%8f%98%e9%87%8f%e7%9a%84%e4%bd%9c%e7%94%a8%e5%9f%9f%e6%98%af%e6%a8%a1%e5%9d%97%e5%86%85%20%e7%b1%bb%e7%9a%84static%e5%8f%98%e9%87%8f%e5%b1%9e%e4%ba%8e%e6%95%b4%e4%b8%aa%e7%b1%bb%ef%bc%8c%e8%80%8c%e4%b8%8d%e6%98%af%e6%9f%90%e4%b8%aa%e5%af%b9%e8%b1%a1%ef%bc%8c%e6%89%80%e6%9c%89%e5%af%b9%e8%b1%a1%e9%83%bd%e5%85%b1%e6%9c%89%e8%bf%99%e4%b8%80%e4%bb%bd%e6%8b%b7%e8%b4%9d%20const%e5%85%b3%e9%94%ae%e5%ad%97%20%e5%ae%9a%e4%b9%89%e5%b8%b8%e9%87%8f%ef%bc%9b%e9%a6%96%e6%ac%a1%e5%ae%9a%e4%b9%89%e5%bf%85%e9%a1%bb%e5%88%9d%e5%a7%8b%e5%8c%96%ef%bc%8c%e4%b9%8b%e5%90%8e%e4%b8%8d%e8%83%bd%e8%b5%8b%e5%80%bc%20%e5%87%bd%e6%95%b0%e5%a3%b0%e6%98%8e%e6%97%b6%ef%bc%8c%e7%94%a8const%e4%bf%ae%e9%a5%b0%e5%bd%a2%e5%8f%82%ef%bc%8c%e5%8f%af%e4%bb%a5%e4%bf%9d%e8%af%81%e4%b8%8d%e8%a2%ab%e5%87%bd%e6%95%b0%e4%bd%93%e4%bf%ae%e6%94%b9%20%e5%8f%af%e4%bb%a5%e4%bf%ae%e9%a5%b0%e7%b1%bb%e7%9a%84%e6%88%90%e5%91%98%e5%87%bd%e6%95%b0%ef%bc%8c%e4%bf%9d%e8%af%81%e5%85%b6%e8%bf%94%e5%9b%9e%e5%80%bc%e4%b8%8d%e4%b8%ba%e2%80%9c%e5%b7%a6%e5%80%bc%e2%80%9d%20%e6%8b%b7%e8%b4%9d%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%e5%92%8c%e8%b5%8b%e5%80%bc%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%20C%2b%2b%e7%9a%84%e6%8b%b7%e8%b4%9d%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%e3%80%81%e9%87%8d%e8%bd%bd%e8%b5%8b%e5%80%bc%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%ef%bc%8c%e4%bb%a5%e5%8f%8a%e6%9e%90%e6%9e%84%e5%87%bd%e6%95%b0%ef%bc%8c%e5%b1%9e%e4%ba%8eC%2b%2b%e8%b5%8b%e5%80%bc%e6%8e%a7%e5%88%b6%e7%9a%84%e8%8c%83%e7%95%b4%20%e5%a6%82%e6%9e%9c%e6%b2%a1%e6%9c%89%e6%89%8b%e5%8a%a8%e5%ae%9e%e7%8e%b0%ef%bc%8c%e7%bc%96%e8%af%91%e5%99%a8%e4%bc%9a%e8%87%aa%e5%8a%a8%e7%94%9f%e6%88%90%e4%b8%80%e4%b8%aa%ef%bc%9b%e7%bc%96%e8%af%91%e5%99%a8%e4%bc%9a%e8%87%aa%e5%8a%a8%e7%94%9f%e6%88%90%e4%bb%a5%e4%b8%8b%e5%9b%9b%e4%b8%aa%e6%88%90%e5%91%98%e5%87%bd%e6%95%b0%201.%20%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%202.%20%e6%9e%90%e6%9e%84%e5%87%bd%e6%95%b0%203.%20%e6%8b%b7%e8%b4%9d%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%204.%20%e8%b5%8b%e5%80%bc%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%20class%20String%20%7b%20public%3a%20String%28const%20char%20%2a%29%3b%20%2f%2f%20%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%20String%28const%20String%20%26amp%3bother%29%3b%20%2f%2f%20%e6%8b%b7%e8%b4%9d%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%20String%20%26amp%3b%20operator%3d%28%20const%20String%20%26amp%3bother%29%3b%20%2f%2f%20%e8%b5%8b%e5%80%bc%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%20~String%28%29%3b%20%2f%2f%20%e6%9e%90%e6%9e%84%e5%87%bd%e6%95%b0%20private%3a%20char%20%2am_data%3b%20%7d%20%e5%a6%82%e6%9e%9c%e6%9c%89%e6%89%8b%e5%8a%a8%e5%ae%9e%e7%8e%b0%ef%bc%8c%e5%88%99%e4%bc%9a%e6%9b%bf%e4%bb%a3%e7%bc%96%e8%af%91%e5%99%a8%e7%9a%84%e8%a1%8c%e4%b8%ba%ef%bc%9b%e9%99%a4%e4%ba%86%e6%9e%90%e6%9e%84%e5%87%bd%e6%95%b0%ef%bc%8c%e6%9e%90%e6%9e%84%e5%87%bd%e6%95%b0%e7%94%a8%e4%ba%8e%e5%ae%8c%e6%88%90%e5%af%b9%e8%b1%a1%e7%9a%84%e9%87%8a%e6%94%be%e6%93%8d%e4%bd%9c%ef%bc%8c%e5%8d%b3%e4%bd%bf%e6%88%91%e4%bb%ac%e6%89%8b%e5%8a%a8%e5%ae%9e%e7%8e%b0%ef%bc%8c%e7%bc%96%e8%af%91%e5%99%a8%e4%b9%9f%e4%bc%9a%e5%ae%9e%e7%8e%b0%e4%b8%80%e4%bb%bd%ef%bc%8c%e8%bf%99%e6%97%b6%e6%9e%90%e6%9e%84%e5%87%bd%e6%95%b0%e5%8f%af%e4%bb%a5%e8%ae%a9%e6%88%91%e4%bb%ac%e7%94%a8%e6%9d%a5%e9%87%8a%e6%94%be%e5%8a%a8%e6%80%81%e5%88%86%e9%85%8d%e7%9a%84%e5%86%85%e5%ad%98.%20%e6%8b%b7%e8%b4%9d%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%20String%3a%3aString%28const%20String%20%26amp%3bother%29%20%7b%20int%20len%20%3d%20strlen%28other.m_data%29%3b%20m_data%20%3d%20new%20char%5blen%20%2b%201%5d%3b%20strcpy%28m_data%2c%20other.m_data%29%3b%20%7d%20%2a%20%e5%a6%82%e4%b8%8b%e5%87%a0%e7%a7%8d%e6%83%85%e5%86%b5%e4%b8%8b%ef%bc%8c%e6%8b%b7%e8%b4%9d%e6%9e%84%e9%80%a0%e5%87%bd%e6%95%b0%e8%a2%ab%e8%b0%83%e7%94%a8%3a%20%2a%201...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

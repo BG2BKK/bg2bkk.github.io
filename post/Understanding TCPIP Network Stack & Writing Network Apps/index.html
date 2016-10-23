@@ -1,0 +1,464 @@
+
+<!DOCTYPE html>
+<html lang="">
+
+    <head>
+
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+        <meta property="og:title" content=" Understanding TCPIP Network Stack &amp; Writing Network Apps &middot;  BG2BKK Site" />
+        <meta property="og:site_name" content="BG2BKK Site" />
+        <meta property="og:url" content="https://bg2bkk.github.io/post/Understanding%20TCPIP%20Network%20Stack%20&amp;%20Writing%20Network%20Apps/" />
+
+    
+        <meta property="og:type" content="article" />
+        <meta property="og:article:published_time" content="2016-10-20T22:21:55&#43;08:00" />
+        
+
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:site" content="@" />
+        <meta name="twitter:creator" content="@" />
+        <meta name="twitter:title" content="Understanding TCPIP Network Stack &amp; Writing Network Apps" />
+        <meta name="twitter:description" content="" />
+        <meta name="twitter:url" content="https://bg2bkk.github.io/post/Understanding%20TCPIP%20Network%20Stack%20&amp;%20Writing%20Network%20Apps/" />
+    
+
+        <title> Understanding TCPIP Network Stack &amp; Writing Network Apps &middot;  BG2BKK Site</title>
+
+    
+        <meta name="description" content="" />
+    
+        
+        <meta name="p:domain_verify" content="fc173d84e3a4de948ed4bda2908afd3e"/>
+        <meta name="HandheldFriendly" content="True" />
+        <meta name="MobileOptimized" content="320" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        
+          
+
+    
+        <link href="https://bg2bkk.github.io/index.xml" rel="alternate" type="application/rss+xml" title="BG2BKK Site" />
+    
+
+    
+        <link rel="canonical" href="https://bg2bkk.github.io/post/Understanding%20TCPIP%20Network%20Stack%20&amp;%20Writing%20Network%20Apps/" />
+
+    
+    <script type="application/ld+json">
+    { 
+        "@context": "http://schema.org",
+        "@type": "Article",
+        "headline": "Understanding TCPIP Network Stack \x26 Writing Network Apps",
+        "author": {
+            "@type": "Person",
+            "name": "http://profiles.google.com/?rel=author"
+        },
+        "datePublished": "2016-10-20",
+        "description": "",
+        "wordCount":  332 
+    }
+    </script>
+    
+    
+    <style>
+*{padding:0;margin:0}body,html{font-size:1em;line-height:1.65em;font-family:"Open Sans",sans-serif;font-weight:300;color:#444}html{height:100%}body{padding:2em 2.5em 1em 20em}header{border-right:1px #eee solid;padding:2em;position:fixed;top:0;left:0;height:100%;width:13.5em}#content{display:block;width:100%}footer{padding:1em 0 2.5em;font-size:.8em;line-height:1.5em;color:#888}article{border-bottom:.1em #eee solid;padding-bottom:1.7em;max-width:56em}h4,h5,h6,hr,p{margin-top:.9em;margin-bottom:.9em}h1,h2,h3,h4,h5,h6{font-family:"Microsoft Yahei",serif;font-weight:400!important}h1{font-size:2.5em;line-height:1.1em;margin-top:.6em;margin-bottom:.6em}h2{font-size:1.9em;line-height:1.2em;margin-top:.7em;margin-bottom:.7em}h3{font-size:1.4em;line-height:1.3em;margin-top:.8em;margin-bottom:.8em}h4{font-size:1.3em}h5{font-size:1.2em}h6{font-size:1.1em}iframe,img{max-width:100%}a{font-weight:700;text-decoration:none;color:#5cc265}a:hover{text-decoration:underline}h1 a,h2 a,h3 a,h4 a,h5 a,h6 a{font-weight:400!important}strong{font-weight:700}blockquote{border-left:.4em solid #eee;padding-left:1.2em;font-size:1.3em}hr{border:0;height:1px;background:#eee}ol,ul{margin-left:3em}code{font-size:1.4em;background:#eee}pre{font-size:.8em;line-height:2em;background:#eee;padding:1em;word-break:break-all;word-wrap:break-word;white-space:pre;white-space:-moz-pre-wrap;white-space:pre-wrap}input{font-size:1em;padding:.3em}header h1{font-size:1.9em;margin-top:.8em;margin-bottom:.6em}header h1 a{color:#444}header h1 a:hover{text-decoration:none}header #logo img{width:9em;height:9em;border-radius:4.5em;-moz-border-radius:4.5em;-webkit-border-radius:4.5em;border:none}#follow-icons{font-size:.7em;margin-top:-.7em;margin-bottom:1.5em}#follow-icons a{color:#ccc}#follow-icons span{vertical-align:top;margin-left:-.15em;margin-right:-.15em}#follow-icons span .fa-stack-1x{font-size:1.05em;line-height:1.9em}header h6{margin-top:.5em}article span.post-stamp{color:#888}h1.post-title{margin-top:.35em;margin-bottom:.6em}h3.post-title{margin-top:.4em;padding-bottom:.9em;border-bottom:1px solid #eee;font-size:1.2em;color:#444}.post-title time{font-size:0.5em}.post-title a{color:#494949;font-family:"Bree Serif",serif;}.post-title .feature-star{font-size:.9em}.feature-star,.separator,.taglist{color:#ccc}.taglist a{background-color:#ccc;color:#fff;display:inline-block;line-height:1.5em;padding:.3em .6em;vertical-align:20%;font-size:.5em;font-family:"Open Sans",sans-serif;font-weight:700!important;text-transform:uppercase;letter-spacing:.05em;border-radius:.25em;-moz-border-radius:.25em;-webkit-border-radius:.25em}#social-bar{margin-top:1.5em;background-color:#eee;padding:.5em}#comments{margin-top:.15em;padding-bottom:.2em;border-bottom:1px solid #eee}.pagination{margin-bottom:1em}footer a{font-weight:300;color:#888;text-decoration:underline}footer a:hover{color:#444;text-decoration:none}@media only screen and (min-width:1281px){body,html{font-size:1.1em}}@media only screen and (max-width:800px){body{padding:0}header{border-right:none;border-bottom:1px #eee solid;position:relative;height:auto;width:auto;text-align:center;padding-bottom:1em}#content{margin-left:0;padding:2em 2em 1em;width:auto}footer{padding:0 2.5em 2em}}@media only screen and (max-width:320px){#content,header{padding:1.2em 1.2em .6em}footer{padding:0 1.5em 1.2em}ol,ul{margin-left:2em}}
+</style>
+
+    </head>
+    <body>
+        <header id="header">
+            
+            <a id="logo" href="https://bg2bkk.github.io/"><img src="https://raw.githubusercontent.com/BG2BKK/githubio/master/themes/crisp/images/eagle.jpg" alt="BG2BKK Site" /></a> 
+            <h1><a href="https://bg2bkk.github.io/">BG2BKK Site</a></h1>
+            <p></p>
+
+            <div id="follow-icons">
+	<a href="http://facebook.com/bg2bkk" rel="me"><i class="fa fa-facebook-square fa-2x"></i></a>
+	<a href="http://twitter.com/bg2bkk1" rel="me"><i class="fa fa-twitter-square fa-2x"></i></a>
+	<a href="http://github.com/bg2bkk" rel="me"><i class="fa fa-linkedin-square fa-2x"></i></a>
+	<a href="http://github.com/bg2bkk" rel="me"><i class="fa fa-github-square fa-2x"></i></a>
+	<a href="http://plus.google.com/bg2bkk" rel="author"><i class="fa fa-google-plus-square fa-2x"></i></a>
+	<a href="https://bg2bkk.github.io/index.xml" rel="me"><i class="fa fa-rss-square fa-2x"></i></a> 
+</div>  
+
+            <h6><a href="https://bg2bkk.github.io/post/resume/">About</a></h6>
+
+        </header>
+
+<main id="content">
+
+<article id="" class="post">
+    <div class="post-stamp">
+        <time datetime="2016-10-20T22:21:55&#43;08:00">
+            20 Oct 2016
+        </time>
+        <span class="taglist">
+        
+        </span>
+    </div>
+    <h1 class="post-title">Understanding TCPIP Network Stack &amp; Writing Network Apps</h1>
+    
+
+<h1 id="理解tcp-ip协议栈-实现网络应用">理解TCP/IP协议栈 实现网络应用</h1>
+
+<p>遇到好文章我就想给翻译下来，觉得写的很好，现在cubrid的一篇TCP/IP相关的文章<a href="http://www.cubrid.org/blog/dev-platform/understanding-tcp-ip-network-stack/">详细介绍了TCP协议栈，以及收发数据包的流程，非常有启发意义</a>，所以我就想翻译一下，做个记录。</p>
+
+<p>我们不能想象没有TCP/IP，互联网服务将会是何种情况。所有我们开发和使用的Internet服务都基于一个坚实的基础：TCP/IP。理解数据如何在网络中传输可以帮助你通过优化和调试的方式来提升程序性能，引入新的技术。</p>
+
+<p>本文将通过在linux操作系统和硬件层面的数据流和控制流来描述网络技术栈的整体操作流程。</p>
+
+<h2 id="tcp-ip的关键字">TCP/IP的关键字</h2>
+
+<p><strong><em>我如何设计网络协议，能够在保持数据不丢失不乱序的情况下，快速传输数据？</em></strong></p>
+
+<p>TCP/IP协议为这些考虑而设计，如下是理解TCP/IP协议栈需要了解的关键字</p>
+
+<pre><code>确切的说，TCP和IP是两个不同的层，理应分开描述；不过惯例上一直将他俩合成一个概念来讲
+</code></pre>
+
+<ol>
+<li>CONNECTIONI-ORIENTED，面向连接的
+
+<ul>
+<li>首先通信双方需要建立一条连接，一条TCP连接的标识符是<strong><em>local IP address, local port number</em></strong>和<strong><em>remote IP address, remote port number</em></strong>组成的四元组</li>
+</ul></li>
+<li>BIDIRECTIONAL BYTE STREAM, 双向数据流传输
+
+<ul>
+<li>使用字节流实现双向传输</li>
+</ul></li>
+<li>IN-ORDER DELIVERY，顺序发送
+
+<ul>
+<li>接收方按照数据从发送方发送的顺序接收；采用32bit整型作为数据包的序号，以实现顺序传输</li>
+</ul></li>
+<li>RELIABILITY THROUGH ACK，通过ACK实现可靠性
+
+<ul>
+<li>当发送方发送数据后，没有收到接收方传来的该包的ACK，发送方将重新发送该数据。因此，发送方的TCP需要将未被ACK的数据缓存起来。</li>
+</ul></li>
+<li>FLOW CONTROL，流控
+
+<ul>
+<li>发送方都想尽可能的发送数据给接收方，但是发送方也得能够有能力接收，因此接收方要发送自己能够接收的最大数据量给发送方知道，最终发送方发出长度数据量由接收方的<strong><em>接收窗口</em></strong>决定。</li>
+</ul></li>
+<li>CONGESTION CONTROL，拥塞控制
+
+<ul>
+<li>拥塞窗口是除接收窗口之外的另一个通过限制在途数据流大小以防止网络拥塞的方法。发送方尽可能多的发出拥塞窗口允许的数据量，该窗口大小有诸多方法可以实现，Vegas、Westwood、BIC或者CUBIC。不同于流控中的接收窗口，拥塞窗口是由发送方单独确定的。</li>
+</ul></li>
+</ol>
+
+<h2 id="数据发送">数据发送</h2>
+
+<p>如下图所示，一个网络栈有很多层，图中包含各层类型。</p>
+
+<div align="center"><img src="https://raw.githubusercontent.com/BG2BKK/githubio/master/static/operation_process_by_each_layer_of_tcp_ip.png" width="70%" height="70%"><p>Figure 1: Operation Process by Each Layer of TCP/IP Network Stack for Data Transmission.</p></div>
+
+<p>图中虽然有多层，但可以简要分为3类：</p>
+
+<ol>
+<li>User area 用户区</li>
+<li>Kernel area 内核区</li>
+<li>Device area 设备区</li>
+</ol>
+
+<p>在user area和kerne area处理的任务都是由CPU完成的，所以user area和kernel area统称为<strong><em>host</em></strong>来与device area加以区分。在这里的device是<strong><em>Network Interface Card(NIC)</em></strong>，也就是网卡，用于收发数据，NIC是一个比我们常用的&rdquo;局域网网卡&rdquo;更准确的术语。</p>
+
+<p>让我们大致看看user area，首先应用程序准备好数据，然后调用<strong><em>write()</em></strong>系统调用发送数据。假设所用的socket(图中write调用的参数fd)合法，那么当发起系统调用后，发送流程切换到kernel area。</p>
+
+<p>POSIX系列操作系统例如Linux和Unix通过一个file descriptor，即文件描述符fd向应用程序暴露所用的socket。在POSIX系系统中，socket也是一种文件，应用程序使用的fd在进程中有其对应的file structure，与socket对应，图1中的文件曾进行简单的检查，然后通过调用socket的相关函数。&ndash;</p>
+
+<p>内核的socket有两个buffer：</p>
+
+<ol>
+<li>一个是send socket buffer，发送缓冲区，用于发送</li>
+<li>一个是receive socket buffer，接收缓冲区，用于接收</li>
+</ol>
+
+<p>当<strong><em>write</em></strong>系统调用被调用时，待发送数据从用户空间复制到内核内存中，然后添加进发送缓冲区的末尾。这样就可以按顺序发出数据。图一中的&rsquo;Sockets&rsquo;那层对应的右边灰色的小格子指向socket buffer中的数据。</p>
+
+<p>然后，TCP被调用了。</p>
+
+<p>每个tcp类型的socket都有一个<strong><em>TCP Control Block(TCB)</em></strong>tcp控制块的数据结构，包括了用于处理一个TCP连接所需要的元素，比如connection state连接状态(LISTEN, ESTABLISHED, TIME_WAIT等)、receive window接收窗口，congestion window拥塞窗口、sequence number包序号和resending timer重传定时器等。
+如果当前TCP状态允许数据传输，会新建一个新的TCP segment(packet，报文)；否则系统调用结束并返回错误码。</p>
+
+<p>下图是一个TCP报文，包括两个TCP片段：TCP header和Payload，如图2所示</p>
+
+<div align="center"><img src="https://raw.githubusercontent.com/BG2BKK/githubio/master/static/tcp_frame_structure.png" width="70%" height="70%"><p>Figure 2: TCP Frame Structure .</p></div>
+
+<p>payload部分是待发送的数据，从系统的未确认(unACK) socket发送缓冲区中获得，payload的最大长度由对方接收窗口大小、拥塞窗口大小和maximum segment size（MSS，最大报文长度）共同决定。</p>
+
+<p>&ndash; 计算packet的checksum，目前由NIC用硬件实现</p>
+
+<p>然后TCP报文进入下一层IP层处理，IP层添加IP头部，并进行IP路由选择。IP路由选择是一个选择下一跳的过程。当IP层计算并添加IP头部校验checksum后，将数据包发送到下一层Ethernet层，即数据链路层。Ethernet层采用ARP协议搜索查询下一跳IP的MAC地址，然后向报文添加Ethernet头部。添加完Ethernet头部后，host部分的报文就处理完毕了。</p>
+
+<p>在IP路由选择执行完毕后，根据选择结果选择哪个NIC作为传输接口，然后调用NIC驱动发送数据。</p>
+
+<p>此时，如果一个抓包软件比如tcpdump或者wireshark正在运行，kernel将报文从内核态复制一份到这些软件内存中。同样的，如果是抓接收到的包，也同样是从NIC驱动这里抓取的。</p>
+
+<p>NIC驱动程序通过约定的通信协议向NIC请求发送packet。</p>
+
+<p>NIC收到发送网络包请求后，将报文复制到自己的内存中然后发送到网络。发送前，还要修改一些标志，包括packet的CRC校验码，IFG（Inter-Frame Gap）&ndash;（ At this time, by complying with the Ethernet standard, it adds the IFG (Inter-Frame Gap), preamble, and CRC to the packet. The IFG and preamble are used to distinguish the start of the packet (as a networking term, framing), and the CRC is used to protect the data (the same purpose as TCP and IP checksum). Packet transmission is started based on the physical speed of the Ethernet and the condition of Ethernet flow control. It is like getting the floor and speaking in a conference room.）（待翻译）</p>
+
+<p>当NIC发送一个数据报文，NIC向CPU发出中断，每个中断有其自己的中断号，操作系统根据中断号调用对应的驱动程序处理中断。NIC驱动启动时注册中断回调函数，OS调用中断服务程序，然后中断服务程序返回已发送的数据包给OS。</p>
+
+<p>至此我们讨论了应用程序数据发送的流程，贯穿kernel和NIC设备。而且，即使没有应用程序的写请求，kernel可以调用TCP层直接发送数据包。例如，当收到一个ACK后并且得知对端接收窗口扩大，kernel将自动的把仍在发送缓存中的数据打包，直接发出。</p>
+
+<h2 id="数据接收">数据接收</h2>
+
+<p>现在我们看看数据的接收流程，当数据包到来的时候，网络栈是如何处理的，如图3所示。</p>
+
+<div align="center"><img src="https://raw.githubusercontent.com/BG2BKK/githubio/master/static/operation_process_by_each_layer_of_tcp_ip_for_data_received.png" width="70%" height="70%"><p>Figure 3: Operation Process by Each Layer of TCP/IP Network Stack for Handling Data Received.</p></div>
+
+<p>首先，NIC将数据包写入自身内存，检查该包是否CRC合法，然后将该包发送给host的内存，host的内存是NIC驱动事先向kernel申请的内存，用于接收数据包，当host分配成功，通过NIC驱动告诉NIC这块内存的地址和大小。如果NIC driver没有实现分配好内存，NIC收到数据包后会直接丢弃。</p>
+
+<p>当NIC将数据包写入到host的内存缓冲区后，NIC向host 操作系统发出中断信号。</p>
+
+<p>&ndash; 然后，NIC驱动检查它是否可以处理这个新包，至此都是NIC和NIC驱动之间的 （删除）</p>
+
+<p>当驱动需要将数据包发送到上一层时，这个数据包必须被包装成OS可以理解的包格式。比如，linux上的sk_buff，BSD系列内核的mbuf结构，或者MS系统的NET_BUFFER_LIST结构。NIC驱动将封装后的数据包转给上层处理。</p>
+
+<p>Ethernet层检查数据包是否合法，然后根据数据包头部的ethertype值选择上层网络协议。IPV4类型的值为0x0800。本层的工作就是去掉数据包的Ethernet头部，传送给上层IP层。</p>
+
+<p>IP层同样首先检查数据包合法性，采用检查IP头部的checksum字段的方式。在逻辑上决定是否进行IP路由选择，本机操作系统处理这个包，还是转发给另一个系统。如果本机处理数据包，那么IP层将根据IP头部的协议proto值选择上层传输层协议，比如TCP协议的proto值是6.本层的工作就是移除IP头部，发送给上层TCP层。</p>
+
+<p>同样的，TCP层检查数据包的checksum是否正确。之前说过，TCP的checksum也是由NIC计算得到的。（难道这些检查都是在NIC层面上做，这一步只是逻辑上放在这里的？）</p>
+
+<p>然后开始搜索这个数据包对应的TCP Control Block，采用IP:PORT四元组作为标志查找。找到TCP控制块后，根据包协议处理数据包。如果是收到新数据，那么将其加入socket接收缓冲区中。根据TCP状态，协议栈发送TCP回复包（比如ACK包）。现在TCP/IP的接收数据流程完成了。</p>
+
+<p>socket接收缓冲区的大小是TCP接收窗口大小。数据接收时，TCP接受窗口扩大时TCP的吞吐能力增大；在此之前，socket的缓冲区大小由应用程序或者操作系统配置来调整，而现在新的网络栈具有自动调整接受缓冲区大小的功能。</p>
+
+<p>当应用程序调用read系统调用时，从user area切换到kernel area，数据从socket的缓冲区复制到user area，然后从socket缓冲区中去除，然后TCP层被调用。当socket缓冲区仍有空间时，TCP增大接受窗口。And it sends a packet according to the protocol status. If no packet is transferred, the system call is terminated.（待翻译）</p>
+
+<h2 id="网络栈开发方向">网络栈开发方向</h2>
+
+<p>以上描述的网络栈各层的功能都是一些基本的功能。90年代早期的网络栈功能比以上描述的还少。不过，目前最新的网络栈的功能更加丰富，复杂度更高，这些新功能根据用途有如下分类：</p>
+
+<ul>
+<li>Packet Processing Procedure Manipulation, 控制修改包处理流程</li>
+</ul>
+
+<p>类似于Netfilter(firewall, NAT)和流量控制。通过在数据包基本处理流程中插入用户代码可以实现不同功能。</p>
+
+<ul>
+<li>Protocol Performance, 协议性能提升</li>
+</ul>
+
+<p>目的是在同样的网络质量情况下，提升吞吐量、降低时延，提高稳定性。多种拥塞控制算法和附加TCP功能比如SACK（选择确认）就是这类功能。通过协议提升性能在本文中不作重点讨论。</p>
+
+<ul>
+<li>Packet Processing Efficiency, 数据包处理效率</li>
+</ul>
+
+<p>包处理效率相关的功能旨在提升每秒能够处理最大量的数据包，通过降低用于处理数据包的CPU使用率、内存占用和内存访问次数。目前有多种降低系统时延的尝试，包括并行处理、头部预测、零拷贝、单一副本、免校验、TSO、LRO和RSS等。</p>
+
+<h2 id="网络栈的控制流">网络栈的控制流</h2>
+
+<p>现在我们可以从更细节的角度观察linux网络栈的内部流程。就像其他非网络栈的子系统，linux的网络站以事件驱动的方式，当网络事件发生时进行相应处理，也就是说网络栈内只有一个进程或者控制流处理运行（可修饰）。上文的图1和图3简单的表示了控制流的数据包，图4将显示更多细节。</p>
+
+<div align="center"><img src="https://raw.githubusercontent.com/BG2BKK/githubio/master/static/control_flow_in_stack.png" width="70%" height="70%"><p>Figure 4: Control Flow in the Stack.</p></div>
+
+<p>图4的控制流(1)中，应用程序通过系统调用比如read()和write()使用TCP，此处没有数据包的传输。控制流(2)与控制流(1)的不同之处在于，它用于调用TCP层后发送数据包，它创造一个数据包然后将该包发送到NIC驱动前的一个队列中，然后队列的实现方式决定何时将该包发送给NIC驱动。这是linux中的队列方式，linux的流量控制功能就是操作这个队列实现的，默认的操作方式是FIFO，先进先出。通过使用另一种队列控制方式，linux可以实现多种效果，比如人工控制丢包、包延迟和流量限制等等功能。在控制流(1)和(2)中，应用程序的进程也将调用NIC驱动。</p>
+
+<p>控制流(3)表示TCP用到的一些定时器，比如当TIME_WAIT定时器超时后，TCP协议栈将响应并删除超时的连接。</p>
+
+<p>与控制流(3)类似，(4)表示超时后TCP将处理一系列待处理的数据包。比如，当重传定时器超时后，未得ACK确认的包将被重传。</p>
+
+<p>控制流(3)和(4)显示定时器软中断的处理流程。</p>
+
+<p>当NIC驱动收到NIC中断，它将释放已传输的数据包。大部分情况下，NIC驱动的处理流程在这里就终止了（莫非是发送数据完成后收到NIC的通知？）。控制流(5)表示数据包在传输队列中累积，NIC驱动请求软中断，然后软中断处理函数从发送队列中将累积的数据包发送给NIC驱动（请结合(5)左边的黑线）。</p>
+
+<p>当NIC驱动收到中断并且收到一个新的数据包，它将请求软中断。处理接收数据包的软中断调用NIC驱动并将收到的数据包传给上层处理。在LInux中，如上描述的处理接受数据包的处理方式称为New API(NAPI)。NAPI与轮询类似，因为NIC驱动并不直接向上层发送数据，而是上层从NIC驱动中拿数据包，这段代码称为NAPI poll(NAPI轮询)。</p>
+
+<p>控制流(6)显示TCP协议栈接受数据包的完整处理流程，控制流(7)表示请求更多数据包进行发送到过程。控制流(5)、(6)、(7)都是由NIC发起中断，软中断处理NIC中断实现的。</p>
+
+<h2 id="怎样处理中断然后接受数据包">怎样处理中断然后接受数据包</h2>
+
+<p>中断处理是复杂的，毕竟你需要理解与接受数据包有关的各个环节。图5显示了中断处理流程图。</p>
+
+<div align="center"><img src="https://raw.githubusercontent.com/BG2BKK/githubio/master/static/processing_interrupt_softirq_and_received_packet.png" width="70%" height="70%"><p>Figure 5: Processing Interrupt, softirq, and Received Packet.</p></div>
+
+<p>想象下CPU 0正在执行应用程序，这个时候NIC收到一个数据包，向CPU 0产生一个中断。然后CPU执行内核中断处理程序。内核通过中断号调用中断处理程序，调用相应驱动的中断处理程序。NIC驱动释放已发送完成的数据包，然后调用napi_schedule()函数去接受数据包，该函数请求软中断（参考图4中(6)右边的黑线）。NIC驱动的中断处理程序结束，返回，控制权交回内核中断处理程序，内核中断处理程序执行刚才NIC驱动调用的napi_schedule()产生的软中断。硬中断上下文执行完成后，软中断开始执行（这里是内核的tasklet或者work_queue了吧），软硬中断上下文都是由同一个进程执行的（linux kernle吧）。不过，软硬中断的执行栈不一样，硬中断将会屏蔽硬件中断，软中断执行期间是不屏蔽的（老生常谈）。</p>
+
+<p>软中断处理程序调用net_rx_action()处理收到的数据包，这个函数调用驱动的poll()方法。poll()方法调用netif_receive_skb()方法收取数据包，然后讲其逐层向上层传送。处理完软中断后，应用程序从断点返回，此时可以开始调用系统调用比如read读取数据。</p>
+
+<p>这就是CPU从收到硬中断到完成接收数据包的完整过程，Linux、BSD和MS Windows系统都是大同小异的。</p>
+
+<p>当你查看服务器CPU使用率时，有事你可以看到只有一个CPU执行软中断，这个现象我们上文描述的可以解释，只有CPU 0在响应网卡中断，使用多队列网卡、RSS和RPS（在软件层面模拟实现硬件的多队列网卡功能）可以解决这个问题，将软中断绑定到多个CPU上。</p>
+
+<h2 id="相关数据结构">相关数据结构</h2>
+
+<p>下文列出一些关键性的数据结构</p>
+
+<h2 id="sk-buff-structure">sk_buff structure</h2>
+
+<p>首先，sk_buff结构体或者skb结构体表示一个数据包，图6表示sk_buff结构体的主要部分，足以说明sk_buff相关的通用方法。</p>
+
+<div align="center"><img src="https://raw.githubusercontent.com/BG2BKK/githubio/master/static/packet_structure_sk_buff.png" width="70%" height="70%"><p>Figure 6: Packet Structure sk_buff.</p></div>
+
+<h3 id="sk-buff包括数据包的data部分和元数据部分">sk_buff包括数据包的Data部分和元数据部分</h3>
+
+<p>sk_buff直接包括包数据部分，或者用指针指向它。在图6中，一些</p>
+
+    <div id="social-bar">
+	<ul class="rrssb-buttons clearfix">
+      <li class="email">
+          <a href="mailto:?subject=Understanding%20TCPIP%20Network%20Stack%20%26%20Writing%20Network%20Apps&amp;body=https://bg2bkk.github.io/post/Understanding%20TCPIP%20Network%20Stack%20&amp;%20Writing%20Network%20Apps/">
+              <span class="icon">
+                  <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
+                      <path transform="scale(0.014,-0.014) translate(0,-1670)" d="M1792 826v-794q0 -66 -47 -113t-113 -47h-1472q-66 0 -113 47t-47 113v794q44 -49 101 -87q362 -246 497 -345q57 -42 92.5 -65.5t94.5 -48t110 -24.5h1h1q51 0 110 24.5t94.5 48t92.5 65.5q170 123 498 345q57 39 100 87zM1792 1120q0 -79 -49 -151t-122 -123 q-376 -261 -468 -325q-10 -7 -42.5 -30.5t-54 -38t-52 -32.5t-57.5 -27t-50 -9h-1h-1q-23 0 -50 9t-57.5 27t-52 32.5t-54 38t-42.5 30.5q-91 64 -262 182.5t-205 142.5q-62 42 -117 115.5t-55 136.5q0 78 41.5 130t118.5 52h1472q65 0 112.5 -47t47.5 -113z"/>
+                  </svg>
+              </span>
+              <span class="text">Email</span>
+          </a>
+      </li>
+      <li class="facebook">
+          <a href="https://www.facebook.com/sharer/sharer.php?u=https://bg2bkk.github.io/post/Understanding%20TCPIP%20Network%20Stack%20&amp;%20Writing%20Network%20Apps/" class="popup">
+              <span class="icon">
+                  <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
+                      <path d="M27.825,4.783c0-2.427-2.182-4.608-4.608-4.608H4.783c-2.422,0-4.608,2.182-4.608,4.608v18.434 c0,2.427,2.181,4.608,4.608,4.608H14V17.379h-3.379v-4.608H14v-1.795c0-3.089,2.335-5.885,5.192-5.885h3.718v4.608h-3.726 c-0.408,0-0.884,0.492-0.884,1.236v1.836h4.609v4.608h-4.609v10.446h4.916c2.422,0,4.608-2.188,4.608-4.608V4.783z"/>
+                  </svg>
+              </span>
+              <span class="text">Facebook</span>
+          </a>
+      </li>
+			<li class="twitter">
+          <a href="http://twitter.com/home?status=Understanding%20TCPIP%20Network%20Stack%20%26%20Writing%20Network%20Apps%20https://bg2bkk.github.io/post/Understanding%20TCPIP%20Network%20Stack%20&amp;%20Writing%20Network%20Apps/" class="popup">
+              <span class="icon">
+                  <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
+		                  <path d="M24.253,8.756C24.689,17.08,18.297,24.182,9.97,24.62c-3.122,0.162-6.219-0.646-8.861-2.32 c2.703,0.179,5.376-0.648,7.508-2.321c-2.072-0.247-3.818-1.661-4.489-3.638c0.801,0.128,1.62,0.076,2.399-0.155 C4.045,15.72,2.215,13.6,2.115,11.077c0.688,0.275,1.426,0.407,2.168,0.386c-2.135-1.65-2.729-4.621-1.394-6.965 C5.575,7.816,9.54,9.84,13.803,10.071c-0.842-2.739,0.694-5.64,3.434-6.482c2.018-0.623,4.212,0.044,5.546,1.683 c1.186-0.213,2.318-0.662,3.329-1.317c-0.385,1.256-1.247,2.312-2.399,2.942c1.048-0.106,2.069-0.394,3.019-0.851 C26.275,7.229,25.39,8.196,24.253,8.756z"/>
+                  </svg>
+              </span>
+              <span class="text">Twitter</span>
+          </a>
+      </li>
+			<li class="linkedin">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/Understanding%20TCPIP%20Network%20Stack%20&amp;%20Writing%20Network%20Apps/&amp;title=Understanding%20TCPIP%20Network%20Stack%20%26%20Writing%20Network%20Apps&amp;summary=%e7%90%86%e8%a7%a3TCP%2fIP%e5%8d%8f%e8%ae%ae%e6%a0%88%20%e5%ae%9e%e7%8e%b0%e7%bd%91%e7%bb%9c%e5%ba%94%e7%94%a8%20%e9%81%87%e5%88%b0%e5%a5%bd%e6%96%87%e7%ab%a0%e6%88%91%e5%b0%b1%e6%83%b3%e7%bb%99%e7%bf%bb%e8%af%91%e4%b8%8b%e6%9d%a5%ef%bc%8c%e8%a7%89%e5%be%97%e5%86%99%e7%9a%84%e5%be%88%e5%a5%bd%ef%bc%8c%e7%8e%b0%e5%9c%a8cubrid%e7%9a%84%e4%b8%80%e7%af%87TCP%2fIP%e7%9b%b8%e5%85%b3%e7%9a%84%e6%96%87%e7%ab%a0%e8%af%a6%e7%bb%86%e4%bb%8b%e7%bb%8d%e4%ba%86TCP%e5%8d%8f%e8%ae%ae%e6%a0%88%ef%bc%8c%e4%bb%a5%e5%8f%8a%e6%94%b6%e5%8f%91%e6%95%b0%e6%8d%ae%e5%8c%85%e7%9a%84%e6%b5%81%e7%a8%8b%ef%bc%8c%e9%9d%9e%e5%b8%b8%e6%9c%89%e5%90%af%e5%8f%91%e6%84%8f%e4%b9%89%ef%bc%8c%e6%89%80%e4%bb%a5%e6%88%91%e5%b0%b1%e6%83%b3%e7%bf%bb%e8%af%91%e4%b8%80%e4%b8%8b%ef%bc%8c%e5%81%9a%e4%b8%aa%e8%ae%b0%e5%bd%95%e3%80%82%20%e6%88%91%e4%bb%ac%e4%b8%8d%e8%83%bd%e6%83%b3%e8%b1%a1%e6%b2%a1%e6%9c%89TCP%2fIP%ef%bc%8c%e4%ba%92%e8%81%94%e7%bd%91%e6%9c%8d%e5%8a%a1%e5%b0%86%e4%bc%9a%e6%98%af%e4%bd%95%e7%a7%8d%e6%83%85%e5%86%b5%e3%80%82%e6%89%80%e6%9c%89%e6%88%91%e4%bb%ac%e5%bc%80%e5%8f%91%e5%92%8c%e4%bd%bf%e7%94%a8%e7%9a%84Internet%e6%9c%8d%e5%8a%a1%e9%83%bd%e5%9f%ba%e4%ba%8e%e4%b8%80%e4%b8%aa%e5%9d%9a%e5%ae%9e%e7%9a%84%e5%9f%ba%e7%a1%80%ef%bc%9aTCP%2fIP%e3%80%82%e7%90%86%e8%a7%a3%e6%95%b0%e6%8d%ae%e5%a6%82%e4%bd%95%e5%9c%a8%e7%bd%91%e7%bb%9c%e4%b8%ad%e4%bc%a0%e8%be%93%e5%8f%af%e4%bb%a5%e5%b8%ae%e5%8a%a9%e4%bd%a0%e9%80%9a%e8%bf%87%e4%bc%98%e5%8c%96%e5%92%8c%e8%b0%83%e8%af%95%e7%9a%84%e6%96%b9%e5%bc%8f%e6%9d%a5%e6%8f%90%e5%8d%87%e7%a8%8b%e5%ba%8f%e6%80%a7%e8%83%bd%ef%bc%8c%e5%bc%95%e5%85%a5%e6%96%b0%e7%9a%84%e6%8a%80%e6%9c%af%e3%80%82%20%e6%9c%ac%e6%96%87%e5%b0%86%e9%80%9a%e8%bf%87%e5%9c%a8linux%e6%93%8d%e4%bd%9c%e7%b3%bb%e7%bb%9f%e5%92%8c%e7%a1%ac%e4%bb%b6%e5%b1%82%e9%9d%a2%e7%9a%84%e6%95%b0%e6%8d%ae%e6%b5%81%e5%92%8c%e6%8e%a7%e5%88%b6%e6%b5%81%e6%9d%a5%e6%8f%8f%e8%bf%b0%e7%bd%91%e7%bb%9c%e6%8a%80%e6%9c%af%e6%a0%88%e7%9a%84%e6%95%b4%e4%bd%93%e6%93%8d%e4%bd%9c%e6%b5%81%e7%a8%8b%e3%80%82%20TCP%2fIP%e7%9a%84%e5%85%b3%e9%94%ae%e5%ad%97%20%e6%88%91%e5%a6%82%e4%bd%95%e8%ae%be%e8%ae%a1%e7%bd%91%e7%bb%9c%e5%8d%8f%e8%ae%ae%ef%bc%8c%e8%83%bd%e5%a4%9f%e5%9c%a8%e4%bf%9d%e6%8c%81%e6%95%b0%e6%8d%ae%e4%b8%8d%e4%b8%a2%e5%a4%b1%e4%b8%8d%e4%b9%b1%e5%ba%8f%e7%9a%84%e6%83%85%e5%86%b5%e4%b8%8b%ef%bc%8c%e5%bf%ab%e9%80%9f%e4%bc%a0%e8%be%93%e6%95%b0%e6%8d%ae%ef%bc%9f%20TCP%2fIP%e5%8d%8f%e8%ae%ae%e4%b8%ba%e8%bf%99%e4%ba%9b%e8%80%83%e8%99%91%e8%80%8c%e8%ae%be%e8%ae%a1%ef%bc%8c%e5%a6%82%e4%b8%8b%e6%98%af%e7%90%86%e8%a7%a3TCP%2fIP%e5%8d%8f%e8%ae%ae%e6%a0%88%e9%9c%80%e8%a6%81%e4%ba%86%e8%a7%a3%e7%9a%84%e5%85%b3%e9%94%ae%e5%ad%97%20%e7%a1%ae%e5%88%87%e7%9a%84%e8%af%b4%ef%bc%8cTCP%e5%92%8cIP%e6%98%af%e4%b8%a4%e4%b8%aa%e4%b8%8d%e5%90%8c%e7%9a%84%e5%b1%82%ef%bc%8c%e7%90%86%e5%ba%94%e5%88%86%e5%bc%80%e6%8f%8f%e8%bf%b0%ef%bc%9b%e4%b8%8d%e8%bf%87%e6%83%af%e4%be%8b%e4%b8%8a%e4%b8%80%e7%9b%b4%e5%b0%86%e4%bb%96%e4%bf%a9%e5%90%88%e6%88%90%e4%b8%80%e4%b8%aa%e6%a6%82%e5%bf%b5%e6%9d%a5%e8%ae%b2%20CONNECTIONI-ORIENTED%ef%bc%8c%e9%9d%a2%e5%90%91%e8%bf%9e%e6%8e%a5%e7%9a%84%20%e9%a6%96%e5%85%88%e9%80%9a%e4%bf%a1%e5%8f%8c%e6%96%b9%e9%9c%80%e8%a6%81%e5%bb%ba%e7%ab%8b%e4%b8%80%e6%9d%a1%e8%bf%9e%e6%8e%a5%ef%bc%8c%e4%b8%80%e6%9d%a1TCP%e8%bf%9e%e6%8e%a5%e7%9a%84%e6%a0%87%e8%af%86%e7%ac%a6%e6%98%aflocal%20IP%20address%2c%20local%20port%20number%e5%92%8cremote%20IP%20address%2c%20remote%20port%20number%e7%bb%84%e6%88%90%e7%9a%84%e5%9b%9b%e5%85%83%e7%bb%84%20BIDIRECTIONAL%20BYTE%20STREAM%2c%20%e5%8f%8c%e5%90%91%e6%95%b0%e6%8d%ae%e6%b5%81%e4%bc%a0%e8%be%93%20%e4%bd%bf%e7%94%a8%e5%ad%97%e8%8a%82%e6%b5%81%e5%ae%9e%e7%8e%b0%e5%8f%8c%e5%90%91%e4%bc%a0%e8%be%93%20IN-ORDER%20DELIVERY%ef%bc%8c%e9%a1%ba%e5%ba%8f%e5%8f%91%e9%80%81%20%e6%8e%a5%e6%94%b6%e6%96%b9%e6%8c%89%e7%85%a7%e6%95%b0%e6%8d%ae%e4%bb%8e%e5%8f%91%e9%80%81%e6%96%b9%e5%8f%91%e9%80%81%e7%9a%84%e9%a1%ba%e5%ba%8f%e6%8e%a5%e6%94%b6%ef%bc%9b%e9%87%87%e7%94%a832bit%e6%95%b4%e5%9e%8b%e4%bd%9c%e4%b8%ba%e6%95%b0%e6%8d%ae%e5%8c%85%e7%9a%84%e5%ba%8f%e5%8f%b7%ef%bc%8c%e4%bb%a5%e5%ae%9e%e7%8e%b0%e9%a1%ba%e5%ba%8f%e4%bc%a0%e8%be%93%20RELIABILITY%20THROUGH%20ACK%ef%bc%8c%e9%80%9a%e8%bf%87ACK%e5%ae%9e%e7%8e%b0%e5%8f%af%e9%9d%a0%e6%80%a7%20%e5%bd%93%e5%8f%91%e9%80%81%e6%96%b9%e5%8f%91%e9%80%81%e6%95%b0%e6%8d%ae%e5%90%8e%ef%bc%8c%e6%b2%a1%e6%9c%89%e6%94%b6%e5%88%b0%e6%8e%a5%e6%94%b6%e6%96%b9%e4%bc%a0%e6%9d%a5%e7%9a%84%e8%af%a5%e5%8c%85%e7%9a%84ACK%ef%bc%8c%e5%8f%91%e9%80%81%e6%96%b9%e5%b0%86%e9%87%8d%e6%96%b0%e5%8f%91%e9%80%81%e8%af%a5%e6%95%b0%e6%8d%ae%e3%80%82%e5%9b%a0%e6%ad%a4%ef%bc%8c%e5%8f%91%e9%80%81%e6%96%b9%e7%9a%84TCP%e9%9c%80%e8%a6%81%e5%b0%86%e6%9c%aa%e8%a2%abACK%e7%9a%84%e6%95%b0%e6%8d%ae%e7%bc%93%e5%ad%98%e8%b5%b7%e6%9d%a5%e3%80%82%20FLOW%20CONTROL%ef%bc%8c%e6%b5%81%e6%8e%a7%20%e5%8f%91%e9%80%81%e6%96%b9%e9%83%bd%e6%83%b3%e5%b0%bd%e5%8f%af%e8%83%bd%e7%9a%84%e5%8f%91%e9%80%81%e6%95%b0%e6%8d%ae%e7%bb%99%e6%8e%a5%e6%94%b6%e6%96%b9%ef%bc%8c%e4%bd%86%e6%98%af%e5%8f%91%e9%80%81%e6%96%b9%e4%b9%9f%e5%be%97%e8%83%bd%e5%a4%9f%e6%9c%89%e8%83%bd%e5%8a%9b%e6%8e%a5%e6%94%b6%ef%bc%8c%e5%9b%a0%e6%ad%a4%e6%8e%a5%e6%94%b6%e6%96%b9%e8%a6%81%e5%8f%91%e9%80%81%e8%87%aa%e5%b7%b1%e8%83%bd%e5%a4%9f%e6%8e%a5%e6%94%b6%e7%9a%84%e6%9c%80%e5%a4%a7%e6%95%b0%e6%8d%ae%e9%87%8f%e7%bb%99%e5%8f%91%e9%80%81%e6%96%b9%e7%9f%a5%e9%81%93%ef%bc%8c%e6%9c%80%e7%bb%88%e5%8f%91%e9%80%81%e6%96%b9%e5%8f%91%e5%87%ba%e9%95%bf%e5%ba%a6%e6%95%b0%e6%8d%ae%e9%87%8f%e7%94%b1%e6%8e%a5%e6%94%b6%e6%96%b9%e7%9a%84%e6%8e%a5%e6%94%b6%e7%aa%97%e5%8f%a3%e5%86%b3%e5%ae%9a%e3%80%82%20CONGESTION%20CONTROL%ef%bc%8c%e6%8b%a5%e5%a1%9e%e6%8e%a7%e5%88%b6%20%e6%8b%a5%e5%a1%9e%e7%aa%97%e5%8f%a3%e6%98%af%e9%99%a4%e6%8e%a5%e6%94%b6%e7%aa%97%e5%8f%a3%e4%b9%8b%e5%a4%96%e7%9a%84%e5%8f%a6%e4%b8%80%e4%b8%aa%e9%80%9a%e8%bf%87%e9%99%90%e5%88%b6%e5%9c%a8%e9%80%94%e6%95%b0%e6%8d%ae%e6%b5%81%e5%a4%a7%e5%b0%8f%e4%bb%a5%e9%98%b2%e6%ad%a2%e7%bd%91%e7%bb%9c%e6%8b%a5%e5%a1%9e%e7%9a%84%e6%96%b9%e6%b3%95%e3%80%82%e5%8f%91%e9%80%81%e6%96%b9%e5%b0%bd%e5%8f%af%e8%83%bd%e5%a4%9a%e7%9a%84%e5%8f%91%e5%87%ba%e6%8b%a5%e5%a1%9e%e7%aa%97%e5%8f%a3%e5%85%81%e8%ae%b8%e7%9a%84%e6%95%b0%e6%8d%ae%e9%87%8f%ef%bc%8c%e8%af%a5%e7%aa%97%e5%8f%a3%e5%a4%a7%e5%b0%8f%e6%9c%89%e8%af%b8%e5%a4%9a%e6%96%b9%e6%b3%95%e5%8f%af%e4%bb%a5%e5%ae%9e%e7%8e%b0%ef%bc%8cVegas%e3%80%81Westwood%e3%80%81BIC%e6%88%96%e8%80%85CUBIC%e3%80%82%e4%b8%8d%e5%90%8c%e4%ba%8e%e6%b5%81%e6%8e%a7%e4%b8%ad%e7%9a%84%e6%8e%a5%e6%94%b6%e7%aa%97%e5%8f%a3%ef%bc%8c%e6%8b%a5%e5%a1%9e%e7%aa%97%e5%8f%a3%e6%98%af%e7%94%b1%e5%8f%91%e9%80%81%e6%96%b9%e5%8d%95%e7%8b%ac%e7%a1%ae%e5%ae%9a%e7%9a%84%e3%80%82%20%e6%95%b0%e6%8d%ae%e5%8f%91%e9%80%81%20%e5%a6%82%e4%b8%8b%e5%9b%be%e6%89%80%e7%a4%ba%ef%bc%8c%e4%b8%80%e4%b8%aa%e7%bd%91%e7%bb%9c%e6%a0%88%e6%9c%89%e5%be%88%e5%a4%9a%e5%b1%82%ef%bc%8c%e5%9b%be%e4%b8%ad%e5%8c%85%e5%90%ab%e5%90%84%e5%b1%82%e7%b1%bb%e5%9e%8b%e3%80%82%20Figure%201%3a%20Operation%20Process%20by%20Each%20Layer%20of%20TCP%2fIP%20Network%20Stack%20for%20Data%20Transmission.%20%e5%9b%be%e4%b8%ad%e8%99%bd%e7%84%b6%e6%9c%89%e5%a4%9a%e5%b1%82%ef%bc%8c%e4%bd%86%e5%8f%af%e4%bb%a5%e7%ae%80%e8%a6%81%e5%88%86%e4%b8%ba3%e7%b1%bb%ef%bc%9a%20User%20area%20%e7%94%a8%e6%88%b7%e5%8c%ba%20Kernel%20area%20%e5%86%85%e6%a0%b8%e5%8c%ba%20Device%20area%20%e8%ae%be%e5%a4%87%e5%8c%ba%20%e5%9c%a8user%20area%e5%92%8ckerne%20area%e5%a4%84%e7%90%86%e7%9a%84%e4%bb%bb%e5%8a%a1%e9%83%bd%e6%98%af%e7%94%b1CPU%e5%ae%8c%e6%88%90%e7%9a%84%ef%bc%8c%e6%89%80%e4%bb%a5user%20area%e5%92%8ckernel%20area%e7%bb%9f%e7%a7%b0%e4%b8%bahost%e6%9d%a5%e4%b8%8edevice%20area%e5%8a%a0%e4%bb%a5%e5%8c%ba%e5%88%86%e3%80%82%e5%9c%a8%e8%bf%99%e9%87%8c%e7%9a%84device%e6%98%afNetwork%20Interface%20Card%28NIC%29%ef%bc%8c%e4%b9%9f%e5%b0%b1%e6%98%af%e7%bd%91%e5%8d%a1%ef%bc%8c%e7%94%a8%e4%ba%8e%e6%94%b6%e5%8f%91%e6%95%b0%e6%8d%ae%ef%bc%8cNIC%e6%98%af%e4%b8%80%e4%b8%aa%e6%af%94%e6%88%91%e4%bb%ac%e5%b8%b8%e7%94%a8%e7%9a%84%26rdquo%3b%e5%b1%80%e5%9f%9f%e7%bd%91%e7%bd%91%e5%8d%a1%26rdquo%3b%e6%9b%b4%e5%87%86%e7%a1%ae%e7%9a%84%e6%9c%af%e8%af%ad%e3%80%82%20%e8%ae%a9%e6%88%91%e4%bb%ac%e5%a4%a7%e8%87%b4%e7%9c%8b%e7%9c%8buser%20area%ef%bc%8c%e9%a6%96%e5%85%88%e5%ba%94%e7%94%a8%e7%a8%8b%e5%ba%8f%e5%87%86%e5%a4%87%e5%a5%bd%e6%95%b0%e6%8d%ae%ef%bc%8c%e7%84%b6%e5%90%8e%e8%b0%83%e7%94%a8write%28%29%e7%b3%bb%e7%bb%9f%e8%b0%83%e7%94%a8%e5%8f%91%e9%80%81%e6%95%b0%e6%8d%ae%e3%80%82%e5%81%87%e8%ae%be%e6%89%80%e7%94%a8%e7%9a%84socket%28%e5%9b%be%e4%b8%adwrite%e8%b0%83%e7%94%a8%e7%9a%84%e5%8f%82%e6%95%b0fd%29%e5%90%88%e6%b3%95%ef%bc%8c%e9%82%a3%e4%b9%88%e5%bd%93%e5%8f%91%e8%b5%b7%e7%b3%bb%e7%bb%9f%e8%b0%83%e7%94%a8%e5%90%8e%ef%bc%8c%e5%8f%91%e9%80%81%e6%b5%81%e7%a8%8b%e5%88%87%e6%8d%a2%e5%88%b0kernel%20area%e3%80%82%20POSIX%e7%b3%bb%e5%88%97%e6%93%8d%e4%bd%9c%e7%b3%bb%e7%bb%9f%e4%be%8b%e5%a6%82Linux%e5%92%8cUnix%e9%80%9a%e8%bf%87%e4%b8%80%e4%b8%aafile%20descriptor%ef%bc%8c%e5%8d%b3%e6%96%87%e4%bb%b6%e6%8f%8f%e8%bf%b0%e7%ac%a6fd%e5%90%91%e5%ba%94%e7%94%a8%e7%a8%8b%e5%ba%8f%e6%9a%b4%e9%9c%b2%e6%89%80%e7%94%a8%e7%9a%84socket%e3%80%82%e5%9c%a8POSIX%e7%b3%bb%e7%b3%bb%e7%bb%9f%e4%b8%ad%ef%bc%8csocket%e4%b9%9f%e6%98%af%e4%b8%80%e7%a7%8d%e6%96%87%e4%bb%b6%ef%bc%8c%e5%ba%94%e7%94%a8%e7%a8%8b%e5%ba%8f%e4%bd%bf%e7%94%a8%e7%9a%84fd%e5%9c%a8%e8%bf%9b%e7%a8%8b%e4%b8%ad%e6%9c%89%e5%85%b6%e5%af%b9%e5%ba%94%e7%9a%84file%20structure%ef%bc%8c%e4%b8%8esocket%e5%af%b9%e5%ba%94%ef%bc%8c%e5%9b%be1%e4%b8%ad%e7%9a%84%e6%96%87%e4%bb%b6%e6%9b%be%e8%bf%9b%e8%a1%8c%e7%ae%80%e5%8d%95%e7%9a%84%e6%a3%80%e6%9f%a5%ef%bc%8c%e7%84%b6%e5%90%8e%e9%80%9a%e8%bf%87%e8%b0%83%e7%94%a8socket%e7%9a%84%e7%9b%b8%e5%85%b3%e5%87%bd%e6%95%b0%e3%80%82%26ndash%3b%20%e5%86%85%e6%a0%b8%e7%9a%84socket%e6%9c%89%e4%b8%a4%e4%b8%aabuffer%ef%bc%9a%20%e4%b8%80%e4%b8%aa%e6%98%afsend%20socket%20buffer%ef%bc%8c%e5%8f%91%e9%80%81%e7%bc%93%e5%86%b2%e5%8c%ba%ef%bc%8c%e7%94%a8%e4%ba%8e%e5%8f%91%e9%80%81%20%e4%b8%80%e4%b8%aa%e6%98%afreceive%20socket%20buffer%ef%bc%8c%e6%8e%a5%e6%94%b6%e7%bc%93%e5%86%b2%e5%8c%ba%ef%bc%8c%e7%94%a8%e4%ba%8e%e6%8e%a5%e6%94%b6%20%e5%bd%93write%e7%b3%bb%e7%bb%9f%e8%b0%83%e7%94%a8%e8%a2%ab%e8%b0%83%e7%94%a8%e6%97%b6%ef%bc%8c%e5%be%85%e5%8f%91%e9%80%81%e6%95%b0%e6%8d%ae%e4%bb%8e%e7%94%a8%e6%88%b7%e7%a9%ba%e9%97%b4%e5%a4%8d%e5%88%b6%e5%88%b0%e5%86%85%e6%a0%b8%e5%86%85%e5%ad%98%e4%b8%ad%ef%bc%8c%e7%84%b6%e5%90%8e%e6%b7%bb%e5%8a%a0%e8%bf%9b%e5%8f%91%e9%80%81%e7%bc%93%e5%86%b2%e5%8c%ba%e7%9a%84%e6%9c%ab%e5%b0%be%e3%80%82%e8%bf%99%e6%a0%b7%e5%b0%b1%e5%8f%af%e4%bb%a5%e6%8c%89%e9%a1%ba%e5%ba%8f%e5%8f%91%e5%87%ba%e6%95%b0%e6%8d%ae%e3%80%82%e5%9b%be%e4%b8%80%e4%b8%ad%e7%9a%84%26rsquo%3bSockets%26rsquo%3b%e9%82%a3%e5%b1%82%e5%af%b9%e5%ba%94%e7%9a%84%e5%8f%b3%e8%be%b9%e7%81%b0%e8%89%b2%e7%9a%84%e5%b0%8f%e6%a0%bc%e5%ad%90%e6%8c%87%e5%90%91socket%20buffer%e4%b8%ad%e7%9a%84%e6%95%b0%e6%8d%ae%e3%80%82%20%e7%84%b6%e5%90%8e%ef%bc%8cTCP%e8%a2%ab%e8%b0%83%e7%94%a8%e4%ba%86%e3%80%82%20%e6%af%8f%e4%b8%aatcp%e7%b1%bb%e5%9e%8b%e7%9a%84socket%e9%83%bd%e6%9c%89%e4%b8%80%e4%b8%aaTCP%20Control%20Block%28TCB%29tcp%e6%8e%a7%e5%88%b6%e5%9d%97%e7%9a%84%e6%95%b0%e6%8d%ae%e7%bb%93%e6%9e%84%ef%bc%8c%e5%8c%85%e6%8b%ac%e4%ba%86%e7%94%a8%e4%ba%8e%e5%a4%84%e7%90%86%e4%b8%80%e4%b8%aaTCP%e8%bf%9e%e6%8e%a5%e6%89%80%e9%9c%80%e8%a6%81%e7%9a%84%e5%85%83%e7%b4%a0%ef%bc%8c%e6%af%94%e5%a6%82connection%20state%e8%bf%9e%e6%8e%a5%e7%8a%b6%e6%80%81%28LISTEN%2c%20ESTABLISHED%2c%20TIME_WAIT%e7%ad%89%29%e3%80%81receive%20window%e6%8e%a5%e6%94%b6%e7%aa%97%e5%8f%a3%ef%bc%8ccongestion%20window%e6%8b%a5%e5%a1%9e%e7%aa%97%e5%8f%a3%e3%80%81sequence%20number%e5%8c%85%e5%ba%8f%e5%8f%b7%e5%92%8cresending%20timer%e9%87%8d%e4%bc%a0%e5%ae%9a%e6%97%b6%e5%99%a8%e7%ad%89%e3%80%82%20%e5%a6%82%e6%9e%9c%e5%bd%93%e5%89%8dTCP%e7%8a%b6%e6%80%81%e5%85%81%e8%ae%b8%e6%95%b0%e6%8d%ae%e4%bc%a0%e8%be%93%ef%bc%8c%e4%bc%9a%e6%96%b0%e5%bb%ba%e4%b8%80%e4%b8%aa%e6%96%b0%e7%9a%84TCP%20segment%28packet%ef%bc%8c%e6%8a%a5%e6%96%87%29%ef%bc%9b%e5%90%a6%e5%88%99%e7%b3%bb%e7%bb%9f%e8%b0%83%e7%94%a8%e7%bb%93%e6%9d%9f%e5%b9%b6%e8%bf%94%e5%9b%9e%e9%94%99%e8%af%af%e7%a0%81%e3%80%82%20%e4%b8%8b%e5%9b%be%e6%98%af%e4%b8%80%e4%b8%aaTCP%e6%8a%a5%e6%96%87%ef%bc%8c%e5%8c%85%e6%8b%ac%e4%b8%a4%e4%b8%aaTCP%e7%89%87%e6%ae%b5%ef%bc%9aTCP%20header%e5%92%8cPayload%ef%bc%8c%e5%a6%82%e5%9b%be2%e6%89%80%e7%a4%ba%20Figure%202%3a%20TCP%20Frame%20Structure%20...." class="popup">
+              <span class="icon">
+                  <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
+                      <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
+                  </svg>
+              </span>
+              <span class="text">LinkedIn</span>
+          </a>
+      </li>
+      <li class="tumblr">
+					<script>
+						document.write('<a href="http://www.tumblr.com/share?v=3&amp;u=' + encodeURIComponent('https:\/\/bg2bkk.github.io\/post\/Understanding%20TCPIP%20Network%20Stack%20\x26%20Writing%20Network%20Apps\/') + '&amp;t=Understanding TCPIP Network Stack \x26 Writing Network Apps" class="popup">');
+					</script>
+              <span class="icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
+											<path d="M18.02 21.842c-2.029 0.052-2.422-1.396-2.439-2.446v-7.294h4.729V7.874h-4.71V1.592c0 0-3.653 0-3.714 0 s-0.167 0.053-0.182 0.186c-0.218 1.935-1.144 5.33-4.988 6.688v3.637h2.927v7.677c0 2.8 1.7 6.7 7.3 6.6 c1.863-0.03 3.934-0.795 4.392-1.453l-1.22-3.539C19.595 21.6 18.7 21.8 18 21.842z"/>
+									</svg>
+              </span>
+              <span class="text">Tumblr</span>
+          <script>document.write('</a>');</script>
+      </li>
+      <li class="reddit">
+          <a href="http://www.reddit.com/submit?url=https://bg2bkk.github.io/post/Understanding%20TCPIP%20Network%20Stack%20&amp;%20Writing%20Network%20Apps/">
+              <span class="icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
+											<g>
+													<path d="M11.794 15.316c0-1.029-0.835-1.895-1.866-1.895c-1.03 0-1.893 0.865-1.893 1.895s0.863 1.9 1.9 1.9 C10.958 17.2 11.8 16.3 11.8 15.316z"/>
+													<path d="M18.1 13.422c-1.029 0-1.895 0.864-1.895 1.895c0 1 0.9 1.9 1.9 1.865c1.031 0 1.869-0.836 1.869-1.865 C19.969 14.3 19.1 13.4 18.1 13.422z"/>
+													<path d="M17.527 19.791c-0.678 0.678-1.826 1.006-3.514 1.006c-0.004 0-0.009 0-0.014 0c-0.004 0-0.01 0-0.015 0 c-1.686 0-2.834-0.328-3.51-1.005c-0.264-0.265-0.693-0.265-0.958 0c-0.264 0.265-0.264 0.7 0 1 c0.943 0.9 2.4 1.4 4.5 1.402c0.005 0 0 0 0 0c0.005 0 0 0 0 0c2.066 0 3.527-0.459 4.47-1.402 c0.265-0.264 0.265-0.693 0.002-0.958C18.221 19.5 17.8 19.5 17.5 19.791z"/>
+													<path d="M27.707 13.267c0-1.785-1.453-3.237-3.236-3.237c-0.793 0-1.518 0.287-2.082 0.761c-2.039-1.295-4.646-2.069-7.438-2.219 l1.483-4.691l4.062 0.956c0.071 1.4 1.3 2.6 2.7 2.555c1.488 0 2.695-1.208 2.695-2.695C25.881 3.2 24.7 2 23.2 2 c-1.059 0-1.979 0.616-2.42 1.508l-4.633-1.091c-0.344-0.081-0.693 0.118-0.803 0.455l-1.793 5.7 C10.548 8.6 7.7 9.4 5.6 10.75C5.006 10.3 4.3 10 3.5 10.029c-1.785 0-3.237 1.452-3.237 3.2 c0 1.1 0.6 2.1 1.4 2.69c-0.04 0.272-0.061 0.551-0.061 0.831c0 2.3 1.3 4.4 3.7 5.9 c2.299 1.5 5.3 2.3 8.6 2.325c3.228 0 6.271-0.825 8.571-2.325c2.387-1.56 3.7-3.66 3.7-5.917 c0-0.26-0.016-0.514-0.051-0.768C27.088 15.5 27.7 14.4 27.7 13.267z M23.186 3.355c0.74 0 1.3 0.6 1.3 1.3 c0 0.738-0.6 1.34-1.34 1.34s-1.342-0.602-1.342-1.34C21.844 4 22.4 3.4 23.2 3.355z M1.648 13.3 c0-1.038 0.844-1.882 1.882-1.882c0.31 0 0.6 0.1 0.9 0.209c-1.049 0.868-1.813 1.861-2.26 2.9 C1.832 14.2 1.6 13.8 1.6 13.267z M21.773 21.57c-2.082 1.357-4.863 2.105-7.831 2.105c-2.967 0-5.747-0.748-7.828-2.105 c-1.991-1.301-3.088-3-3.088-4.782c0-1.784 1.097-3.484 3.088-4.784c2.081-1.358 4.861-2.106 7.828-2.106 c2.967 0 5.7 0.7 7.8 2.106c1.99 1.3 3.1 3 3.1 4.784C24.859 18.6 23.8 20.3 21.8 21.57z M25.787 14.6 c-0.432-1.084-1.191-2.095-2.244-2.977c0.273-0.156 0.59-0.245 0.928-0.245c1.035 0 1.9 0.8 1.9 1.9 C26.354 13.8 26.1 14.3 25.8 14.605z"/>
+											</g>
+									</svg>
+              </span>
+              <span class="text">Reddit</span>
+          </a>
+      </li>
+      <li class="googleplus">
+          <a href="https://plus.google.com/share?url=https://bg2bkk.github.io/post/Understanding%20TCPIP%20Network%20Stack%20&amp;%20Writing%20Network%20Apps/" class="popup">
+              <span class="icon">
+                  <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
+                      <g>
+                          <path d="M14.703,15.854l-1.219-0.948c-0.372-0.308-0.88-0.715-0.88-1.459c0-0.748,0.508-1.223,0.95-1.663 c1.42-1.119,2.839-2.309,2.839-4.817c0-2.58-1.621-3.937-2.399-4.581h2.097l2.202-1.383h-6.67c-1.83,0-4.467,0.433-6.398,2.027 C3.768,4.287,3.059,6.018,3.059,7.576c0,2.634,2.022,5.328,5.604,5.328c0.339,0,0.71-0.033,1.083-0.068 c-0.167,0.408-0.336,0.748-0.336,1.324c0,1.04,0.551,1.685,1.011,2.297c-1.524,0.104-4.37,0.273-6.467,1.562 c-1.998,1.188-2.605,2.916-2.605,4.137c0,2.512,2.358,4.84,7.289,4.84c5.822,0,8.904-3.223,8.904-6.41 c0.008-2.327-1.359-3.489-2.829-4.731H14.703z M10.269,11.951c-2.912,0-4.231-3.765-4.231-6.037c0-0.884,0.168-1.797,0.744-2.511 c0.543-0.679,1.489-1.12,2.372-1.12c2.807,0,4.256,3.798,4.256,6.242c0,0.612-0.067,1.694-0.845,2.478 c-0.537,0.55-1.438,0.948-2.295,0.951V11.951z M10.302,25.609c-3.621,0-5.957-1.732-5.957-4.142c0-2.408,2.165-3.223,2.911-3.492 c1.421-0.479,3.25-0.545,3.555-0.545c0.338,0,0.52,0,0.766,0.034c2.574,1.838,3.706,2.757,3.706,4.479 c-0.002,2.073-1.736,3.665-4.982,3.649L10.302,25.609z"/>
+                          <polygon points="23.254,11.89 23.254,8.521 21.569,8.521 21.569,11.89 18.202,11.89 18.202,13.604 21.569,13.604 21.569,17.004 23.254,17.004 23.254,13.604 26.653,13.604 26.653,11.89"/>
+                      </g>
+                  </svg>
+              </span>
+              <span class="text">Google+</span>
+          </a>
+      </li>
+      <li class="pinterest">
+          <script>
+						var imgurl = "https:\/\/bg2bkk.github.io\/logo.png";
+						var firstimg = document.getElementsByClassName("post")[0].getElementsByTagName("img")[0];
+						if (firstimg !== undefined) {
+							imgurl = firstimg.src;
+						}
+						document.write('<a href="http://pinterest.com/pin/create/button/?url=https:\/\/bg2bkk.github.io\/post\/Understanding%20TCPIP%20Network%20Stack%20\x26%20Writing%20Network%20Apps\/&amp;media=' + imgurl + '&amp;description=Understanding TCPIP Network Stack \x26 Writing Network Apps" class="popup">');
+					</script>
+              <span class="icon">
+                  <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
+		                  <path d="M14.021,1.57C6.96,1.57,1.236,7.293,1.236,14.355c0,7.062,5.724,12.785,12.785,12.785c7.061,0,12.785-5.725,12.785-12.785 C26.807,7.294,21.082,1.57,14.021,1.57z M15.261,18.655c-1.161-0.09-1.649-0.666-2.559-1.219c-0.501,2.626-1.113,5.145-2.925,6.458 c-0.559-3.971,0.822-6.951,1.462-10.116c-1.093-1.84,0.132-5.545,2.438-4.632c2.837,1.123-2.458,6.842,1.099,7.557 c3.711,0.744,5.227-6.439,2.925-8.775c-3.325-3.374-9.678-0.077-8.897,4.754c0.19,1.178,1.408,1.538,0.489,3.168 C7.165,15.378,6.53,13.7,6.611,11.462c0.131-3.662,3.291-6.227,6.46-6.582c4.007-0.448,7.771,1.474,8.29,5.239 c0.579,4.255-1.816,8.865-6.102,8.533L15.261,18.655z"/>
+                  </svg>
+              </span>
+              <span class="text">Pinterest</span>
+          <script>document.write('</a>');</script>
+      </li>
+      <li class="pocket">
+          <a href="https://getpocket.com/save?url=https://bg2bkk.github.io/post/Understanding%20TCPIP%20Network%20Stack%20&amp;%20Writing%20Network%20Apps/"  class="popup">
+              <span class="icon">
+                  <svg width="32px" height="28px" viewBox="0 0 32 28" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+                      <path d="M28.7817528,0.00172488695 C30.8117487,0.00431221738 31.9749312,1.12074529 31.9644402,3.10781507 C31.942147,6.67703739 32.1336065,10.2669583 31.8057648,13.8090137 C30.7147076,25.5813672 17.2181194,31.8996281 7.20714461,25.3808491 C2.71833574,22.4571656 0.196577202,18.3122624 0.0549495772,12.9357897 C-0.0342233715,9.5774348 0.00642900214,6.21519891 0.0300336062,2.85555035 C0.0405245414,1.1129833 1.21157517,0.0146615391 3.01995012,0.00819321302 C7.34746087,-0.00603710433 11.6775944,0.00431221738 16.0064164,0.00172488695 C20.2644248,0.00172488695 24.5237444,-0.00215610869 28.7817528,0.00172488695 L28.7817528,0.00172488695 Z M8.64885184,7.85611511 C7.38773662,7.99113854 6.66148108,8.42606978 6.29310958,9.33228474 C5.90114134,10.2969233 6.17774769,11.1421181 6.89875951,11.8276216 C9.35282156,14.161969 11.8108164,16.4924215 14.2976518,18.7943114 C15.3844131,19.7966007 16.5354102,19.7836177 17.6116843,18.7813283 C20.0185529,16.5495467 22.4070683,14.2982907 24.7824746,12.0327533 C25.9845979,10.8850542 26.1012707,9.56468083 25.1469132,8.60653379 C24.1361858,7.59255976 22.8449191,7.6743528 21.5890476,8.85191291 C19.9936451,10.3488554 18.3680912,11.8172352 16.8395462,13.3777945 C16.1342655,14.093159 15.7200114,14.0048744 15.0566806,13.3440386 C13.4599671,11.7484252 11.8081945,10.2060421 10.1262706,8.70001155 C9.65564653,8.27936164 9.00411403,8.05345704 8.64885184,7.85611511 L8.64885184,7.85611511 L8.64885184,7.85611511 Z"></path>
+                  </svg>
+              </span>
+              <span class="text">Pocket</span>
+          </a>
+      </li>
+  </ul>
+</div>
+
+    <div itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <h5>about the author</h5>
+  <section>
+
+	<p>如果关于本文您有兴趣，我们可以进一步探讨、交流和学习。我的email是 bg2bkk # gmail.com. 欢迎交流</p>
+  </section>
+</div>
+
+    <div id="comments">
+    
+    
+    
+    
+</div>
+
+</article>
+
+</main>
+		<footer id="footer">
+			<section id="footer-message">&copy; BG2BKK Site. All rights reserved. Powered by <a href="http://gohugo.io" target="_blank">Hugo</a>. <a href="https://github.com/kathyqian/crisp-ghost-theme" target="_blank">Crisp</a> theme by <a href="http://kathyqian.com" target="_blank">Kathy Qian</a>.</section>
+		</footer>
+
+    <script>
+      (function(c,f){asyncLoader=function(i,h){i.foreach(function(k,j){e(j,d(j),h)});if(typeof h.callback=="function"){var g=setInterval(function(){if(f.readyState==="complete"){clearInterval(g);h.callback()}},10)}};var d=function(g){var h=g.split(".");return h[h.length-1]},e=function(h,i,g){switch(i){case"js":a(h,g);break;case"css":b(h);break;default:break}},a=function(i,h){var g=document.createElement("script");g.type="text/javascript";g.async=true;g.src=i;document.getElementsByTagName("head")[0].appendChild(g)},b=function(g){var h=document.createElement("link");h.type="text/css";h.rel="stylesheet";h.href=g;document.getElementsByTagName("head")[0].appendChild(h)};Array.prototype.foreach=function(h){for(var g=0;g<this.length;g++){h(g,this[g])}}})(this,document);
+
+      var WebFontConfig={google:{families:["Open Sans:300italic,700italic,300,700","Bree+Serif"]}};
+      asyncLoader([
+        "//netdna.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.css",
+        "//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js",
+        "//cdnjs.cloudflare.com/ajax/libs/webfont/1.5.16/webfontloader.js",
+        "//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.5/highlight.min.js"
+      ],{
+        callback:function(){
+          asyncLoader([
+            "https:\/\/bg2bkk.github.io\/css/rrssb.css",
+            "https:\/\/bg2bkk.github.io\/js/gist.min.js", 
+            "https:\/\/bg2bkk.github.io\/js/rrssb.min.js",
+            "//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.5/styles/default.min.css"
+          ], { callback:function() {
+              hljs.initHighlighting();
+          }});
+        }
+      });
+    </script>
+	
+	</body>
+</html>

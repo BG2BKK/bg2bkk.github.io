@@ -5,8 +5,220 @@
     <link>https://bg2bkk.github.io/post/</link>
     <description>Recent content in Posts on BG2BKK Site</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Thu, 13 Oct 2016 13:57:31 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 20 Oct 2016 22:21:55 +0800</lastBuildDate>
     <atom:link href="https://bg2bkk.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>Understanding TCPIP Network Stack &amp; Writing Network Apps</title>
+      <link>https://bg2bkk.github.io/post/Understanding%20TCPIP%20Network%20Stack%20&amp;%20Writing%20Network%20Apps/</link>
+      <pubDate>Thu, 20 Oct 2016 22:21:55 +0800</pubDate>
+      
+      <guid>https://bg2bkk.github.io/post/Understanding%20TCPIP%20Network%20Stack%20&amp;%20Writing%20Network%20Apps/</guid>
+      <description>
+
+&lt;h1 id=&#34;理解tcp-ip协议栈-实现网络应用&#34;&gt;理解TCP/IP协议栈 实现网络应用&lt;/h1&gt;
+
+&lt;p&gt;遇到好文章我就想给翻译下来，觉得写的很好，现在cubrid的一篇TCP/IP相关的文章&lt;a href=&#34;http://www.cubrid.org/blog/dev-platform/understanding-tcp-ip-network-stack/&#34;&gt;详细介绍了TCP协议栈，以及收发数据包的流程，非常有启发意义&lt;/a&gt;，所以我就想翻译一下，做个记录。&lt;/p&gt;
+
+&lt;p&gt;我们不能想象没有TCP/IP，互联网服务将会是何种情况。所有我们开发和使用的Internet服务都基于一个坚实的基础：TCP/IP。理解数据如何在网络中传输可以帮助你通过优化和调试的方式来提升程序性能，引入新的技术。&lt;/p&gt;
+
+&lt;p&gt;本文将通过在linux操作系统和硬件层面的数据流和控制流来描述网络技术栈的整体操作流程。&lt;/p&gt;
+
+&lt;h2 id=&#34;tcp-ip的关键字&#34;&gt;TCP/IP的关键字&lt;/h2&gt;
+
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;我如何设计网络协议，能够在保持数据不丢失不乱序的情况下，快速传输数据？&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;TCP/IP协议为这些考虑而设计，如下是理解TCP/IP协议栈需要了解的关键字&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;确切的说，TCP和IP是两个不同的层，理应分开描述；不过惯例上一直将他俩合成一个概念来讲
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;CONNECTIONI-ORIENTED，面向连接的
+
+&lt;ul&gt;
+&lt;li&gt;首先通信双方需要建立一条连接，一条TCP连接的标识符是&lt;strong&gt;&lt;em&gt;local IP address, local port number&lt;/em&gt;&lt;/strong&gt;和&lt;strong&gt;&lt;em&gt;remote IP address, remote port number&lt;/em&gt;&lt;/strong&gt;组成的四元组&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;BIDIRECTIONAL BYTE STREAM, 双向数据流传输
+
+&lt;ul&gt;
+&lt;li&gt;使用字节流实现双向传输&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;IN-ORDER DELIVERY，顺序发送
+
+&lt;ul&gt;
+&lt;li&gt;接收方按照数据从发送方发送的顺序接收；采用32bit整型作为数据包的序号，以实现顺序传输&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;RELIABILITY THROUGH ACK，通过ACK实现可靠性
+
+&lt;ul&gt;
+&lt;li&gt;当发送方发送数据后，没有收到接收方传来的该包的ACK，发送方将重新发送该数据。因此，发送方的TCP需要将未被ACK的数据缓存起来。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;FLOW CONTROL，流控
+
+&lt;ul&gt;
+&lt;li&gt;发送方都想尽可能的发送数据给接收方，但是发送方也得能够有能力接收，因此接收方要发送自己能够接收的最大数据量给发送方知道，最终发送方发出长度数据量由接收方的&lt;strong&gt;&lt;em&gt;接收窗口&lt;/em&gt;&lt;/strong&gt;决定。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;CONGESTION CONTROL，拥塞控制
+
+&lt;ul&gt;
+&lt;li&gt;拥塞窗口是除接收窗口之外的另一个通过限制在途数据流大小以防止网络拥塞的方法。发送方尽可能多的发出拥塞窗口允许的数据量，该窗口大小有诸多方法可以实现，Vegas、Westwood、BIC或者CUBIC。不同于流控中的接收窗口，拥塞窗口是由发送方单独确定的。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2 id=&#34;数据发送&#34;&gt;数据发送&lt;/h2&gt;
+
+&lt;p&gt;如下图所示，一个网络栈有很多层，图中包含各层类型。&lt;/p&gt;
+
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;https://raw.githubusercontent.com/BG2BKK/githubio/master/static/operation_process_by_each_layer_of_tcp_ip.png&#34; width=&#34;70%&#34; height=&#34;70%&#34;&gt;&lt;p&gt;Figure 1: Operation Process by Each Layer of TCP/IP Network Stack for Data Transmission.&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;图中虽然有多层，但可以简要分为3类：&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;User area 用户区&lt;/li&gt;
+&lt;li&gt;Kernel area 内核区&lt;/li&gt;
+&lt;li&gt;Device area 设备区&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;在user area和kerne area处理的任务都是由CPU完成的，所以user area和kernel area统称为&lt;strong&gt;&lt;em&gt;host&lt;/em&gt;&lt;/strong&gt;来与device area加以区分。在这里的device是&lt;strong&gt;&lt;em&gt;Network Interface Card(NIC)&lt;/em&gt;&lt;/strong&gt;，也就是网卡，用于收发数据，NIC是一个比我们常用的&amp;rdquo;局域网网卡&amp;rdquo;更准确的术语。&lt;/p&gt;
+
+&lt;p&gt;让我们大致看看user area，首先应用程序准备好数据，然后调用&lt;strong&gt;&lt;em&gt;write()&lt;/em&gt;&lt;/strong&gt;系统调用发送数据。假设所用的socket(图中write调用的参数fd)合法，那么当发起系统调用后，发送流程切换到kernel area。&lt;/p&gt;
+
+&lt;p&gt;POSIX系列操作系统例如Linux和Unix通过一个file descriptor，即文件描述符fd向应用程序暴露所用的socket。在POSIX系系统中，socket也是一种文件，应用程序使用的fd在进程中有其对应的file structure，与socket对应，图1中的文件曾进行简单的检查，然后通过调用socket的相关函数。&amp;ndash;&lt;/p&gt;
+
+&lt;p&gt;内核的socket有两个buffer：&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;一个是send socket buffer，发送缓冲区，用于发送&lt;/li&gt;
+&lt;li&gt;一个是receive socket buffer，接收缓冲区，用于接收&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;当&lt;strong&gt;&lt;em&gt;write&lt;/em&gt;&lt;/strong&gt;系统调用被调用时，待发送数据从用户空间复制到内核内存中，然后添加进发送缓冲区的末尾。这样就可以按顺序发出数据。图一中的&amp;rsquo;Sockets&amp;rsquo;那层对应的右边灰色的小格子指向socket buffer中的数据。&lt;/p&gt;
+
+&lt;p&gt;然后，TCP被调用了。&lt;/p&gt;
+
+&lt;p&gt;每个tcp类型的socket都有一个&lt;strong&gt;&lt;em&gt;TCP Control Block(TCB)&lt;/em&gt;&lt;/strong&gt;tcp控制块的数据结构，包括了用于处理一个TCP连接所需要的元素，比如connection state连接状态(LISTEN, ESTABLISHED, TIME_WAIT等)、receive window接收窗口，congestion window拥塞窗口、sequence number包序号和resending timer重传定时器等。
+如果当前TCP状态允许数据传输，会新建一个新的TCP segment(packet，报文)；否则系统调用结束并返回错误码。&lt;/p&gt;
+
+&lt;p&gt;下图是一个TCP报文，包括两个TCP片段：TCP header和Payload，如图2所示&lt;/p&gt;
+
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;https://raw.githubusercontent.com/BG2BKK/githubio/master/static/tcp_frame_structure.png&#34; width=&#34;70%&#34; height=&#34;70%&#34;&gt;&lt;p&gt;Figure 2: TCP Frame Structure .&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;payload部分是待发送的数据，从系统的未确认(unACK) socket发送缓冲区中获得，payload的最大长度由对方接收窗口大小、拥塞窗口大小和maximum segment size（MSS，最大报文长度）共同决定。&lt;/p&gt;
+
+&lt;p&gt;&amp;ndash; 计算packet的checksum，目前由NIC用硬件实现&lt;/p&gt;
+
+&lt;p&gt;然后TCP报文进入下一层IP层处理，IP层添加IP头部，并进行IP路由选择。IP路由选择是一个选择下一跳的过程。当IP层计算并添加IP头部校验checksum后，将数据包发送到下一层Ethernet层，即数据链路层。Ethernet层采用ARP协议搜索查询下一跳IP的MAC地址，然后向报文添加Ethernet头部。添加完Ethernet头部后，host部分的报文就处理完毕了。&lt;/p&gt;
+
+&lt;p&gt;在IP路由选择执行完毕后，根据选择结果选择哪个NIC作为传输接口，然后调用NIC驱动发送数据。&lt;/p&gt;
+
+&lt;p&gt;此时，如果一个抓包软件比如tcpdump或者wireshark正在运行，kernel将报文从内核态复制一份到这些软件内存中。同样的，如果是抓接收到的包，也同样是从NIC驱动这里抓取的。&lt;/p&gt;
+
+&lt;p&gt;NIC驱动程序通过约定的通信协议向NIC请求发送packet。&lt;/p&gt;
+
+&lt;p&gt;NIC收到发送网络包请求后，将报文复制到自己的内存中然后发送到网络。发送前，还要修改一些标志，包括packet的CRC校验码，IFG（Inter-Frame Gap）&amp;ndash;（ At this time, by complying with the Ethernet standard, it adds the IFG (Inter-Frame Gap), preamble, and CRC to the packet. The IFG and preamble are used to distinguish the start of the packet (as a networking term, framing), and the CRC is used to protect the data (the same purpose as TCP and IP checksum). Packet transmission is started based on the physical speed of the Ethernet and the condition of Ethernet flow control. It is like getting the floor and speaking in a conference room.）（待翻译）&lt;/p&gt;
+
+&lt;p&gt;当NIC发送一个数据报文，NIC向CPU发出中断，每个中断有其自己的中断号，操作系统根据中断号调用对应的驱动程序处理中断。NIC驱动启动时注册中断回调函数，OS调用中断服务程序，然后中断服务程序返回已发送的数据包给OS。&lt;/p&gt;
+
+&lt;p&gt;至此我们讨论了应用程序数据发送的流程，贯穿kernel和NIC设备。而且，即使没有应用程序的写请求，kernel可以调用TCP层直接发送数据包。例如，当收到一个ACK后并且得知对端接收窗口扩大，kernel将自动的把仍在发送缓存中的数据打包，直接发出。&lt;/p&gt;
+
+&lt;h2 id=&#34;数据接收&#34;&gt;数据接收&lt;/h2&gt;
+
+&lt;p&gt;现在我们看看数据的接收流程，当数据包到来的时候，网络栈是如何处理的，如图3所示。&lt;/p&gt;
+
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;https://raw.githubusercontent.com/BG2BKK/githubio/master/static/operation_process_by_each_layer_of_tcp_ip_for_data_received.png&#34; width=&#34;70%&#34; height=&#34;70%&#34;&gt;&lt;p&gt;Figure 3: Operation Process by Each Layer of TCP/IP Network Stack for Handling Data Received.&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;首先，NIC将数据包写入自身内存，检查该包是否CRC合法，然后将该包发送给host的内存，host的内存是NIC驱动事先向kernel申请的内存，用于接收数据包，当host分配成功，通过NIC驱动告诉NIC这块内存的地址和大小。如果NIC driver没有实现分配好内存，NIC收到数据包后会直接丢弃。&lt;/p&gt;
+
+&lt;p&gt;当NIC将数据包写入到host的内存缓冲区后，NIC向host 操作系统发出中断信号。&lt;/p&gt;
+
+&lt;p&gt;&amp;ndash; 然后，NIC驱动检查它是否可以处理这个新包，至此都是NIC和NIC驱动之间的 （删除）&lt;/p&gt;
+
+&lt;p&gt;当驱动需要将数据包发送到上一层时，这个数据包必须被包装成OS可以理解的包格式。比如，linux上的sk_buff，BSD系列内核的mbuf结构，或者MS系统的NET_BUFFER_LIST结构。NIC驱动将封装后的数据包转给上层处理。&lt;/p&gt;
+
+&lt;p&gt;Ethernet层检查数据包是否合法，然后根据数据包头部的ethertype值选择上层网络协议。IPV4类型的值为0x0800。本层的工作就是去掉数据包的Ethernet头部，传送给上层IP层。&lt;/p&gt;
+
+&lt;p&gt;IP层同样首先检查数据包合法性，采用检查IP头部的checksum字段的方式。在逻辑上决定是否进行IP路由选择，本机操作系统处理这个包，还是转发给另一个系统。如果本机处理数据包，那么IP层将根据IP头部的协议proto值选择上层传输层协议，比如TCP协议的proto值是6.本层的工作就是移除IP头部，发送给上层TCP层。&lt;/p&gt;
+
+&lt;p&gt;同样的，TCP层检查数据包的checksum是否正确。之前说过，TCP的checksum也是由NIC计算得到的。（难道这些检查都是在NIC层面上做，这一步只是逻辑上放在这里的？）&lt;/p&gt;
+
+&lt;p&gt;然后开始搜索这个数据包对应的TCP Control Block，采用IP:PORT四元组作为标志查找。找到TCP控制块后，根据包协议处理数据包。如果是收到新数据，那么将其加入socket接收缓冲区中。根据TCP状态，协议栈发送TCP回复包（比如ACK包）。现在TCP/IP的接收数据流程完成了。&lt;/p&gt;
+
+&lt;p&gt;socket接收缓冲区的大小是TCP接收窗口大小。数据接收时，TCP接受窗口扩大时TCP的吞吐能力增大；在此之前，socket的缓冲区大小由应用程序或者操作系统配置来调整，而现在新的网络栈具有自动调整接受缓冲区大小的功能。&lt;/p&gt;
+
+&lt;p&gt;当应用程序调用read系统调用时，从user area切换到kernel area，数据从socket的缓冲区复制到user area，然后从socket缓冲区中去除，然后TCP层被调用。当socket缓冲区仍有空间时，TCP增大接受窗口。And it sends a packet according to the protocol status. If no packet is transferred, the system call is terminated.（待翻译）&lt;/p&gt;
+
+&lt;h2 id=&#34;网络栈开发方向&#34;&gt;网络栈开发方向&lt;/h2&gt;
+
+&lt;p&gt;以上描述的网络栈各层的功能都是一些基本的功能。90年代早期的网络栈功能比以上描述的还少。不过，目前最新的网络栈的功能更加丰富，复杂度更高，这些新功能根据用途有如下分类：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Packet Processing Procedure Manipulation, 控制修改包处理流程&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;类似于Netfilter(firewall, NAT)和流量控制。通过在数据包基本处理流程中插入用户代码可以实现不同功能。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Protocol Performance, 协议性能提升&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;目的是在同样的网络质量情况下，提升吞吐量、降低时延，提高稳定性。多种拥塞控制算法和附加TCP功能比如SACK（选择确认）就是这类功能。通过协议提升性能在本文中不作重点讨论。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Packet Processing Efficiency, 数据包处理效率&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;包处理效率相关的功能旨在提升每秒能够处理最大量的数据包，通过降低用于处理数据包的CPU使用率、内存占用和内存访问次数。目前有多种降低系统时延的尝试，包括并行处理、头部预测、零拷贝、单一副本、免校验、TSO、LRO和RSS等。&lt;/p&gt;
+
+&lt;h2 id=&#34;网络栈的控制流&#34;&gt;网络栈的控制流&lt;/h2&gt;
+
+&lt;p&gt;现在我们可以从更细节的角度观察linux网络栈的内部流程。就像其他非网络栈的子系统，linux的网络站以事件驱动的方式，当网络事件发生时进行相应处理，也就是说网络栈内只有一个进程或者控制流处理运行（可修饰）。上文的图1和图3简单的表示了控制流的数据包，图4将显示更多细节。&lt;/p&gt;
+
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;https://raw.githubusercontent.com/BG2BKK/githubio/master/static/control_flow_in_stack.png&#34; width=&#34;70%&#34; height=&#34;70%&#34;&gt;&lt;p&gt;Figure 4: Control Flow in the Stack.&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;图4的控制流(1)中，应用程序通过系统调用比如read()和write()使用TCP，此处没有数据包的传输。控制流(2)与控制流(1)的不同之处在于，它用于调用TCP层后发送数据包，它创造一个数据包然后将该包发送到NIC驱动前的一个队列中，然后队列的实现方式决定何时将该包发送给NIC驱动。这是linux中的队列方式，linux的流量控制功能就是操作这个队列实现的，默认的操作方式是FIFO，先进先出。通过使用另一种队列控制方式，linux可以实现多种效果，比如人工控制丢包、包延迟和流量限制等等功能。在控制流(1)和(2)中，应用程序的进程也将调用NIC驱动。&lt;/p&gt;
+
+&lt;p&gt;控制流(3)表示TCP用到的一些定时器，比如当TIME_WAIT定时器超时后，TCP协议栈将响应并删除超时的连接。&lt;/p&gt;
+
+&lt;p&gt;与控制流(3)类似，(4)表示超时后TCP将处理一系列待处理的数据包。比如，当重传定时器超时后，未得ACK确认的包将被重传。&lt;/p&gt;
+
+&lt;p&gt;控制流(3)和(4)显示定时器软中断的处理流程。&lt;/p&gt;
+
+&lt;p&gt;当NIC驱动收到NIC中断，它将释放已传输的数据包。大部分情况下，NIC驱动的处理流程在这里就终止了（莫非是发送数据完成后收到NIC的通知？）。控制流(5)表示数据包在传输队列中累积，NIC驱动请求软中断，然后软中断处理函数从发送队列中将累积的数据包发送给NIC驱动（请结合(5)左边的黑线）。&lt;/p&gt;
+
+&lt;p&gt;当NIC驱动收到中断并且收到一个新的数据包，它将请求软中断。处理接收数据包的软中断调用NIC驱动并将收到的数据包传给上层处理。在LInux中，如上描述的处理接受数据包的处理方式称为New API(NAPI)。NAPI与轮询类似，因为NIC驱动并不直接向上层发送数据，而是上层从NIC驱动中拿数据包，这段代码称为NAPI poll(NAPI轮询)。&lt;/p&gt;
+
+&lt;p&gt;控制流(6)显示TCP协议栈接受数据包的完整处理流程，控制流(7)表示请求更多数据包进行发送到过程。控制流(5)、(6)、(7)都是由NIC发起中断，软中断处理NIC中断实现的。&lt;/p&gt;
+
+&lt;h2 id=&#34;怎样处理中断然后接受数据包&#34;&gt;怎样处理中断然后接受数据包&lt;/h2&gt;
+
+&lt;p&gt;中断处理是复杂的，毕竟你需要理解与接受数据包有关的各个环节。图5显示了中断处理流程图。&lt;/p&gt;
+
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;https://raw.githubusercontent.com/BG2BKK/githubio/master/static/processing_interrupt_softirq_and_received_packet.png&#34; width=&#34;70%&#34; height=&#34;70%&#34;&gt;&lt;p&gt;Figure 5: Processing Interrupt, softirq, and Received Packet.&lt;/p&gt;&lt;/div&gt;
+
+&lt;p&gt;想象下CPU 0正在执行应用程序，这个时候NIC收到一个数据包，向CPU 0产生一个中断。然后CPU执行内核中断处理程序。内核通过中断号调用中断处理程序，调用相应驱动的中断处理程序。NIC驱动释放已发送完成的数据包，然后调用napi_schedule()函数去接受数据包，该函数请求软中断（参考图4中(6)右边的黑线）。NIC驱动的中断处理程序结束，返回，控制权交回内核中断处理程序，内核中断处理程序执行刚才NIC驱动调用的napi_schedule()产生的软中断。硬中断上下文执行完成后，软中断开始执行（这里是内核的tasklet或者work_queue了吧），软硬中断上下文都是由同一个进程执行的（linux kernle吧）。不过，软硬中断的执行栈不一样，硬中断将会屏蔽硬件中断，软中断执行期间是不屏蔽的（老生常谈）。&lt;/p&gt;
+
+&lt;p&gt;软中断处理程序调用net_rx_action()处理收到的数据包，这个函数调用驱动的poll()方法。poll()方法调用netif_receive_skb()方法收取数据包，然后讲其逐层向上层传送。处理完软中断后，应用程序从断点返回，此时可以开始调用系统调用比如read读取数据。&lt;/p&gt;
+
+&lt;p&gt;这就是CPU从收到硬中断到完成接收数据包的完整过程，Linux、BSD和MS Windows系统都是大同小异的。&lt;/p&gt;
+
+&lt;p&gt;当你查看服务器CPU使用率时，有事你可以看到只有一个CPU执行软中断，这个现象我们上文描述的可以解释，只有CPU 0在响应网卡中断，使用多队列网卡、RSS和RPS（在软件层面模拟实现硬件的多队列网卡功能）可以解决这个问题，将软中断绑定到多个CPU上。&lt;/p&gt;
+
+&lt;h2 id=&#34;相关数据结构&#34;&gt;相关数据结构&lt;/h2&gt;
+
+&lt;p&gt;下文列出一些关键性的数据结构&lt;/p&gt;
+
+&lt;h2 id=&#34;sk-buff-structure&#34;&gt;sk_buff structure&lt;/h2&gt;
+
+&lt;p&gt;首先，sk_buff结构体或者skb结构体表示一个数据包，图6表示sk_buff结构体的主要部分，足以说明sk_buff相关的通用方法。&lt;/p&gt;
+
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;https://raw.githubusercontent.com/BG2BKK/githubio/master/static/packet_structure_sk_buff.png&#34; width=&#34;70%&#34; height=&#34;70%&#34;&gt;&lt;p&gt;Figure 6: Packet Structure sk_buff.&lt;/p&gt;&lt;/div&gt;
+
+&lt;h3 id=&#34;sk-buff包括数据包的data部分和元数据部分&#34;&gt;sk_buff包括数据包的Data部分和元数据部分&lt;/h3&gt;
+
+&lt;p&gt;sk_buff直接包括包数据部分，或者用指针指向它。在图6中，一些&lt;/p&gt;
+</description>
+    </item>
     
     <item>
       <title>futex和linux的线程同步机制</title>
@@ -81,13 +293,13 @@ futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily una
       <guid>https://bg2bkk.github.io/post/cpp_basis/</guid>
       <description>
 
-&lt;h2 id=&#34;static和const关键字各自的作用:2404ccd5838a6732564bda89dd9448a6&#34;&gt;static和const关键字各自的作用&lt;/h2&gt;
+&lt;h2 id=&#34;static和const关键字各自的作用&#34;&gt;static和const关键字各自的作用&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;static关键字&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;在函数体内，static变量只分配一次，作用域范围也在该函数体内；当下次调用该函数时，该值保持不变&lt;/li&gt;
+&lt;li&gt;在函数体内声明的话，static变量只分配一次，作用域范围也在该函数体内；当下次调用该函数时，该值保持不变&lt;/li&gt;
 &lt;li&gt;模块内的static变量的作用域是模块内&lt;/li&gt;
 &lt;li&gt;类的static变量属于整个类，而不是某个对象，所有对象都共有这一份拷贝&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
@@ -101,9 +313,9 @@ futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily una
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;拷贝构造函数和赋值构造函数:2404ccd5838a6732564bda89dd9448a6&#34;&gt;拷贝构造函数和赋值构造函数&lt;/h2&gt;
+&lt;h2 id=&#34;拷贝构造函数和赋值构造函数&#34;&gt;拷贝构造函数和赋值构造函数&lt;/h2&gt;
 
-&lt;p&gt;C++的拷贝构造函数、重载赋值构造函数，以及析构函数，属于C++复制控制的范畴&lt;/p&gt;
+&lt;p&gt;C++的拷贝构造函数、重载赋值构造函数，以及析构函数，属于C++赋值控制的范畴&lt;/p&gt;
 
 &lt;p&gt;如果没有手动实现，编译器会自动生成一个；编译器会自动生成以下四个成员函数&lt;/p&gt;
 
@@ -180,6 +392,21 @@ String obj(other);
 &lt;p&gt;而在前者的&lt;strong&gt;&lt;em&gt;obj = other&lt;/em&gt;&lt;/strong&gt; 和后者的&lt;strong&gt;&lt;em&gt;String obj=other&lt;/em&gt;&lt;/strong&gt;不同，前者表示obj是一个未初始化的对象，通过&lt;strong&gt;&lt;em&gt;=&lt;/em&gt;&lt;/strong&gt;进行赋值，后者中的&lt;strong&gt;&lt;em&gt;=&lt;/em&gt;&lt;/strong&gt;是使用other对obj进行初始化。&lt;/p&gt;
 
 &lt;p&gt;在赋值构造函数中，&lt;strong&gt;&lt;em&gt;=&lt;/em&gt;&lt;/strong&gt;缺省操作是将成员变量的值赋值，这时函数成员的旧值自然被丢弃，比如指针被赋予新值，旧值丢弃；然而指针旧值指向的内存却并未释放；因此包含动态分配成员的类提供拷贝构造函数外，还应该考虑重载&lt;strong&gt;&lt;em&gt;=&lt;/em&gt;&lt;/strong&gt;赋值操作符&lt;/p&gt;
+
+&lt;h2 id=&#34;抽象类与纯虚函数&#34;&gt;抽象类与纯虚函数&lt;/h2&gt;
+
+&lt;p&gt;纯虚函数是在基类中声明的虚函数，在基类中没有定义，声明方法是在函数原型后加&lt;strong&gt;&lt;em&gt;=0&lt;/em&gt;&lt;/strong&gt;，例如&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;virtual void function() = 0;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;纯虚函数要求基类的所有派生类都要定义自己的实现方法，除非派生类也是抽象类，因此纯虚函数主要功能是实现接口声明。至少含有一个纯虚函数的类被称为抽象类。&lt;/p&gt;
+
+&lt;h2 id=&#34;基类的虚析构函数&#34;&gt;基类的虚析构函数&lt;/h2&gt;
+
+&lt;p&gt;在多态使用时，如果new一个子类对象，而用父类类型指针指向它来使用，delete父类类型指针的时候，只释放父类类型的资源，子类的虚构函数并不存在，导致资源不能及时释放。因此将父类的析构函数设置为虚函数，释放派生类对象时，链式调用析构函数，派生类析构函数先调用，父类的析构函数后调用。&lt;a href=&#34;http://blog.csdn.net/starlee/article/details/619827&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;一句话，基类的析构函数设置为虚，可以在释放时链式释放子类对象内存，防止内存泄露。不过这个机制，还是无法释放类中的动态分配的内存，所以良好的编程习惯是不挖坑的基础。&lt;/p&gt;
 </description>
     </item>
     
@@ -191,7 +418,7 @@ String obj(other);
       <guid>https://bg2bkk.github.io/post/redis%E8%BF%87%E6%9C%9F%E6%B8%85%E9%99%A4%E6%9C%BA%E5%88%B6%E5%8F%8A%E5%BA%94%E7%94%A8%E6%96%B9%E6%B3%95/</guid>
       <description>
 
-&lt;h2 id=&#34;redis过期清除和淘汰机制:15f341755a194cb3fa2a102ac1aec971&#34;&gt;redis过期清除和淘汰机制&lt;/h2&gt;
+&lt;h2 id=&#34;redis过期清除和淘汰机制&#34;&gt;redis过期清除和淘汰机制&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;过期时间设置&lt;/p&gt;
@@ -239,7 +466,8 @@ String obj(other);
 &lt;li&gt;&lt;p&gt;定期删除&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;每隔一段时间，检查所有设置了过期时间的key，删除已过期的键&lt;/li&gt;
+&lt;li&gt;每隔一段时间，检查所有设置了过期时间的key，删除已过期的键
+&lt;br /&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 
 &lt;li&gt;&lt;p&gt;redis采用后两种结合的方式&lt;/p&gt;
@@ -266,7 +494,14 @@ String obj(other);
       <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</guid>
       <description>
 
-&lt;h2 id=&#34;ubuntu下解压zip文件出现乱码的解决办法:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;ubuntu下解压zip文件出现乱码的解决办法&lt;/h2&gt;
+&lt;h2 id=&#34;全世界最愚蠢的事情就是-重复做相同的事情-却期待有不同的结果发生&#34;&gt;全世界最愚蠢的事情就是，重复做相同的事情，却期待有不同的结果发生&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;Insanity: doing the same thing over and over again and expecting different results.
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;说实话，在写代码、调代码的时候，一但出现非预期结果，首先检查之前自己的编码和输入，确定后不应该再二次重试，毕竟相同条件下不可能产生不同结果，此时应该将思维跳脱出来，另辟蹊径为好。&lt;/p&gt;
+
+&lt;h2 id=&#34;ubuntu下解压zip文件出现乱码的解决办法&#34;&gt;ubuntu下解压zip文件出现乱码的解决办法&lt;/h2&gt;
 
 &lt;p&gt;&lt;a href=&#34;https://www.zhihu.com/question/20523036&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
 
@@ -276,7 +511,7 @@ String obj(other);
 
 &lt;p&gt;亲测好用，不好用的看链接&lt;/p&gt;
 
-&lt;h2 id=&#34;redis设置和清除密码:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;redis设置和清除密码&lt;/h2&gt;
+&lt;h2 id=&#34;redis设置和清除密码&#34;&gt;redis设置和清除密码&lt;/h2&gt;
 
 &lt;p&gt;正规项目终于要对redis设置密码了，&lt;a href=&#34;http://blog.csdn.net/zyz511919766/article/details/42268219&#34;&gt;如何加密码呢&lt;/a&gt;&lt;/p&gt;
 
@@ -314,7 +549,7 @@ String obj(other);
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;epoll是同步非阻塞的:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;epoll是同步非阻塞的&lt;/h2&gt;
+&lt;h2 id=&#34;epoll是同步非阻塞的&#34;&gt;epoll是同步非阻塞的&lt;/h2&gt;
 
 &lt;p&gt;epoll、select等多路服用IO，将fd加入等待时间的队列中，每隔一段时间去轮询一次，因此是同步的；优点是能够在等待任务的时间里去做别的任务；缺点是任务完成的响应延迟增大，因为每隔一段时间去轮询他们，在时间间隔内任务可能已经完成而等待处理等待了一段时间了。&lt;/p&gt;
 
@@ -326,7 +561,7 @@ String obj(other);
 
 &lt;p&gt;因此epoll是同步和非阻塞的。&lt;/p&gt;
 
-&lt;h2 id=&#34;sed合并相邻两行:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;sed合并相邻两行&lt;/h2&gt;
+&lt;h2 id=&#34;sed合并相邻两行&#34;&gt;sed合并相邻两行&lt;/h2&gt;
 
 &lt;p&gt;从redis中取出一个键的所有内容时，比如hgetall，得到的结果并不是排序好的，类似于这样&lt;/p&gt;
 
@@ -360,14 +595,14 @@ String obj(other);
 &lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;sed &#39;$!N;s/\n/\t/&#39; filename 
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;redis分析实例中所有key和单个key的内存占用情况:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;redis分析实例中所有key和单个key的内存占用情况&lt;/h2&gt;
+&lt;h2 id=&#34;redis分析实例中所有key和单个key的内存占用情况&#34;&gt;redis分析实例中所有key和单个key的内存占用情况&lt;/h2&gt;
 
 &lt;p&gt;采用&lt;a href=&#34;https://github.com/sripathikrishnan/redis-rdb-tools&#34;&gt;rdb工具&lt;/a&gt;&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;rdb -c memory /path/to/ab-dump.rdb &amp;gt; memory.csv
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;sort进行多重排序:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;sort进行多重排序&lt;/h2&gt;
+&lt;h2 id=&#34;sort进行多重排序&#34;&gt;sort进行多重排序&lt;/h2&gt;
 
 &lt;p&gt;sort和uniq在文本处理，尤其是日志处理中用的较多的工具，记得当年校招时候准备面试，用到这两个命令，惊为天人，非常shock。在日常工作中，用的也非常多。&lt;/p&gt;
 
@@ -414,7 +649,7 @@ String obj(other);
 &lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;sort -k1 -k2n out
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;shell脚本批量处理文本:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;shell脚本批量处理文本&lt;/h2&gt;
+&lt;h2 id=&#34;shell脚本批量处理文本&#34;&gt;shell脚本批量处理文本&lt;/h2&gt;
 
 &lt;p&gt;善用awk、grep、xargs、bash、sed等工具，可以提高生产力&lt;/p&gt;
 
@@ -426,7 +661,7 @@ String obj(other);
 &lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;for j in {a..z}; do echo $j; done
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;redis批量删除key:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;redis批量删除key&lt;/h2&gt;
+&lt;h2 id=&#34;redis批量删除key&#34;&gt;redis批量删除key&lt;/h2&gt;
 
 &lt;p&gt;手动清理redis中的key时，很想通过 &lt;strong&gt;&lt;em&gt;del keys&lt;/em&gt;&lt;/strong&gt;* 的方式实现批量删除，而redis却没有提供这样的选项，因此需要借助外部工具&lt;/p&gt;
 
@@ -452,7 +687,7 @@ String obj(other);
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;unix获取时间戳:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;unix获取时间戳&lt;/h2&gt;
+&lt;h2 id=&#34;unix获取时间戳&#34;&gt;unix获取时间戳&lt;/h2&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;date &#39;+%s&#39;
 
@@ -472,7 +707,7 @@ date -d &amp;quot;@1279592730&amp;quot;
 
 &lt;p&gt;&lt;a href=&#34;http://blog.csdn.net/hittata/article/details/7640974&#34;&gt;链接&lt;/a&gt;中提到了各种各样的格式，以后写shell脚本就不担心时间戳问题了&lt;/p&gt;
 
-&lt;h2 id=&#34;docker-设置代理下载镜像:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;docker 设置代理下载镜像&lt;/h2&gt;
+&lt;h2 id=&#34;docker-设置代理下载镜像&#34;&gt;docker 设置代理下载镜像&lt;/h2&gt;
 
 &lt;p&gt;&lt;a href=&#34;http://stackoverflow.com/questions/23111631/cannot-download-docker-images-behind-a-proxy&#34;&gt;在systemd中设置&lt;/a&gt;&lt;/p&gt;
 
@@ -487,14 +722,14 @@ date -d &amp;quot;@1279592730&amp;quot;
 
 &lt;p&gt;tested on Ubuntu 16.04&lt;/p&gt;
 
-&lt;h2 id=&#34;用ps查看进程的执行时间:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;用ps查看进程的执行时间&lt;/h2&gt;
+&lt;h2 id=&#34;用ps查看进程的执行时间&#34;&gt;用ps查看进程的执行时间&lt;/h2&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;ps -eo pid,tty,user,comm,stime,etime | grep main
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;p&gt;可以打印进程的开始时间和执行时间&lt;/p&gt;
 
-&lt;h2 id=&#34;vim下以16进制查看文本文件:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;vim下以16进制查看文本文件&lt;/h2&gt;
+&lt;h2 id=&#34;vim下以16进制查看文本文件&#34;&gt;vim下以16进制查看文本文件&lt;/h2&gt;
 
 &lt;p&gt;vim的功能实在是太强大了，&lt;a href=&#34;http://blog.sina.com.cn/s/blog_4c451e0e0100h4nl.html&#34;&gt;可以以16进制查看文本信息&lt;/a&gt;：&lt;/p&gt;
 
@@ -504,7 +739,7 @@ date -d &amp;quot;@1279592730&amp;quot;
 :%!xxd -r
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;linux获取系统调度时间片长度:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;Linux获取系统调度时间片长度&lt;/h2&gt;
+&lt;h2 id=&#34;linux获取系统调度时间片长度&#34;&gt;Linux获取系统调度时间片长度&lt;/h2&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#define _GNU_SOURCE
 #include &amp;lt;sched.h&amp;gt;
@@ -533,7 +768,7 @@ The time is 0s:16000000ns.
 
 &lt;p&gt;可见Ubuntu-16.04 64bit的系统进程时间片是16ms&lt;/p&gt;
 
-&lt;h2 id=&#34;c语言中short-int-long内存占用:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;C语言中short、int、long内存占用&lt;/h2&gt;
+&lt;h2 id=&#34;c语言中short-int-long内存占用&#34;&gt;C语言中short、int、long内存占用&lt;/h2&gt;
 
 &lt;p&gt;随着工作年限的增加，很多基本功反而落了下来，甚至开始怀疑short等类型的内存占用问题了呵呵。印象里一直记得int和long类型都是4字节大小啊&lt;/p&gt;
 
@@ -578,11 +813,11 @@ Linux-32Bit-platform
 
 &lt;p&gt;看来，long和int大小一样已经是32位机器的老黄历了，基础知识还是应该常用常新啊&lt;/p&gt;
 
-&lt;h2 id=&#34;文件操作的线程安全相关-待续:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;文件操作的线程安全相关（待续）&lt;/h2&gt;
+&lt;h2 id=&#34;文件操作的线程安全相关-待续&#34;&gt;文件操作的线程安全相关（待续）&lt;/h2&gt;
 
 &lt;p&gt;&lt;a href=&#34;http://stackoverflow.com/questions/29981050/concurrent-writing-to-a-file&#34;&gt;http://stackoverflow.com/questions/29981050/concurrent-writing-to-a-file&lt;/a&gt;&lt;/p&gt;
 
-&lt;h2 id=&#34;ubuntu关闭键盘和触摸板的方法:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;ubuntu关闭键盘和触摸板的方法&lt;/h2&gt;
+&lt;h2 id=&#34;ubuntu关闭键盘和触摸板的方法&#34;&gt;ubuntu关闭键盘和触摸板的方法&lt;/h2&gt;
 
 &lt;p&gt;家里的猫就是喜欢趴在笔记本键盘上看你干活，我只能再买一个键盘，然后笔记本键盘留给猫大爷了。&lt;/p&gt;
 
@@ -645,7 +880,7 @@ function doit() {
 doit 
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;小于1024的保留端口都有哪些:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;小于1024的保留端口都有哪些&lt;/h2&gt;
+&lt;h2 id=&#34;小于1024的保留端口都有哪些&#34;&gt;小于1024的保留端口都有哪些&lt;/h2&gt;
 
 &lt;p&gt;我们会遇到如下情况：&lt;/p&gt;
 
@@ -700,7 +935,7 @@ prospero-np	1525/tcp			# Prospero non-privileged
 
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;git修改默认分支名:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;git修改默认分支名&lt;/h2&gt;
+&lt;h2 id=&#34;git修改默认分支名&#34;&gt;git修改默认分支名&lt;/h2&gt;
 
 &lt;p&gt;在develop分支改动太大了，导致merge 到master分支时非常被动，这个时候我想，干脆将develop分支作为分支好了。还好碰到&lt;a href=&#34;http://stackoverflow.com/questions/1485578/change-a-git-remote-head-to-point-to-something-besides-master&#34;&gt;stackoverflow的一个帖子&lt;/a&gt;&lt;/p&gt;
 
@@ -712,17 +947,17 @@ prospero-np	1525/tcp			# Prospero non-privileged
 
 &lt;p&gt;另一个方法是从github的&lt;a href=&#34;https://help.github.com/articles/setting-the-default-branch/&#34;&gt;项目主页上更改&lt;/a&gt;&lt;/p&gt;
 
-&lt;h2 id=&#34;编译openssl-1-0-2g:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;编译openssl 1.0.2g&lt;/h2&gt;
+&lt;h2 id=&#34;编译openssl-1-0-2g&#34;&gt;编译openssl 1.0.2g&lt;/h2&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;./config shared -fPIC zlib-dynamic &amp;amp;&amp;amp; make depend -j   &amp;amp;&amp;amp; make -j
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;编译nginx-tengine-cpp模块:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;编译nginx/tengine: CPP模块&lt;/h2&gt;
+&lt;h2 id=&#34;编译nginx-tengine-cpp模块&#34;&gt;编译nginx/tengine: CPP模块&lt;/h2&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;./configure --add-module=../cpp_module  --with-ld-opt=&amp;quot;-lstdc++&amp;quot;
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;curl-i-和-i的区别:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;curl -i 和 -I的区别&lt;/h2&gt;
+&lt;h2 id=&#34;curl-i-和-i的区别&#34;&gt;curl -i 和 -I的区别&lt;/h2&gt;
 
 &lt;p&gt;man page:&lt;/p&gt;
 
@@ -737,7 +972,7 @@ prospero-np	1525/tcp			# Prospero non-privileged
 
 &lt;p&gt;-I选项会发送HEAD请求，获取信息&lt;/p&gt;
 
-&lt;h2 id=&#34;linux系统如何将父子进程一起kill掉:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;linux系统如何将父子进程一起kill掉&lt;/h2&gt;
+&lt;h2 id=&#34;linux系统如何将父子进程一起kill掉&#34;&gt;linux系统如何将父子进程一起kill掉&lt;/h2&gt;
 
 &lt;p&gt;对于普通进程而言，kill掉父进程将会连带着把子进程kill掉；而对于daemon等类型进程而言，kill掉父进程，子进程会被daemon接管，所以如果想父子一起kill掉的话，不能直接kill父进程。&lt;/p&gt;
 
@@ -753,16 +988,16 @@ prospero-np	1525/tcp			# Prospero non-privileged
 &lt;li&gt;&lt;p&gt;使用exec或者xargs来kill掉他们&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;dns查询中-域名是否可以有多个cname呢:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;dns查询中，域名是否可以有多个cname呢？&lt;/h2&gt;
+&lt;h2 id=&#34;dns查询中-域名是否可以有多个cname呢&#34;&gt;dns查询中，域名是否可以有多个cname呢？&lt;/h2&gt;
 
 &lt;p&gt;不可以
     * &lt;a href=&#34;http://serverfault.com/questions/574072/can-we-have-multiple-cnames-for-a-single-name&#34;&gt;http://serverfault.com/questions/574072/can-we-have-multiple-cnames-for-a-single-name&lt;/a&gt;&lt;/p&gt;
 
-&lt;h2 id=&#34;git代理访问:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;git代理访问&lt;/h2&gt;
+&lt;h2 id=&#34;git代理访问&#34;&gt;git代理访问&lt;/h2&gt;
 
 &lt;p&gt;git config &amp;ndash;global http.proxy 10.8.0.1:8118&lt;/p&gt;
 
-&lt;h2 id=&#34;ubuntu操作-挂载-格式化sd卡:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;ubuntu操作、挂载、格式化SD卡&lt;/h2&gt;
+&lt;h2 id=&#34;ubuntu操作-挂载-格式化sd卡&#34;&gt;ubuntu操作、挂载、格式化SD卡&lt;/h2&gt;
 
 &lt;p&gt;玩树莓派等板子的时候，需要从host机器将os镜像烧进sd卡，然后启动。那么ubuntu如何操作呢？&lt;/p&gt;
 
@@ -827,7 +1062,7 @@ Device         Boot Start      End  Sectors  Size Id Type
 
 &lt;p&gt;推荐使用USB读卡器，速度较为快一些。&lt;/p&gt;
 
-&lt;h2 id=&#34;lua库文件的加载路径:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;Lua库文件的加载路径&lt;/h2&gt;
+&lt;h2 id=&#34;lua库文件的加载路径&#34;&gt;Lua库文件的加载路径&lt;/h2&gt;
 
 &lt;p&gt;Lua 提供一个名为 &lt;a href=&#34;http://www.lua.org/manual/5.1/manual.html#pdf-require&#34;&gt;require&lt;/a&gt; 的函数来加载模块，使用也很简单，它只有一个参数，这个参数就是要指定加载的模块名，&lt;a href=&#34;http://dhq.me/lua-learning-notes-package-and-module&#34;&gt;例如&lt;/a&gt;：&lt;/p&gt;
 
@@ -892,7 +1127,7 @@ require &amp;quot;fun&amp;quot;
 &lt;p&gt;这点对于我们自己的lua project的设置来说无疑是很方便的。
 &lt;a href=&#34;http://www.runoob.com/lua/lua-modules-packages.html&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
 
-&lt;h2 id=&#34;cpp调用c函数:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;cpp调用c函数&lt;/h2&gt;
+&lt;h2 id=&#34;cpp调用c函数&#34;&gt;cpp调用c函数&lt;/h2&gt;
 
 &lt;p&gt;由于CPP在链接时与C不太一样，因此在调用C函数时，&lt;a href=&#34;http://www.cnblogs.com/skynet/archive/2010/07/10/1774964.html&#34;&gt;需要做一定处理。&lt;/a&gt;&lt;/p&gt;
 
@@ -911,14 +1146,14 @@ extern &amp;quot;C&amp;quot; {
 #endif
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;多少人在猜你机器的密码呢:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;多少人在猜你机器的密码呢&lt;/h2&gt;
+&lt;h2 id=&#34;多少人在猜你机器的密码呢&#34;&gt;多少人在猜你机器的密码呢&lt;/h2&gt;
 
 &lt;p&gt;VPS在公网就是个待宰的肥肉，都想去登陆，那&lt;a href=&#34;https://plus.google.com/+AlbertSu2015/posts/Uu1vbeJY1Hw&#34;&gt;都谁猜我的IP了呢？&lt;/a&gt;&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;sudo grep &amp;quot;Failed password for root&amp;quot; /var/log/auth.log | awk &#39;{print $11}&#39; | sort | uniq -c | sort -nr | more
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;grep的简单使用-与-或-非:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;grep的简单使用，与 或 非&lt;/h2&gt;
+&lt;h2 id=&#34;grep的简单使用-与-或-非&#34;&gt;grep的简单使用，与 或 非&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;或操作&lt;/li&gt;
@@ -949,7 +1184,7 @@ grep -v pattern files ：不匹配pattern
 grep -C number pattern files ：匹配的上下文分别显示[number]行，
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;iptables的简单使用:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;iptables的简单使用&lt;/h2&gt;
+&lt;h2 id=&#34;iptables的简单使用&#34;&gt;iptables的简单使用&lt;/h2&gt;
 
 &lt;p&gt;其实并不想写iptables相关的内容，因为用的不熟，但是一些常用的命令还是记一下吧&lt;/p&gt;
 
@@ -1011,7 +1246,7 @@ iptables -A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT
 &lt;pre&gt;&lt;code&gt;/sbin/iptables -F
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;vps简单的ssh登陆设置:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;VPS简单的ssh登陆设置&lt;/h2&gt;
+&lt;h2 id=&#34;vps简单的ssh登陆设置&#34;&gt;VPS简单的ssh登陆设置&lt;/h2&gt;
 
 &lt;p&gt;初次使用VPS，不懂得安全的重要性，直到扣款时候才心疼，这个时候，弱口令，密码登陆什么的，还是都放弃吧，只用ssh登陆，并且换一个自己的端口。&lt;a href=&#34;https://imququ.com/post/bandwagon-vps-and-basicly-usage.html&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
 
@@ -1039,7 +1274,7 @@ Port 11111
 &lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;sudo service ssh restart
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;vim删除空行:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;vim删除空行&lt;/h2&gt;
+&lt;h2 id=&#34;vim删除空行&#34;&gt;vim删除空行&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;从网页上copy下代码后，发现很多情况下有不想要的空行，非常影响阅读，通过&lt;a href=&#34;http://bbs.chinaunix.net/thread-510754-1-1.html&#34;&gt;vim的正则&lt;/a&gt;可以解决
@@ -1053,14 +1288,14 @@ Port 11111
 &lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;:g/^\s*$/d
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;ubuntu通过命令设置系统时间:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;ubuntu通过命令设置系统时间&lt;/h2&gt;
+&lt;h2 id=&#34;ubuntu通过命令设置系统时间&#34;&gt;ubuntu通过命令设置系统时间&lt;/h2&gt;
 
 &lt;p&gt;在嵌入式开发中，在pcduino或者rpi板子上安装好linux后，系统时间是UTC时间1970年，对于有些软件来说可能影响安装，所以需要命令行修改date&lt;/p&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;sudo date -s &amp;quot;13 DEC 2015 20:43&amp;quot;
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;ubuntu终端下中文设置:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;ubuntu终端下中文设置&lt;/h2&gt;
+&lt;h2 id=&#34;ubuntu终端下中文设置&#34;&gt;ubuntu终端下中文设置&lt;/h2&gt;
 
 &lt;p&gt;在安装完ubuntu系统后，我们发现中文支持的不好，主要体现在locale的错误，&lt;a href=&#34;http://www.linuxidc.com/Linux/2015-08/122501.htm&#34;&gt;解决方法：&lt;/a&gt;&lt;/p&gt;
 
@@ -1139,7 +1374,7 @@ Generation complete.
 
 &lt;p&gt;一般就都能解决&lt;/p&gt;
 
-&lt;h2 id=&#34;linux终端下的颜色设置输出:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;Linux终端下的颜色设置输出&lt;/h2&gt;
+&lt;h2 id=&#34;linux终端下的颜色设置输出&#34;&gt;Linux终端下的颜色设置输出&lt;/h2&gt;
 
 &lt;p&gt;Linux终端下，如果有一个彩色的终端，可以明显提升人的阅读兴趣，通过printf的简单设置即可&lt;a href=&#34;http://www.w2bc.com/Article/39141&#34;&gt;实现彩色输出&lt;/a&gt;&lt;/p&gt;
 
@@ -1177,7 +1412,7 @@ printf(&amp;quot;\033[1;31;40m&amp;quot;);
 printf(&amp;quot;\033[0m&amp;quot;);
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;tsar监控系统负载和nginx运行情况:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;tsar监控系统负载和nginx运行情况&lt;/h2&gt;
+&lt;h2 id=&#34;tsar监控系统负载和nginx运行情况&#34;&gt;tsar监控系统负载和nginx运行情况&lt;/h2&gt;
 
 &lt;p&gt;&lt;a href=&#34;https://github.com/alibaba/tsar&#34;&gt;tsar&lt;/a&gt;是阿里巴巴发布的一款能够实时监控系统状态的命令行工具，并且支持第三方模块扩展，其中比较注明的是nginx模块。使用tsar时，可以将系统负载和nginx运行情况同步同时打出，可以用来定位系统瓶颈，所以广受好评。&lt;/p&gt;
 
@@ -1221,7 +1456,7 @@ Time                util     util   retran    bytin  bytout     util     load1  
 
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;wrk在centos系统上的编译方法:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;wrk在CentOS系统上的编译方法&lt;/h2&gt;
+&lt;h2 id=&#34;wrk在centos系统上的编译方法&#34;&gt;wrk在CentOS系统上的编译方法&lt;/h2&gt;
 
 &lt;p&gt;&lt;a href=&#34;https://github.com/wg/wrk&#34;&gt;wrk&lt;/a&gt;作为一款可以内嵌lua脚本的，支持多线程的压测工具，受到了广泛欢迎。在高版本CentOS 7上，直接在wrk目录下执行make，可以首先编译deps/luajit，得到deps/luajit/libluajit.a，然而在低版本上，CentOS 6.5系统中，会报一些莫名奇妙的错误。&lt;/p&gt;
 
@@ -1236,7 +1471,7 @@ make -j24
 
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;rpmbuild环境的快速初始化:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;rpmbuild环境的快速初始化&lt;/h2&gt;
+&lt;h2 id=&#34;rpmbuild环境的快速初始化&#34;&gt;rpmbuild环境的快速初始化&lt;/h2&gt;
 
 &lt;p&gt;需要将代码打包为CentOS的RPM包时，可以先自己在本地新建一个环境&lt;/p&gt;
 
@@ -1246,7 +1481,7 @@ make -j24
 4. rpmbuild -ba path/to/software.spec 即可
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;git记住密码-不用每次都输密码才登入:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;git记住密码，不用每次都输密码才登入&lt;/h2&gt;
+&lt;h2 id=&#34;git记住密码-不用每次都输密码才登入&#34;&gt;git记住密码，不用每次都输密码才登入&lt;/h2&gt;
 
 &lt;p&gt;git有两种方式，一种是ssh方式，配置公钥私钥，对于新手而言还是比较麻烦的；另一种是http方式，这里有一个办法可以让git记住密码，避免每次都需要输入密码&lt;/p&gt;
 
@@ -1259,7 +1494,7 @@ make -j24
     helper = store 
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;centos系统上某些软件-比如gcc-python等版本过低的解决方案:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;centos系统上某些软件，比如gcc、python等版本过低的解决方案&lt;/h2&gt;
+&lt;h2 id=&#34;centos系统上某些软件-比如gcc-python等版本过低的解决方案&#34;&gt;centos系统上某些软件，比如gcc、python等版本过低的解决方案&lt;/h2&gt;
 
 &lt;p&gt;在CentOS Server上，经常会遇到某些软件依赖版本过低的问题，比如CentOS 6.5的python是2.7版本的，gcc是4.2版本的，那么我们如何获得一个干净的、与原版本无冲突的运行环境呢。CentOS系提供了一个叫SCL的工具，可以帮我们实现目的&lt;/p&gt;
 
@@ -1278,7 +1513,7 @@ scl enable python27 bash
 python --version
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;ubuntu系统上某些软件-比如gcc等版本过高的解决方案:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;ubuntu系统上某些软件，比如gcc等版本过高的解决方案&lt;/h2&gt;
+&lt;h2 id=&#34;ubuntu系统上某些软件-比如gcc等版本过高的解决方案&#34;&gt;ubuntu系统上某些软件，比如gcc等版本过高的解决方案&lt;/h2&gt;
 
 &lt;p&gt;与CentOS相反，debian系发行版的软件版本都很高，Ubuntu 16.04的gcc 版本已经到了5.2，然而编译一些早期linux内核的话，需要gcc-4.7左右的版本，这时候我们怎么办呢，有两个方法：
 * 通过apt安装低版本gcc
@@ -1288,7 +1523,7 @@ python --version
     * &lt;a href=&#34;http://www.metsky.com/archives/607.html&#34;&gt;参考链接1&lt;/a&gt;
     * &lt;a href=&#34;http://blog.csdn.net/zyxlinux888/article/details/6708775&#34;&gt;参考链接2&lt;/a&gt; &lt;a href=&#34;http://blog.csdn.net/zyxlinux888/article/details/6709036&#34;&gt;附赠&lt;/a&gt;&lt;/p&gt;
 
-&lt;h2 id=&#34;python的matplotlib库实现绘制图标:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;python的matplotlib库实现绘制图标&lt;/h2&gt;
+&lt;h2 id=&#34;python的matplotlib库实现绘制图标&#34;&gt;python的matplotlib库实现绘制图标&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;sudo apt-get install python-matplotlib&lt;/li&gt;
@@ -1297,15 +1532,15 @@ python --version
 &lt;p&gt;&lt;a href=&#34;http://matplotlib.org/index.html&#34;&gt;参考链接&lt;/a&gt;
 &lt;a href=&#34;http://matplotlib.org/examples/index.html&#34;&gt;example&lt;/a&gt;&lt;/p&gt;
 
-&lt;h2 id=&#34;python使用requests库发送http请求:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;python使用requests库发送http请求&lt;/h2&gt;
+&lt;h2 id=&#34;python使用requests库发送http请求&#34;&gt;python使用requests库发送http请求&lt;/h2&gt;
 
 &lt;p&gt;&lt;a href=&#34;http://cn.python-requests.org/zh_CN/latest/user/quickstart.html#json&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
 
-&lt;h2 id=&#34;python解析命令行参数-argparse:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;python解析命令行参数：argparse&lt;/h2&gt;
+&lt;h2 id=&#34;python解析命令行参数-argparse&#34;&gt;python解析命令行参数：argparse&lt;/h2&gt;
 
 &lt;p&gt;&lt;a href=&#34;http://blog.xiayf.cn/2013/03/30/argparse/&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
 
-&lt;h2 id=&#34;git比较两次commit的差异:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;git比较两次commit的差异&lt;/h2&gt;
+&lt;h2 id=&#34;git比较两次commit的差异&#34;&gt;git比较两次commit的差异&lt;/h2&gt;
 
 &lt;p&gt;通过比较两次commit的代码差异，能够快速理解此次commit的目的，理解作者意图&lt;/p&gt;
 
@@ -1334,7 +1569,7 @@ Date:   Sat Mar 12 01:16:00 2016 +0800
 &lt;li&gt;git diff commit 2279c3f4a8a42e696a0f34e6e9b6289487da92c1 2b9d85f8427c5ca9e4f9c128c22acd280eb94405&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;git返回强制返回某次提交:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;git返回强制返回某次提交&lt;/h2&gt;
+&lt;h2 id=&#34;git返回强制返回某次提交&#34;&gt;git返回强制返回某次提交&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;git log&lt;/li&gt;
@@ -1345,7 +1580,7 @@ Date:   Sat Mar 12 01:16:00 2016 +0800
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;iptables允许端口被外网访问:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;iptables允许端口被外网访问&lt;/h2&gt;
+&lt;h2 id=&#34;iptables允许端口被外网访问&#34;&gt;iptables允许端口被外网访问&lt;/h2&gt;
 
 &lt;p&gt;防火墙设置，配置1985端口可以被外网访问&lt;/p&gt;
 
@@ -1353,7 +1588,7 @@ Date:   Sat Mar 12 01:16:00 2016 +0800
 &lt;li&gt;sudo iptables -A INPUT -m state &amp;ndash;state NEW -m tcp -p tcp &amp;ndash;dport 1985 -j ACCEPT&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;tcpdump过滤指定标志的packet:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;tcpdump过滤指定标志的packet&lt;/h2&gt;
+&lt;h2 id=&#34;tcpdump过滤指定标志的packet&#34;&gt;tcpdump过滤指定标志的packet&lt;/h2&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;# tcp包里有个flags字段表示包的类型，tcpdump可以根据该字段抓取相应类型的包：
 # tcp[13] 就是 TCP flags (URG,ACK,PSH,RST,SYN,FIN)
@@ -1374,7 +1609,7 @@ tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.ca
 
 &lt;p&gt;&lt;a href=&#34;http://babyhe.blog.51cto.com/1104064/1395489&#34;&gt;参考链接&lt;/a&gt;&lt;/p&gt;
 
-&lt;h2 id=&#34;查看进程的内存占用情况:1350fa5c56171e9d9c8991f08929cd14&#34;&gt;查看进程的内存占用情况&lt;/h2&gt;
+&lt;h2 id=&#34;查看进程的内存占用情况&#34;&gt;查看进程的内存占用情况&lt;/h2&gt;
 
 &lt;p&gt;用Ternary Search Tree代替Trie Tree后，我想知道我的进程内存占用有多大区别。&lt;/p&gt;
 
@@ -1605,7 +1840,7 @@ class Solution {
 
 &lt;p&gt;虽然我不会c++11，但是我会lua、c、golang、python、shell，我要报复性的把这个题做了。&lt;/p&gt;
 
-&lt;h2 id=&#34;c-11:2b47536402331bf9a7545f76ebbbb760&#34;&gt;C++11&lt;/h2&gt;
+&lt;h2 id=&#34;c-11&#34;&gt;C++11&lt;/h2&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#include&amp;lt;iostream&amp;gt;
 #include&amp;lt;thread&amp;gt;
@@ -1636,7 +1871,7 @@ int main(){
 
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;lua:2b47536402331bf9a7545f76ebbbb760&#34;&gt;Lua&lt;/h2&gt;
+&lt;h2 id=&#34;lua&#34;&gt;Lua&lt;/h2&gt;
 
 &lt;p&gt;lua的协程使得主从两个thread之间并没有竞争关系，所以很顺畅的就可以把代码写出来，逻辑也十分简单&lt;/p&gt;
 
@@ -1716,7 +1951,7 @@ main: 	1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 2
 
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;c:2b47536402331bf9a7545f76ebbbb760&#34;&gt;c&lt;/h2&gt;
+&lt;h2 id=&#34;c&#34;&gt;c&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;volatile: 使用volatile类型的全局变量和sleep函数实现阻塞和互斥&lt;/li&gt;
@@ -1874,13 +2109,13 @@ int main()
 
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;python:2b47536402331bf9a7545f76ebbbb760&#34;&gt;python&lt;/h2&gt;
+&lt;h2 id=&#34;python&#34;&gt;python&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;python yield&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;golang:2b47536402331bf9a7545f76ebbbb760&#34;&gt;golang&lt;/h2&gt;
+&lt;h2 id=&#34;golang&#34;&gt;golang&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;goroutine之间可以通过channel进行多任务同步&lt;/li&gt;
@@ -1975,7 +2210,7 @@ func main() {
 
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;shell:2b47536402331bf9a7545f76ebbbb760&#34;&gt;shell&lt;/h2&gt;
+&lt;h2 id=&#34;shell&#34;&gt;shell&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;token bucket&lt;/li&gt;
@@ -1991,7 +2226,7 @@ func main() {
       <guid>https://bg2bkk.github.io/post/SO_REUSEADDR%E5%92%8CSO_REUSEPORT/</guid>
       <description>
 
-&lt;h2 id=&#34;结论:035fb573c14692e64241442f4294aac6&#34;&gt;结论&lt;/h2&gt;
+&lt;h2 id=&#34;结论&#34;&gt;结论&lt;/h2&gt;
 
 &lt;pre&gt;&lt;code&gt;1. SO_REUSEPORT用于多个socket监听同一个TCP链接
 2. SO_REUSEADDR可用于多个进程bind同一端口，但需要TCP连接的四元组不一样。
@@ -1999,7 +2234,7 @@ func main() {
 4. SO_REUSEADDR的最大作用是，当服务因故障重启时，不用等待需要绑定的端口从TIME_WAIT状态变更到CLOSED状态，就可以直接绑定该端口
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;引言:035fb573c14692e64241442f4294aac6&#34;&gt;引言&lt;/h2&gt;
+&lt;h2 id=&#34;引言&#34;&gt;引言&lt;/h2&gt;
 
 &lt;p&gt;nginx 1.9.1引入了 SO_REUSEPORT选项，在高版本（linux kernel 3.9以上）系统上可用。该选项允许多个socket监听同一个IP:PORT组合，&lt;/p&gt;
 
@@ -2018,7 +2253,7 @@ func main() {
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;听听linux-kernle-维护者怎么说-https-lwn-net-articles-542629:035fb573c14692e64241442f4294aac6&#34;&gt;听听linux kernle&lt;a href=&#34;https://lwn.net/Articles/542629/&#34;&gt;维护者怎么说&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&#34;听听linux-kernle-维护者怎么说-https-lwn-net-articles-542629&#34;&gt;听听linux kernle&lt;a href=&#34;https://lwn.net/Articles/542629/&#34;&gt;维护者怎么说&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;允许多个进程绑定host上的同一端口&lt;/li&gt;
@@ -2034,7 +2269,7 @@ func main() {
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;传统多线程的工作模式的缺点:035fb573c14692e64241442f4294aac6&#34;&gt;传统多线程的工作模式的缺点&lt;/h2&gt;
+&lt;h2 id=&#34;传统多线程的工作模式的缺点&#34;&gt;传统多线程的工作模式的缺点&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;1. 传统的多线程server都是有一个listener线程绑定端口并接受所有的请求，然后传递给其他线程，而这个listener往往会成为瓶颈&lt;/li&gt;
@@ -2046,7 +2281,7 @@ func main() {
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;so-reuseport的应用举例:035fb573c14692e64241442f4294aac6&#34;&gt;SO_REUSEPORT的应用举例&lt;/h2&gt;
+&lt;h2 id=&#34;so-reuseport的应用举例&#34;&gt;SO_REUSEPORT的应用举例&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;server.py&lt;/li&gt;
@@ -2116,14 +2351,14 @@ data
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;so-reuseport-和-so-reuseaddr-对比-待续:035fb573c14692e64241442f4294aac6&#34;&gt;SO_REUSEPORT 和 SO_REUSEADDR 对比（待续）&lt;/h2&gt;
+&lt;h2 id=&#34;so-reuseport-和-so-reuseaddr-对比-待续&#34;&gt;SO_REUSEPORT 和 SO_REUSEADDR 对比（待续）&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;前者可以防止端口被恶意进程劫持&lt;/li&gt;
 &lt;li&gt;前者可以使请求平均分配给各个进程&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;参考链接:035fb573c14692e64241442f4294aac6&#34;&gt;参考链接&lt;/h2&gt;
+&lt;h2 id=&#34;参考链接&#34;&gt;参考链接&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;https://lwn.net/Articles/542629/&#34;&gt;lwn: the SO_REUSEPORT socket option&lt;/a&gt;&lt;/li&gt;
@@ -2140,7 +2375,7 @@ data
       <guid>https://bg2bkk.github.io/post/tcp_fast_open%E7%9A%84%E6%A6%82%E5%BF%B5%20%E4%BD%9C%E7%94%A8%E4%BB%A5%E5%8F%8A%E5%AE%9E%E7%8E%B0/</guid>
       <description>
 
-&lt;h2 id=&#34;引言:dcfa70d5873a9471dad227ae4d6ecbe0&#34;&gt;引言&lt;/h2&gt;
+&lt;h2 id=&#34;引言&#34;&gt;引言&lt;/h2&gt;
 
 &lt;blockquote&gt;
 &lt;p&gt;三次握手的过程中，当用户首次访问server时，发送syn包，server根据用户IP生成cookie，并与syn+ack一同发回client；client再次访问server时，在syn包携带TCP cookie；如果server校验合法，则在用户回复ack前就可以直接发送数据；否则按照正常三次握手进行。&lt;/p&gt;
@@ -2455,14 +2690,14 @@ net.ipv4.tcp_fastopen = 3
 
 &lt;p&gt;nginx 1.5.18（2013年）开始支持tcp fast open&lt;/p&gt;
 
-&lt;h2 id=&#34;todo-list:dcfa70d5873a9471dad227ae4d6ecbe0&#34;&gt;TODO LIST&lt;/h2&gt;
+&lt;h2 id=&#34;todo-list&#34;&gt;TODO LIST&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;TFO在移动端场景中的性能体现：android+nginx&lt;/li&gt;
 &lt;li&gt;tcp fast open 在内核中的实现&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;参考链接:dcfa70d5873a9471dad227ae4d6ecbe0&#34;&gt;参考链接&lt;/h2&gt;
+&lt;h2 id=&#34;参考链接&#34;&gt;参考链接&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;http://blog.sina.com.cn/s/blog_583f42f101011veh.html&#34;&gt;TFO&amp;mdash;google tcp fast open protocol&lt;/a&gt;&lt;/li&gt;
@@ -2483,14 +2718,14 @@ net.ipv4.tcp_fastopen = 3
       <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20learning/</guid>
       <description>
 
-&lt;h2 id=&#34;内存管理:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;内存管理&lt;/h2&gt;
+&lt;h2 id=&#34;内存管理&#34;&gt;内存管理&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;http://blog.jobbole.com/103993/&#34;&gt;http://blog.jobbole.com/103993/&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://blog.jobbole.com/88673/&#34;&gt;http://blog.jobbole.com/88673/&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;前端开发:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;前端开发&lt;/h2&gt;
+&lt;h2 id=&#34;前端开发&#34;&gt;前端开发&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;如何使textarea的大小随着其内容增加而变化呢？&lt;/p&gt;&lt;/li&gt;
@@ -2504,14 +2739,14 @@ net.ipv4.tcp_fastopen = 3
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;awk:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;awk&lt;/h2&gt;
+&lt;h2 id=&#34;awk&#34;&gt;awk&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;http://blog.sina.com.cn/s/blog_4a033b090100xo2b.html&#34;&gt;http://blog.sina.com.cn/s/blog_4a033b090100xo2b.html&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://blog.csdn.net/junjieguo/article/details/7525794&#34;&gt;http://blog.csdn.net/junjieguo/article/details/7525794&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;postgre:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;postgre&lt;/h2&gt;
+&lt;h2 id=&#34;postgre&#34;&gt;postgre&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;http://blog.51yip.com/pgsql/1528.html&#34;&gt;修改表结构&lt;/a&gt;，&lt;a href=&#34;https://wiki.postgresql.org/wiki/ALTER_TABLE&#34;&gt;postgre_wiki&lt;/a&gt;&lt;/li&gt;
@@ -2519,7 +2754,7 @@ net.ipv4.tcp_fastopen = 3
 &lt;li&gt;&lt;a href=&#34;http://my.oschina.net/Kenyon/blog/101432&#34;&gt;清楚pg_xlog&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;python:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;python&lt;/h2&gt;
+&lt;h2 id=&#34;python&#34;&gt;python&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;python魔术方法
@@ -2530,7 +2765,7 @@ net.ipv4.tcp_fastopen = 3
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;http协议:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;[http协议]&lt;/h2&gt;
+&lt;h2 id=&#34;http协议&#34;&gt;[http协议]&lt;/h2&gt;
 
 &lt;p&gt;http协议301和302的区别&lt;/p&gt;
 
@@ -2539,7 +2774,7 @@ net.ipv4.tcp_fastopen = 3
 &lt;li&gt;&lt;a href=&#34;http://blog.csdn.net/qmhball/article/details/7838989&#34;&gt;http://blog.csdn.net/qmhball/article/details/7838989&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;linux-socket编程样例:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;linux socket编程样例&lt;/h2&gt;
+&lt;h2 id=&#34;linux-socket编程样例&#34;&gt;linux socket编程样例&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://alas.matf.bg.ac.rs/manuals/lspe/snode=106.html&#34;&gt;http://alas.matf.bg.ac.rs/manuals/lspe/snode=106.html&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
@@ -2547,7 +2782,7 @@ net.ipv4.tcp_fastopen = 3
 &lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://blog.csdn.net/win_lin/article/details/7760951&#34;&gt;进程间传递fd&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;linux-apue编程:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;linux apue编程&lt;/h2&gt;
+&lt;h2 id=&#34;linux-apue编程&#34;&gt;linux apue编程&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;epoll是同步非阻塞的&lt;/li&gt;
@@ -2563,13 +2798,13 @@ net.ipv4.tcp_fastopen = 3
 
 &lt;p&gt;因此epoll是同步和非阻塞的。&lt;/p&gt;
 
-&lt;h2 id=&#34;性能分析:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;性能分析&lt;/h2&gt;
+&lt;h2 id=&#34;性能分析&#34;&gt;性能分析&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;https://sourceware.org/systemtap/examples/keyword-index.html#FUTEX&#34;&gt;有用的systemtap脚本&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;分布式存储:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;分布式存储&lt;/h2&gt;
+&lt;h2 id=&#34;分布式存储&#34;&gt;分布式存储&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;http://wuchong.me/blog/2014/08/07/distributed-storage-system-knowledge/&#34;&gt;知识体系&lt;/a&gt;
@@ -2579,7 +2814,7 @@ net.ipv4.tcp_fastopen = 3
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;分布式id生成:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;分布式ID生成&lt;/h2&gt;
+&lt;h2 id=&#34;分布式id生成&#34;&gt;分布式ID生成&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;http://mp.weixin.qq.com/s?__biz=MjM5ODYxMDA5OQ==&amp;amp;mid=403837240&amp;amp;idx=1&amp;amp;sn=ae9f2bf0cc5b0f68f9a2213485313127&amp;amp;scene=21#wechat_redirect&#34;&gt;ID&lt;/a&gt;
@@ -2607,14 +2842,14 @@ net.ipv4.tcp_fastopen = 3
 &lt;li&gt;&lt;a href=&#34;http://www.cnblogs.com/heyuquan/archive/2013/08/16/global-guid-identity-maxId.html&#34;&gt;ID&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;分布式锁:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;分布式锁&lt;/h2&gt;
+&lt;h2 id=&#34;分布式锁&#34;&gt;分布式锁&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;http://www.cnblogs.com/zhengyun_ustc/archive/2012/11/17/topic2.html&#34;&gt;http://www.cnblogs.com/zhengyun_ustc/archive/2012/11/17/topic2.html&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://www.jeffkit.info/2011/07/1000/&#34;&gt;http://www.jeffkit.info/2011/07/1000/&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;一致性哈希-consistent-hashing:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;一致性哈希 consistent hashing&lt;/h2&gt;
+&lt;h2 id=&#34;一致性哈希-consistent-hashing&#34;&gt;一致性哈希 consistent hashing&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;http://www.codeproject.com/Articles/56138/Consistent-hashing&#34;&gt;http://www.codeproject.com/Articles/56138/Consistent-hashing&lt;/a&gt;&lt;/li&gt;
@@ -2622,7 +2857,13 @@ net.ipv4.tcp_fastopen = 3
 &lt;li&gt;&lt;a href=&#34;http://blog.csdn.net/sparkliang/article/details/5279393&#34;&gt;http://blog.csdn.net/sparkliang/article/details/5279393&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;并发编程:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;并发编程&lt;/h2&gt;
+&lt;h2 id=&#34;2pc-3pc和paxos算法&#34;&gt;2PC、3PC和Paxos算法&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://coolshell.cn/articles/10910.html&#34;&gt;coolshell&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;并发编程&#34;&gt;并发编程&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;http://hedengcheng.com/?p=725&#34;&gt;volatile&lt;/a&gt;&lt;/li&gt;
@@ -2632,7 +2873,7 @@ net.ipv4.tcp_fastopen = 3
 &lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.infoq.com/cn/articles/producers-and-consumers-mode&#34;&gt;聊聊并发&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;nginx配置文件:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;nginx配置文件&lt;/h2&gt;
+&lt;h2 id=&#34;nginx配置文件&#34;&gt;nginx配置文件&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;rewrite:&lt;/p&gt;
@@ -2645,9 +2886,9 @@ net.ipv4.tcp_fastopen = 3
 &lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://stackoverflow.com/questions/13621915/nginx-error-pages-one-location-rule-to-fit-them-all&#34;&gt;nginx配置使用用户自定义错误页面&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;lua的学习-使用和源码精读:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;Lua的学习、使用和源码精读&lt;/h2&gt;
+&lt;h2 id=&#34;lua的学习-使用和源码精读&#34;&gt;Lua的学习、使用和源码精读&lt;/h2&gt;
 
-&lt;h2 id=&#34;lua的元表:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;lua的元表&lt;/h2&gt;
+&lt;h2 id=&#34;lua的元表&#34;&gt;lua的元表&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://lua-users.org/wiki/MetamethodsTutorial&#34;&gt;http://lua-users.org/wiki/MetamethodsTutorial&lt;/a&gt;&lt;/p&gt;
@@ -2694,20 +2935,21 @@ net.ipv4.tcp_fastopen = 3
 &lt;li&gt;&lt;p&gt;__metatable&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;用于隐藏metatable，当调用getmetatable(myTable)时，如果该域不为空，则返回这个域的值，而不是metatable&lt;/li&gt;
+&lt;li&gt;用于隐藏metatable，当调用getmetatable(myTable)时，如果该域不为空，则返回这个域的值，而不是metatable
+&lt;br /&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 
 &lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://lua-users.org/wiki/LuaClassesWithMetatable&#34;&gt;sample code&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;lua面向对象:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;Lua面向对象&lt;/h2&gt;
+&lt;h2 id=&#34;lua面向对象&#34;&gt;Lua面向对象&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;http://dabing1022.github.io/2014/03/18/multiple-inheritance-understand-lua/&#34;&gt;http://dabing1022.github.io/2014/03/18/multiple-inheritance-understand-lua/&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;lua源码精读:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;Lua源码精读&lt;/h2&gt;
+&lt;h2 id=&#34;lua源码精读&#34;&gt;Lua源码精读&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;Lua的全局和状态，以及初始化
@@ -2723,7 +2965,7 @@ net.ipv4.tcp_fastopen = 3
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;lua与c的交互:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;Lua与C的交互&lt;/h2&gt;
+&lt;h2 id=&#34;lua与c的交互&#34;&gt;Lua与C的交互&lt;/h2&gt;
 
 &lt;pre&gt;&lt;code&gt;* [深入理解Lua与C用于数据交互的栈](http://blog.csdn.net/maximuszhou/article/details/21331819)
 * 为啥要通过 栈 来通信呢？
@@ -2739,13 +2981,13 @@ net.ipv4.tcp_fastopen = 3
 &lt;li&gt;&lt;a href=&#34;http://if-yu.info/lua-notes.html&#34;&gt;http://if-yu.info/lua-notes.html&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;list和nil:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;list和nil&lt;/h2&gt;
+&lt;h2 id=&#34;list和nil&#34;&gt;list和nil&lt;/h2&gt;
 
 &lt;pre&gt;&lt;code&gt;* https://techsingular.org/2012/12/22/programming-in-lua%EF%BC%88%E5%9B%9B%EF%BC%89%EF%BC%8D-nil-%E5%92%8C-list/
 * nil不但不是无的意思，反而在list中起到占位和有的意思。
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;lua的first-class-https-techsingular-org-2012-12-22-programming-in-lua-ef-bc-88-e5-9b-9b-ef-bc-89-ef-bc-8d-nil-e5-92-8c-list:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;&lt;a href=&#34;https://techsingular.org/2012/12/22/programming-in-lua%EF%BC%88%E5%9B%9B%EF%BC%89%EF%BC%8D-nil-%E5%92%8C-list/&#34;&gt;lua的first class&lt;/a&gt;&lt;/h2&gt;
+&lt;h2 id=&#34;lua的first-class-https-techsingular-org-2012-12-22-programming-in-lua-ef-bc-88-e5-9b-9b-ef-bc-89-ef-bc-8d-nil-e5-92-8c-list&#34;&gt;&lt;a href=&#34;https://techsingular.org/2012/12/22/programming-in-lua%EF%BC%88%E5%9B%9B%EF%BC%89%EF%BC%8D-nil-%E5%92%8C-list/&#34;&gt;lua的first class&lt;/a&gt;&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;可以被赋值给变量；&lt;/li&gt;
@@ -2754,12 +2996,12 @@ net.ipv4.tcp_fastopen = 3
 &lt;li&gt;可以作为数据结构的构成部分。( 注意 nil 并不完全符合这个要求，但是可以通过某个 field 的缺失来表示 nil。)&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;lua的gc:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;Lua的GC&lt;/h2&gt;
+&lt;h2 id=&#34;lua的gc&#34;&gt;Lua的GC&lt;/h2&gt;
 
 &lt;pre&gt;&lt;code&gt;* lua的[gc](https://techsingular.org/2013/10/27/lua-%E7%9A%84%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/)
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;lua的table:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;lua的table&lt;/h2&gt;
+&lt;h2 id=&#34;lua的table&#34;&gt;lua的table&lt;/h2&gt;
 
 &lt;pre&gt;&lt;code&gt;* https://facepunch.com/showthread.php?t=1306348
 &lt;/code&gt;&lt;/pre&gt;
@@ -2770,7 +3012,7 @@ net.ipv4.tcp_fastopen = 3
 &lt;p&gt;The implementation of Lua tables is such that, even with a huge number of elements, lookup is as quick as possible.&lt;/p&gt;
 &lt;/blockquote&gt;
 
-&lt;h2 id=&#34;lua函数使用:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;lua函数使用&lt;/h2&gt;
+&lt;h2 id=&#34;lua函数使用&#34;&gt;lua函数使用&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;setmetatable&lt;/p&gt;
@@ -2830,14 +3072,14 @@ main	true	10	end
 main	false	cannot resume dead coroutine
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;lua编码的陷阱:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;lua编码的陷阱&lt;/h2&gt;
+&lt;h2 id=&#34;lua编码的陷阱&#34;&gt;lua编码的陷阱&lt;/h2&gt;
 
 &lt;pre&gt;&lt;code&gt;* [字符串拼接导致垃圾产生](http://tech.uc.cn/?p=1131)
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;golang:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;golang&lt;/h2&gt;
+&lt;h2 id=&#34;golang&#34;&gt;golang&lt;/h2&gt;
 
-&lt;h3 id=&#34;golang的并发-协程和channel:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;golang的并发、协程和channel&lt;/h3&gt;
+&lt;h3 id=&#34;golang的并发-协程和channel&#34;&gt;golang的并发、协程和channel&lt;/h3&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;http://ibillxia.github.io/blog/2014/03/16/go-concurrent-programming-first-try/&#34;&gt;golang并发编程初探&lt;/a&gt;&lt;/li&gt;
@@ -2891,13 +3133,13 @@ main	false	cannot resume dead coroutine
 &lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://blog.csdn.net/gophers/article/details/40505683&#34;&gt;golang闭包与协程使用&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h3 id=&#34;golang设计模式:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;golang设计模式&lt;/h3&gt;
+&lt;h3 id=&#34;golang设计模式&#34;&gt;golang设计模式&lt;/h3&gt;
 
 &lt;pre&gt;&lt;code&gt;* [单例模式](http://marcio.io/2015/07/singleton-pattern-in-go/)
 * [golang map reduce](https://gist.github.com/mcastilho)
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;golang接口:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;golang接口&lt;/h3&gt;
+&lt;h3 id=&#34;golang接口&#34;&gt;golang接口&lt;/h3&gt;
 
 &lt;pre&gt;&lt;code&gt;* https://github.com/astaxie/build-web-application-with-golang/blob/master/zh/02.6.md
 * http://xiaorui.cc/2016/03/11/%E5%85%B3%E4%BA%8Egolang-struct-interface%E7%9A%84%E7%90%86%E8%A7%A3%E4%BD%BF%E7%94%A8/
@@ -2928,16 +3170,16 @@ main	false	cannot resume dead coroutine
       <guid>https://bg2bkk.github.io/post/resume/</guid>
       <description>
 
-&lt;h1 id=&#34;黄振栋简历:c59a67a3c7bc5faa453847420267045e&#34;&gt;黄振栋简历&lt;/h1&gt;
+&lt;h1 id=&#34;黄振栋简历&#34;&gt;黄振栋简历&lt;/h1&gt;
 
-&lt;h2 id=&#34;联系方式:c59a67a3c7bc5faa453847420267045e&#34;&gt;联系方式&lt;/h2&gt;
+&lt;h2 id=&#34;联系方式&#34;&gt;联系方式&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;Email：bg2bkk # gmail.com&lt;/li&gt;
 &lt;li&gt;微博：&lt;a href=&#34;http://weibo.com/BG2BKK&#34;&gt;@bg2bkk&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;个人信息:c59a67a3c7bc5faa453847420267045e&#34;&gt;个人信息&lt;/h2&gt;
+&lt;h2 id=&#34;个人信息&#34;&gt;个人信息&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;男/1990&lt;/li&gt;
@@ -2948,7 +3190,7 @@ main	false	cannot resume dead coroutine
 &lt;li&gt;Github：&lt;a href=&#34;http://github.com/bg2bkk&#34;&gt;http://github.com/bg2bkk&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;教育背景:c59a67a3c7bc5faa453847420267045e&#34;&gt;教育背景&lt;/h2&gt;
+&lt;h2 id=&#34;教育背景&#34;&gt;教育背景&lt;/h2&gt;
 
 &lt;pre&gt;&lt;code&gt;- 2012.09 ~ 2015.01 哈尔滨工业大学 计算机 硕士
 - 2008.09 ~ 2012.06 哈尔滨工程大学 计算机 学士 
@@ -2956,7 +3198,7 @@ main	false	cannot resume dead coroutine
 
 &lt;hr /&gt;
 
-&lt;h2 id=&#34;技能清单:c59a67a3c7bc5faa453847420267045e&#34;&gt;技能清单&lt;/h2&gt;
+&lt;h2 id=&#34;技能清单&#34;&gt;技能清单&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;c/ lua/ python/ golang/ shell/ vhdl&lt;/li&gt;
@@ -2970,7 +3212,7 @@ main	false	cannot resume dead coroutine
 
 &lt;hr /&gt;
 
-&lt;h2 id=&#34;自我评价:c59a67a3c7bc5faa453847420267045e&#34;&gt;自我评价&lt;/h2&gt;
+&lt;h2 id=&#34;自我评价&#34;&gt;自我评价&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;热爱计算机，热爱编程，热爱程序员这个工作&lt;/li&gt;
@@ -2978,15 +3220,15 @@ main	false	cannot resume dead coroutine
 
 &lt;hr /&gt;
 
-&lt;h2 id=&#34;工作经历:c59a67a3c7bc5faa453847420267045e&#34;&gt;工作经历&lt;/h2&gt;
+&lt;h2 id=&#34;工作经历&#34;&gt;工作经历&lt;/h2&gt;
 
 &lt;pre&gt;&lt;code&gt;- 2015.01 ~ NOW      新浪微博   系统开发工程师 
 - 2013.09 ~ 2014.05  极光推送   后台开发实习生 
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h2 id=&#34;项目经历:c59a67a3c7bc5faa453847420267045e&#34;&gt;项目经历&lt;/h2&gt;
+&lt;h2 id=&#34;项目经历&#34;&gt;项目经历&lt;/h2&gt;
 
-&lt;h4 id=&#34;新浪微博-系统开发工程师-2015年1月-2016年8月:c59a67a3c7bc5faa453847420267045e&#34;&gt;新浪微博 系统开发工程师 （ 2015年1月 ~ 2016年8月 ）&lt;/h4&gt;
+&lt;h4 id=&#34;新浪微博-系统开发工程师-2015年1月-2016年8月&#34;&gt;新浪微博 系统开发工程师 （ 2015年1月 ~ 2016年8月 ）&lt;/h4&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;微博防抓站系统&lt;/p&gt;
@@ -3095,7 +3337,7 @@ main	false	cannot resume dead coroutine
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h4 id=&#34;极光推送-jpush-cn-后台开发实习生-2013年9月-2014年5月:c59a67a3c7bc5faa453847420267045e&#34;&gt;极光推送(jpush.cn) 后台开发实习生（ 2013年9月 ~ 2014年5月 ）&lt;/h4&gt;
+&lt;h4 id=&#34;极光推送-jpush-cn-后台开发实习生-2013年9月-2014年5月&#34;&gt;极光推送(jpush.cn) 后台开发实习生（ 2013年9月 ~ 2014年5月 ）&lt;/h4&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;大规模用户模拟系统&lt;/p&gt;
@@ -3117,7 +3359,7 @@ main	false	cannot resume dead coroutine
 
 &lt;hr /&gt;
 
-&lt;h2 id=&#34;项目-演讲和讲义:c59a67a3c7bc5faa453847420267045e&#34;&gt;项目 演讲和讲义&lt;/h2&gt;
+&lt;h2 id=&#34;项目-演讲和讲义&#34;&gt;项目 演讲和讲义&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;https://github.com/WEIBOMSRE/ABTestingGateway&#34;&gt;ABTestingGateway&lt;/a&gt;：手机微博七层动态调度系统中关于灰度发布和动态分流的子项目，780+ stars。&lt;/li&gt;
@@ -3126,7 +3368,7 @@ main	false	cannot resume dead coroutine
 
 &lt;hr /&gt;
 
-&lt;h2 id=&#34;兴趣点:c59a67a3c7bc5faa453847420267045e&#34;&gt;兴趣点&lt;/h2&gt;
+&lt;h2 id=&#34;兴趣点&#34;&gt;兴趣点&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;兴趣广泛，从Linux服务端开发到安卓开发，从单片机开发到FPGA开发，从kernel源码到lua源码，我都有兴趣:)&lt;/p&gt;&lt;/li&gt;
@@ -3156,7 +3398,7 @@ main	false	cannot resume dead coroutine
 
 &lt;hr /&gt;
 
-&lt;h2 id=&#34;个人项目:c59a67a3c7bc5faa453847420267045e&#34;&gt;个人项目&lt;/h2&gt;
+&lt;h2 id=&#34;个人项目&#34;&gt;个人项目&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/BG2BKK/smarthome&#34;&gt;smarthome&lt;/a&gt;&lt;/p&gt;
@@ -3215,7 +3457,8 @@ main	false	cannot resume dead coroutine
 &lt;li&gt;&lt;a href=&#34;http://www.cnblogs.com/cobbliu/p/3188632.html&#34;&gt;EDNS详解&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://tools.ietf.org/html/rfc6891&#34;&gt;rfc6891&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://www.ietf.org/id/draft-ietf-dnsop-edns-client-subnet-08.txt&#34;&gt;edns_client_subnet draft&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://noops.me/?p=653&#34;&gt;小米的ends实践&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://noops.me/?p=653&#34;&gt;小米的ends实践&lt;/a&gt;
+&lt;br /&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;6. respond时也需要增加一个Additional RRs区域，直接把请求的Additional内容发过去就可以(如果支持source netmask，将请求中的source netmask复制到scope netmask中，OpenDNS要求必须支持scope netmask)
@@ -3285,7 +3528,8 @@ main	false	cannot resume dead coroutine
 &lt;li&gt;Family 1byte: IPV4(1)&lt;/li&gt;
 &lt;li&gt;Source Netmask 1byte: 32&lt;/li&gt;
 &lt;li&gt;Scope Netmask 1byte: 0&lt;/li&gt;
-&lt;li&gt;Client Subnet 4bytes: 65.135.152.203&lt;/li&gt;
+&lt;li&gt;Client Subnet 4bytes: 65.135.152.203
+&lt;br /&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
@@ -3474,69 +3718,6 @@ bit 5 (FIN) sender finished&lt;/td&gt;
 &lt;li&gt;&lt;a href=&#34;https://github.com/erikdubbelboer/redis-lua-scaling-bloom-filter&#34;&gt;https://github.com/erikdubbelboer/redis-lua-scaling-bloom-filter&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;redis实现的布隆过滤器&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>shadowsocks go through the Fuck GFW</title>
-      <link>https://bg2bkk.github.io/post/shadowsocks%20go%20through%20the%20F%2A%2Ak%20GFW/</link>
-      <pubDate>Mon, 11 Apr 2016 00:33:17 +0800</pubDate>
-      
-      <guid>https://bg2bkk.github.io/post/shadowsocks%20go%20through%20the%20F%2A%2Ak%20GFW/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;买VPS，vultr的设备，使用起来还是蛮简单的。信用卡一张，注册并扣费0.1美元会送50美元，两个月内用完。我开始部署了一个日本的最便宜的5美元一月的vps，使用起来还不错，youtube 480P没问题；但是我通过这送的50美元实验了以下几个配置的机器速度，洛杉矶机房20美元，洛杉矶机房5美元，日本机房5美元，日本机房10美元，发现ping vps-ip时美国机房都是170ms，日本机房是220ms，原因可能是即使日本离得近，去日本的路由也要绕道美国才到日本的，所以我们直接选择美国机房好了。位于西海岸的洛杉矶机房，让你打开youtube 1080P毫无压力，白天晚上都没问题。&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;如何手动搭建shadowsocks服务呢，网上有太多的教程了&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;python版shadowsocks
-
-&lt;ul&gt;
-&lt;li&gt;ss服务的鼻祖，支持多用户多端口配置&lt;/li&gt;
-&lt;li&gt;参考教程：&lt;a href=&#34;https://pypi.python.org/pypi/shadowsocks&#34;&gt;py版ss服务&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;wget --no-check-certificate https://raw.githubusercontent.com/tennfy/shadowsocks-libev/master/debian_shadowsocks_tennfy.sh
-chmod a+x debian_shadowsocks_tennfy.sh
-
-sudo ./debian_shadowsocks_tennfy.sh
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code&gt;    * /etc/init.d/shadowsocks-libev start
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;shadowsocks客户端&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;全平台：windows、linux、OSX；android、ios；&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://shadowsocks.com/client.html&#34;&gt;客户端&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/shadowsocks/shadowsocks-windows/releases&#34;&gt;windows&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/shadowsocks/shadowsocks-qt5/wiki/Installation&#34;&gt;linux&lt;/a&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;ubuntu用户建议使用apt-get安装&lt;/li&gt;
-&lt;li&gt;其他发行版用户。。。我还不知道&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/shadowsocks/shadowsocks-iOS/releases&#34;&gt;OSX&lt;/a&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;我没用过&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://pan.baidu.com/s/1YbQTg&#34;&gt;android&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.iyingsuo.com/ios-shadowsocks-tutorials.html&#34;&gt;ios&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;如果您觉得shadowsocks很容易搭建起来，想试一下的话，可以通过的推荐链接来注册，这样会有一定奖励:&lt;a href=&#34;http://www.vultr.com/?ref=6870148&#34;&gt;http://www.vultr.com/?ref=6870148&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>
