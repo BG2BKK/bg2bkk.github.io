@@ -70,43 +70,63 @@
 &lt;h3 id=&#34;cpu计算能力:93ed95293dee210367c755a042ec6458&#34;&gt;CPU计算能力&lt;/h3&gt;
 
 &lt;ul&gt;
-&lt;li&gt;硬件
+&lt;li&gt;&lt;p&gt;硬件&lt;/p&gt;
 
 &lt;ul&gt;
 &lt;li&gt;主频/核数/超线程：/proc/cpuinfo&lt;/li&gt;
-&lt;li&gt;各级缓存&lt;/li&gt;
+&lt;li&gt;各级缓存大小&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 
-&lt;li&gt;&lt;p&gt;计算能力&lt;/p&gt;
+&lt;li&gt;&lt;p&gt;测试场景&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;计算能力
+&lt;li&gt;&lt;p&gt;评估计算能力&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;选择高CPU型应用压测&lt;/li&gt;
-&lt;li&gt;专业benchmark软件&lt;/li&gt;
+&lt;li&gt;方式一：选择高CPU型应用压测，采用专业benchmark软件观察&lt;/li&gt;
+&lt;li&gt;方式二：采用开源代码，或者手写计算型压测代码，通过systemtap等工具统计时长&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;cache失效/cache miss情况
+
+&lt;li&gt;&lt;p&gt;评估各级CPU高速缓存L1/L2/L3失效对性能的影响&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;测试CPU各级缓存速度
+&lt;li&gt;通过代码创造cache miss情况
 
 &lt;ul&gt;
-&lt;li&gt;设计测试场景&lt;/li&gt;
+&lt;li&gt;采用systemtap等相关工具统计时长&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;cache line对应用程序的性能的影响&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;进程调度能力
+&lt;li&gt;获取CPU各级缓存速度
 
 &lt;ul&gt;
-&lt;li&gt;context switch/ interrupt stats&lt;/li&gt;
-&lt;li&gt;进程切换时间，在不同负载下：&lt;a href=&#34;http://blog.yufeng.info/archives/753&#34;&gt;lmbench&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;查文档，每层多少cycle&lt;/li&gt;
+&lt;li&gt;其他方式？&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.bitmover.com/lmbench/&#34;&gt;lmbench&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;评估进程调度和切换能力&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;场景：并发大量CPU繁忙任务&lt;/li&gt;
+&lt;li&gt;方法
+
+&lt;ul&gt;
+&lt;li&gt;统计context switch/ interrupt stats，通过sar等工具&lt;/li&gt;
+&lt;li&gt;进程切换平均时间统计，在不同负载下：&lt;a href=&#34;http://blog.yufeng.info/archives/753&#34;&gt;谁在做进程调度&amp;amp;&amp;amp;lmbench&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;进程调度效率统计
 
 &lt;ul&gt;
-&lt;li&gt;在不同负载下，比如N多个进程需要调度运行&lt;/li&gt;
+&lt;li&gt;load average，通过统计工具&lt;/li&gt;
+&lt;li&gt;动态跟踪方法动态确定处于调度队列中的任务规模
+&amp;lt;!&amp;ndash;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;tips&lt;/p&gt;
+
+&lt;ul&gt;
 &lt;li&gt;CPU load balance
 
 &lt;ul&gt;
@@ -132,7 +152,8 @@
 &lt;li&gt;&lt;p&gt;感兴趣点&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;CPU在虚拟化方面的性能&lt;/li&gt;
+&lt;li&gt;CPU在虚拟化方面的性能
+&amp;ndash;&amp;gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
@@ -245,6 +266,7 @@
 &lt;li&gt;读文件&lt;/li&gt;
 &lt;li&gt;数据库&lt;/li&gt;
 &lt;li&gt;文件缓存内存使用情况&lt;/li&gt;
+&lt;li&gt;脏页回收效率&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
