@@ -57,7 +57,7 @@
         },
         "datePublished": "2016-07-24",
         "description": "",
-        "wordCount":  2341 
+        "wordCount":  2409 
     }
     </script>
     
@@ -101,14 +101,31 @@
     <h1 class="post-title">effective tips in daily work</h1>
     
 
-<h2 id="全世界最愚蠢的事情就是-重复做相同的事情-却期待有不同的结果发生:1350fa5c56171e9d9c8991f08929cd14">全世界最愚蠢的事情就是，重复做相同的事情，却期待有不同的结果发生</h2>
+<h2 id="sar在ubuntu中的配置">sar在ubuntu中的配置</h2>
+
+<pre><code class="language-bash">sudo apt-get install sysstat
+
+sudo vim /etc/default/sysstat
+&quot; change ENABLED=&quot;false&quot; to &quot;true&quot;
+
+sudo vim /etc/cron.d/sysstat
+&quot; change 
+&quot; 5-55/10 * * * * root command -v debian-sa1 &gt; /dev/null &amp;&amp; debian-sa1 1 1
+&quot; to 
+&quot; */2 * * * * root command -v debian-sa1 &gt; /dev/null &amp;&amp; debian-sa1 1 1
+&quot; change the collection interval from every 10 minutes to every 2 minutes.
+
+sudo /etc/init.d/sysstat restart
+</code></pre>
+
+<h2 id="全世界最愚蠢的事情就是-重复做相同的事情-却期待有不同的结果发生">全世界最愚蠢的事情就是，重复做相同的事情，却期待有不同的结果发生</h2>
 
 <pre><code>Insanity: doing the same thing over and over again and expecting different results.
 </code></pre>
 
 <p>说实话，在写代码、调代码的时候，一但出现非预期结果，首先检查之前自己的编码和输入，确定后不应该再二次重试，毕竟相同条件下不可能产生不同结果，此时应该将思维跳脱出来，另辟蹊径为好。</p>
 
-<h2 id="ubuntu下解压zip文件出现乱码的解决办法:1350fa5c56171e9d9c8991f08929cd14">ubuntu下解压zip文件出现乱码的解决办法</h2>
+<h2 id="ubuntu下解压zip文件出现乱码的解决办法">ubuntu下解压zip文件出现乱码的解决办法</h2>
 
 <p><a href="https://www.zhihu.com/question/20523036">参考链接</a></p>
 
@@ -118,7 +135,7 @@
 
 <p>亲测好用，不好用的看链接</p>
 
-<h2 id="redis设置和清除密码:1350fa5c56171e9d9c8991f08929cd14">redis设置和清除密码</h2>
+<h2 id="redis设置和清除密码">redis设置和清除密码</h2>
 
 <p>正规项目终于要对redis设置密码了，<a href="http://blog.csdn.net/zyz511919766/article/details/42268219">如何加密码呢</a></p>
 
@@ -156,7 +173,7 @@
 </ul></li>
 </ul>
 
-<h2 id="epoll是同步非阻塞的:1350fa5c56171e9d9c8991f08929cd14">epoll是同步非阻塞的</h2>
+<h2 id="epoll是同步非阻塞的">epoll是同步非阻塞的</h2>
 
 <p>epoll、select等多路服用IO，将fd加入等待时间的队列中，每隔一段时间去轮询一次，因此是同步的；优点是能够在等待任务的时间里去做别的任务；缺点是任务完成的响应延迟增大，因为每隔一段时间去轮询他们，在时间间隔内任务可能已经完成而等待处理等待了一段时间了。</p>
 
@@ -168,7 +185,7 @@
 
 <p>因此epoll是同步和非阻塞的。</p>
 
-<h2 id="sed合并相邻两行:1350fa5c56171e9d9c8991f08929cd14">sed合并相邻两行</h2>
+<h2 id="sed合并相邻两行">sed合并相邻两行</h2>
 
 <p>从redis中取出一个键的所有内容时，比如hgetall，得到的结果并不是排序好的，类似于这样</p>
 
@@ -202,14 +219,14 @@
 <pre><code class="language-bash">sed '$!N;s/\n/\t/' filename 
 </code></pre>
 
-<h2 id="redis分析实例中所有key和单个key的内存占用情况:1350fa5c56171e9d9c8991f08929cd14">redis分析实例中所有key和单个key的内存占用情况</h2>
+<h2 id="redis分析实例中所有key和单个key的内存占用情况">redis分析实例中所有key和单个key的内存占用情况</h2>
 
 <p>采用<a href="https://github.com/sripathikrishnan/redis-rdb-tools">rdb工具</a></p>
 
 <pre><code class="language-bash">rdb -c memory /path/to/ab-dump.rdb &gt; memory.csv
 </code></pre>
 
-<h2 id="sort进行多重排序:1350fa5c56171e9d9c8991f08929cd14">sort进行多重排序</h2>
+<h2 id="sort进行多重排序">sort进行多重排序</h2>
 
 <p>sort和uniq在文本处理，尤其是日志处理中用的较多的工具，记得当年校招时候准备面试，用到这两个命令，惊为天人，非常shock。在日常工作中，用的也非常多。</p>
 
@@ -256,7 +273,7 @@
 <pre><code class="language-bash">sort -k1 -k2n out
 </code></pre>
 
-<h2 id="shell脚本批量处理文本:1350fa5c56171e9d9c8991f08929cd14">shell脚本批量处理文本</h2>
+<h2 id="shell脚本批量处理文本">shell脚本批量处理文本</h2>
 
 <p>善用awk、grep、xargs、bash、sed等工具，可以提高生产力</p>
 
@@ -268,7 +285,7 @@
 <pre><code class="language-bash">for j in {a..z}; do echo $j; done
 </code></pre>
 
-<h2 id="redis批量删除key:1350fa5c56171e9d9c8991f08929cd14">redis批量删除key</h2>
+<h2 id="redis批量删除key">redis批量删除key</h2>
 
 <p>手动清理redis中的key时，很想通过 <strong><em>del keys</em></strong>* 的方式实现批量删除，而redis却没有提供这样的选项，因此需要借助外部工具</p>
 
@@ -294,7 +311,7 @@
 </ul></li>
 </ul>
 
-<h2 id="unix获取时间戳:1350fa5c56171e9d9c8991f08929cd14">unix获取时间戳</h2>
+<h2 id="unix获取时间戳">unix获取时间戳</h2>
 
 <pre><code class="language-bash">date '+%s'
 
@@ -314,7 +331,7 @@ date -d &quot;@1279592730&quot;
 
 <p><a href="http://blog.csdn.net/hittata/article/details/7640974">链接</a>中提到了各种各样的格式，以后写shell脚本就不担心时间戳问题了</p>
 
-<h2 id="docker-设置代理下载镜像:1350fa5c56171e9d9c8991f08929cd14">docker 设置代理下载镜像</h2>
+<h2 id="docker-设置代理下载镜像">docker 设置代理下载镜像</h2>
 
 <p><a href="http://stackoverflow.com/questions/23111631/cannot-download-docker-images-behind-a-proxy">在systemd中设置</a></p>
 
@@ -329,14 +346,14 @@ date -d &quot;@1279592730&quot;
 
 <p>tested on Ubuntu 16.04</p>
 
-<h2 id="用ps查看进程的执行时间:1350fa5c56171e9d9c8991f08929cd14">用ps查看进程的执行时间</h2>
+<h2 id="用ps查看进程的执行时间">用ps查看进程的执行时间</h2>
 
 <pre><code class="language-bash">ps -eo pid,tty,user,comm,stime,etime | grep main
 </code></pre>
 
 <p>可以打印进程的开始时间和执行时间</p>
 
-<h2 id="vim下以16进制查看文本文件:1350fa5c56171e9d9c8991f08929cd14">vim下以16进制查看文本文件</h2>
+<h2 id="vim下以16进制查看文本文件">vim下以16进制查看文本文件</h2>
 
 <p>vim的功能实在是太强大了，<a href="http://blog.sina.com.cn/s/blog_4c451e0e0100h4nl.html">可以以16进制查看文本信息</a>：</p>
 
@@ -346,7 +363,7 @@ date -d &quot;@1279592730&quot;
 :%!xxd -r
 </code></pre>
 
-<h2 id="linux获取系统调度时间片长度:1350fa5c56171e9d9c8991f08929cd14">Linux获取系统调度时间片长度</h2>
+<h2 id="linux获取系统调度时间片长度">Linux获取系统调度时间片长度</h2>
 
 <pre><code class="language-cpp">#define _GNU_SOURCE
 #include &lt;sched.h&gt;
@@ -375,7 +392,7 @@ The time is 0s:16000000ns.
 
 <p>可见Ubuntu-16.04 64bit的系统进程时间片是16ms</p>
 
-<h2 id="c语言中short-int-long内存占用:1350fa5c56171e9d9c8991f08929cd14">C语言中short、int、long内存占用</h2>
+<h2 id="c语言中short-int-long内存占用">C语言中short、int、long内存占用</h2>
 
 <p>随着工作年限的增加，很多基本功反而落了下来，甚至开始怀疑short等类型的内存占用问题了呵呵。印象里一直记得int和long类型都是4字节大小啊</p>
 
@@ -420,11 +437,11 @@ Linux-32Bit-platform
 
 <p>看来，long和int大小一样已经是32位机器的老黄历了，基础知识还是应该常用常新啊</p>
 
-<h2 id="文件操作的线程安全相关-待续:1350fa5c56171e9d9c8991f08929cd14">文件操作的线程安全相关（待续）</h2>
+<h2 id="文件操作的线程安全相关-待续">文件操作的线程安全相关（待续）</h2>
 
 <p><a href="http://stackoverflow.com/questions/29981050/concurrent-writing-to-a-file">http://stackoverflow.com/questions/29981050/concurrent-writing-to-a-file</a></p>
 
-<h2 id="ubuntu关闭键盘和触摸板的方法:1350fa5c56171e9d9c8991f08929cd14">ubuntu关闭键盘和触摸板的方法</h2>
+<h2 id="ubuntu关闭键盘和触摸板的方法">ubuntu关闭键盘和触摸板的方法</h2>
 
 <p>家里的猫就是喜欢趴在笔记本键盘上看你干活，我只能再买一个键盘，然后笔记本键盘留给猫大爷了。</p>
 
@@ -487,7 +504,7 @@ function doit() {
 doit 
 </code></pre>
 
-<h2 id="小于1024的保留端口都有哪些:1350fa5c56171e9d9c8991f08929cd14">小于1024的保留端口都有哪些</h2>
+<h2 id="小于1024的保留端口都有哪些">小于1024的保留端口都有哪些</h2>
 
 <p>我们会遇到如下情况：</p>
 
@@ -542,7 +559,7 @@ prospero-np	1525/tcp			# Prospero non-privileged
 
 </code></pre>
 
-<h2 id="git修改默认分支名:1350fa5c56171e9d9c8991f08929cd14">git修改默认分支名</h2>
+<h2 id="git修改默认分支名">git修改默认分支名</h2>
 
 <p>在develop分支改动太大了，导致merge 到master分支时非常被动，这个时候我想，干脆将develop分支作为分支好了。还好碰到<a href="http://stackoverflow.com/questions/1485578/change-a-git-remote-head-to-point-to-something-besides-master">stackoverflow的一个帖子</a></p>
 
@@ -554,17 +571,17 @@ prospero-np	1525/tcp			# Prospero non-privileged
 
 <p>另一个方法是从github的<a href="https://help.github.com/articles/setting-the-default-branch/">项目主页上更改</a></p>
 
-<h2 id="编译openssl-1-0-2g:1350fa5c56171e9d9c8991f08929cd14">编译openssl 1.0.2g</h2>
+<h2 id="编译openssl-1-0-2g">编译openssl 1.0.2g</h2>
 
 <pre><code class="language-bash">./config shared -fPIC zlib-dynamic &amp;&amp; make depend -j   &amp;&amp; make -j
 </code></pre>
 
-<h2 id="编译nginx-tengine-cpp模块:1350fa5c56171e9d9c8991f08929cd14">编译nginx/tengine: CPP模块</h2>
+<h2 id="编译nginx-tengine-cpp模块">编译nginx/tengine: CPP模块</h2>
 
 <pre><code class="language-bash">./configure --add-module=../cpp_module  --with-ld-opt=&quot;-lstdc++&quot;
 </code></pre>
 
-<h2 id="curl-i-和-i的区别:1350fa5c56171e9d9c8991f08929cd14">curl -i 和 -I的区别</h2>
+<h2 id="curl-i-和-i的区别">curl -i 和 -I的区别</h2>
 
 <p>man page:</p>
 
@@ -579,7 +596,7 @@ prospero-np	1525/tcp			# Prospero non-privileged
 
 <p>-I选项会发送HEAD请求，获取信息</p>
 
-<h2 id="linux系统如何将父子进程一起kill掉:1350fa5c56171e9d9c8991f08929cd14">linux系统如何将父子进程一起kill掉</h2>
+<h2 id="linux系统如何将父子进程一起kill掉">linux系统如何将父子进程一起kill掉</h2>
 
 <p>对于普通进程而言，kill掉父进程将会连带着把子进程kill掉；而对于daemon等类型进程而言，kill掉父进程，子进程会被daemon接管，所以如果想父子一起kill掉的话，不能直接kill父进程。</p>
 
@@ -595,16 +612,16 @@ prospero-np	1525/tcp			# Prospero non-privileged
 <li><p>使用exec或者xargs来kill掉他们</p></li>
 </ul>
 
-<h2 id="dns查询中-域名是否可以有多个cname呢:1350fa5c56171e9d9c8991f08929cd14">dns查询中，域名是否可以有多个cname呢？</h2>
+<h2 id="dns查询中-域名是否可以有多个cname呢">dns查询中，域名是否可以有多个cname呢？</h2>
 
 <p>不可以
     * <a href="http://serverfault.com/questions/574072/can-we-have-multiple-cnames-for-a-single-name">http://serverfault.com/questions/574072/can-we-have-multiple-cnames-for-a-single-name</a></p>
 
-<h2 id="git代理访问:1350fa5c56171e9d9c8991f08929cd14">git代理访问</h2>
+<h2 id="git代理访问">git代理访问</h2>
 
 <p>git config &ndash;global http.proxy 10.8.0.1:8118</p>
 
-<h2 id="ubuntu操作-挂载-格式化sd卡:1350fa5c56171e9d9c8991f08929cd14">ubuntu操作、挂载、格式化SD卡</h2>
+<h2 id="ubuntu操作-挂载-格式化sd卡">ubuntu操作、挂载、格式化SD卡</h2>
 
 <p>玩树莓派等板子的时候，需要从host机器将os镜像烧进sd卡，然后启动。那么ubuntu如何操作呢？</p>
 
@@ -669,7 +686,7 @@ Device         Boot Start      End  Sectors  Size Id Type
 
 <p>推荐使用USB读卡器，速度较为快一些。</p>
 
-<h2 id="lua库文件的加载路径:1350fa5c56171e9d9c8991f08929cd14">Lua库文件的加载路径</h2>
+<h2 id="lua库文件的加载路径">Lua库文件的加载路径</h2>
 
 <p>Lua 提供一个名为 <a href="http://www.lua.org/manual/5.1/manual.html#pdf-require">require</a> 的函数来加载模块，使用也很简单，它只有一个参数，这个参数就是要指定加载的模块名，<a href="http://dhq.me/lua-learning-notes-package-and-module">例如</a>：</p>
 
@@ -734,7 +751,7 @@ require &quot;fun&quot;
 <p>这点对于我们自己的lua project的设置来说无疑是很方便的。
 <a href="http://www.runoob.com/lua/lua-modules-packages.html">参考链接</a></p>
 
-<h2 id="cpp调用c函数:1350fa5c56171e9d9c8991f08929cd14">cpp调用c函数</h2>
+<h2 id="cpp调用c函数">cpp调用c函数</h2>
 
 <p>由于CPP在链接时与C不太一样，因此在调用C函数时，<a href="http://www.cnblogs.com/skynet/archive/2010/07/10/1774964.html">需要做一定处理。</a></p>
 
@@ -753,14 +770,14 @@ extern &quot;C&quot; {
 #endif
 </code></pre>
 
-<h2 id="多少人在猜你机器的密码呢:1350fa5c56171e9d9c8991f08929cd14">多少人在猜你机器的密码呢</h2>
+<h2 id="多少人在猜你机器的密码呢">多少人在猜你机器的密码呢</h2>
 
 <p>VPS在公网就是个待宰的肥肉，都想去登陆，那<a href="https://plus.google.com/+AlbertSu2015/posts/Uu1vbeJY1Hw">都谁猜我的IP了呢？</a></p>
 
 <pre><code class="language-bash">sudo grep &quot;Failed password for root&quot; /var/log/auth.log | awk '{print $11}' | sort | uniq -c | sort -nr | more
 </code></pre>
 
-<h2 id="grep的简单使用-与-或-非:1350fa5c56171e9d9c8991f08929cd14">grep的简单使用，与 或 非</h2>
+<h2 id="grep的简单使用-与-或-非">grep的简单使用，与 或 非</h2>
 
 <ul>
 <li>或操作</li>
@@ -791,7 +808,7 @@ grep -v pattern files ：不匹配pattern
 grep -C number pattern files ：匹配的上下文分别显示[number]行，
 </code></pre>
 
-<h2 id="iptables的简单使用:1350fa5c56171e9d9c8991f08929cd14">iptables的简单使用</h2>
+<h2 id="iptables的简单使用">iptables的简单使用</h2>
 
 <p>其实并不想写iptables相关的内容，因为用的不熟，但是一些常用的命令还是记一下吧</p>
 
@@ -853,7 +870,7 @@ iptables -A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT
 <pre><code>/sbin/iptables -F
 </code></pre>
 
-<h2 id="vps简单的ssh登陆设置:1350fa5c56171e9d9c8991f08929cd14">VPS简单的ssh登陆设置</h2>
+<h2 id="vps简单的ssh登陆设置">VPS简单的ssh登陆设置</h2>
 
 <p>初次使用VPS，不懂得安全的重要性，直到扣款时候才心疼，这个时候，弱口令，密码登陆什么的，还是都放弃吧，只用ssh登陆，并且换一个自己的端口。<a href="https://imququ.com/post/bandwagon-vps-and-basicly-usage.html">参考链接</a></p>
 
@@ -881,7 +898,7 @@ Port 11111
 <pre><code class="language-bash">sudo service ssh restart
 </code></pre>
 
-<h2 id="vim删除空行:1350fa5c56171e9d9c8991f08929cd14">vim删除空行</h2>
+<h2 id="vim删除空行">vim删除空行</h2>
 
 <ul>
 <li>从网页上copy下代码后，发现很多情况下有不想要的空行，非常影响阅读，通过<a href="http://bbs.chinaunix.net/thread-510754-1-1.html">vim的正则</a>可以解决
@@ -895,14 +912,14 @@ Port 11111
 <pre><code class="language-bash">:g/^\s*$/d
 </code></pre>
 
-<h2 id="ubuntu通过命令设置系统时间:1350fa5c56171e9d9c8991f08929cd14">ubuntu通过命令设置系统时间</h2>
+<h2 id="ubuntu通过命令设置系统时间">ubuntu通过命令设置系统时间</h2>
 
 <p>在嵌入式开发中，在pcduino或者rpi板子上安装好linux后，系统时间是UTC时间1970年，对于有些软件来说可能影响安装，所以需要命令行修改date</p>
 
 <pre><code class="language-bash">sudo date -s &quot;13 DEC 2015 20:43&quot;
 </code></pre>
 
-<h2 id="ubuntu终端下中文设置:1350fa5c56171e9d9c8991f08929cd14">ubuntu终端下中文设置</h2>
+<h2 id="ubuntu终端下中文设置">ubuntu终端下中文设置</h2>
 
 <p>在安装完ubuntu系统后，我们发现中文支持的不好，主要体现在locale的错误，<a href="http://www.linuxidc.com/Linux/2015-08/122501.htm">解决方法：</a></p>
 
@@ -981,7 +998,7 @@ Generation complete.
 
 <p>一般就都能解决</p>
 
-<h2 id="linux终端下的颜色设置输出:1350fa5c56171e9d9c8991f08929cd14">Linux终端下的颜色设置输出</h2>
+<h2 id="linux终端下的颜色设置输出">Linux终端下的颜色设置输出</h2>
 
 <p>Linux终端下，如果有一个彩色的终端，可以明显提升人的阅读兴趣，通过printf的简单设置即可<a href="http://www.w2bc.com/Article/39141">实现彩色输出</a></p>
 
@@ -1019,7 +1036,7 @@ printf(&quot;\033[1;31;40m&quot;);
 printf(&quot;\033[0m&quot;);
 </code></pre>
 
-<h2 id="tsar监控系统负载和nginx运行情况:1350fa5c56171e9d9c8991f08929cd14">tsar监控系统负载和nginx运行情况</h2>
+<h2 id="tsar监控系统负载和nginx运行情况">tsar监控系统负载和nginx运行情况</h2>
 
 <p><a href="https://github.com/alibaba/tsar">tsar</a>是阿里巴巴发布的一款能够实时监控系统状态的命令行工具，并且支持第三方模块扩展，其中比较注明的是nginx模块。使用tsar时，可以将系统负载和nginx运行情况同步同时打出，可以用来定位系统瓶颈，所以广受好评。</p>
 
@@ -1063,7 +1080,7 @@ Time                util     util   retran    bytin  bytout     util     load1  
 
 </code></pre>
 
-<h2 id="wrk在centos系统上的编译方法:1350fa5c56171e9d9c8991f08929cd14">wrk在CentOS系统上的编译方法</h2>
+<h2 id="wrk在centos系统上的编译方法">wrk在CentOS系统上的编译方法</h2>
 
 <p><a href="https://github.com/wg/wrk">wrk</a>作为一款可以内嵌lua脚本的，支持多线程的压测工具，受到了广泛欢迎。在高版本CentOS 7上，直接在wrk目录下执行make，可以首先编译deps/luajit，得到deps/luajit/libluajit.a，然而在低版本上，CentOS 6.5系统中，会报一些莫名奇妙的错误。</p>
 
@@ -1078,7 +1095,7 @@ make -j24
 
 </code></pre>
 
-<h2 id="rpmbuild环境的快速初始化:1350fa5c56171e9d9c8991f08929cd14">rpmbuild环境的快速初始化</h2>
+<h2 id="rpmbuild环境的快速初始化">rpmbuild环境的快速初始化</h2>
 
 <p>需要将代码打包为CentOS的RPM包时，可以先自己在本地新建一个环境</p>
 
@@ -1088,7 +1105,7 @@ make -j24
 4. rpmbuild -ba path/to/software.spec 即可
 </code></pre>
 
-<h2 id="git记住密码-不用每次都输密码才登入:1350fa5c56171e9d9c8991f08929cd14">git记住密码，不用每次都输密码才登入</h2>
+<h2 id="git记住密码-不用每次都输密码才登入">git记住密码，不用每次都输密码才登入</h2>
 
 <p>git有两种方式，一种是ssh方式，配置公钥私钥，对于新手而言还是比较麻烦的；另一种是http方式，这里有一个办法可以让git记住密码，避免每次都需要输入密码</p>
 
@@ -1101,7 +1118,7 @@ make -j24
     helper = store 
 </code></pre>
 
-<h2 id="centos系统上某些软件-比如gcc-python等版本过低的解决方案:1350fa5c56171e9d9c8991f08929cd14">centos系统上某些软件，比如gcc、python等版本过低的解决方案</h2>
+<h2 id="centos系统上某些软件-比如gcc-python等版本过低的解决方案">centos系统上某些软件，比如gcc、python等版本过低的解决方案</h2>
 
 <p>在CentOS Server上，经常会遇到某些软件依赖版本过低的问题，比如CentOS 6.5的python是2.7版本的，gcc是4.2版本的，那么我们如何获得一个干净的、与原版本无冲突的运行环境呢。CentOS系提供了一个叫SCL的工具，可以帮我们实现目的</p>
 
@@ -1120,7 +1137,7 @@ scl enable python27 bash
 python --version
 </code></pre>
 
-<h2 id="ubuntu系统上某些软件-比如gcc等版本过高的解决方案:1350fa5c56171e9d9c8991f08929cd14">ubuntu系统上某些软件，比如gcc等版本过高的解决方案</h2>
+<h2 id="ubuntu系统上某些软件-比如gcc等版本过高的解决方案">ubuntu系统上某些软件，比如gcc等版本过高的解决方案</h2>
 
 <p>与CentOS相反，debian系发行版的软件版本都很高，Ubuntu 16.04的gcc 版本已经到了5.2，然而编译一些早期linux内核的话，需要gcc-4.7左右的版本，这时候我们怎么办呢，有两个方法：
 * 通过apt安装低版本gcc
@@ -1130,7 +1147,7 @@ python --version
     * <a href="http://www.metsky.com/archives/607.html">参考链接1</a>
     * <a href="http://blog.csdn.net/zyxlinux888/article/details/6708775">参考链接2</a> <a href="http://blog.csdn.net/zyxlinux888/article/details/6709036">附赠</a></p>
 
-<h2 id="python的matplotlib库实现绘制图标:1350fa5c56171e9d9c8991f08929cd14">python的matplotlib库实现绘制图标</h2>
+<h2 id="python的matplotlib库实现绘制图标">python的matplotlib库实现绘制图标</h2>
 
 <ul>
 <li>sudo apt-get install python-matplotlib</li>
@@ -1139,15 +1156,15 @@ python --version
 <p><a href="http://matplotlib.org/index.html">参考链接</a>
 <a href="http://matplotlib.org/examples/index.html">example</a></p>
 
-<h2 id="python使用requests库发送http请求:1350fa5c56171e9d9c8991f08929cd14">python使用requests库发送http请求</h2>
+<h2 id="python使用requests库发送http请求">python使用requests库发送http请求</h2>
 
 <p><a href="http://cn.python-requests.org/zh_CN/latest/user/quickstart.html#json">参考链接</a></p>
 
-<h2 id="python解析命令行参数-argparse:1350fa5c56171e9d9c8991f08929cd14">python解析命令行参数：argparse</h2>
+<h2 id="python解析命令行参数-argparse">python解析命令行参数：argparse</h2>
 
 <p><a href="http://blog.xiayf.cn/2013/03/30/argparse/">参考链接</a></p>
 
-<h2 id="git比较两次commit的差异:1350fa5c56171e9d9c8991f08929cd14">git比较两次commit的差异</h2>
+<h2 id="git比较两次commit的差异">git比较两次commit的差异</h2>
 
 <p>通过比较两次commit的代码差异，能够快速理解此次commit的目的，理解作者意图</p>
 
@@ -1176,7 +1193,7 @@ Date:   Sat Mar 12 01:16:00 2016 +0800
 <li>git diff commit 2279c3f4a8a42e696a0f34e6e9b6289487da92c1 2b9d85f8427c5ca9e4f9c128c22acd280eb94405</li>
 </ul>
 
-<h2 id="git返回强制返回某次提交:1350fa5c56171e9d9c8991f08929cd14">git返回强制返回某次提交</h2>
+<h2 id="git返回强制返回某次提交">git返回强制返回某次提交</h2>
 
 <ul>
 <li>git log</li>
@@ -1187,7 +1204,7 @@ Date:   Sat Mar 12 01:16:00 2016 +0800
 </ul></li>
 </ul>
 
-<h2 id="iptables允许端口被外网访问:1350fa5c56171e9d9c8991f08929cd14">iptables允许端口被外网访问</h2>
+<h2 id="iptables允许端口被外网访问">iptables允许端口被外网访问</h2>
 
 <p>防火墙设置，配置1985端口可以被外网访问</p>
 
@@ -1195,7 +1212,7 @@ Date:   Sat Mar 12 01:16:00 2016 +0800
 <li>sudo iptables -A INPUT -m state &ndash;state NEW -m tcp -p tcp &ndash;dport 1985 -j ACCEPT</li>
 </ul>
 
-<h2 id="tcpdump过滤指定标志的packet:1350fa5c56171e9d9c8991f08929cd14">tcpdump过滤指定标志的packet</h2>
+<h2 id="tcpdump过滤指定标志的packet">tcpdump过滤指定标志的packet</h2>
 
 <pre><code class="language-bash"># tcp包里有个flags字段表示包的类型，tcpdump可以根据该字段抓取相应类型的包：
 # tcp[13] 就是 TCP flags (URG,ACK,PSH,RST,SYN,FIN)
@@ -1216,7 +1233,7 @@ tcpdump -ni any port 9001 and 'tcp[13] &amp; 4 != 0 ' -s0  -w rst.cap -vvv
 
 <p><a href="http://babyhe.blog.51cto.com/1104064/1395489">参考链接</a></p>
 
-<h2 id="查看进程的内存占用情况:1350fa5c56171e9d9c8991f08929cd14">查看进程的内存占用情况</h2>
+<h2 id="查看进程的内存占用情况">查看进程的内存占用情况</h2>
 
 <p>用Ternary Search Tree代替Trie Tree后，我想知道我的进程内存占用有多大区别。</p>
 
@@ -1263,7 +1280,7 @@ tcpdump -ni any port 9001 and 'tcp[13] &amp; 4 != 0 ' -s0  -w rst.cap -vvv
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/&amp;title=effective%20tips%20in%20daily%20work&amp;summary=%e5%85%a8%e4%b8%96%e7%95%8c%e6%9c%80%e6%84%9a%e8%a0%a2%e7%9a%84%e4%ba%8b%e6%83%85%e5%b0%b1%e6%98%af%ef%bc%8c%e9%87%8d%e5%a4%8d%e5%81%9a%e7%9b%b8%e5%90%8c%e7%9a%84%e4%ba%8b%e6%83%85%ef%bc%8c%e5%8d%b4%e6%9c%9f%e5%be%85%e6%9c%89%e4%b8%8d%e5%90%8c%e7%9a%84%e7%bb%93%e6%9e%9c%e5%8f%91%e7%94%9f%20Insanity%3a%20doing%20the%20same%20thing%20over%20and%20over%20again%20and%20expecting%20different%20results.%20%e8%af%b4%e5%ae%9e%e8%af%9d%ef%bc%8c%e5%9c%a8%e5%86%99%e4%bb%a3%e7%a0%81%e3%80%81%e8%b0%83%e4%bb%a3%e7%a0%81%e7%9a%84%e6%97%b6%e5%80%99%ef%bc%8c%e4%b8%80%e4%bd%86%e5%87%ba%e7%8e%b0%e9%9d%9e%e9%a2%84%e6%9c%9f%e7%bb%93%e6%9e%9c%ef%bc%8c%e9%a6%96%e5%85%88%e6%a3%80%e6%9f%a5%e4%b9%8b%e5%89%8d%e8%87%aa%e5%b7%b1%e7%9a%84%e7%bc%96%e7%a0%81%e5%92%8c%e8%be%93%e5%85%a5%ef%bc%8c%e7%a1%ae%e5%ae%9a%e5%90%8e%e4%b8%8d%e5%ba%94%e8%af%a5%e5%86%8d%e4%ba%8c%e6%ac%a1%e9%87%8d%e8%af%95%ef%bc%8c%e6%af%95%e7%ab%9f%e7%9b%b8%e5%90%8c%e6%9d%a1%e4%bb%b6%e4%b8%8b%e4%b8%8d%e5%8f%af%e8%83%bd%e4%ba%a7%e7%94%9f%e4%b8%8d%e5%90%8c%e7%bb%93%e6%9e%9c%ef%bc%8c%e6%ad%a4%e6%97%b6%e5%ba%94%e8%af%a5%e5%b0%86%e6%80%9d%e7%bb%b4%e8%b7%b3%e8%84%b1%e5%87%ba%e6%9d%a5%ef%bc%8c%e5%8f%a6%e8%be%9f%e8%b9%8a%e5%be%84%e4%b8%ba%e5%a5%bd%e3%80%82%20ubuntu%e4%b8%8b%e8%a7%a3%e5%8e%8bzip%e6%96%87%e4%bb%b6%e5%87%ba%e7%8e%b0%e4%b9%b1%e7%a0%81%e7%9a%84%e8%a7%a3%e5%86%b3%e5%8a%9e%e6%b3%95%20%e5%8f%82%e8%80%83%e9%93%be%e6%8e%a5%20%e7%94%b1%e4%ba%8ezip%e6%a0%bc%e5%bc%8f%e4%b8%ad%e5%b9%b6%e6%b2%a1%e6%9c%89%e6%8c%87%e5%ae%9a%e7%bc%96%e7%a0%81%e6%a0%bc%e5%bc%8f%ef%bc%8cWindows%e4%b8%8b%e7%94%9f%e6%88%90%e7%9a%84zip%e6%96%87%e4%bb%b6%e4%b8%ad%e7%9a%84%e7%bc%96%e7%a0%81%e6%98%afGBK%2fGB2312%e7%ad%89%ef%bc%8c%e5%9b%a0%e6%ad%a4%ef%bc%8c%e5%af%bc%e8%87%b4%e8%bf%99%e4%ba%9bzip%e6%96%87%e4%bb%b6%e5%9c%a8Linux%e4%b8%8b%e8%a7%a3%e5%8e%8b%e6%97%b6%e5%87%ba%e7%8e%b0%e4%b9%b1%e7%a0%81%e9%97%ae%e9%a2%98%ef%bc%8c%e5%9b%a0%e4%b8%baLinux%e4%b8%8b%e7%9a%84%e9%bb%98%e8%ae%a4%e7%bc%96%e7%a0%81%e6%98%afUTF8%e3%80%82%20%e7%9b%ae%e5%89%8d%e7%bd%91%e4%b8%8a%e6%b5%81%e4%bc%a0%e4%b8%80%e7%a7%8dunzip%20-O%20cp936%e7%9a%84%e6%96%b9%e6%b3%95%ef%bc%8c%e4%bd%86%e4%b8%80%e4%ba%9bunzip%e6%98%af%e6%b2%a1%e6%9c%89-O%e8%bf%99%e4%b8%aa%e9%80%89%e9%a1%b9%e7%9a%84%e3%80%82%20%e4%ba%b2%e6%b5%8b%e5%a5%bd%e7%94%a8%ef%bc%8c%e4%b8%8d%e5%a5%bd%e7%94%a8%e7%9a%84%e7%9c%8b%e9%93%be%e6%8e%a5%20redis%e8%ae%be%e7%bd%ae%e5%92%8c%e6%b8%85%e9%99%a4%e5%af%86%e7%a0%81%20%e6%ad%a3%e8%a7%84%e9%a1%b9%e7%9b%ae%e7%bb%88%e4%ba%8e%e8%a6%81%e5%af%b9redis%e8%ae%be%e7%bd%ae%e5%af%86%e7%a0%81%e4%ba%86%ef%bc%8c%e5%a6%82%e4%bd%95%e5%8a%a0%e5%af%86%e7%a0%81%e5%91%a2%20%e9%85%8d%e7%bd%ae%e6%96%87%e4%bb%b6%e4%b8%ad%e6%b7%bb%e5%8a%a0%e5%af%86%e7%a0%81%20%e9%85%8d%e7%bd%ae%e6%96%87%e4%bb%b6%e4%b8%ad%e7%9a%84requirepass%e9%85%8d%e7%bd%ae%e6%8c%87%e4%bb%a4%e7%94%a8%e4%ba%8e%e9%85%8d%e7%bd%ae%e5%af%86%e7%a0%81%20%e9%85%8d%e7%bd%ae%e6%96%87%e4%bb%b6%e4%b8%ad%e7%9a%84masterauth%e7%94%a8%e4%ba%8e%e9%85%8d%e7%bd%ae%e4%bb%8e%e6%9c%ba%e7%99%bb%e9%99%86%e4%b8%bb%e6%9c%ba%e7%9a%84%e5%af%86%e7%a0%81%20%e8%bf%90%e8%a1%8c%e4%b8%ad%e6%b7%bb%e5%8a%a0%e5%af%86%e7%a0%81%20config%20set%20requirepass%20PASSWORD%20%e8%bf%90%e8%a1%8c%e4%b8%ad%e5%88%a0%e9%99%a4%e5%af%86%e7%a0%81%20config%20set%20requirepass%20%26ldquo%3b%26rdquo%3b%20%e8%8e%b7%e5%8f%96%e5%af%86%e7%a0%81%20config%20get%20requirepass%20%e9%85%8d%e7%bd%ae%e4%bb%8e%e6%9c%ba%20config%20set%20masterauth%20MASTER_PASSWORD%20config%20set%20requirepass%20SLAVE_AUTH%20epoll%e6%98%af%e5%90%8c%e6%ad%a5%e9%9d%9e%e9%98%bb%e5%a1%9e%e7%9a%84%20epoll%e3%80%81select%e7%ad%89%e5%a4%9a%e8%b7%af%e6%9c%8d%e7%94%a8IO%ef%bc%8c%e5%b0%86fd%e5%8a%a0%e5%85%a5%e7%ad%89%e5%be%85%e6%97%b6%e9%97%b4%e7%9a%84%e9%98%9f%e5%88%97%e4%b8%ad%ef%bc%8c%e6%af%8f%e9%9a%94%e4%b8%80%e6%ae%b5%e6%97%b6%e9%97%b4%e5%8e%bb%e8%bd%ae%e8%af%a2%e4%b8%80%e6%ac%a1%ef%bc%8c%e5%9b%a0%e6%ad%a4%e6%98%af%e5%90%8c%e6%ad%a5%e7%9a%84%ef%bc%9b%e4%bc%98%e7%82%b9%e6%98%af%e8%83%bd%e5%a4%9f%e5%9c%a8%e7%ad%89%e5%be%85%e4%bb%bb%e5%8a%a1%e7%9a%84%e6%97%b6%e9%97%b4%e9%87%8c%e5%8e%bb%e5%81%9a%e5%88%ab%e7%9a%84%e4%bb%bb%e5%8a%a1%ef%bc%9b%e7%bc%ba%e7%82%b9%e6%98%af%e4%bb%bb%e5%8a%a1%e5%ae%8c%e6%88%90%e7%9a%84%e5%93%8d%e5%ba%94%e5%bb%b6%e8%bf%9f%e5%a2%9e%e5%a4%a7%ef%bc%8c%e5%9b%a0%e4%b8%ba%e6%af%8f%e9%9a%94%e4%b8%80%e6%ae%b5%e6%97%b6%e9%97%b4%e5%8e%bb%e8%bd%ae%e8%af%a2%e4%bb%96%e4%bb%ac%ef%bc%8c%e5%9c%a8%e6%97%b6%e9%97%b4%e9%97%b4%e9%9a%94%e5%86%85%e4%bb%bb%e5%8a%a1%e5%8f%af%e8%83%bd%e5%b7%b2%e7%bb%8f%e5%ae%8c%e6%88%90%e8%80%8c%e7%ad%89%e5%be%85%e5%a4%84%e7%90%86%e7%ad%89%e5%be%85%e4%ba%86%e4%b8%80%e6%ae%b5%e6%97%b6%e9%97%b4%e4%ba%86%e3%80%82%20%e5%8f%82%e8%80%83%e9%93%be%e6%8e%a5%20%e5%90%8c%e6%ad%a5%2f%e5%bc%82%e6%ad%a5%e6%8c%87%e7%9a%84%e6%98%af%e8%a2%ab%e8%b0%83%e7%94%a8%e6%96%b9%e7%9a%84%e9%80%9a%e7%9f%a5%e6%96%b9%e5%bc%8f%ef%bc%8c%e8%a2%ab%e8%b0%83%e7%94%a8%e6%96%b9%e5%ae%8c%e6%88%90%e5%90%8e%ef%bc%8c%e4%b8%bb%e5%8a%a8%e9%80%9a%e7%9f%a5%e8%b0%83%e7%94%a8%e6%96%b9%ef%bc%8c%e8%bf%98%e6%98%af%e7%ad%89%e5%be%85%e8%b0%83%e7%94%a8%e6%96%b9%e5%8f%91%e7%8e%b0%e3%80%82%e5%89%8d%e8%80%85%e6%98%af%e5%bc%82%e6%ad%a5%ef%bc%8c%e5%90%8e%e8%80%85%e6%98%af%e5%90%8c%e6%ad%a5%e3%80%82%e4%bb%8e%e8%bf%99%e9%87%8c%e4%b9%9f%e5%8f%af%e4%bb%a5%e7%9c%8b%e5%87%ba%ef%bc%8c%e5%bc%82%e6%ad%a5IO%e9%80%9a%e7%9f%a5%e8%b0%83%e7%94%a8%e6%96%b9%e6%97%b6%ef%bc%8c%e6%95%b0%e6%8d%ae%e5%b7%b2%e7%bb%8f%e5%b0%b1%e7%bb%aa%ef%bc%8c%e5%af%b9%e4%ba%8e%e7%bd%91%e7%bb%9cIO%e6%9d%a5%e8%af%b4%ef%bc%8c%e5%bc%82%e6%ad%a5IO%e5%b7%b2%e7%bb%8f%e5%b0%86%e6%95%b0%e6%8d%ae%e4%bb%8e%e5%86%85%e6%a0%b8%e5%a4%8d%e5%88%b6%e5%88%b0%e7%94%a8%e6%88%b7%e7%a9%ba%e9%97%b4%e4%ba%86%e3%80%82%20%e9%98%bb%e5%a1%9e%2f%e9%9d%9e%e9%98%bb%e5%a1%9e%e6%98%af%e8%b0%83%e7%94%a8%e6%96%b9%e7%9a%84%e7%ad%89%e5%be%85%e6%96%b9%e5%bc%8f%ef%bc%8c%e6%98%af%e4%b8%80%e7%9b%b4%e7%ad%89%e5%be%85%e5%9c%a8%e5%81%9a%e7%9a%84%e4%ba%8b%e4%bb%b6%e5%ae%8c%e6%88%90%ef%bc%8c%e8%bf%98%e6%98%af%e5%8e%bb%e5%81%9a%e5%88%ab%e7%9a%84%e4%ba%8b%e6%83%85%ef%bc%8c%e7%ad%89%e5%88%b0%e5%9c%a8%e5%81%9a%e7%9a%84%e4%ba%8b%e4%bb%b6%e5%ae%8c%e6%88%90%e5%90%8e%e5%86%8d%e6%8e%a5%e7%9d%80%e8%bf%9b%e8%a1%8c%e5%a4%84%e7%90%86%e3%80%82%e5%89%8d%e8%80%85%e6%98%af%e9%98%bb%e5%a1%9e%ef%bc%8c%e5%90%8e%e8%80%85%e6%98%af%e9%9d%9e%e9%98%bb%e5%a1%9e%20%e5%9b%a0%e6%ad%a4epoll%e6%98%af%e5%90%8c%e6%ad%a5%e5%92%8c%e9%9d%9e%e9%98%bb%e5%a1%9e%e7%9a%84%e3%80%82%20sed%e5%90%88%e5%b9%b6%e7%9b%b8%e9%82%bb%e4%b8%a4%e8%a1%8c%20%e4%bb%8eredis%e4%b8%ad%e5%8f%96%e5%87%ba%e4%b8%80%e4%b8%aa%e9%94%ae%e7%9a%84%e6%89%80%e6%9c%89%e5%86%85%e5%ae%b9%e6%97%b6%ef%bc%8c%e6%af%94%e5%a6%82hgetall%ef%bc%8c%e5%be%97%e5%88%b0%e7%9a%84%e7%bb%93%e6%9e%9c%e5%b9%b6%e4%b8%8d%e6%98%af%e6%8e%92%e5%ba%8f%e5%a5%bd%e7%9a%84%ef%bc%8c%e7%b1%bb%e4%bc%bc%e4%ba%8e%e8%bf%99%e6%a0%b7%2011485%29%20%26quot%3b1470347460%26quot%3b%2011486%29%20%26quot%3b69%26quot%3b%2011487%29%20%26quot%3b1470262350%26quot%3b%2011488%29%20%26quot%3b34%26quot%3b%2011489%29%20%26quot%3b1470262170%26quot%3b%2011490%29%20%26quot%3b68%26quot%3b%2011491%29%20%26quot%3b1470242400%26quot%3b%2011492%29%20%26quot%3b21%26quot%3b%2011493%29%20%26quot%3b1470288030%26quot%3b%2011494%29%20%26quot%3b65%26quot%3b%2011495%29%20%26quot%3b1470303390%26quot%3b%2011496%29%20%26quot%3b54%26quot%3b%2011497%29%20%26quot%3b1470205320%26quot%3b%2011498%29%20%26quot%3b85%26quot%3b%2011499%29%20%26quot%3b1470318330%26quot%3b%2011500%29%20%26quot%3b92%26quot%3b%2011501%29%20%26quot%3b1470167040%26quot%3b%2011502%29%20%26quot%3b1%26quot%3b%2011503%29%20%26quot%3b1470281880%26quot%3b%2011504%29%20%26quot%3b14%26quot%3b%2011505%29%20%26quot%3b1470298140%26quot%3b%2011506%29%20%26quot%3b113%26quot%3b%20%e8%af%a5hash%e7%9a%84key%e4%b8%baunix%e6%97%b6%e9%97%b4%e6%88%b3%ef%bc%8cval%e4%b8%ba%e6%95%b0%e5%80%bc%ef%bc%8c%e5%a6%82%e6%9e%9c%e6%83%b3%e6%89%8b%e5%8a%a8%e7%9c%8b%e5%88%86%e5%b8%83%e7%9a%84%e8%af%9d%ef%bc%8c%e9%9c%80%e8%a6%81%e5%b0%86%e7%9b%b8%e9%82%bb%e4%b8%a4%e8%a1%8c%e5%90%88%e5%b9%b6%e7%84%b6%e5%90%8e%e6%8e%92%e5%ba%8f%ef%bc%8c%e5%9c%a8%e6%ad%a4%e6%88%91%e4%bb%ac%e5%80%9f%e5%8a%a9sed%20sed%20%27%24%21N%3bs%2f%5cn%2f%5ct%2f%27%20filename%20redis%e5%88%86%e6%9e%90%e5%ae%9e%e4%be%8b%e4%b8%ad%e6%89%80%e6%9c%89key%e5%92%8c%e5%8d%95%e4%b8%aakey%e7%9a%84%e5%86%85%e5%ad%98%e5%8d%a0%e7%94%a8%e6%83%85%e5%86%b5%20%e9%87%87%e7%94%a8rdb%e5%b7%a5%e5%85%b7%20rdb%20-c%20memory%20%2fpath%2fto%2fab-dump.rdb%20%26gt%3b%20memory.csv%20sort%e8%bf%9b%e8%a1%8c%e5%a4%9a%e9%87%8d%e6%8e%92%e5%ba%8f%20sort%e5%92%8cuniq%e5%9c%a8%e6%96%87%e6%9c%ac%e5%a4%84%e7%90%86%ef%bc%8c%e5%b0%a4%e5%85%b6%e6%98%af%e6%97%a5%e5%bf%97%e5%a4%84%e7%90%86%e4%b8%ad%e7%94%a8%e7%9a%84%e8%be%83%e5%a4%9a%e7%9a%84%e5%b7%a5%e5%85%b7%ef%bc%8c%e8%ae%b0%e5%be%97%e5%bd%93%e5%b9%b4%e6%a0%a1%e6%8b%9b%e6%97%b6%e5%80%99%e5%87%86%e5%a4%87%e9%9d%a2%e8%af%95%ef%bc%8c%e7%94%a8%e5%88%b0%e8%bf%99%e4%b8%a4%e4%b8%aa%e5%91%bd%e4%bb%a4%ef%bc%8c%e6%83%8a%e4%b8%ba%e5%a4%a9%e4%ba%ba%ef%bc%8c%e9%9d%9e%e5%b8%b8shock%e3%80%82%e5%9c%a8%e6%97%a5%e5%b8%b8%e5%b7%a5%e4%bd%9c%e4%b8%ad%ef%bc%8c%e7%94%a8%e7%9a%84%e4%b9%9f%e9%9d%9e%e5%b8%b8%e5%a4%9a%e3%80%82%20%e7%9b%ae%e5%89%8d%e6%9c%89%e8%bf%99%e6%a0%b7%e7%9a%84%e9%9c%80%e6%b1%82%ef%bc%8c%e6%8b%bf%e5%88%b0%e4%b8%a4%e5%88%97%e6%95%b0%e6%8d%ae%ef%bc%8c%e7%ac%ac%e4%b8%80%e5%88%97%e6%98%afip%ef%bc%8c%e7%ac%ac%e4%ba%8c%e5%88%97%e6%98%af%e8%ae%bf%e9%97%ae%e8%ae%a1%e6%95%b0%ef%bc%8c%e6%83%b3%e7%9c%8b%e4%b8%80%e4%b8%8b%e5%88%86%e5%b8%83%ef%bc%8c%e8%a6%81%e6%b1%82ip%e8%a6%81%e6%8c%89%e6%96%87%e6%9c%ac%e6%8e%92%e5%ba%8f%ef%bc%8c%e8%ae%bf%e9%97%ae%e8%ae%a1%e6%95%b0%e6%8c%89%e6%95%b0%e5%80%bc%e6%8e%92%e5%ba%8f%e3%80%82%20221.179.175.109%2097%20221.179.175.164%20101%20221.179.175.46%208%20221.179.175.164%20102%20221.179.175.178%2078%20221.179.175.46%209%20221.179.175.109%2098%20221.179.175.178%2079%20120.239.141.197%2096%20221.179.175.70%20114%20218.202.7.121%2070%20221.179.175.178%2080%20218.202.7.121%2071%20221.179.175.134%2083%20120.239.141.197%2097%20221.179.175.46%2010%20221.179.175.178%2081%20221.179.175.47%2024%20120.239.141.197%2098%20221.179.175.70%20115%20221.179.175.70%20116%20120.239.141.197%2099%20221.179.175.134%2084%20%e8%a7%a3%e5%86%b3%e6%96%b9%e6%b3%95%20sort%20-t%20%27%20%27%20-k1%2c1%20-k2n%2c2%20data%20%e5%85%b6%e4%b8%ad%20-t%20%27%20%27%20%e6%8c%87%e5%ae%9a%e4%bd%bf%e7%94%a8%e7%a9%ba%e6%a0%bc%e5%88%86%e5%88%97%20-k1%2c1%20%e6%8c%87%e5%ae%9a%e4%bb%a5%e7%ac%ac%e4%b8%80%e5%88%97%e4%b8%ba%e5%85%b3%e9%94%ae%e5%ad%97%e6%8e%92%e5%ba%8f%20-k2n%2c2%20%e6%8c%87%e5%ae%9a%e4%bb%a5%e7%ac%ac%e4%ba%8c%e5%88%97%e4%b8%ba%e5%85%b3%e9%94%ae%e5%ad%97%e5%81%9a%e6%95%b0%e6%8d%ae%e6%8e%92%e5%ba%8f%20%e4%b9%9f%e5%8f%af%e4%bb%a5%20sort%20-k1%20-k2n%20out%20shell%e8%84%9a%e6%9c%ac%e6%89%b9%e9%87%8f%e5%a4%84%e7%90%86%e6%96%87%e6%9c%ac%20%e5%96%84%e7%94%a8awk%e3%80%81grep%e3%80%81xargs%e3%80%81bash%e3%80%81sed%e7%ad%89%e5%b7%a5%e5%85%b7%ef%bc%8c%e5%8f%af%e4%bb%a5%e6%8f%90%e9%ab%98%e7%94%9f%e4%ba%a7%e5%8a%9b%20grep%20%27config.config%27%20...." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/&amp;title=effective%20tips%20in%20daily%20work&amp;summary=sar%e5%9c%a8ubuntu%e4%b8%ad%e7%9a%84%e9%85%8d%e7%bd%ae%20sudo%20apt-get%20install%20sysstat%20sudo%20vim%20%2fetc%2fdefault%2fsysstat%20%26quot%3b%20change%20ENABLED%3d%26quot%3bfalse%26quot%3b%20to%20%26quot%3btrue%26quot%3b%20sudo%20vim%20%2fetc%2fcron.d%2fsysstat%20%26quot%3b%20change%20%26quot%3b%205-55%2f10%20%2a%20%2a%20%2a%20%2a%20root%20command%20-v%20debian-sa1%20%26gt%3b%20%2fdev%2fnull%20%26amp%3b%26amp%3b%20debian-sa1%201%201%20%26quot%3b%20to%20%26quot%3b%20%2a%2f2%20%2a%20%2a%20%2a%20%2a%20root%20command%20-v%20debian-sa1%20%26gt%3b%20%2fdev%2fnull%20%26amp%3b%26amp%3b%20debian-sa1%201%201%20%26quot%3b%20change%20the%20collection%20interval%20from%20every%2010%20minutes%20to%20every%202%20minutes.%20sudo%20%2fetc%2finit.d%2fsysstat%20restart%20%e5%85%a8%e4%b8%96%e7%95%8c%e6%9c%80%e6%84%9a%e8%a0%a2%e7%9a%84%e4%ba%8b%e6%83%85%e5%b0%b1%e6%98%af%ef%bc%8c%e9%87%8d%e5%a4%8d%e5%81%9a%e7%9b%b8%e5%90%8c%e7%9a%84%e4%ba%8b%e6%83%85%ef%bc%8c%e5%8d%b4%e6%9c%9f%e5%be%85%e6%9c%89%e4%b8%8d%e5%90%8c%e7%9a%84%e7%bb%93%e6%9e%9c%e5%8f%91%e7%94%9f%20Insanity%3a%20doing%20the%20same%20thing%20over%20and%20over%20again%20and%20expecting%20different%20results...." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

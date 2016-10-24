@@ -101,7 +101,7 @@
     <h1 class="post-title">Understanding TCPIP Network Stack &amp; Writing Network Apps</h1>
     
 
-<h1 id="理解tcp-ip协议栈-实现网络应用:9704016adbc86c93ab3fc704cddd719f">理解TCP/IP协议栈 实现网络应用</h1>
+<h1 id="理解tcp-ip协议栈-实现网络应用">理解TCP/IP协议栈 实现网络应用</h1>
 
 <blockquote>
 <p>遇到好文章我就想给翻译下来，觉得写的很好，现在cubrid的一篇TCP/IP相关的文章<a href="http://www.cubrid.org/blog/dev-platform/understanding-tcp-ip-network-stack/">详细介绍了TCP协议栈，以及收发数据包的流程，非常有启发意义</a>，所以我就想翻译一下，做个记录。将TCP/IP协议栈在一篇文章内讲明白是不可能的，所以本文能够做到的是讲清楚TCP/IP协议栈收发数据包的流程，我们要做的是首先了解大致流程，然后尝试根据TCP/IP协议和拿着代码去理解。由于我本人能力十分有限，译文都是我个人理解，所以会有大量错误，希望您能帮我纠正。如果您想转载，我必须提醒一句我这个译文是自己学习之用，并未取得版权方同意，因此首先做免责声明。</p>
@@ -111,7 +111,7 @@
 
 <p>本文将通过在linux操作系统和硬件层面的数据流和控制流来描述网络技术栈的整体执行流程。</p>
 
-<h2 id="tcp-ip的关键字:9704016adbc86c93ab3fc704cddd719f">TCP/IP的关键字</h2>
+<h2 id="tcp-ip的关键字">TCP/IP的关键字</h2>
 
 <p><strong><em>我如何设计网络协议，能够在保持数据不丢失不乱序的情况下，快速传输数据？</em></strong></p>
 
@@ -153,7 +153,7 @@
 </ul></li>
 </ol>
 
-<h2 id="数据发送:9704016adbc86c93ab3fc704cddd719f">数据发送</h2>
+<h2 id="数据发送">数据发送</h2>
 
 <p>如下图所示，一个网络栈有很多层，图中包含各层类型。</p>
 
@@ -208,7 +208,7 @@
 
 <p>至此我们讨论了应用程序数据发送的流程，贯穿kernel和NIC设备。而且，即使没有应用程序的写请求，kernel可以调用TCP/IP协议栈直接发送数据包。例如，当收到一个ACK后并且得知对端接收窗口扩大，kernel将自动的把仍在发送缓存中的数据打包，直接发出。</p>
 
-<h2 id="数据接收:9704016adbc86c93ab3fc704cddd719f">数据接收</h2>
+<h2 id="数据接收">数据接收</h2>
 
 <p>现在我们看看数据的接收流程，当数据包到来的时候，网络栈是如何处理的，如图3所示。</p>
 
@@ -234,7 +234,7 @@
 
 <p>当应用程序调用read系统调用时，从user area切换到kernel area，数据从socket的缓冲区复制到user area，然后从socket缓冲区中释放。然后调用TCP层，因为socket缓冲区有了新的空间，所以TCP增大接受窗口。And it sends a packet according to the protocol status. If no packet is transferred, the system call is terminated.（待翻译）</p>
 
-<h2 id="网络栈开发方向:9704016adbc86c93ab3fc704cddd719f">网络栈开发方向</h2>
+<h2 id="网络栈开发方向">网络栈开发方向</h2>
 
 <p>以上描述的网络栈各层的功能都是一些基本的功能。90年代早期的网络栈功能比以上描述的还少。不过，目前最新的网络栈的功能更加丰富，复杂度更高，这些新功能根据用途有如下分类：</p>
 
@@ -256,7 +256,7 @@
 
 <p>包处理效率相关的功能旨在提升每秒能够处理最大量的数据包，通过降低用于处理数据包的CPU使用率、内存占用和内存访问次数。目前有多种降低系统时延的尝试，包括并行处理、头部预测、零拷贝、单一副本、免校验、TSO、LRO和RSS等。</p>
 
-<h2 id="网络栈的控制流:9704016adbc86c93ab3fc704cddd719f">网络栈的控制流</h2>
+<h2 id="网络栈的控制流">网络栈的控制流</h2>
 
 <p>现在我们可以从更细节的角度观察linux网络栈的内部流程。就像其他非网络栈的子系统，linux的网络站以事件驱动的方式，当网络事件发生时进行相应处理，也就是说网络栈内只有一个进程或者控制流处理运行（其实就是kernel）。上文的图1和图3简单的表示了控制流的数据包，图4将显示更多细节。</p>
 
@@ -276,7 +276,7 @@
 
 <p>控制流(6)显示TCP协议栈接受数据包的完整处理流程，控制流(7)表示请求更多数据包进行发送到过程。控制流(5)、(6)、(7)都是由NIC发起中断，软中断服务程序处理NIC中断实现的。</p>
 
-<h2 id="怎样处理中断然后接受数据包:9704016adbc86c93ab3fc704cddd719f">怎样处理中断然后接受数据包</h2>
+<h2 id="怎样处理中断然后接受数据包">怎样处理中断然后接受数据包</h2>
 
 <p>中断处理是复杂的，毕竟你需要理解与接受数据包有关的各个环节。图5显示了中断处理流程图。</p>
 
@@ -290,35 +290,35 @@
 
 <p>当你查看服务器CPU使用率时，有时你看到只有一个CPU在辛苦的执行软中断，这个现象我们上文描述的可以解释，只有CPU 0在响应网卡中断，使用多队列网卡、RSS和RPS（在软件层面模拟实现硬件的多队列网卡功能）可以解决这个问题，将软中断绑定到多个CPU上。</p>
 
-<h2 id="相关数据结构:9704016adbc86c93ab3fc704cddd719f">相关数据结构</h2>
+<h2 id="相关数据结构">相关数据结构</h2>
 
 <p>下文列出一些关键性的数据结构</p>
 
-<h2 id="sk-buff-structure:9704016adbc86c93ab3fc704cddd719f">sk_buff structure</h2>
+<h2 id="sk-buff-structure">sk_buff structure</h2>
 
 <p>首先，sk_buff结构体或者skb结构体表示一个数据包，图6表示sk_buff结构体的主要部分。虽然sk_buff的功能越来越丰富，也越来越复杂，但图6足以说明sk_buff相关的通用方法。</p>
 
 <div align="center"><img src="https://raw.githubusercontent.com/BG2BKK/githubio/master/static/packet_structure_sk_buff.png" width="70%" height="70%"><p>Figure 6: Packet Structure sk_buff.</p></div>
 
-<h3 id="sk-buff包括数据包的data部分和元数据部分:9704016adbc86c93ab3fc704cddd719f">sk_buff包括数据包的Data部分和元数据部分</h3>
+<h3 id="sk-buff包括数据包的data部分和元数据部分">sk_buff包括数据包的Data部分和元数据部分</h3>
 
 <p>sk_buff直接包括数据包的数据部分，或者用指针指向它。在图6中，sk_buff结构体中的data成员指向一个skb_shared_info结构体的Ethernet到buffer成员之间的内存，而额外的数据由skb_shared_info的frags成员指向具体的内存页。</p>
 
 <p>sk_buff的一些基本信息，比如头部信息和包数据长度存在元数据区域(元数据待理解，初步认定是skb_shared_info)。如图6所示，链路层头部mac_header、网络层头部network_header和传输控制层头部transport_header都有对应的指针依次指向从元数据开始的地方。这种方式使得TCP协议处理更容易一些。</p>
 
-<h3 id="如何添加或删除头部:9704016adbc86c93ab3fc704cddd719f">如何添加或删除头部</h3>
+<h3 id="如何添加或删除头部">如何添加或删除头部</h3>
 
 <p>当在网络协议栈各层处理时，数据包的头部将会被添加或者删除，此时采用指针来移动到不同层的header位置最为方便高效，比如如果要删除Ethernet头部，只需要将头部指针，即sk_buff的head成员指向上一层IP头部位置即可。</p>
 
-<h3 id="怎样合并或者分解数据包:9704016adbc86c93ab3fc704cddd719f">怎样合并或者分解数据包</h3>
+<h3 id="怎样合并或者分解数据包">怎样合并或者分解数据包</h3>
 
 <p>在向socket缓冲区高效添加或者删除数据包的数据量时，采用链表的方式最为方便。sk_buffer的next和prev指针成员的目的就是在此。</p>
 
-<h3 id="快速分配或者释放内存:9704016adbc86c93ab3fc704cddd719f">快速分配或者释放内存</h3>
+<h3 id="快速分配或者释放内存">快速分配或者释放内存</h3>
 
 <p>当创建一个packet时，一个sk_buff结构体要被分配，这里需要快速分配器。比如，如果数据在万兆网卡传输，那么每秒最多将超过百万包被分配和释放。</p>
 
-<h2 id="tcp-control-block:9704016adbc86c93ab3fc704cddd719f">TCP Control Block</h2>
+<h2 id="tcp-control-block">TCP Control Block</h2>
 
 <p>第二，需要有一个结构体来表示一条TCP连接。此前，它被笼统的称为TCP控制块。Linux使用tcp_sock结构体表示TCP Control Block，如图7所示，你可以看到socket、tcp_socket和struct file之间的关系。</p>
 
@@ -366,7 +366,7 @@ struct socket {
 
 <p>最后，我们看下TCP连接的查找表，这是一个用于查找所收到数据包对应的TCP连接的哈希表，索引通过数据包的IP:PORT四元组进行Jenkins哈希算法计算得到。选择这个算法的原因是考虑到防范对此哈希表的攻击（待查）。</p>
 
-<h2 id="追踪代码-如何发送数据:9704016adbc86c93ab3fc704cddd719f">追踪代码：如何发送数据</h2>
+<h2 id="追踪代码-如何发送数据">追踪代码：如何发送数据</h2>
 
 <p>我们通过追踪阅读Linux kernel源码来学习TCP/IP协议栈如何执行，通过常用的读数据和写数据来观察。</p>
 
@@ -575,7 +575,7 @@ static int tcp_transmit_skb(struct sock *sk, struct sk_buff *skb,int clone_it, g
 
 <p>tcp_transmit_skb()首先调用pskb_copy()创建待发送sk_buff的副本，仅复制sk_buff的元数据；然后调用skb_push()保护tcp头部区域，然后填充头部字段，send_check()计算TCP头部的checksum。最后，queue_xmit()将数据包skb转移到下一层IP层，IPv4的queue_xmit()方法由函数ip_queue_xmit()实现。</p>
 
-<h2 id="to-be-continued:9704016adbc86c93ab3fc704cddd719f">To Be Continued</h2>
+<h2 id="to-be-continued">To Be Continued</h2>
 
     <div id="social-bar">
 	<ul class="rrssb-buttons clearfix">
