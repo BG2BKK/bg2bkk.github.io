@@ -94,13 +94,18 @@
 &lt;ul&gt;
 &lt;li&gt;设计测试场景&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;cache line对应用程序的性能的影响&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;li&gt;进程调度能力
 
 &lt;ul&gt;
 &lt;li&gt;context switch/ interrupt stats&lt;/li&gt;
 &lt;li&gt;进程切换时间，在不同负载下：&lt;a href=&#34;http://blog.yufeng.info/archives/753&#34;&gt;lmbench&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;进程切换统计&lt;/li&gt;
+&lt;li&gt;进程调度效率统计
+
+&lt;ul&gt;
+&lt;li&gt;在不同负载下，比如N多个进程需要调度运行&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;li&gt;CPU load balance
 
@@ -181,18 +186,17 @@
 &lt;h3 id=&#34;磁盘读写能力:93ed95293dee210367c755a042ec6458&#34;&gt;磁盘读写能力&lt;/h3&gt;
 
 &lt;ul&gt;
-&lt;li&gt;硬件
+&lt;li&gt;&lt;p&gt;硬件&lt;/p&gt;
 
 &lt;ul&gt;
 &lt;li&gt;磁盘类型/转速&lt;/li&gt;
-&lt;li&gt;查看kernel能够tuning的选项&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;压测磁盘&lt;/p&gt;
+&lt;li&gt;查看kernel能够tuning的选项
 
 &lt;ul&gt;
 &lt;li&gt;磁盘块IO大小&lt;/li&gt;
-&lt;li&gt;读盘速度/文件系统&lt;/li&gt;
+&lt;li&gt;文件系统&lt;/li&gt;
+&lt;li&gt;盘转速&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 
 &lt;li&gt;&lt;p&gt;读写文件方式&lt;/p&gt;
@@ -202,21 +206,30 @@
 &lt;li&gt;经过文件系统读写速度&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 
-&lt;li&gt;&lt;p&gt;读写文件的体积&lt;/p&gt;
+&lt;li&gt;&lt;p&gt;读文件的体积&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;读写大文件速度&lt;/li&gt;
-&lt;li&gt;读写小文件速度&lt;/li&gt;
+&lt;li&gt;读大文件速度
+
+&lt;ul&gt;
+&lt;li&gt;较大文件的读取效率，考验IO能力&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;读小文件速度
+
+&lt;ul&gt;
+&lt;li&gt;大量小文件&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 
-&lt;li&gt;&lt;p&gt;文件缓存
+&lt;li&gt;&lt;p&gt;读文件缓存
     * 首次读
-    * 非首次读&lt;/p&gt;&lt;/li&gt;
+        * 可测试文件从磁盘读到kernel内存直到用户进程这一过程
+    * 非首次读
+        * 测试文件在缓存中后的读效率&lt;/p&gt;&lt;/li&gt;
 
 &lt;li&gt;&lt;p&gt;bio调度队列的大小&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;文件系统缓存命中率&lt;/li&gt;
 &lt;li&gt;输入输出
 
 &lt;ul&gt;
@@ -224,14 +237,14 @@
 &lt;/ul&gt;&lt;/li&gt;
 &lt;li&gt;磁盘换页&lt;/li&gt;
 &lt;li&gt;读盘写盘&lt;/li&gt;
-&lt;li&gt;读文件&lt;/li&gt;
-&lt;li&gt;数据库&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 
-&lt;li&gt;&lt;p&gt;文件&lt;/p&gt;
+&lt;li&gt;&lt;p&gt;文件系统缓存命中率&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;打开文件数&lt;/li&gt;
+&lt;li&gt;读文件&lt;/li&gt;
+&lt;li&gt;数据库&lt;/li&gt;
+&lt;li&gt;文件缓存内存使用情况&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
@@ -280,8 +293,7 @@
 &lt;li&gt;TIME_WAIT等&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;Unix Domain Socket的情况&lt;/li&gt;
-&lt;li&gt;socket内存使用率&lt;/li&gt;
+&lt;li&gt;socket内存使用情况&lt;/li&gt;
 &lt;li&gt;socket缓冲队列&lt;/li&gt;
 &lt;li&gt;从sysctl配置开始，然后统计&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
@@ -292,15 +304,18 @@
 &lt;ul&gt;
 &lt;li&gt;管道&lt;/li&gt;
 &lt;li&gt;IPC性能&lt;/li&gt;
-&lt;li&gt;unix domain socket性能&lt;/li&gt;
 
-&lt;li&gt;&lt;p&gt;开多虚拟机、多docker的能力&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;unix domain socket性能&lt;/p&gt;&lt;/li&gt;
 
 &lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.linfo.org/context_switch.html&#34;&gt;context switch definition&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 
 &lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://smilejay.com/2011/03/linux_cpu_core_thread/&#34;&gt;查询本机CPU相关信息&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 
 &lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://blog.csdn.net/liuaigui/article/details/9981135&#34;&gt;海量小文件&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.jianshu.com/p/db8e8a2884ef&#34;&gt;单机负载评估&lt;/a&gt;、&lt;a href=&#34;http://www.jianshu.com/p/fd6e35f529c1&#34;&gt;性能分析&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://blog.csdn.net/hguisu/article/details/39373311&#34;&gt;性能评估&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>
@@ -494,7 +509,7 @@
 
 &lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;https://raw.githubusercontent.com/BG2BKK/githubio/master/static/processing_interrupt_softirq_and_received_packet.png&#34; width=&#34;70%&#34; height=&#34;70%&#34;&gt;&lt;p&gt;Figure 5: Processing Interrupt, softirq, and Received Packet.&lt;/p&gt;&lt;/div&gt;
 
-&lt;p&gt;想象下CPU 0正在执行应用程序，这个时候NIC收到一个数据包，向CPU 0产生一个中断。然后CPU执行内核中断处理程序。内核通过中断号调用中断处理程序，调用相应驱动的中断处理程序。NIC驱动释放已发送完成的数据包，然后调用napi_schedule()函数去接受数据包，该函数请求软中断（参考图4中(6)右边的黑线）。NIC驱动的中断处理程序结束，返回，控制权交回内核中断处理程序，内核中断处理程序执行刚才NIC驱动调用的napi_schedule()产生的软中断。硬中断上下文执行完成后，软中断开始执行（这里是内核的tasklet或者work_queue了吧，处于中断上下文的话，只能是tasklet），软硬中断上下文都是由同一个进程执行的（linux kernle）。不过，软硬中断的执行栈不一样，硬中断将会屏蔽硬件中断，软中断执行期间是不屏蔽的（老生常谈）。&lt;/p&gt;
+&lt;p&gt;想象下CPU 0正在执行应用程序，这个时候NIC收到一个数据包，向CPU 0产生一个中断。然后CPU执行内核中断处理程序。内核通过中断号调用中断处理程序，调用相应驱动的中断处理程序。NIC驱动释放已发送完成的数据包，然后调用napi_schedule()函数去接受数据包，该函数请求软中断（参考图4中(6)右边的黑线）。NIC驱动的中断处理程序结束，返回，控制权交回内核中断处理程序，内核中断处理程序执行刚才NIC驱动调用的napi_schedule()产生的软中断。硬中断上下文执行完成后，软中断开始执行（这里是内核的tasklet或者work_queue了吧，处于中断上下文的话，只能是tasklet，涉及到阻塞方法，比如与NIC设备的通信，就需要wait_queue了），软硬中断上下文都是由同一个进程执行的（linux kernle）。不过，软硬中断的执行栈不一样，硬中断将会屏蔽硬件中断，软中断执行期间是不屏蔽的（老生常谈）。&lt;/p&gt;
 
 &lt;p&gt;软中断处理程序调用net_rx_action()处理收到的数据包，这个函数调用驱动的poll()方法。poll()方法调用netif_receive_skb()方法收取数据包，然后讲其逐层向上层传送。处理完以上软中断后，应用程序从断点继续执行，此时可以开始调用系统调用比如read读取数据。&lt;/p&gt;
 
@@ -3287,6 +3302,12 @@ net.ipv4.tcp_fastopen = 3
       
       <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20learning/</guid>
       <description>
+
+&lt;h2 id=&#34;kernel:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;kernel&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.csdn.net/column/details/linux-kernel-no-code.html&#34;&gt;kernel工程导论&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;h2 id=&#34;内存管理:078ecfed95ee4edc8bfbcc4d829697ee&#34;&gt;内存管理&lt;/h2&gt;
 
