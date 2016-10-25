@@ -184,7 +184,7 @@
 &lt;li&gt;分配socket memory
 
 &lt;ul&gt;
-&lt;li&gt;与一位同事聊天，系统在已有大规模socket的情况下，对其分配内存的策略是惰性的&lt;/li&gt;
+&lt;li&gt;据说系统在已有大规模socket的情况下，对其分配内存的策略是惰性的，待查&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;li&gt;分配page cache/page buffer
 
@@ -361,35 +361,28 @@
 &lt;ul&gt;
 &lt;li&gt;管道&lt;/li&gt;
 &lt;li&gt;IPC性能&lt;/li&gt;
+&lt;li&gt;unix domain socket性能&lt;/li&gt;
+&lt;/ul&gt;
 
-&lt;li&gt;&lt;p&gt;unix domain socket性能&lt;/p&gt;&lt;/li&gt;
+&lt;h3 id=&#34;参考链接:93ed95293dee210367c755a042ec6458&#34;&gt;参考链接&lt;/h3&gt;
 
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.linfo.org/context_switch.html&#34;&gt;context switch definition&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://smilejay.com/2011/03/linux_cpu_core_thread/&#34;&gt;查询本机CPU相关信息&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://blog.csdn.net/liuaigui/article/details/9981135&#34;&gt;海量小文件&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.jianshu.com/p/db8e8a2884ef&#34;&gt;单机负载评估&lt;/a&gt;、&lt;a href=&#34;http://www.jianshu.com/p/fd6e35f529c1&#34;&gt;性能分析&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://blog.csdn.net/hguisu/article/details/39373311&#34;&gt;性能评估&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://kumu-linux.github.io/blog/2014/04/21/performance-cpu/&#34;&gt;Linux性能优化&amp;ndash;CPU&lt;/a&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.linfo.org/context_switch.html&#34;&gt;context switch definition&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://smilejay.com/2011/03/linux_cpu_core_thread/&#34;&gt;查询本机CPU相关信息&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.csdn.net/liuaigui/article/details/9981135&#34;&gt;海量小文件&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.jianshu.com/p/db8e8a2884ef&#34;&gt;单机负载评估&lt;/a&gt;、&lt;a href=&#34;http://www.jianshu.com/p/fd6e35f529c1&#34;&gt;性能分析&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.csdn.net/hguisu/article/details/39373311&#34;&gt;性能评估&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://kumu-linux.github.io/blog/2014/04/21/performance-cpu/&#34;&gt;Linux性能优化&amp;ndash;CPU&lt;/a&gt;
 
 &lt;ul&gt;
 &lt;li&gt;参考该post前我也想到了CPU压测的几个关注点：待调度执行任务数、CPU负载和进程切换&lt;/li&gt;
 &lt;li&gt;该post有很大启发&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.thegeekstuff.com/2011/03/sar-examples/?utm_source=feedburner&#34;&gt;SAR的一些使用&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://blog.itpub.net/27425054/viewspace-768224/&#34;&gt;Linux磁盘调度策略&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.vpsee.com/2009/11/linux-system-performance-monitoring-cpu/&#34;&gt;其实没想到卖VPS的写性能测试挺专业&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://coolshell.cn/articles/7490.html&#34;&gt;coolshell的性能调优攻略&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.samirchen.com/linux-network-performance-test/&#34;&gt;linux下网络环境性能测试&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.thegeekstuff.com/2011/03/sar-examples/?utm_source=feedburner&#34;&gt;SAR的一些使用&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.itpub.net/27425054/viewspace-768224/&#34;&gt;Linux磁盘调度策略&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.vpsee.com/2009/11/linux-system-performance-monitoring-cpu/&#34;&gt;其实没想到卖VPS的写性能测试挺专业&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://coolshell.cn/articles/7490.html&#34;&gt;coolshell的性能调优攻略&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.samirchen.com/linux-network-performance-test/&#34;&gt;linux下网络环境性能测试&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>

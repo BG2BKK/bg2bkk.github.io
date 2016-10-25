@@ -57,7 +57,7 @@
         },
         "datePublished": "2016-10-23",
         "description": "",
-        "wordCount":  175 
+        "wordCount":  176 
     }
     </script>
     
@@ -269,7 +269,7 @@
 <li>分配socket memory
 
 <ul>
-<li>与一位同事聊天，系统在已有大规模socket的情况下，对其分配内存的策略是惰性的</li>
+<li>据说系统在已有大规模socket的情况下，对其分配内存的策略是惰性的，待查</li>
 </ul></li>
 <li>分配page cache/page buffer
 
@@ -446,35 +446,28 @@
 <ul>
 <li>管道</li>
 <li>IPC性能</li>
+<li>unix domain socket性能</li>
+</ul>
 
-<li><p>unix domain socket性能</p></li>
+<h3 id="参考链接:93ed95293dee210367c755a042ec6458">参考链接</h3>
 
-<li><p><a href="http://www.linfo.org/context_switch.html">context switch definition</a></p></li>
-
-<li><p><a href="http://smilejay.com/2011/03/linux_cpu_core_thread/">查询本机CPU相关信息</a></p></li>
-
-<li><p><a href="http://blog.csdn.net/liuaigui/article/details/9981135">海量小文件</a></p></li>
-
-<li><p><a href="http://www.jianshu.com/p/db8e8a2884ef">单机负载评估</a>、<a href="http://www.jianshu.com/p/fd6e35f529c1">性能分析</a></p></li>
-
-<li><p><a href="http://blog.csdn.net/hguisu/article/details/39373311">性能评估</a></p></li>
-
-<li><p><a href="http://kumu-linux.github.io/blog/2014/04/21/performance-cpu/">Linux性能优化&ndash;CPU</a></p>
+<ul>
+<li><a href="http://www.linfo.org/context_switch.html">context switch definition</a></li>
+<li><a href="http://smilejay.com/2011/03/linux_cpu_core_thread/">查询本机CPU相关信息</a></li>
+<li><a href="http://blog.csdn.net/liuaigui/article/details/9981135">海量小文件</a></li>
+<li><a href="http://www.jianshu.com/p/db8e8a2884ef">单机负载评估</a>、<a href="http://www.jianshu.com/p/fd6e35f529c1">性能分析</a></li>
+<li><a href="http://blog.csdn.net/hguisu/article/details/39373311">性能评估</a></li>
+<li><a href="http://kumu-linux.github.io/blog/2014/04/21/performance-cpu/">Linux性能优化&ndash;CPU</a>
 
 <ul>
 <li>参考该post前我也想到了CPU压测的几个关注点：待调度执行任务数、CPU负载和进程切换</li>
 <li>该post有很大启发</li>
 </ul></li>
-
-<li><p><a href="http://www.thegeekstuff.com/2011/03/sar-examples/?utm_source=feedburner">SAR的一些使用</a></p></li>
-
-<li><p><a href="http://blog.itpub.net/27425054/viewspace-768224/">Linux磁盘调度策略</a></p></li>
-
-<li><p><a href="http://www.vpsee.com/2009/11/linux-system-performance-monitoring-cpu/">其实没想到卖VPS的写性能测试挺专业</a></p></li>
-
-<li><p><a href="http://coolshell.cn/articles/7490.html">coolshell的性能调优攻略</a></p></li>
-
-<li><p><a href="http://www.samirchen.com/linux-network-performance-test/">linux下网络环境性能测试</a></p></li>
+<li><a href="http://www.thegeekstuff.com/2011/03/sar-examples/?utm_source=feedburner">SAR的一些使用</a></li>
+<li><a href="http://blog.itpub.net/27425054/viewspace-768224/">Linux磁盘调度策略</a></li>
+<li><a href="http://www.vpsee.com/2009/11/linux-system-performance-monitoring-cpu/">其实没想到卖VPS的写性能测试挺专业</a></li>
+<li><a href="http://coolshell.cn/articles/7490.html">coolshell的性能调优攻略</a></li>
+<li><a href="http://www.samirchen.com/linux-network-performance-test/">linux下网络环境性能测试</a></li>
 </ul>
 
     <div id="social-bar">
