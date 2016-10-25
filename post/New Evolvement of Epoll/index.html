@@ -107,11 +107,11 @@
     <h1 class="post-title">New evolvement of Epoll</h1>
     
 
-<h2 id="epoll在linux-内核中的新发展:b489f0f2178b22438ad2d1ac9c25dd2c">EPOLL在linux 内核中的新发展</h2>
+<h2 id="epoll在linux-内核中的新发展">EPOLL在linux 内核中的新发展</h2>
 
 <p>Epoll是linux专有的系统调用，用于快速地高效轮询大规模文件描述符fd。这个API在kernel-2.5版本时就已经合并，并使用至今。即使如此，epoll和其他接口一样，仍然有提升空间。现在有两个patch为epoll系列系统调用添加了新的功能。</p>
 
-<h2 id="epoll概述:b489f0f2178b22438ad2d1ac9c25dd2c">epoll概述</h2>
+<h2 id="epoll概述">epoll概述</h2>
 
 <p>epoll的功能与select或者poll类似，但是epoll在应对轮询处理大规模文件描述符时拥有更灵活的选项和更高的性能。每次调用select和poll，都会将被轮询的fd集合复制，生成新的fd集合，所以内核需要检查每一个描述符是否合法，是否IO就绪，然后将执行监听的进程添加到相应的唤醒等待队列。但实际上，一般情况下，在两次select或者poll调用之间，有事件产生的fd并不多，所以对每个fd都进行前述流程实际上有很多不必要的重复性操作。Epoll将设置被监听fd和轮询fd是否就绪这两个任务分开，从而解决这一问题。</p>
 
@@ -141,7 +141,7 @@
 
 <p>有事件发生时，epoll_wait将返回，产生的时间存在参数events中，最多maxevents个事件。如果timeout时间内没有事件发生，epoll_wait也将返回，timeout的单位是ms。epoll_pwait可以使用信号集sigmask来屏蔽特定信号，可以使应用程序安全的等待fd就绪或者捕获信号。二者的关系和select与pselect关系一样。</p>
 
-<h2 id="patch-1-epoll-ctl-batch-和-epoll-pwait1:b489f0f2178b22438ad2d1ac9c25dd2c">patch 1：epoll_ctl_batch() 和 epoll_pwait1()</h2>
+<h2 id="patch-1-epoll-ctl-batch-和-epoll-pwait1">patch 1：epoll_ctl_batch() 和 epoll_pwait1()</h2>
 
 <p><a href="https://lwn.net/Articles/633195/">Fam Zheng为epoll引入了两个新的系统调用</a>。</p>
 
@@ -186,7 +186,7 @@
 
 <p>本版本的epoll_pwait1()添加了一个flags参数，但是并未定义任何flag值，所以flags置为0即可。其他参数，包括时间控制、信号屏蔽设置，都写在params参数中，目的是为应用程序提供更精细的时间控制。对于epoll_wait()来说，毫秒级的时钟分辨率已经被证明在一些场景中过于粗糙，新的系统供调用提供了纳秒级别的精度，解决了这个问题。</p>
 
-<h2 id="patch2-多线程环境下更好的性能-解决-惊群-问题:b489f0f2178b22438ad2d1ac9c25dd2c">patch2: 多线程环境下更好的性能，解决“惊群”问题</h2>
+<h2 id="patch2-多线程环境下更好的性能-解决-惊群-问题">patch2: 多线程环境下更好的性能，解决“惊群”问题</h2>
 
 <p>Jason Baron（Akamai公司）主要解决一个相对来说不那么常见的场景下，epoll现有的一个问题。通常情况下，一个给定的fd只被一个进程轮询，但是在Jason的场景中，会有多个进程轮询同一个fd集合。在这个场景设定下，一个fd有事件产生时将会唤醒所有监听进程，即使最后只有一个进程能够得到处理该事件的机会，这就是所谓的“惊群”问题。</p>
 
@@ -203,7 +203,7 @@
 
 <p>Jason的提交patch的同时也提交了一个用于压测的程序，压测结果显示，互斥模式使得执行时间降低了50%，当有大量的唤醒发生时，“惊群”效应带来的性能损耗就不会发生了。</p>
 
-<h2 id="结语:b489f0f2178b22438ad2d1ac9c25dd2c">结语</h2>
+<h2 id="结语">结语</h2>
 
 <p>以上提到的两个patch已经被多次review和comments，Fam的patch自从<a href="https://lwn.net/Articles/630097/">1月份提出</a>后进行了多次修改。现在的编辑们对API相关的patch投入了越来越多的关注和审视，这是对的，因为API将会长期有效，(API lives forever),甚至是永远有效。所以最好在向用户推出之前就搞定所有bug，以提供永久支持的态度提交。这些patch目前看来已经接近就绪，可能将会在下一个窗口中合并。</p>
 
