@@ -57,7 +57,7 @@
         },
         "datePublished": "2016-10-23",
         "description": "",
-        "wordCount":  163 
+        "wordCount":  175 
     }
     </script>
     
@@ -152,7 +152,7 @@
 </ul></li>
 </ol>
 
-<h3 id="cpu计算能力">CPU计算能力</h3>
+<h3 id="cpu计算能力:93ed95293dee210367c755a042ec6458">CPU计算能力</h3>
 
 <ul>
 <li><p>硬件</p>
@@ -211,17 +211,21 @@
 <ul>
 <li>load average，通过统计工具</li>
 <li>动态跟踪方法动态确定处于调度队列中的任务规模</li>
+<li>taskset设置多cpu亲和性运行</li>
+</ul></li>
 </ul></li>
 </ul></li>
 </ul></li>
 
-<li><p>评估CPU对软硬中断的响应能力</p>
+<li><p>TODO</p>
 
 <ul>
-<li>一段时间内的中断分布情况，CPU响应时间，恐怕也得静态追踪
+<li>评估CPU对软硬中断的响应处理能力
 
 <ul>
-<li>事实上这种对系统庖丁解牛式细致分析是我一直追求的</li>
+<li>一段时间内的中断分布情况，CPU响应时间，需要动态追踪
+
+<ul>
 <li>多长时间响应中断</li>
 <li>多长时间处理完中断</li>
 <li>如何分配，如何均衡处理</li>
@@ -230,7 +234,7 @@
 </ul></li>
 </ul>
 
-<h3 id="内存资源使用">内存资源使用</h3>
+<h3 id="内存资源使用:93ed95293dee210367c755a042ec6458">内存资源使用</h3>
 
 <ul>
 <li><p>硬件</p>
@@ -250,6 +254,15 @@
 <li><p>评估系统的内存分配能力</p>
 
 <ul>
+<li><p>系统自身需要的内存</p>
+
+<ul>
+<li>page entry</li>
+<li>slab/vma小内存块</li>
+<li>值得具体了解</li>
+<li>通过内核代码对各种分配函数进行统计，分配大小、位置和目的</li>
+</ul></li>
+
 <li><p>最多能分配多少内存给某个资源</p>
 
 <ul>
@@ -266,31 +279,20 @@
 </ul></li>
 </ul></li>
 
-<li><p>系统自身需要的内存</p>
-
-<ul>
-<li>page</li>
-<li>slab/vma小内存块</li>
-<li>值得具体了解</li>
-<li>通过内核代码对各种分配函数进行统计，分配大小、位置和目的</li>
-</ul></li>
-
 <li><p>内存换页率和脏页情况</p>
 
 <ul>
 <li>/proc/meminfo等</li>
-<li>换页swap in和swap out</li>
-<li><a href="http://chuansong.me/n/285622451424">参考</a></li>
+<li>swap in和swap out</li>
+<li><a href="http://chuansong.me/n/285622451424">sar -B 1中的主缺页中断和次缺页中断</a></li>
 </ul></li>
 
-<li><p>缺页中断</p></li>
-
-<li><p>huge page</p></li>
+<li><p><a href="https://www.ibm.com/developerworks/cn/linux/l-cn-hugetlb/">采用huge page的性能影响</a></p></li>
 </ul></li>
 </ul></li>
 </ul>
 
-<h3 id="磁盘读写能力">磁盘读写能力</h3>
+<h3 id="磁盘读写能力:93ed95293dee210367c755a042ec6458">磁盘读写能力</h3>
 
 <ul>
 <li><p>硬件</p>
@@ -305,14 +307,17 @@
 </ul></li>
 </ul></li>
 
-<li><p>读写文件方式</p>
+<li><p>评估磁盘IO性能</p>
+
+<ul>
+<li><p>评估不同读写文件方式的性能</p>
 
 <ul>
 <li>直接读写文件性能</li>
 <li>经过文件系统读写速度</li>
 </ul></li>
 
-<li><p>读文件的体积</p>
+<li><p>评估读小文件时的性能</p>
 
 <ul>
 <li>读大文件速度
@@ -327,7 +332,7 @@
 </ul></li>
 </ul></li>
 
-<li><p>读文件缓存</p>
+<li><p>评估文件缓存对磁盘性能的影响</p>
 
 <ul>
 <li>首次读
@@ -350,7 +355,7 @@
 </ul></li>
 </ul></li>
 
-<li><p>不同调度策略对磁盘IO性能的影响</p>
+<li><p>评估不同调度策略对磁盘性能的影响</p>
 
 <ul>
 <li>场景：
@@ -367,12 +372,14 @@
 
 <ul>
 <li>iostat</li>
+<li>iotop</li>
+</ul></li>
 </ul></li>
 </ul></li>
 </ul></li>
 </ul>
 
-<h3 id="网卡吞吐能力">网卡吞吐能力</h3>
+<h3 id="网卡吞吐能力:93ed95293dee210367c755a042ec6458">网卡吞吐能力</h3>
 
 <ul>
 <li>硬件
@@ -390,37 +397,51 @@
 <li>网卡驱动的缓冲队列</li>
 </ul></li>
 
-<li><p>压测网卡</p>
+<li><p>评估linux server的网络性能</p>
 
 <ul>
-<li>发送大量小包/发送大量大包
+<li><p>评估网络子系统的吞吐量</p>
 
 <ul>
-<li>丢包率</li>
+<li>场景：
+
+<ul>
+<li>测试网卡吞吐能力</li>
 </ul></li>
-<li>维持TCP连接的数量</li>
-<li>断连TCP数据包的能力</li>
-<li>中断能力，其实就是收发包能力</li>
-<li>增大减小backlog或者其他队列，通过sysctl等调试手段</li>
-<li>DNS时间</li>
-<li>维持TCP情况统计
+<li>方法：
 
 <ul>
-<li>TCP数量</li>
-<li>TCP状态分布
-
-<ul>
-<li>ESTA</li>
-<li>TIME_WAIT等</li>
+<li>少量TCP连接，发起大规模数据传输</li>
+<li>网络压测工具netperf/iperf，或者写代码调整</li>
+<li>测试过程中调整sysctl配置、网卡驱动、网卡硬件配置</li>
+<li>检测工具：tcpdump/sar等工具</li>
+<li>统计socket缓冲大小</li>
+<li>在局域网内两台设备间执行</li>
 </ul></li>
 </ul></li>
-<li>socket内存使用情况</li>
-<li>socket缓冲队列</li>
-<li>从sysctl配置开始，然后统计</li>
+
+<li><p>评估网络子系统的响应能力</p>
+
+<ul>
+<li>场景：
+
+<ul>
+<li>在网络子系统繁忙时，对外服务的响应能力</li>
+</ul></li>
+<li>方法:
+
+<ul>
+<li>采用iperf等工具发起大量tcp连接，发出巨量小包</li>
+<li>检测工具，tcpdump/wireshark统计服务质量</li>
+<li>systemtap分析软中断响应时间</li>
+<li>统计TCP状态分布情况</li>
+<li>统计内存分配情况</li>
+</ul></li>
+</ul></li>
 </ul></li>
 </ul>
 
-<h3 id="内核本身">内核本身</h3>
+<h3 id="内核本身:93ed95293dee210367c755a042ec6458">内核本身</h3>
 
 <ul>
 <li>管道</li>
@@ -450,6 +471,10 @@
 <li><p><a href="http://blog.itpub.net/27425054/viewspace-768224/">Linux磁盘调度策略</a></p></li>
 
 <li><p><a href="http://www.vpsee.com/2009/11/linux-system-performance-monitoring-cpu/">其实没想到卖VPS的写性能测试挺专业</a></p></li>
+
+<li><p><a href="http://coolshell.cn/articles/7490.html">coolshell的性能调优攻略</a></p></li>
+
+<li><p><a href="http://www.samirchen.com/linux-network-performance-test/">linux下网络环境性能测试</a></p></li>
 </ul>
 
     <div id="social-bar">
@@ -485,7 +510,7 @@
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/how%20to%20perform%20server%20performance%20evaluation/&amp;title=%e6%80%8e%e6%a0%b7%e5%b0%bd%e5%8f%af%e8%83%bd%e5%85%a8%e9%9d%a2%e7%9a%84%e8%af%84%e4%bc%b0%e4%b8%80%e5%8f%b0%e6%9c%8d%e5%8a%a1%e5%99%a8%e7%9a%84%e6%80%a7%e8%83%bd&amp;summary=%e7%bb%99%e4%bd%a0%e4%b8%80%e5%8f%b0%e6%9c%8d%e5%8a%a1%e5%99%a8%ef%bc%8c%e6%80%8e%e6%a0%b7%e8%83%bd%e5%a4%9f%e5%85%a8%e9%9d%a2%e8%af%84%e4%bc%b0%e5%ae%83%e7%9a%84%e6%80%a7%e8%83%bd%ef%bc%9f%e9%9c%80%e8%a6%81%e6%b5%8b%e8%af%95%e5%93%aa%e4%ba%9b%e6%8c%87%e6%a0%87%ef%bc%9f%e8%af%b7%e5%86%99%e5%87%ba%e6%af%8f%e4%b8%aa%e6%8c%87%e6%a0%87%e7%9a%84%e5%85%b7%e4%bd%93%e6%b5%8b%e8%af%95%e5%8e%9f%e7%90%86%e5%92%8c%e6%b5%8b%e8%af%95%e4%bb%a3%e7%a0%81%e3%80%82%e5%81%87%e8%ae%be%e8%bf%99%e5%8f%b0%e6%9c%8d%e5%8a%a1%e5%99%a8%e5%ae%8c%e5%85%a8%e5%a4%84%e4%ba%8e%e7%ba%bf%e4%b8%8b%e3%80%82%20%e8%bf%99%e4%b8%aa%e9%97%ae%e9%a2%98%e7%9c%8b%e4%bc%bc%e5%b9%b3%e5%b8%b8%ef%bc%8c%e4%bd%86%e6%98%af%e7%bb%86%e7%bb%86%e5%ae%a1%e9%a2%98%e7%9a%84%e8%af%9d%ef%bc%8c%e5%8f%91%e7%8e%b0%e8%bf%98%e6%98%af%e4%b8%8d%e4%b8%80%e6%a0%b7%e7%9a%84%e3%80%82%e6%88%91%e4%bb%ac%e8%bf%87%e5%a4%9a%e5%85%b3%e6%b3%a8%e7%ba%bf%e4%b8%8a%e6%9c%ba%e5%99%a8%e7%9a%84%e6%80%a7%e8%83%bd%ef%bc%8c%e4%bd%86%e6%98%af%e5%a6%82%e6%9e%9c%e5%8d%95%e7%8b%ac%e6%8b%bf%e5%87%ba%e6%9d%a5%e4%b8%80%e5%8f%b0%e6%9c%8d%e5%8a%a1%e5%99%a8%ef%bc%8c%e5%ae%83%e7%9a%84%e6%80%a7%e8%83%bd%e6%80%8e%e6%a0%b7%e5%91%a2%ef%bc%9f%e8%bf%99%e4%b8%aa%e9%97%ae%e9%a2%98%e7%bd%91%e4%b8%8a%e8%bf%98%e7%9c%9f%e6%b2%a1%e6%9c%89%e7%ad%94%e6%a1%88%ef%bc%8c%e5%8f%aa%e8%83%bd%e6%a0%b9%e6%8d%ae%e8%87%aa%e5%b7%b1%e7%9a%84%e7%90%86%e8%a7%a3%e6%9f%a5%e8%b5%84%e6%96%99%e6%9d%a5%e8%a7%a3%e5%86%b3%e3%80%82%20%e8%af%84%e4%bc%b0%e5%92%8c%e5%8e%8b%e6%a6%a8%e4%b8%80%e5%8f%b0%e6%9c%8d%e5%8a%a1%e5%99%a8%e6%80%a7%e8%83%bd%e7%9a%84%e8%af%9d%ef%bc%8c%e6%89%be%e5%88%b0%e8%af%84%e4%bc%b0%e7%9a%84%e6%8c%87%e6%a0%87%ef%bc%8c%e7%84%b6%e5%90%8e%e8%bf%9b%e8%a1%8c%e5%8e%8b%e6%b5%8b%e5%8a%a0%e8%a7%82%e5%af%9f%e7%9a%84%e6%96%b9%e5%bc%8f%ef%bc%8c%e5%be%97%e5%88%b0%e6%80%a7%e8%83%bd%e5%8f%82%e6%95%b0%e3%80%82%20%e8%a7%82%e5%af%9f%e5%93%aa%e4%ba%9b%e6%8c%87%e6%a0%87%ef%bc%8c%e6%84%8f%e4%b9%89%e4%bd%95%e5%9c%a8%ef%bc%9f%20%e5%a6%82%e4%bd%95%e8%a7%82%e5%af%9f%e8%bf%99%e4%ba%9b%e6%8c%87%e6%a0%87%ef%bc%8c%e6%b5%8b%e8%af%95%e5%8e%9f%e7%90%86%ef%bc%8c%e8%a7%82%e6%b5%8b%e5%b7%a5%e5%85%b7%2f%e7%bb%9f%e8%ae%a1%e4%bb%a3%e7%a0%81%20%e5%a6%82%e4%bd%95%e8%bf%9b%e8%a1%8c%e5%8e%8b%e6%b5%8b%ef%bc%8c%e5%ae%9e%e7%8e%b0%e6%b5%8b%e8%af%95%e5%9c%ba%e6%99%af%ef%bc%8c%e5%8e%8b%e6%b5%8b%e5%b7%a5%e5%85%b7%2f%e5%8e%8b%e6%b5%8b%e4%bb%a3%e7%a0%81%20%e8%af%84%e4%bc%b0%e6%9c%8d%e5%8a%a1%e5%99%a8%e6%80%a7%e8%83%bd%ef%bc%8c%e9%9c%80%e8%a6%81%ef%bc%9a%20%e4%b8%bb%e8%a6%81%e8%a7%82%e5%af%9fCPU%e3%80%81%e5%86%85%e5%ad%98%e3%80%81%e7%a3%81%e7%9b%98%e5%92%8c%e7%bd%91%e7%bb%9cIO%e8%bf%99%e5%9b%9b%e4%b8%aa%e6%8c%87%e6%a0%87%20%e9%a6%96%e5%85%88%e7%9c%8b%e7%a1%ac%e4%bb%b6%e9%85%8d%e7%bd%ae%ef%bc%8cCPU%e6%a0%b8%e6%95%b0%2f%e4%b8%bb%e9%a2%91%2f%e8%b6%85%e7%ba%bf%e7%a8%8b%ef%bc%8c%e5%86%85%e5%ad%98%e5%b8%a6%e5%ae%bd%2f%e5%a4%a7%e5%b0%8f%2f%e8%ae%bf%e9%97%ae%e9%80%9f%e5%ba%a6%ef%bc%8c%e7%a3%81%e7%9b%98%e7%b1%bb%e5%9e%8b%2f%e8%bd%ac%e9%80%9f%ef%bc%8c%e7%bd%91%e5%8d%a1%e5%8d%83%e5%85%86%2f%e4%b8%87%e5%85%86%2f%e5%a4%9a%e9%98%9f%e5%88%97%e7%ad%89%20%e7%9f%a5%e6%99%93%e6%9e%81%e9%99%90%e5%80%bc%ef%bc%8c%e9%92%88%e5%af%b9%e7%a1%ac%e4%bb%b6%e9%80%89%e5%8f%96%e5%9c%ba%e6%99%af%e3%80%82%20%e7%84%b6%e5%90%8e%e7%9f%a5%e9%81%93kernel%e5%85%b3%e4%ba%8e%e8%bf%99%e4%ba%9b%e8%ae%be%e5%a4%87%e7%9a%84%e5%8f%aftuning%e7%9a%84%e9%85%8d%e7%bd%ae%e9%80%89%e9%a1%b9%ef%bc%8c%e4%bb%a5%e5%8f%8akernel%e8%87%aa%e8%ba%ab%e9%85%8d%e7%bd%ae%ef%bc%8c%e5%a6%82vm%e7%ad%96%e7%95%a5%e3%80%81%e8%bf%9b%e7%a8%8b%e8%b0%83%e5%ba%a6%e8%ae%be%e7%bd%ae%e7%ad%89%20%e9%bb%98%e8%ae%a4%e6%9c%8d%e5%8a%a1%e5%99%a8%e8%ae%be%e5%a4%87%e7%9a%84%e9%a9%b1%e5%8a%a8%e9%83%bd%e6%98%af%e5%8e%82%e5%95%86%e8%b0%83%e4%bc%98%e5%a5%bd%e7%9a%84%ef%bc%8c%e6%88%96%e8%80%85%e9%87%87%e7%94%a8kernel%e8%87%aa%e5%b8%a6%e9%a9%b1%e5%8a%a8%20%e4%b8%8d%e5%90%8c%e6%8c%87%e6%a0%87%e7%9a%84%e9%80%9a%e7%94%a8%e8%a7%82%e6%b5%8b%e6%96%b9%e6%b3%95%20%e9%a6%96%e9%80%89%e6%88%90%e7%86%9f%e5%b7%a5%e5%85%b7%ef%bc%9atop%e3%80%81sar%e3%80%81vmstat%e3%80%81mpstat%e3%80%81netstat%e3%80%81iptraf%e7%ad%89%20%e4%bb%8e%20%2fproc%20%e5%ae%9a%e5%88%b6%20%e5%8a%a8%e6%80%81%e8%bf%bd%e8%b8%aa%ef%bc%8cperf%e3%80%81systemtap%e7%ad%89%ef%bc%8c%e5%9c%a8%e7%b2%be%e7%bb%86%e8%a7%82%e5%af%9f%e6%97%b6%e4%bd%bf%e7%94%a8%20%e6%a0%b9%e6%8d%ae%e8%bd%af%e7%a1%ac%e4%bb%b6%e5%8f%98%e9%87%8f%e7%9a%84%e7%bb%93%e5%90%88%ef%bc%8c%e6%90%ad%e9%85%8d%e8%ae%be%e8%ae%a1%e7%ba%af%e7%90%86%e8%ae%ba%e5%9c%ba%e6%99%af%e5%b9%b6%e5%ae%9e%e7%8e%b0%ef%bc%8c%e9%87%87%e7%94%a8%e5%af%b9%e5%ba%94%e6%96%b9%e6%b3%95%e6%a3%80%e6%b5%8b%20%e5%85%88%e6%8a%8alinux%20server%e4%b8%bb%e6%b5%81%e5%b8%b8%e7%94%a8%e7%9a%84%e9%85%8d%e7%bd%ae%e9%85%8d%e5%a5%bd%ef%bc%8c%e9%87%87%e7%94%a8%e7%ae%80%e5%8d%95%e6%96%b9%e6%b3%95%e5%81%9a%e6%80%a7%e8%83%bd%e6%b5%8b%e8%af%95%ef%bc%8c%e7%a1%ae%e5%ae%9a%e5%90%84%e4%b8%aa%e6%8c%87%e6%a0%87%e7%9a%84%e6%80%a7%e8%83%bd%ef%bc%8c%e4%bd%9c%e4%b8%ba%e5%8f%82%e7%85%a7%e5%9f%ba%e5%87%86%20%e7%84%b6%e5%90%8e%e8%ae%be%e8%ae%a1%e5%9c%ba%e6%99%af%ef%bc%8c%e4%bd%93%e7%8e%b0%e8%a6%81%e7%aa%81%e5%87%ba%e7%9a%84%e6%8c%87%e6%a0%87%ef%bc%8c%e7%a1%ae%e5%ae%9a%e6%9e%81%e9%99%90%e5%80%bc%ef%bc%8c%e4%b8%8e%e5%8f%82%e7%85%a7%e5%9f%ba%e5%87%86%e5%81%9a%e5%af%b9%e6%af%94%20kernel%e5%af%b9%e7%9b%b8%e5%85%b3%e8%b5%84%e6%ba%90%e8%bf%9b%e8%a1%8c%e4%bc%98%e5%8c%96%20%e9%80%89%e6%8b%a9%e5%8e%8b%e6%b5%8b%e5%b7%a5%e5%85%b7%ef%bc%8c%e5%bf%85%e8%a6%81%e6%97%b6%e5%86%99%e4%bb%a3%e7%a0%81%e5%ae%9e%e7%8e%b0%20%e5%a6%82%e6%9e%9c%e8%83%bd%e5%a4%9f%e5%bc%95%e5%85%a5%e5%86%85%e6%a0%b8%e7%9a%84%e4%b8%80%e4%ba%9b%e6%96%b0%e6%8a%80%e6%9c%af%ef%bc%8c%e5%b0%b1%e6%9f%90%e4%b8%aa%e6%8c%87%e6%a0%87%e8%bf%9b%e8%a1%8c%e4%bc%98%e5%8c%96%ef%bc%8c%e5%8f%af%e4%bb%a5%e8%bf%9b%e8%a1%8c%e5%90%8e%e7%bb%ad%e6%b5%8b%e8%af%95%e3%80%82%20CPU%e8%ae%a1%e7%ae%97%e8%83%bd%e5%8a%9b%20%e7%a1%ac%e4%bb%b6%20%e4%b8%bb%e9%a2%91%2f%e6%a0%b8%e6%95%b0%2f%e8%b6%85%e7%ba%bf%e7%a8%8b%ef%bc%9a%2fproc%2fcpuinfo%20%e5%90%84%e7%ba%a7%e7%bc%93%e5%ad%98%e5%a4%a7%e5%b0%8f%20%e6%b5%8b%e8%af%95%e5%9c%ba%e6%99%af%20%e8%af%84%e4%bc%b0%e8%ae%a1%e7%ae%97%e8%83%bd%e5%8a%9b%20%e6%96%b9%e5%bc%8f%e4%b8%80%ef%bc%9a%e9%80%89%e6%8b%a9%e9%ab%98CPU%e5%9e%8b%e5%ba%94%e7%94%a8%e5%8e%8b%e6%b5%8b%ef%bc%8c%e9%87%87%e7%94%a8%e4%b8%93%e4%b8%9abenchmark%e8%bd%af%e4%bb%b6%e8%a7%82%e5%af%9f%3b%e8%ae%a1%e7%ae%97%e5%9c%86%e5%91%a8%e7%8e%87%20%e6%96%b9%e5%bc%8f%e4%ba%8c%ef%bc%9a%e9%87%87%e7%94%a8%e5%bc%80%e6%ba%90%e4%bb%a3%e7%a0%81%ef%bc%8c%e6%88%96%e8%80%85%e6%89%8b%e5%86%99%e8%ae%a1%e7%ae%97%e5%9e%8b%e5%8e%8b%e6%b5%8b%e4%bb%a3%e7%a0%81%ef%bc%8c%e9%80%9a%e8%bf%87systemtap%e7%ad%89%e5%b7%a5%e5%85%b7%e7%bb%9f%e8%ae%a1%e6%97%b6%e9%95%bf%20%e5%8f%82%e8%80%83sysbench%20%e8%af%84%e4%bc%b0%e5%90%84%e7%ba%a7CPU%e9%ab%98%e9%80%9f%e7%bc%93%e5%ad%98L1%2fL2%2fL3%e5%a4%b1%e6%95%88%e5%af%b9%e6%80%a7%e8%83%bd%e7%9a%84%e5%bd%b1%e5%93%8d%20%e5%9c%ba%e6%99%af%ef%bc%9a%20%e9%80%9a%e8%bf%87%e4%bb%a3%e7%a0%81%e5%88%9b%e9%80%a0cache%20miss%e6%83%85%e5%86%b5%20%e6%96%b9%e6%b3%95%ef%bc%9a%20%e9%87%87%e7%94%a8systemtap%e7%ad%89%e7%9b%b8%e5%85%b3%e5%b7%a5%e5%85%b7%e7%bb%9f%e8%ae%a1%e6%97%b6%e9%95%bf%20%e8%8e%b7%e5%8f%96CPU%e5%90%84%e7%ba%a7%e7%bc%93%e5%ad%98%e9%80%9f%e5%ba%a6%ef%bc%8c%e9%9c%80%e8%a6%81%e5%a4%9a%e5%b0%91cycle%e8%af%bb%e5%8f%96%20%e6%9f%a5%e6%96%87%e6%a1%a3%e6%88%96%e8%80%85%e5%85%b6%e4%bb%96%e6%96%b9%e5%bc%8f%ef%bc%8c%e5%a6%82lmbench%20%e8%af%84%e4%bc%b0%e8%bf%9b%e7%a8%8b%e8%b0%83%e5%ba%a6%e5%92%8c%e5%88%87%e6%8d%a2%e8%83%bd%e5%8a%9b%20%e5%9c%ba%e6%99%af%ef%bc%9a%e5%b9%b6%e5%8f%91%e5%a4%a7%e9%87%8fCPU%e7%b9%81%e5%bf%99%e4%bb%bb%e5%8a%a1%20%e6%96%b9%e6%b3%95%ef%bc%9a%20%e6%9f%a5%e7%9c%8bCPU%e8%b4%9f%e8%bd%bd%20%e7%bb%9f%e8%ae%a1context%20switch%2f%20interrupt%20stats%ef%bc%8c%e9%80%9a%e8%bf%87sar%e7%ad%89%e5%b7%a5%e5%85%b7%20%e8%bf%9b%e7%a8%8b%e5%88%87%e6%8d%a2%e5%b9%b3%e5%9d%87%e6%97%b6%e9%97%b4%e7%bb%9f%e8%ae%a1%ef%bc%8c%e5%9c%a8%e4%b8%8d%e5%90%8c%e8%b4%9f%e8%bd%bd%e4%b8%8b%ef%bc%9a%e8%b0%81%e5%9c%a8%e5%81%9a%e8%bf%9b%e7%a8%8b%e8%b0%83%e5%ba%a6%26amp%3b%26amp%3blmbench%20%e8%bf%9b%e7%a8%8b%e8%b0%83%e5%ba%a6%e8%83%bd%e5%8a%9b%20load%20average%ef%bc%8c%e9%80%9a%e8%bf%87%e7%bb%9f%e8%ae%a1%e5%b7%a5%e5%85%b7%20%e5%8a%a8%e6%80%81%e8%b7%9f%e8%b8%aa%e6%96%b9%e6%b3%95%e5%8a%a8%e6%80%81%e7%a1%ae%e5%ae%9a%e5%a4%84%e4%ba%8e%e8%b0%83%e5%ba%a6%e9%98%9f%e5%88%97%e4%b8%ad%e7%9a%84%e4%bb%bb%e5%8a%a1%e8%a7%84%e6%a8%a1%20%e8%af%84%e4%bc%b0CPU%e5%af%b9%e8%bd%af%e7%a1%ac%e4%b8%ad%e6%96%ad%e7%9a%84%e5%93%8d%e5%ba%94%e8%83%bd%e5%8a%9b%20%e4%b8%80%e6%ae%b5%e6%97%b6%e9%97%b4%e5%86%85%e7%9a%84%e4%b8%ad%e6%96%ad%e5%88%86%e5%b8%83%e6%83%85%e5%86%b5%ef%bc%8cCPU%e5%93%8d%e5%ba%94%e6%97%b6%e9%97%b4%ef%bc%8c%e6%81%90%e6%80%95%e4%b9%9f%e5%be%97%e9%9d%99%e6%80%81%e8%bf%bd%e8%b8%aa%20%e4%ba%8b%e5%ae%9e%e4%b8%8a%e8%bf%99%e7%a7%8d%e5%af%b9%e7%b3%bb%e7%bb%9f%e5%ba%96%e4%b8%81%e8%a7%a3%e7%89%9b%e5%bc%8f%e7%bb%86%e8%87%b4%e5%88%86%e6%9e%90%e6%98%af%e6%88%91%e4%b8%80%e7%9b%b4%e8%bf%bd%e6%b1%82%e7%9a%84%20%e5%a4%9a%e9%95%bf%e6%97%b6%e9%97%b4%e5%93%8d%e5%ba%94%e4%b8%ad%e6%96%ad%20%e5%a4%9a%e9%95%bf%e6%97%b6%e9%97%b4%e5%a4%84%e7%90%86%e5%ae%8c%e4%b8%ad%e6%96%ad%20%e5%a6%82%e4%bd%95%e5%88%86%e9%85%8d%ef%bc%8c%e5%a6%82%e4%bd%95%e5%9d%87%e8%a1%a1%e5%a4%84%e7%90%86%20%e5%86%85%e5%ad%98%e8%b5%84%e6%ba%90%e4%bd%bf%e7%94%a8%20%e7%a1%ac%e4%bb%b6%20%e6%80%bb%e7%ba%bf%e5%ae%bd%e5%ba%a6%2f%e5%86%85%e5%ad%98%e8%af%bb%e5%86%99%e9%80%9f%e5%ba%a6%2f%e5%86%85%e5%ad%98%e9%a2%97%e7%b2%92%e4%b8%bb%e9%a2%91%20dmidecode%e8%8e%b7%e5%8f%96%e4%b8%bb%e6%9d%bf%e4%bf%a1%e6%81%af%20%e5%86%85%e5%ad%98%e5%b8%a6%e5%ae%bd%e6%b5%8b%e8%af%95%20%e5%86%85%e5%ad%98%e8%b5%84%e6%ba%90%e4%bd%bf%e7%94%a8%e6%83%85%e5%86%b5%20%e8%af%84%e4%bc%b0%e7%b3%bb%e7%bb%9f%e7%9a%84%e5%86%85%e5%ad%98%e5%88%86%e9%85%8d%e8%83%bd%e5%8a%9b%20%e6%9c%80%e5%a4%9a%e8%83%bd%e5%88%86%e9%85%8d%e5%a4%9a%e5%b0%91%e5%86%85%e5%ad%98%e7%bb%99%e6%9f%90%e4%b8%aa%e8%b5%84%e6%ba%90%20%e5%88%86%e9%85%8dsocket..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/how%20to%20perform%20server%20performance%20evaluation/&amp;title=%e6%80%8e%e6%a0%b7%e5%b0%bd%e5%8f%af%e8%83%bd%e5%85%a8%e9%9d%a2%e7%9a%84%e8%af%84%e4%bc%b0%e4%b8%80%e5%8f%b0%e6%9c%8d%e5%8a%a1%e5%99%a8%e7%9a%84%e6%80%a7%e8%83%bd&amp;summary=%e7%bb%99%e4%bd%a0%e4%b8%80%e5%8f%b0%e6%9c%8d%e5%8a%a1%e5%99%a8%ef%bc%8c%e6%80%8e%e6%a0%b7%e8%83%bd%e5%a4%9f%e5%85%a8%e9%9d%a2%e8%af%84%e4%bc%b0%e5%ae%83%e7%9a%84%e6%80%a7%e8%83%bd%ef%bc%9f%e9%9c%80%e8%a6%81%e6%b5%8b%e8%af%95%e5%93%aa%e4%ba%9b%e6%8c%87%e6%a0%87%ef%bc%9f%e8%af%b7%e5%86%99%e5%87%ba%e6%af%8f%e4%b8%aa%e6%8c%87%e6%a0%87%e7%9a%84%e5%85%b7%e4%bd%93%e6%b5%8b%e8%af%95%e5%8e%9f%e7%90%86%e5%92%8c%e6%b5%8b%e8%af%95%e4%bb%a3%e7%a0%81%e3%80%82%e5%81%87%e8%ae%be%e8%bf%99%e5%8f%b0%e6%9c%8d%e5%8a%a1%e5%99%a8%e5%ae%8c%e5%85%a8%e5%a4%84%e4%ba%8e%e7%ba%bf%e4%b8%8b%e3%80%82%20%e8%bf%99%e4%b8%aa%e9%97%ae%e9%a2%98%e7%9c%8b%e4%bc%bc%e5%b9%b3%e5%b8%b8%ef%bc%8c%e4%bd%86%e6%98%af%e7%bb%86%e7%bb%86%e5%ae%a1%e9%a2%98%e7%9a%84%e8%af%9d%ef%bc%8c%e5%8f%91%e7%8e%b0%e8%bf%98%e6%98%af%e4%b8%8d%e4%b8%80%e6%a0%b7%e7%9a%84%e3%80%82%e6%88%91%e4%bb%ac%e8%bf%87%e5%a4%9a%e5%85%b3%e6%b3%a8%e7%ba%bf%e4%b8%8a%e6%9c%ba%e5%99%a8%e7%9a%84%e6%80%a7%e8%83%bd%ef%bc%8c%e4%bd%86%e6%98%af%e5%a6%82%e6%9e%9c%e5%8d%95%e7%8b%ac%e6%8b%bf%e5%87%ba%e6%9d%a5%e4%b8%80%e5%8f%b0%e6%9c%8d%e5%8a%a1%e5%99%a8%ef%bc%8c%e5%ae%83%e7%9a%84%e6%80%a7%e8%83%bd%e6%80%8e%e6%a0%b7%e5%91%a2%ef%bc%9f%e8%bf%99%e4%b8%aa%e9%97%ae%e9%a2%98%e7%bd%91%e4%b8%8a%e8%bf%98%e7%9c%9f%e6%b2%a1%e6%9c%89%e7%ad%94%e6%a1%88%ef%bc%8c%e5%8f%aa%e8%83%bd%e6%a0%b9%e6%8d%ae%e8%87%aa%e5%b7%b1%e7%9a%84%e7%90%86%e8%a7%a3%e6%9f%a5%e8%b5%84%e6%96%99%e6%9d%a5%e8%a7%a3%e5%86%b3%e3%80%82%20%e8%af%84%e4%bc%b0%e5%92%8c%e5%8e%8b%e6%a6%a8%e4%b8%80%e5%8f%b0%e6%9c%8d%e5%8a%a1%e5%99%a8%e6%80%a7%e8%83%bd%e7%9a%84%e8%af%9d%ef%bc%8c%e6%89%be%e5%88%b0%e8%af%84%e4%bc%b0%e7%9a%84%e6%8c%87%e6%a0%87%ef%bc%8c%e7%84%b6%e5%90%8e%e8%bf%9b%e8%a1%8c%e5%8e%8b%e6%b5%8b%e5%8a%a0%e8%a7%82%e5%af%9f%e7%9a%84%e6%96%b9%e5%bc%8f%ef%bc%8c%e5%be%97%e5%88%b0%e6%80%a7%e8%83%bd%e5%8f%82%e6%95%b0%e3%80%82%20%e8%a7%82%e5%af%9f%e5%93%aa%e4%ba%9b%e6%8c%87%e6%a0%87%ef%bc%8c%e6%84%8f%e4%b9%89%e4%bd%95%e5%9c%a8%ef%bc%9f%20%e5%a6%82%e4%bd%95%e8%a7%82%e5%af%9f%e8%bf%99%e4%ba%9b%e6%8c%87%e6%a0%87%ef%bc%8c%e6%b5%8b%e8%af%95%e5%8e%9f%e7%90%86%ef%bc%8c%e8%a7%82%e6%b5%8b%e5%b7%a5%e5%85%b7%2f%e7%bb%9f%e8%ae%a1%e4%bb%a3%e7%a0%81%20%e5%a6%82%e4%bd%95%e8%bf%9b%e8%a1%8c%e5%8e%8b%e6%b5%8b%ef%bc%8c%e5%ae%9e%e7%8e%b0%e6%b5%8b%e8%af%95%e5%9c%ba%e6%99%af%ef%bc%8c%e5%8e%8b%e6%b5%8b%e5%b7%a5%e5%85%b7%2f%e5%8e%8b%e6%b5%8b%e4%bb%a3%e7%a0%81%20%e8%af%84%e4%bc%b0%e6%9c%8d%e5%8a%a1%e5%99%a8%e6%80%a7%e8%83%bd%ef%bc%8c%e9%9c%80%e8%a6%81%ef%bc%9a%20%e4%b8%bb%e8%a6%81%e8%a7%82%e5%af%9fCPU%e3%80%81%e5%86%85%e5%ad%98%e3%80%81%e7%a3%81%e7%9b%98%e5%92%8c%e7%bd%91%e7%bb%9cIO%e8%bf%99%e5%9b%9b%e4%b8%aa%e6%8c%87%e6%a0%87%20%e9%a6%96%e5%85%88%e7%9c%8b%e7%a1%ac%e4%bb%b6%e9%85%8d%e7%bd%ae%ef%bc%8cCPU%e6%a0%b8%e6%95%b0%2f%e4%b8%bb%e9%a2%91%2f%e8%b6%85%e7%ba%bf%e7%a8%8b%ef%bc%8c%e5%86%85%e5%ad%98%e5%b8%a6%e5%ae%bd%2f%e5%a4%a7%e5%b0%8f%2f%e8%ae%bf%e9%97%ae%e9%80%9f%e5%ba%a6%ef%bc%8c%e7%a3%81%e7%9b%98%e7%b1%bb%e5%9e%8b%2f%e8%bd%ac%e9%80%9f%ef%bc%8c%e7%bd%91%e5%8d%a1%e5%8d%83%e5%85%86%2f%e4%b8%87%e5%85%86%2f%e5%a4%9a%e9%98%9f%e5%88%97%e7%ad%89%20%e7%9f%a5%e6%99%93%e6%9e%81%e9%99%90%e5%80%bc%ef%bc%8c%e9%92%88%e5%af%b9%e7%a1%ac%e4%bb%b6%e9%80%89%e5%8f%96%e5%9c%ba%e6%99%af%e3%80%82%20%e7%84%b6%e5%90%8e%e7%9f%a5%e9%81%93kernel%e5%85%b3%e4%ba%8e%e8%bf%99%e4%ba%9b%e8%ae%be%e5%a4%87%e7%9a%84%e5%8f%aftuning%e7%9a%84%e9%85%8d%e7%bd%ae%e9%80%89%e9%a1%b9%ef%bc%8c%e4%bb%a5%e5%8f%8akernel%e8%87%aa%e8%ba%ab%e9%85%8d%e7%bd%ae%ef%bc%8c%e5%a6%82vm%e7%ad%96%e7%95%a5%e3%80%81%e8%bf%9b%e7%a8%8b%e8%b0%83%e5%ba%a6%e8%ae%be%e7%bd%ae%e7%ad%89%20%e9%bb%98%e8%ae%a4%e6%9c%8d%e5%8a%a1%e5%99%a8%e8%ae%be%e5%a4%87%e7%9a%84%e9%a9%b1%e5%8a%a8%e9%83%bd%e6%98%af%e5%8e%82%e5%95%86%e8%b0%83%e4%bc%98%e5%a5%bd%e7%9a%84%ef%bc%8c%e6%88%96%e8%80%85%e9%87%87%e7%94%a8kernel%e8%87%aa%e5%b8%a6%e9%a9%b1%e5%8a%a8%20%e4%b8%8d%e5%90%8c%e6%8c%87%e6%a0%87%e7%9a%84%e9%80%9a%e7%94%a8%e8%a7%82%e6%b5%8b%e6%96%b9%e6%b3%95%20%e9%a6%96%e9%80%89%e6%88%90%e7%86%9f%e5%b7%a5%e5%85%b7%ef%bc%9atop%e3%80%81sar%e3%80%81vmstat%e3%80%81mpstat%e3%80%81netstat%e3%80%81iptraf%e7%ad%89%20%e4%bb%8e%20%2fproc%20%e5%ae%9a%e5%88%b6%20%e5%8a%a8%e6%80%81%e8%bf%bd%e8%b8%aa%ef%bc%8cperf%e3%80%81systemtap%e7%ad%89%ef%bc%8c%e5%9c%a8%e7%b2%be%e7%bb%86%e8%a7%82%e5%af%9f%e6%97%b6%e4%bd%bf%e7%94%a8%20%e6%a0%b9%e6%8d%ae%e8%bd%af%e7%a1%ac%e4%bb%b6%e5%8f%98%e9%87%8f%e7%9a%84%e7%bb%93%e5%90%88%ef%bc%8c%e6%90%ad%e9%85%8d%e8%ae%be%e8%ae%a1%e7%ba%af%e7%90%86%e8%ae%ba%e5%9c%ba%e6%99%af%e5%b9%b6%e5%ae%9e%e7%8e%b0%ef%bc%8c%e9%87%87%e7%94%a8%e5%af%b9%e5%ba%94%e6%96%b9%e6%b3%95%e6%a3%80%e6%b5%8b%20%e5%85%88%e6%8a%8alinux%20server%e4%b8%bb%e6%b5%81%e5%b8%b8%e7%94%a8%e7%9a%84%e9%85%8d%e7%bd%ae%e9%85%8d%e5%a5%bd%ef%bc%8c%e9%87%87%e7%94%a8%e7%ae%80%e5%8d%95%e6%96%b9%e6%b3%95%e5%81%9a%e6%80%a7%e8%83%bd%e6%b5%8b%e8%af%95%ef%bc%8c%e7%a1%ae%e5%ae%9a%e5%90%84%e4%b8%aa%e6%8c%87%e6%a0%87%e7%9a%84%e6%80%a7%e8%83%bd%ef%bc%8c%e4%bd%9c%e4%b8%ba%e5%8f%82%e7%85%a7%e5%9f%ba%e5%87%86%20%e7%84%b6%e5%90%8e%e8%ae%be%e8%ae%a1%e5%9c%ba%e6%99%af%ef%bc%8c%e4%bd%93%e7%8e%b0%e8%a6%81%e7%aa%81%e5%87%ba%e7%9a%84%e6%8c%87%e6%a0%87%ef%bc%8c%e7%a1%ae%e5%ae%9a%e6%9e%81%e9%99%90%e5%80%bc%ef%bc%8c%e4%b8%8e%e5%8f%82%e7%85%a7%e5%9f%ba%e5%87%86%e5%81%9a%e5%af%b9%e6%af%94%20kernel%e5%af%b9%e7%9b%b8%e5%85%b3%e8%b5%84%e6%ba%90%e8%bf%9b%e8%a1%8c%e4%bc%98%e5%8c%96%20%e9%80%89%e6%8b%a9%e5%8e%8b%e6%b5%8b%e5%b7%a5%e5%85%b7%ef%bc%8c%e5%bf%85%e8%a6%81%e6%97%b6%e5%86%99%e4%bb%a3%e7%a0%81%e5%ae%9e%e7%8e%b0%20%e5%a6%82%e6%9e%9c%e8%83%bd%e5%a4%9f%e5%bc%95%e5%85%a5%e5%86%85%e6%a0%b8%e7%9a%84%e4%b8%80%e4%ba%9b%e6%96%b0%e6%8a%80%e6%9c%af%ef%bc%8c%e5%b0%b1%e6%9f%90%e4%b8%aa%e6%8c%87%e6%a0%87%e8%bf%9b%e8%a1%8c%e4%bc%98%e5%8c%96%ef%bc%8c%e5%8f%af%e4%bb%a5%e8%bf%9b%e8%a1%8c%e5%90%8e%e7%bb%ad%e6%b5%8b%e8%af%95%e3%80%82%20CPU%e8%ae%a1%e7%ae%97%e8%83%bd%e5%8a%9b%20%e7%a1%ac%e4%bb%b6%20%e4%b8%bb%e9%a2%91%2f%e6%a0%b8%e6%95%b0%2f%e8%b6%85%e7%ba%bf%e7%a8%8b%ef%bc%9a%2fproc%2fcpuinfo%20%e5%90%84%e7%ba%a7%e7%bc%93%e5%ad%98%e5%a4%a7%e5%b0%8f%20%e6%b5%8b%e8%af%95%e5%9c%ba%e6%99%af%20%e8%af%84%e4%bc%b0%e8%ae%a1%e7%ae%97%e8%83%bd%e5%8a%9b%20%e6%96%b9%e5%bc%8f%e4%b8%80%ef%bc%9a%e9%80%89%e6%8b%a9%e9%ab%98CPU%e5%9e%8b%e5%ba%94%e7%94%a8%e5%8e%8b%e6%b5%8b%ef%bc%8c%e9%87%87%e7%94%a8%e4%b8%93%e4%b8%9abenchmark%e8%bd%af%e4%bb%b6%e8%a7%82%e5%af%9f%3b%e8%ae%a1%e7%ae%97%e5%9c%86%e5%91%a8%e7%8e%87%20%e6%96%b9%e5%bc%8f%e4%ba%8c%ef%bc%9a%e9%87%87%e7%94%a8%e5%bc%80%e6%ba%90%e4%bb%a3%e7%a0%81%ef%bc%8c%e6%88%96%e8%80%85%e6%89%8b%e5%86%99%e8%ae%a1%e7%ae%97%e5%9e%8b%e5%8e%8b%e6%b5%8b%e4%bb%a3%e7%a0%81%ef%bc%8c%e9%80%9a%e8%bf%87systemtap%e7%ad%89%e5%b7%a5%e5%85%b7%e7%bb%9f%e8%ae%a1%e6%97%b6%e9%95%bf%20%e5%8f%82%e8%80%83sysbench%20%e8%af%84%e4%bc%b0%e5%90%84%e7%ba%a7CPU%e9%ab%98%e9%80%9f%e7%bc%93%e5%ad%98L1%2fL2%2fL3%e5%a4%b1%e6%95%88%e5%af%b9%e6%80%a7%e8%83%bd%e7%9a%84%e5%bd%b1%e5%93%8d%20%e5%9c%ba%e6%99%af%ef%bc%9a%20%e9%80%9a%e8%bf%87%e4%bb%a3%e7%a0%81%e5%88%9b%e9%80%a0cache%20miss%e6%83%85%e5%86%b5%20%e6%96%b9%e6%b3%95%ef%bc%9a%20%e9%87%87%e7%94%a8systemtap%e7%ad%89%e7%9b%b8%e5%85%b3%e5%b7%a5%e5%85%b7%e7%bb%9f%e8%ae%a1%e6%97%b6%e9%95%bf%20%e8%8e%b7%e5%8f%96CPU%e5%90%84%e7%ba%a7%e7%bc%93%e5%ad%98%e9%80%9f%e5%ba%a6%ef%bc%8c%e9%9c%80%e8%a6%81%e5%a4%9a%e5%b0%91cycle%e8%af%bb%e5%8f%96%20%e6%9f%a5%e6%96%87%e6%a1%a3%e6%88%96%e8%80%85%e5%85%b6%e4%bb%96%e6%96%b9%e5%bc%8f%ef%bc%8c%e5%a6%82lmbench%20%e8%af%84%e4%bc%b0%e8%bf%9b%e7%a8%8b%e8%b0%83%e5%ba%a6%e5%92%8c%e5%88%87%e6%8d%a2%e8%83%bd%e5%8a%9b%20%e5%9c%ba%e6%99%af%ef%bc%9a%e5%b9%b6%e5%8f%91%e5%a4%a7%e9%87%8fCPU%e7%b9%81%e5%bf%99%e4%bb%bb%e5%8a%a1%20%e6%96%b9%e6%b3%95%ef%bc%9a%20%e6%9f%a5%e7%9c%8bCPU%e8%b4%9f%e8%bd%bd%20%e7%bb%9f%e8%ae%a1context%20switch%2f%20interrupt%20stats%ef%bc%8c%e9%80%9a%e8%bf%87sar%e7%ad%89%e5%b7%a5%e5%85%b7%20%e8%bf%9b%e7%a8%8b%e5%88%87%e6%8d%a2%e5%b9%b3%e5%9d%87%e6%97%b6%e9%97%b4%e7%bb%9f%e8%ae%a1%ef%bc%8c%e5%9c%a8%e4%b8%8d%e5%90%8c%e8%b4%9f%e8%bd%bd%e4%b8%8b%ef%bc%9a%e8%b0%81%e5%9c%a8%e5%81%9a%e8%bf%9b%e7%a8%8b%e8%b0%83%e5%ba%a6%26amp%3b%26amp%3blmbench%20%e8%bf%9b%e7%a8%8b%e8%b0%83%e5%ba%a6%e8%83%bd%e5%8a%9b%20load%20average%ef%bc%8c%e9%80%9a%e8%bf%87%e7%bb%9f%e8%ae%a1%e5%b7%a5%e5%85%b7%20%e5%8a%a8%e6%80%81%e8%b7%9f%e8%b8%aa%e6%96%b9%e6%b3%95%e5%8a%a8%e6%80%81%e7%a1%ae%e5%ae%9a%e5%a4%84%e4%ba%8e%e8%b0%83%e5%ba%a6%e9%98%9f%e5%88%97%e4%b8%ad%e7%9a%84%e4%bb%bb%e5%8a%a1%e8%a7%84%e6%a8%a1%20taskset%e8%ae%be%e7%bd%ae%e5%a4%9acpu%e4%ba%b2%e5%92%8c%e6%80%a7%e8%bf%90%e8%a1%8c%20TODO%20%e8%af%84%e4%bc%b0CPU%e5%af%b9%e8%bd%af%e7%a1%ac%e4%b8%ad%e6%96%ad%e7%9a%84%e5%93%8d%e5%ba%94%e5%a4%84%e7%90%86%e8%83%bd%e5%8a%9b%20%e4%b8%80%e6%ae%b5%e6%97%b6%e9%97%b4%e5%86%85%e7%9a%84%e4%b8%ad%e6%96%ad%e5%88%86%e5%b8%83%e6%83%85%e5%86%b5%ef%bc%8cCPU%e5%93%8d%e5%ba%94%e6%97%b6%e9%97%b4%ef%bc%8c%e9%9c%80%e8%a6%81%e5%8a%a8%e6%80%81%e8%bf%bd%e8%b8%aa%20%e5%a4%9a%e9%95%bf%e6%97%b6%e9%97%b4%e5%93%8d%e5%ba%94%e4%b8%ad%e6%96%ad%20%e5%a4%9a%e9%95%bf%e6%97%b6%e9%97%b4%e5%a4%84%e7%90%86%e5%ae%8c%e4%b8%ad%e6%96%ad%20%e5%a6%82%e4%bd%95%e5%88%86%e9%85%8d%ef%bc%8c%e5%a6%82%e4%bd%95%e5%9d%87%e8%a1%a1%e5%a4%84%e7%90%86%20%e5%86%85%e5%ad%98%e8%b5%84%e6%ba%90%e4%bd%bf%e7%94%a8%20%e7%a1%ac%e4%bb%b6%20%e6%80%bb%e7%ba%bf%e5%ae%bd%e5%ba%a6%2f%e5%86%85%e5%ad%98%e8%af%bb%e5%86%99%e9%80%9f%e5%ba%a6%2f%e5%86%85%e5%ad%98%e9%a2%97%e7%b2%92%e4%b8%bb%e9%a2%91%20dmidecode%e8%8e%b7%e5%8f%96%e4%b8%bb%e6%9d%bf%e4%bf%a1%e6%81%af%20%e5%86%85%e5%ad%98%e5%b8%a6%e5%ae%bd%e6%b5%8b%e8%af%95%20%e5%86%85%e5%ad%98%e8%b5%84%e6%ba%90%e4%bd%bf%e7%94%a8%e6%83%85%e5%86%b5%20%e8%af%84%e4%bc%b0%e7%b3%bb%e7%bb%9f%e7%9a%84%e5%86%85%e5%ad%98%e5%88%86%e9%85%8d%e8%83%bd%e5%8a%9b%20%e7%b3%bb%e7%bb%9f%e8%87%aa%e8%ba%ab%e9%9c%80%e8%a6%81%e7%9a%84%e5%86%85%e5%ad%98..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>
