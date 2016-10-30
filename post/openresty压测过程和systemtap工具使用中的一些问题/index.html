@@ -101,7 +101,7 @@
     <h1 class="post-title">openresty压测过程和systemtap工具使用中的一些问题</h1>
     
 
-<h2 id="一-tegine编译-高版本的httpluamodule">一、tegine编译+高版本的httpluamodule</h2>
+<h2 id="一-tegine编译-高版本的httpluamodule:dab12220e12920eb4ab0fdd954035a76">一、tegine编译+高版本的httpluamodule</h2>
 
 <ul>
 <li>tengine-2.1.0的ngx_lua模块随着tengine软件发布，和以往版本的tengine不一样。</li>
@@ -145,7 +145,7 @@ make CCDEBUG=-g -B -j8
 make -j16
 </code></pre>
 
-<h2 id="二-axel下载工具和debuginfo-centos-org">二、axel下载工具和debuginfo.centos.org</h2>
+<h2 id="二-axel下载工具和debuginfo-centos-org:dab12220e12920eb4ab0fdd954035a76">二、axel下载工具和debuginfo.centos.org</h2>
 
 <ul>
 <li>我们在安装kernel的debuginfo包的时候，由于只有debuginfo.centos.org上面有rpm包，所以yum源设置为它，但是在国内访问实在是慢，因此推荐使用axel或者mwget下载。mwget顾名思义是多线程的wget工具，下载rpm包非常快，值得推荐。</li>
@@ -170,7 +170,7 @@ ii  linux-image-generic    3.13.0.24.28     amd64            Generic Linux kerne
 #特别要注意的是3.13.0-24.46、 47、 48，小版本很重要的。
 </code></pre>
 
-<h2 id="三-centos6-4的gcc版本过低导致的问题">三、centos6.4的gcc版本过低导致的问题</h2>
+<h2 id="三-centos6-4的gcc版本过低导致的问题:dab12220e12920eb4ab0fdd954035a76">三、centos6.4的gcc版本过低导致的问题</h2>
 
 <ul>
 <li>在使用stapxx的工具追踪nginx运行情况时，发现有如下情况，比如：</li>
@@ -217,7 +217,7 @@ $ gcc --version
 # 通过devtoolset工具可以暂时提高gcc版本，而不更改之前服务器的配置，这个很有效果，高版本的gcc会智能保留symbol。
 </code></pre>
 
-<h2 id="四-apache的压测工具ab升级高版本">四、apache的压测工具ab升级高版本</h2>
+<h2 id="四-apache的压测工具ab升级高版本:dab12220e12920eb4ab0fdd954035a76">四、apache的压测工具ab升级高版本</h2>
 
 <p>在压测过程中，我们想微观的通过tcpdump抓包分析通信过程。</p>
 
@@ -226,7 +226,7 @@ $ gcc --version
 <li>已有的httpd 2.3自带的ab工具有这个bug，升级httpd2.4后这个问题修复。</li>
 </ul>
 
-<h2 id="五-tcpdump抓取fin包">五、tcpdump抓取fin包</h2>
+<h2 id="五-tcpdump抓取fin包:dab12220e12920eb4ab0fdd954035a76">五、tcpdump抓取fin包</h2>
 
 <pre><code class="language-bash"># tcp包里有个flags字段表示包的类型，tcpdump可以根据该字段抓取相应类型的包：
 # tcp[13] 就是 TCP flags (URG,ACK,PSH,RST,SYN,FIN)
@@ -247,7 +247,7 @@ tcpdump -ni any port 9001 and 'tcp[13] &amp; 4 != 0 ' -s0  -w rst.cap -vvv
 
 <p><a href="http://babyhe.blog.51cto.com/1104064/1395489">参考链接</a></p>
 
-<h2 id="六-redis内部监测工具-redis-faina">六、redis内部监测工具 redis-faina</h2>
+<h2 id="六-redis内部监测工具-redis-faina:dab12220e12920eb4ab0fdd954035a76">六、redis内部监测工具 redis-faina</h2>
 
 <p><a href="https://github.com/facebookarchive/redis-faina">redis-faina</a>是facebook出品的，用于监控redis内部情况统计的一个工具。使用方法是：</p>
 

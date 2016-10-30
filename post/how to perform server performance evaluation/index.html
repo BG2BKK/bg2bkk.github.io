@@ -57,7 +57,7 @@
         },
         "datePublished": "2016-10-23",
         "description": "",
-        "wordCount":  176 
+        "wordCount":  221 
     }
     </script>
     
@@ -103,7 +103,7 @@
 
 <p>给你一台服务器，怎样能够全面评估它的性能？需要测试哪些指标？请写出每个指标的具体测试原理和测试代码。假设这台服务器完全处于线下。</p>
 
-<p>这个问题看似平常，但是细细审题的话，发现还是不一样的。我们过多关注线上机器的性能，但是如果单独拿出来一台服务器，它的性能怎样呢？这个问题网上还真没有答案，只能根据自己的理解查资料来解决。</p>
+<p>这个问题看似平常，但是细细审题的话，发现还是不一样的。我们过多关注线上机器的性能，但是如果单独拿出来一台服务器，它的性能怎样呢？</p>
 
 <p>评估和压榨一台服务器性能的话，找到评估的指标，然后进行压测加观察的方式，得到性能参数。</p>
 
@@ -113,363 +113,243 @@
 <li>如何进行压测，实现测试场景，压测工具/压测代码</li>
 </ol>
 
-<p>评估服务器性能，需要：</p>
+<p>bench也分macro bench和micro bench</p>
 
-<ol>
-<li><p>主要观察CPU、内存、磁盘和网络IO这四个指标</p></li>
+<p>对于macro bench，很多时候我们得到的是一个整体而粗略的结果，通过top我们可以看到系统负载，这些对于我们定位线上问题，分析应用程序的性能热点很有帮助，然而这并不能精确衡量一台Linux Server的性能；应用程序多种多样，线上系统目的各不相同，所以macro bench一般用于case by case的性能分析，<a href="https://github.com/BG2BKK/githubio/blob/master/content/post/macrobench.md">用于解决应用的性能瓶颈</a>；而micro bench可以定量的分析一台机器+操作系统的性能，采用相同的测试基准，通过无干扰的大量重复基本操作，比如从L1 Cache读取单个字节，耗时一个CPU时钟，在大量重复中得到较为宏观的结果，再排除loop损耗、取运行时间的损耗，可以用于基本衡量一台server的运行效率。</p>
 
-<li><p>首先看硬件配置，CPU核数/主频/超线程，内存带宽/大小/访问速度，磁盘类型/转速，网卡千兆/万兆/多队列等</p>
+<p>./bin/x86_64-linux-gnu/enough结果为n=322229, u=5172，执行322229次 TEN( p = *p )，TEN(T)表示循环展开执行10次任务T，可使loop开销对单次执行结果的影响降低1/10；总共用时5172000ns，单次平均0.623ns；而CPU主频1999.830MHz，折合一个cycle 0.500ns，数据基本可信。</p>
+
+<p>目的是把CPU喂饱，所有的性能都是从CPU的角度来衡量；内存读写快慢，单纯比较数据从内存的一个位置移动到另一个位置，这是设备厂商用来做广告用的，不是计算机系统来评估性能的，不把数据从内存读到CPU，衡量这段时间的性能；把数据从CPU读一遍，然后写到另一个地址，数据流经过CPU后算是经过了计算机系统，测量这段时间才是有意义的。基于此，其他的bench，比如pipe的性能，需要排除数据流动的时间，排除其余的时间，才是单纯pipe的性能，；如context switch，需要bench时用pipe来驱动，这里需要排除掉数据流动的时间，pipe通信的时间，其他时间，才是context switch的时间</p>
+
+<p>性能评估主要对CPU、memory、disk IO和network IO四个指标，从带宽和时延两个角度评估。</p>
+
+<h2 id="测试前的准备:93ed95293dee210367c755a042ec6458">测试前的准备</h2>
+
+<p>很多很重要的选项，比如设计测试场景，从逻辑上说通一个测试中都包含哪些时间开销，如何测量</p>
 
 <ul>
-<li>知晓极限值，针对硬件选取场景。</li>
+<li><p>测量数据块大小</p>
+
+<ul>
+<li>测量从内存经过CPU拷贝到另一块内存时，如果数据量过小，比如32KB，可能这个数据只在最次L2 Cache中流动，那么测量结果将会比真实数据大；如果数据量过大，又有可能被从内存换到磁盘上</li>
+<li>为此的应对方法是，在循环中逐渐增大一倍数据量，列出不同数据量大小的测试数据，我们其实可以分辨出哪些是L1 Cache，哪些是Cache已经失效，因为他们之间的速度差异是巨大的；另外，当我们每次跨过一页访问该页内存，如果访问时间需要好几个us，那么说明这个内存页不在内存中</li>
 </ul></li>
 
-<li><p>然后知道kernel关于这些设备的可tuning的配置选项，以及kernel自身配置，如vm策略、进程调度设置等</p>
+<li><p>测量时间</p>
 
 <ul>
-<li>默认服务器设备的驱动都是厂商调优好的，或者采用kernel自带驱动</li>
+<li>不论用多么精确的时钟，由于benchmark时单次任务执行时间都非常短，因此用多次loop中求整体运行时间，取平均后能够得到误差较小的结果。</li>
+<li>lmbench的时间机制写的很精妙，比如针对不同的任务，在每次bench的时候，都会预估执行当前任务执行比如500000us，需要执行多少次，这就是需要loop的次数；比较精妙，能够照顾到即使是相同计算机，在负载不一样的时候，对不同任务有一定的适应能力，在运行足够时间后使得系统表现稳定，得到稳定的结果；使用lmbench对相同任务做bench的时候，每次执行结果的误差都不大，低于2%，这个结果我想还是很稳定的。</li>
 </ul></li>
 
-<li><p>不同指标的通用观测方法</p>
+<li><p>考虑多进程，以及编译器可能导致的问题</p>
 
 <ul>
-<li>首选成熟工具：top、sar、vmstat、mpstat、netstat、iptraf等</li>
-<li>从 <strong><em>/proc</em></strong> 定制</li>
-<li>动态追踪，perf、systemtap等，在精细观察时使用</li>
+<li>测试时运行的benchmark也都比较小，其实可以视为和单处理器没有区别；或者我们可以将进程绑定到某个CPU上。</li>
+<li>用gcc编译benchmark，优化级别为 -O，可以避免优化过度；注意一些load指令，如果load结果没有被用到的话，可能会被优化掉</li>
 </ul></li>
+</ul>
 
-<li><p>根据软硬件变量的结合，搭配设计纯理论场景并实现，采用对应方法检测</p>
+<blockquote>
+<p>所谓带宽，不仅仅是硬件上的读写速度，而是数据从源头到达CPU，然后CPU将其送往目的地的速度，考验的是传输能力；所谓时延，更多的评估传输的效率，读取一定量的数据，数据可以在多长时间内从内存读取到CPU。</p>
+</blockquote>
 
-<ul>
-<li>先把linux server主流常用的配置配好，采用简单方法做性能测试，确定各个指标的性能，作为参照基准</li>
-<li>然后设计场景，体现要突出的指标，确定极限值，与参照基准做对比
-
-<ul>
-<li>kernel对相关资源进行优化</li>
-<li>选择压测工具，必要时写代码实现</li>
-</ul></li>
-<li>如果能够引入内核的一些新技术，就某个指标进行优化，可以进行后续测试。</li>
-</ul></li>
-</ol>
-
-<h3 id="cpu计算能力">CPU计算能力</h3>
+<h2 id="带宽性能测试:93ed95293dee210367c755a042ec6458">带宽性能测试</h2>
 
 <ul>
-<li><p>硬件</p>
+<li><p>Memory: 数据从内存到CPU的带宽</p>
 
 <ul>
-<li>主频/核数/超线程：/proc/cpuinfo</li>
-<li>各级缓存大小</li>
-</ul></li>
-
-<li><p>测试场景</p>
+<li>rd
 
 <ul>
-<li><p>评估计算能力</p>
+<li>单次读取512Byte数据，即128个int整数，并做相加操作以防止编译器优化；循环展开，而非在for中挨个相加</li>
+<li>use_int(sum)等指令也是防止编译器优化的</li>
+<li>每次读取512Byte，直到读完，算是一次读取完成</li>
+<li>如果rd的数据块太小，比如32MB，很快被读完，这时需要调整连续循环读取iterations次，然后求平均；iterations的取值取决于根据系统负载情况，实时计算需要执行的次数。</li>
+<li>我的CPU是<a href="http://www.cpu-world.com/CPUs/Xeon/Intel-Xeon%20E5-2620.html">至强E5-2620</a>，包含6*32KB的8路组相连数据L1缓存，6*256KB的8路组相连L2,15MB的20路共享L3cache</li>
+<li>根据读取的数据块大小，我们可以逻辑上推断该数据处于哪级缓存；本机的L1/L2/L3分别为192kb/1536kb/15360kb，
 
 <ul>
-<li>方式一：选择高CPU型应用压测，采用专业benchmark软件观察;<a href="http://wushank.blog.51cto.com/3489095/1585927">计算圆周率</a></li>
-<li>方式二：采用开源代码，或者手写计算型压测代码，通过systemtap等工具统计时长
+<li>数据块16KB，带宽34999.46MB/s</li>
+<li>数据块32KB，带宽19191.28MB/s</li>
+<li>数据块320KB，带宽10669.75MB/s</li>
+<li>数据块8MB，带宽6394.37MB/s</li>
+<li>数据块16MB，带宽4993.96MB/s</li>
+<li>数据块1024MB，带宽4979.76MB/s
 
 <ul>
-<li><a href="https://github.com/akopytov/sysbench">参考sysbench</a></li>
-</ul></li>
-</ul></li>
-
-<li><p>评估各级CPU高速缓存L1/L2/L3失效对性能的影响</p>
-
-<ul>
-<li>场景：
-
-<ul>
-<li>通过代码创造cache miss情况</li>
-</ul></li>
-<li>方法：
-
-<ul>
-<li>采用systemtap等相关工具统计时长</li>
-<li>获取CPU各级缓存速度，需要多少cycle读取
-
-<ul>
-<li>查文档或者其他方式，如<a href="http://www.bitmover.com/lmbench/">lmbench</a></li>
+<li>纯内存带宽</li>
 </ul></li>
 </ul></li>
 </ul></li>
-
-<li><p>评估进程调度和切换能力</p>
-
-<ul>
-<li>场景：并发大量CPU繁忙任务</li>
-<li>方法：
+<li>wr
 
 <ul>
-<li>查看CPU负载</li>
-<li>统计context switch/ interrupt stats，通过sar等工具</li>
-<li>进程切换平均时间统计，在不同负载下：<a href="http://blog.yufeng.info/archives/753">谁在做进程调度&amp;&amp;lmbench</a></li>
-<li>进程调度能力
-
-<ul>
-<li>load average，通过统计工具</li>
-<li>动态跟踪方法动态确定处于调度队列中的任务规模</li>
-<li>taskset设置多cpu亲和性运行</li>
+<li>向内存块每一个4字节写入1</li>
 </ul></li>
-</ul></li>
+<li>rdwr
+
+<ul>
+<li>wr与rd的结合，性能略差</li>
 </ul></li>
 </ul></li>
 
-<li><p>TODO</p>
+<li><p>pipe：系统提供的IPC机制的带宽</p>
 
 <ul>
-<li>评估CPU对软硬中断的响应处理能力
+<li>测量方式：父子进程阻塞读写pipe</li>
+<li>tips
 
 <ul>
-<li>一段时间内的中断分布情况，CPU响应时间，需要动态追踪
-
-<ul>
-<li>多长时间响应中断</li>
-<li>多长时间处理完中断</li>
-<li>如何分配，如何均衡处理</li>
+<li>用bw_pipe，默认是64kb的块，发现采用32kb更快一些，16kb和32kb没区别；</li>
+<li>通过sar -w 1发现，64kb的时候的csw是32kb时的10倍以上</li>
+<li>最后发现，块大小是32kb - 1 和32kb +1是分水岭，</li>
+<li>正在查原因</li>
 </ul></li>
+</ul></li>
+
+<li><p>mmap方式读取文件：从磁盘文件读取数据的带宽</p>
+
+<ul>
+<li>mmap方式读取文件，首先要打开文件，然后通过mmap将fd映射到匿名内存页，mmap的内存页在读取时才会真正分配</li>
+<li>测量方式：
+
+<ul>
+<li>一、多次循环中，open、mmap，然后读取内容，最后close</li>
+<li>二、在测量前open文件，并进行mmap；在多次循环中，每次读取目标大小的文件数据；</li>
+<li>前者可以得到通过读取文件数据时，mmap的纯开销；后者更贴近实际情况</li>
+</ul></li>
+<li>测量结果
+
+<ul>
+<li>读取1024m数据；测试采用-C标志，复制文件后再进行，可以以冷数据的方式避开文件缓存</li>
+<li>结果一：3223.58 MB/s</li>
+<li>结果二：7948.87 MB/s</li>
+</ul></li>
+</ul></li>
+
+<li><p>read方式读取文件：从磁盘文件读取数据的带宽</p>
+
+<ul>
+<li>测量方式
+
+<ul>
+<li>一、以及包含open、read和close的带宽</li>
+<li>二、测试单纯读文件(read)的带宽，</li>
+</ul></li>
+<li>测量结果
+
+<ul>
+<li>读取1024m数据；测试采用-C标志，复制文件后再进行，可以以冷数据的方式避开文件缓存</li>
+<li>一、5526.29 MB/s</li>
+<li>二、5442.29 MB/s</li>
 </ul></li>
 </ul></li>
 </ul>
 
-<h3 id="内存资源使用">内存资源使用</h3>
+<h2 id="bw-mem:93ed95293dee210367c755a042ec6458">bw_mem</h2>
 
 <ul>
-<li><p>硬件</p>
+<li><p>init_loop</p></li>
+
+<li><p>get_enough</p>
 
 <ul>
-<li>总线宽度/内存读写速度/内存颗粒主频
+<li><p>init_timing</p>
 
 <ul>
-<li><a href="http://blog.opskumu.com/dmidecode.html">dmidecode获取主板信息</a></li>
-<li><a href="http://www.latelee.org/using-gnu-linux/linux-memory-bandwidth-test-note.html">内存带宽测试</a></li>
+<li>compute_enough()
+
+<ul>
+<li>计算可以得到计算机准确执行时间的时间段，在该时间段内计算机的执行时间能够稳定</li>
+</ul></li>
+<li>t_overload()
+
+<ul>
+<li>用循环计算 gettimeofday() 的开销</li>
+</ul></li>
+<li>l_overload()
+
+<ul>
+<li>计算仅用于循环的时间开销</li>
+</ul></li>
+<li>init_timing()在一次benchmakr中只执行一次，除非第二次运行程序</li>
+</ul></li>
+
+<li><p>compute_enough()</p>
+
+<ul>
+<li>预估5000us、10000us、50000us和100000us，比如在5000us内计算机用时能够稳定，那么认为运行想运行的任务，5000us足够使计算机测量稳定下来，那么就返回5000us；如果四个都不行，则返回SHORT，也就是1000000us，一个足够大的数据。理论上讲其实计算机执行一个非常快或者用时普通的任务，在循环足够次数，运行足够时间，平均下来都能使单次时间稳定，但是如果能找到合适的时长，benchmark过程可以更快，且执行时间短意味着受到外界干扰小。</li>
+<li>compute_enough() 调用 test_time() 依次评估每个预估值</li>
+<li>test_time(enough)
+
+<ul>
+<li>find_N(enough)，得到执行任务A，执行时长为enough us，需要跑多少次，得到N。
+
+<ul>
+<li>find_N 首先执行 N = 10000, time_N(N)，看看执行10000次A的运行时间t，如果运行时间t与enough误差在2%以下，那么就返回N；如果运行时间t过小，低于1000us，说明执行N次还不够，需要加码，扩大10倍，N = N * 10；如果t不低于1000us，说明执行N次还可以，不过要按照运行时间t和enough的比值，再结合运行N次需要t us，折算出运行enough时间大概需要  N = enough * N / t;</li>
+<li>拿着新的N再次find_N(N)，直到执行时间与enough相差不到2%时，可以认为，计算机执行N次任务A，需要用时enough us。</li>
+<li>这个逼近过程循环10次，返回结果；如果不能收敛在2%里，则认为enough时长还不足以让CPU运行稳定，需要加长。
+
+<ul>
+<li>time_N(N)通过执行执行duration(N)，执行Nx10次 long **p; p = (long **) *p;这样一个赋值运算，汇编是[ move (%eax), %eax ]，从内存中读值，写入寄存器；读p地址的值只是读L1 cache中，所以在CPU内运行，不会有外界干扰。在不同平台不同性能的机器上，大家都执行这个duration(N)，通过执行N次达到时间u，作为cpu的基准。这样还是蛮科学的</li>
+<li>执行TRIES次 time_N(N)，取最小值返回</li>
+<li>duration(N)就是任务A。</li>
+</ul></li>
+</ul></li>
+<li>test_time(enough)中，拿到find_N(enough)所需要的执行次数N后，再次计算执行N次用时，time_N(N)，以这次结果为baseline；然后将N扩大到1.015倍、1.020倍和1.035倍，计算执行所需要时间time_N(N * factor)，得到结果与baseline * factor比较，误差在0.25%内的话，说明执行enough时间，需要N次，这个经过更新的N存储在全局变量中(save_n())，也就是存储在全局变量iterations里。</li>
+<li>如果误差仍然较大，那么我们选用一个较大的时间，比如SHORT=1000000；此时的N并无意义。</li>
 </ul></li>
 </ul></li>
 
-<li><p>内存资源使用情况</p>
+<li><p>t_overload()</p>
 
 <ul>
-<li><p>评估系统的内存分配能力</p>
-
-<ul>
-<li><p>系统自身需要的内存</p>
-
-<ul>
-<li>page entry</li>
-<li>slab/vma小内存块</li>
-<li>值得具体了解</li>
-<li>通过内核代码对各种分配函数进行统计，分配大小、位置和目的</li>
+<li>如果在之前的compute_enough()没有计算得到enough时间，返回的是SHORT，或者即使得到了，但是大于50000，执行时间足够长，那么我们认为gettimeofday的时间开销可以忽略不计，记为0。</li>
+<li>如果得到一个时间enough小雨50000us，那么认为gettimeofday的开销有必要列入，需要在循环中确定它的调用所需时长</li>
 </ul></li>
 
-<li><p>最多能分配多少内存给某个资源</p>
+<li><p>l_overload()</p>
 
 <ul>
-<li>分配socket memory
+<li>在需要循环很多次的benchmark中，loop的开销很有必要列入统计中，再bench总时长中排除loop的影响</li>
+<li>loop的计算比较巧妙，假设loop开销是overhead，在同样的loop下，loop循环体执行一个任务和两个任务，分别进行bench，循环n1次和n2次，得到执行时长为u1、u2
 
 <ul>
-<li>据说系统在已有大规模socket的情况下，对其分配内存的策略是惰性的，待查</li>
-</ul></li>
-<li>分配page cache/page buffer
-
-<ul>
-<li><a href="http://liwei.life/2016/01/22/cgroup_memory/">cache的使用，cache的重复使用</a></li>
-<li>swap内存</li>
-</ul></li>
-</ul></li>
-
-<li><p>内存换页率和脏页情况</p>
-
-<ul>
-<li>/proc/meminfo等</li>
-<li>swap in和swap out</li>
-<li><a href="http://chuansong.me/n/285622451424">sar -B 1中的主缺页中断和次缺页中断</a></li>
-</ul></li>
-
-<li><p><a href="https://www.ibm.com/developerworks/cn/linux/l-cn-hugetlb/">采用huge page的性能影响</a></p></li>
-</ul></li>
-</ul></li>
-</ul>
-
-<h3 id="磁盘读写能力">磁盘读写能力</h3>
-
-<ul>
-<li><p>硬件</p>
-
-<ul>
-<li>磁盘类型/转速</li>
-<li>查看kernel能够tuning的选项
-
-<ul>
-<li>磁盘块IO大小</li>
-<li><a href="http://scoke.blog.51cto.com/769125/490546">调度策略</a>
-<br /></li>
-</ul></li>
-</ul></li>
-
-<li><p>评估磁盘IO性能</p>
-
-<ul>
-<li><p>评估不同读写文件方式的性能</p>
-
-<ul>
-<li>直接读写文件性能</li>
-<li>经过文件系统读写速度</li>
-</ul></li>
-
-<li><p>评估读小文件时的性能</p>
-
-<ul>
-<li>读大文件速度
-
-<ul>
-<li>较大文件的读取效率，考验IO能力</li>
-</ul></li>
-<li>读小文件速度
-
-<ul>
-<li>大量小文件
-<br /></li>
-</ul></li>
-</ul></li>
-
-<li><p>评估文件缓存对磁盘性能的影响</p>
-
-<ul>
-<li>首次读
-
-<ul>
-<li>可测试文件从磁盘读到kernel内存直到用户进程这一过程
-
-<ul>
-<li>微观角度，systemtap等脚本动态追踪</li>
-</ul></li>
-</ul></li>
-<li>非首次读
-
-<ul>
-<li>测试文件在缓存中后的读效率
-
-<ul>
-<li>文件系统缓存命中率</li>
+<li>u1 = n1 * ( overhead + work)</li>
+<li>u2 = n2 * ( overhead + 2 * work)</li>
+<li>overhead = 2*u1/n1 - u2/n2</li>
+<li>overhead即为单次loop的开销，一般很小，但是累计起来比较客观。</li>
 </ul></li>
 </ul></li>
 </ul></li>
 
-<li><p>评估不同调度策略对磁盘性能的影响</p>
+<li><p>benchmp框架</p>
 
 <ul>
-<li>场景：
+<li>fork出child进程，作为bench执行体；parent作为控制体；</li>
+<li>parent和child通过pipe互相通信，child通知parent准备好，parent通知child开始，child执行完毕后通知parent完成；parent取完执行结果，通知child结束。</li>
+<li>应用程序中child首先执行init程序，将准备工作做好；比如如果是bw_mem中的cp benchmark，需要首先分配好src内存块，然后分配dst内存块，准备好后即返回，init结束；</li>
+<li>init结束后，benchmp框架进行下一步，while循环中执行benchmark进入warmup状态</li>
+<li>child执行benchmark是以状态机方式实现的
 
 <ul>
-<li>不同策略适应不同场景</li>
-</ul></li>
-<li>方法：
-
-<ul>
-<li>写随机文件内容，记录参数</li>
-<li>bio调度队列的大小</li>
-<li>输入输出能力
-
-<ul>
-<li>iostat</li>
-<li>iotop</li>
-</ul></li>
-</ul></li>
-</ul></li>
-</ul></li>
-</ul>
-
-<h3 id="网卡吞吐能力">网卡吞吐能力</h3>
-
-<ul>
-<li>硬件
-
-<ul>
-<li>千兆/万兆</li>
-<li>多队列</li>
-<li>网卡缓冲区大小</li>
+<li>首先是warmup状态，在该状态中childparent发送ready信号，阻塞等待parent的start信号。child收到start后，状态设置为timing_interval，取iterations为1，执行benchmark程序；执行完后重入while循环；</li>
+<li>由于已经执行以此iterations为1的benchmark，重入循环时满足state-&gt;need_warmup == 0，所以开始统计上一次benchmark开始到现在的用时，并刨去t_overload和l_overload；进入状态机的timing_interval状态，该状态评估本次benchmark的用时是否符合期望，如果符合，将本次bench结果记录，并设置状态为cooldown；如果不符合期望，分情况，如果用时result小于150，说明单次benchmark用时太短，需要多次迭代得到总结果，因此将iterations扩大8倍去计算；如果用时大于150，说明单次benchmark执行时间是够的，但是需要微调迭代次数，按照 enough * 1.1 / (iterations / result)；所以说timing_interval状态是用来在bench过程中微调迭代次数以使执行时间符合预期的过程。</li>
+<li>在cooldown状态，child阻塞等待取结果信号，并将结果写回response管道中；执行清理函数后，得到parent发出的exit信号，结束自己。</li>
 </ul></li>
 
-<li><p>查看kernel能够tuning的选项</p>
+<li><p>最终结果存储在全局变量iterations和stop_tv中，其实是通过get_time()和get_n()，以及set_time()/save_n()或者set_results()中，并在用户程序的结束时进行计算。</p></li>
+
+<li><p>如果进行多任务</p>
 
 <ul>
-<li><a href="http://www.blogjava.net/yongboy/archive/2015/01/30/422592.html">ethtool、网卡硬件信息和优化技术</a></li>
-<li>网卡驱动的缓冲队列</li>
-</ul></li>
-
-<li><p>评估linux server的网络性能</p>
-
-<ul>
-<li><p>评估网络子系统的吞吐量</p>
-
-<ul>
-<li>场景：
-
-<ul>
-<li>测试网卡吞吐能力</li>
-</ul></li>
-<li>方法：
-
-<ul>
-<li>少量TCP连接，发起大规模数据传输</li>
-<li>网络压测工具netperf/iperf，或者写代码调整</li>
-<li>测试过程中调整sysctl配置、网卡驱动、网卡硬件配置</li>
-<li>检测工具：tcpdump/sar等工具</li>
-<li>统计socket缓冲大小</li>
-<li>在局域网内两台设备间执行</li>
+<li>1</li>
+<li>2</li>
+<li>3</li>
 </ul></li>
 </ul></li>
-
-<li><p>评估网络子系统的响应能力</p>
-
-<ul>
-<li>场景：
-
-<ul>
-<li>在网络子系统繁忙时，对外服务的响应能力</li>
-</ul></li>
-<li>方法:
-
-<ul>
-<li>采用iperf等工具发起大量tcp连接，发出巨量小包</li>
-<li>检测工具，tcpdump/wireshark统计服务质量</li>
-<li>systemtap分析软中断响应时间</li>
-<li>统计TCP状态分布情况</li>
-<li>统计内存分配情况</li>
-</ul></li>
-</ul></li>
-</ul></li>
-</ul>
-
-<h3 id="内核本身">内核本身</h3>
-
-<ul>
-<li>管道</li>
-<li>IPC性能</li>
-<li>unix domain socket性能</li>
-</ul>
-
-<h3 id="参考链接">参考链接</h3>
-
-<ul>
-<li><a href="http://www.linfo.org/context_switch.html">context switch definition</a></li>
-<li><a href="http://smilejay.com/2011/03/linux_cpu_core_thread/">查询本机CPU相关信息</a></li>
-<li><a href="http://blog.csdn.net/liuaigui/article/details/9981135">海量小文件</a></li>
-<li><a href="http://www.jianshu.com/p/db8e8a2884ef">单机负载评估</a>、<a href="http://www.jianshu.com/p/fd6e35f529c1">性能分析</a></li>
-<li><a href="http://blog.csdn.net/hguisu/article/details/39373311">性能评估</a></li>
-<li><a href="http://kumu-linux.github.io/blog/2014/04/21/performance-cpu/">Linux性能优化&ndash;CPU</a>
-
-<ul>
-<li>参考该post前我也想到了CPU压测的几个关注点：待调度执行任务数、CPU负载和进程切换</li>
-<li>该post有很大启发</li>
-</ul></li>
-<li><a href="http://www.thegeekstuff.com/2011/03/sar-examples/?utm_source=feedburner">SAR的一些使用</a></li>
-<li><a href="http://blog.itpub.net/27425054/viewspace-768224/">Linux磁盘调度策略</a></li>
-<li><a href="http://www.vpsee.com/2009/11/linux-system-performance-monitoring-cpu/">其实没想到卖VPS的写性能测试挺专业</a></li>
-<li><a href="http://coolshell.cn/articles/7490.html">coolshell的性能调优攻略</a></li>
-<li><a href="http://www.samirchen.com/linux-network-performance-test/">linux下网络环境性能测试</a></li>
 </ul>
 
     <div id="social-bar">
@@ -505,7 +385,7 @@
           </a>
       </li>
 			<li class="linkedin">
-          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/how%20to%20perform%20server%20performance%20evaluation/&amp;title=%e6%80%8e%e6%a0%b7%e5%b0%bd%e5%8f%af%e8%83%bd%e5%85%a8%e9%9d%a2%e7%9a%84%e8%af%84%e4%bc%b0%e4%b8%80%e5%8f%b0%e6%9c%8d%e5%8a%a1%e5%99%a8%e7%9a%84%e6%80%a7%e8%83%bd&amp;summary=%e7%bb%99%e4%bd%a0%e4%b8%80%e5%8f%b0%e6%9c%8d%e5%8a%a1%e5%99%a8%ef%bc%8c%e6%80%8e%e6%a0%b7%e8%83%bd%e5%a4%9f%e5%85%a8%e9%9d%a2%e8%af%84%e4%bc%b0%e5%ae%83%e7%9a%84%e6%80%a7%e8%83%bd%ef%bc%9f%e9%9c%80%e8%a6%81%e6%b5%8b%e8%af%95%e5%93%aa%e4%ba%9b%e6%8c%87%e6%a0%87%ef%bc%9f%e8%af%b7%e5%86%99%e5%87%ba%e6%af%8f%e4%b8%aa%e6%8c%87%e6%a0%87%e7%9a%84%e5%85%b7%e4%bd%93%e6%b5%8b%e8%af%95%e5%8e%9f%e7%90%86%e5%92%8c%e6%b5%8b%e8%af%95%e4%bb%a3%e7%a0%81%e3%80%82%e5%81%87%e8%ae%be%e8%bf%99%e5%8f%b0%e6%9c%8d%e5%8a%a1%e5%99%a8%e5%ae%8c%e5%85%a8%e5%a4%84%e4%ba%8e%e7%ba%bf%e4%b8%8b%e3%80%82%20%e8%bf%99%e4%b8%aa%e9%97%ae%e9%a2%98%e7%9c%8b%e4%bc%bc%e5%b9%b3%e5%b8%b8%ef%bc%8c%e4%bd%86%e6%98%af%e7%bb%86%e7%bb%86%e5%ae%a1%e9%a2%98%e7%9a%84%e8%af%9d%ef%bc%8c%e5%8f%91%e7%8e%b0%e8%bf%98%e6%98%af%e4%b8%8d%e4%b8%80%e6%a0%b7%e7%9a%84%e3%80%82%e6%88%91%e4%bb%ac%e8%bf%87%e5%a4%9a%e5%85%b3%e6%b3%a8%e7%ba%bf%e4%b8%8a%e6%9c%ba%e5%99%a8%e7%9a%84%e6%80%a7%e8%83%bd%ef%bc%8c%e4%bd%86%e6%98%af%e5%a6%82%e6%9e%9c%e5%8d%95%e7%8b%ac%e6%8b%bf%e5%87%ba%e6%9d%a5%e4%b8%80%e5%8f%b0%e6%9c%8d%e5%8a%a1%e5%99%a8%ef%bc%8c%e5%ae%83%e7%9a%84%e6%80%a7%e8%83%bd%e6%80%8e%e6%a0%b7%e5%91%a2%ef%bc%9f%e8%bf%99%e4%b8%aa%e9%97%ae%e9%a2%98%e7%bd%91%e4%b8%8a%e8%bf%98%e7%9c%9f%e6%b2%a1%e6%9c%89%e7%ad%94%e6%a1%88%ef%bc%8c%e5%8f%aa%e8%83%bd%e6%a0%b9%e6%8d%ae%e8%87%aa%e5%b7%b1%e7%9a%84%e7%90%86%e8%a7%a3%e6%9f%a5%e8%b5%84%e6%96%99%e6%9d%a5%e8%a7%a3%e5%86%b3%e3%80%82%20%e8%af%84%e4%bc%b0%e5%92%8c%e5%8e%8b%e6%a6%a8%e4%b8%80%e5%8f%b0%e6%9c%8d%e5%8a%a1%e5%99%a8%e6%80%a7%e8%83%bd%e7%9a%84%e8%af%9d%ef%bc%8c%e6%89%be%e5%88%b0%e8%af%84%e4%bc%b0%e7%9a%84%e6%8c%87%e6%a0%87%ef%bc%8c%e7%84%b6%e5%90%8e%e8%bf%9b%e8%a1%8c%e5%8e%8b%e6%b5%8b%e5%8a%a0%e8%a7%82%e5%af%9f%e7%9a%84%e6%96%b9%e5%bc%8f%ef%bc%8c%e5%be%97%e5%88%b0%e6%80%a7%e8%83%bd%e5%8f%82%e6%95%b0%e3%80%82%20%e8%a7%82%e5%af%9f%e5%93%aa%e4%ba%9b%e6%8c%87%e6%a0%87%ef%bc%8c%e6%84%8f%e4%b9%89%e4%bd%95%e5%9c%a8%ef%bc%9f%20%e5%a6%82%e4%bd%95%e8%a7%82%e5%af%9f%e8%bf%99%e4%ba%9b%e6%8c%87%e6%a0%87%ef%bc%8c%e6%b5%8b%e8%af%95%e5%8e%9f%e7%90%86%ef%bc%8c%e8%a7%82%e6%b5%8b%e5%b7%a5%e5%85%b7%2f%e7%bb%9f%e8%ae%a1%e4%bb%a3%e7%a0%81%20%e5%a6%82%e4%bd%95%e8%bf%9b%e8%a1%8c%e5%8e%8b%e6%b5%8b%ef%bc%8c%e5%ae%9e%e7%8e%b0%e6%b5%8b%e8%af%95%e5%9c%ba%e6%99%af%ef%bc%8c%e5%8e%8b%e6%b5%8b%e5%b7%a5%e5%85%b7%2f%e5%8e%8b%e6%b5%8b%e4%bb%a3%e7%a0%81%20%e8%af%84%e4%bc%b0%e6%9c%8d%e5%8a%a1%e5%99%a8%e6%80%a7%e8%83%bd%ef%bc%8c%e9%9c%80%e8%a6%81%ef%bc%9a%20%e4%b8%bb%e8%a6%81%e8%a7%82%e5%af%9fCPU%e3%80%81%e5%86%85%e5%ad%98%e3%80%81%e7%a3%81%e7%9b%98%e5%92%8c%e7%bd%91%e7%bb%9cIO%e8%bf%99%e5%9b%9b%e4%b8%aa%e6%8c%87%e6%a0%87%20%e9%a6%96%e5%85%88%e7%9c%8b%e7%a1%ac%e4%bb%b6%e9%85%8d%e7%bd%ae%ef%bc%8cCPU%e6%a0%b8%e6%95%b0%2f%e4%b8%bb%e9%a2%91%2f%e8%b6%85%e7%ba%bf%e7%a8%8b%ef%bc%8c%e5%86%85%e5%ad%98%e5%b8%a6%e5%ae%bd%2f%e5%a4%a7%e5%b0%8f%2f%e8%ae%bf%e9%97%ae%e9%80%9f%e5%ba%a6%ef%bc%8c%e7%a3%81%e7%9b%98%e7%b1%bb%e5%9e%8b%2f%e8%bd%ac%e9%80%9f%ef%bc%8c%e7%bd%91%e5%8d%a1%e5%8d%83%e5%85%86%2f%e4%b8%87%e5%85%86%2f%e5%a4%9a%e9%98%9f%e5%88%97%e7%ad%89%20%e7%9f%a5%e6%99%93%e6%9e%81%e9%99%90%e5%80%bc%ef%bc%8c%e9%92%88%e5%af%b9%e7%a1%ac%e4%bb%b6%e9%80%89%e5%8f%96%e5%9c%ba%e6%99%af%e3%80%82%20%e7%84%b6%e5%90%8e%e7%9f%a5%e9%81%93kernel%e5%85%b3%e4%ba%8e%e8%bf%99%e4%ba%9b%e8%ae%be%e5%a4%87%e7%9a%84%e5%8f%aftuning%e7%9a%84%e9%85%8d%e7%bd%ae%e9%80%89%e9%a1%b9%ef%bc%8c%e4%bb%a5%e5%8f%8akernel%e8%87%aa%e8%ba%ab%e9%85%8d%e7%bd%ae%ef%bc%8c%e5%a6%82vm%e7%ad%96%e7%95%a5%e3%80%81%e8%bf%9b%e7%a8%8b%e8%b0%83%e5%ba%a6%e8%ae%be%e7%bd%ae%e7%ad%89%20%e9%bb%98%e8%ae%a4%e6%9c%8d%e5%8a%a1%e5%99%a8%e8%ae%be%e5%a4%87%e7%9a%84%e9%a9%b1%e5%8a%a8%e9%83%bd%e6%98%af%e5%8e%82%e5%95%86%e8%b0%83%e4%bc%98%e5%a5%bd%e7%9a%84%ef%bc%8c%e6%88%96%e8%80%85%e9%87%87%e7%94%a8kernel%e8%87%aa%e5%b8%a6%e9%a9%b1%e5%8a%a8%20%e4%b8%8d%e5%90%8c%e6%8c%87%e6%a0%87%e7%9a%84%e9%80%9a%e7%94%a8%e8%a7%82%e6%b5%8b%e6%96%b9%e6%b3%95%20%e9%a6%96%e9%80%89%e6%88%90%e7%86%9f%e5%b7%a5%e5%85%b7%ef%bc%9atop%e3%80%81sar%e3%80%81vmstat%e3%80%81mpstat%e3%80%81netstat%e3%80%81iptraf%e7%ad%89%20%e4%bb%8e%20%2fproc%20%e5%ae%9a%e5%88%b6%20%e5%8a%a8%e6%80%81%e8%bf%bd%e8%b8%aa%ef%bc%8cperf%e3%80%81systemtap%e7%ad%89%ef%bc%8c%e5%9c%a8%e7%b2%be%e7%bb%86%e8%a7%82%e5%af%9f%e6%97%b6%e4%bd%bf%e7%94%a8%20%e6%a0%b9%e6%8d%ae%e8%bd%af%e7%a1%ac%e4%bb%b6%e5%8f%98%e9%87%8f%e7%9a%84%e7%bb%93%e5%90%88%ef%bc%8c%e6%90%ad%e9%85%8d%e8%ae%be%e8%ae%a1%e7%ba%af%e7%90%86%e8%ae%ba%e5%9c%ba%e6%99%af%e5%b9%b6%e5%ae%9e%e7%8e%b0%ef%bc%8c%e9%87%87%e7%94%a8%e5%af%b9%e5%ba%94%e6%96%b9%e6%b3%95%e6%a3%80%e6%b5%8b%20%e5%85%88%e6%8a%8alinux%20server%e4%b8%bb%e6%b5%81%e5%b8%b8%e7%94%a8%e7%9a%84%e9%85%8d%e7%bd%ae%e9%85%8d%e5%a5%bd%ef%bc%8c%e9%87%87%e7%94%a8%e7%ae%80%e5%8d%95%e6%96%b9%e6%b3%95%e5%81%9a%e6%80%a7%e8%83%bd%e6%b5%8b%e8%af%95%ef%bc%8c%e7%a1%ae%e5%ae%9a%e5%90%84%e4%b8%aa%e6%8c%87%e6%a0%87%e7%9a%84%e6%80%a7%e8%83%bd%ef%bc%8c%e4%bd%9c%e4%b8%ba%e5%8f%82%e7%85%a7%e5%9f%ba%e5%87%86%20%e7%84%b6%e5%90%8e%e8%ae%be%e8%ae%a1%e5%9c%ba%e6%99%af%ef%bc%8c%e4%bd%93%e7%8e%b0%e8%a6%81%e7%aa%81%e5%87%ba%e7%9a%84%e6%8c%87%e6%a0%87%ef%bc%8c%e7%a1%ae%e5%ae%9a%e6%9e%81%e9%99%90%e5%80%bc%ef%bc%8c%e4%b8%8e%e5%8f%82%e7%85%a7%e5%9f%ba%e5%87%86%e5%81%9a%e5%af%b9%e6%af%94%20kernel%e5%af%b9%e7%9b%b8%e5%85%b3%e8%b5%84%e6%ba%90%e8%bf%9b%e8%a1%8c%e4%bc%98%e5%8c%96%20%e9%80%89%e6%8b%a9%e5%8e%8b%e6%b5%8b%e5%b7%a5%e5%85%b7%ef%bc%8c%e5%bf%85%e8%a6%81%e6%97%b6%e5%86%99%e4%bb%a3%e7%a0%81%e5%ae%9e%e7%8e%b0%20%e5%a6%82%e6%9e%9c%e8%83%bd%e5%a4%9f%e5%bc%95%e5%85%a5%e5%86%85%e6%a0%b8%e7%9a%84%e4%b8%80%e4%ba%9b%e6%96%b0%e6%8a%80%e6%9c%af%ef%bc%8c%e5%b0%b1%e6%9f%90%e4%b8%aa%e6%8c%87%e6%a0%87%e8%bf%9b%e8%a1%8c%e4%bc%98%e5%8c%96%ef%bc%8c%e5%8f%af%e4%bb%a5%e8%bf%9b%e8%a1%8c%e5%90%8e%e7%bb%ad%e6%b5%8b%e8%af%95%e3%80%82%20CPU%e8%ae%a1%e7%ae%97%e8%83%bd%e5%8a%9b%20%e7%a1%ac%e4%bb%b6%20%e4%b8%bb%e9%a2%91%2f%e6%a0%b8%e6%95%b0%2f%e8%b6%85%e7%ba%bf%e7%a8%8b%ef%bc%9a%2fproc%2fcpuinfo%20%e5%90%84%e7%ba%a7%e7%bc%93%e5%ad%98%e5%a4%a7%e5%b0%8f%20%e6%b5%8b%e8%af%95%e5%9c%ba%e6%99%af%20%e8%af%84%e4%bc%b0%e8%ae%a1%e7%ae%97%e8%83%bd%e5%8a%9b%20%e6%96%b9%e5%bc%8f%e4%b8%80%ef%bc%9a%e9%80%89%e6%8b%a9%e9%ab%98CPU%e5%9e%8b%e5%ba%94%e7%94%a8%e5%8e%8b%e6%b5%8b%ef%bc%8c%e9%87%87%e7%94%a8%e4%b8%93%e4%b8%9abenchmark%e8%bd%af%e4%bb%b6%e8%a7%82%e5%af%9f%3b%e8%ae%a1%e7%ae%97%e5%9c%86%e5%91%a8%e7%8e%87%20%e6%96%b9%e5%bc%8f%e4%ba%8c%ef%bc%9a%e9%87%87%e7%94%a8%e5%bc%80%e6%ba%90%e4%bb%a3%e7%a0%81%ef%bc%8c%e6%88%96%e8%80%85%e6%89%8b%e5%86%99%e8%ae%a1%e7%ae%97%e5%9e%8b%e5%8e%8b%e6%b5%8b%e4%bb%a3%e7%a0%81%ef%bc%8c%e9%80%9a%e8%bf%87systemtap%e7%ad%89%e5%b7%a5%e5%85%b7%e7%bb%9f%e8%ae%a1%e6%97%b6%e9%95%bf%20%e5%8f%82%e8%80%83sysbench%20%e8%af%84%e4%bc%b0%e5%90%84%e7%ba%a7CPU%e9%ab%98%e9%80%9f%e7%bc%93%e5%ad%98L1%2fL2%2fL3%e5%a4%b1%e6%95%88%e5%af%b9%e6%80%a7%e8%83%bd%e7%9a%84%e5%bd%b1%e5%93%8d%20%e5%9c%ba%e6%99%af%ef%bc%9a%20%e9%80%9a%e8%bf%87%e4%bb%a3%e7%a0%81%e5%88%9b%e9%80%a0cache%20miss%e6%83%85%e5%86%b5%20%e6%96%b9%e6%b3%95%ef%bc%9a%20%e9%87%87%e7%94%a8systemtap%e7%ad%89%e7%9b%b8%e5%85%b3%e5%b7%a5%e5%85%b7%e7%bb%9f%e8%ae%a1%e6%97%b6%e9%95%bf%20%e8%8e%b7%e5%8f%96CPU%e5%90%84%e7%ba%a7%e7%bc%93%e5%ad%98%e9%80%9f%e5%ba%a6%ef%bc%8c%e9%9c%80%e8%a6%81%e5%a4%9a%e5%b0%91cycle%e8%af%bb%e5%8f%96%20%e6%9f%a5%e6%96%87%e6%a1%a3%e6%88%96%e8%80%85%e5%85%b6%e4%bb%96%e6%96%b9%e5%bc%8f%ef%bc%8c%e5%a6%82lmbench%20%e8%af%84%e4%bc%b0%e8%bf%9b%e7%a8%8b%e8%b0%83%e5%ba%a6%e5%92%8c%e5%88%87%e6%8d%a2%e8%83%bd%e5%8a%9b%20%e5%9c%ba%e6%99%af%ef%bc%9a%e5%b9%b6%e5%8f%91%e5%a4%a7%e9%87%8fCPU%e7%b9%81%e5%bf%99%e4%bb%bb%e5%8a%a1%20%e6%96%b9%e6%b3%95%ef%bc%9a%20%e6%9f%a5%e7%9c%8bCPU%e8%b4%9f%e8%bd%bd%20%e7%bb%9f%e8%ae%a1context%20switch%2f%20interrupt%20stats%ef%bc%8c%e9%80%9a%e8%bf%87sar%e7%ad%89%e5%b7%a5%e5%85%b7%20%e8%bf%9b%e7%a8%8b%e5%88%87%e6%8d%a2%e5%b9%b3%e5%9d%87%e6%97%b6%e9%97%b4%e7%bb%9f%e8%ae%a1%ef%bc%8c%e5%9c%a8%e4%b8%8d%e5%90%8c%e8%b4%9f%e8%bd%bd%e4%b8%8b%ef%bc%9a%e8%b0%81%e5%9c%a8%e5%81%9a%e8%bf%9b%e7%a8%8b%e8%b0%83%e5%ba%a6%26amp%3b%26amp%3blmbench%20%e8%bf%9b%e7%a8%8b%e8%b0%83%e5%ba%a6%e8%83%bd%e5%8a%9b%20load%20average%ef%bc%8c%e9%80%9a%e8%bf%87%e7%bb%9f%e8%ae%a1%e5%b7%a5%e5%85%b7%20%e5%8a%a8%e6%80%81%e8%b7%9f%e8%b8%aa%e6%96%b9%e6%b3%95%e5%8a%a8%e6%80%81%e7%a1%ae%e5%ae%9a%e5%a4%84%e4%ba%8e%e8%b0%83%e5%ba%a6%e9%98%9f%e5%88%97%e4%b8%ad%e7%9a%84%e4%bb%bb%e5%8a%a1%e8%a7%84%e6%a8%a1%20taskset%e8%ae%be%e7%bd%ae%e5%a4%9acpu%e4%ba%b2%e5%92%8c%e6%80%a7%e8%bf%90%e8%a1%8c%20TODO%20%e8%af%84%e4%bc%b0CPU%e5%af%b9%e8%bd%af%e7%a1%ac%e4%b8%ad%e6%96%ad%e7%9a%84%e5%93%8d%e5%ba%94%e5%a4%84%e7%90%86%e8%83%bd%e5%8a%9b%20%e4%b8%80%e6%ae%b5%e6%97%b6%e9%97%b4%e5%86%85%e7%9a%84%e4%b8%ad%e6%96%ad%e5%88%86%e5%b8%83%e6%83%85%e5%86%b5%ef%bc%8cCPU%e5%93%8d%e5%ba%94%e6%97%b6%e9%97%b4%ef%bc%8c%e9%9c%80%e8%a6%81%e5%8a%a8%e6%80%81%e8%bf%bd%e8%b8%aa%20%e5%a4%9a%e9%95%bf%e6%97%b6%e9%97%b4%e5%93%8d%e5%ba%94%e4%b8%ad%e6%96%ad%20%e5%a4%9a%e9%95%bf%e6%97%b6%e9%97%b4%e5%a4%84%e7%90%86%e5%ae%8c%e4%b8%ad%e6%96%ad%20%e5%a6%82%e4%bd%95%e5%88%86%e9%85%8d%ef%bc%8c%e5%a6%82%e4%bd%95%e5%9d%87%e8%a1%a1%e5%a4%84%e7%90%86%20%e5%86%85%e5%ad%98%e8%b5%84%e6%ba%90%e4%bd%bf%e7%94%a8%20%e7%a1%ac%e4%bb%b6%20%e6%80%bb%e7%ba%bf%e5%ae%bd%e5%ba%a6%2f%e5%86%85%e5%ad%98%e8%af%bb%e5%86%99%e9%80%9f%e5%ba%a6%2f%e5%86%85%e5%ad%98%e9%a2%97%e7%b2%92%e4%b8%bb%e9%a2%91%20dmidecode%e8%8e%b7%e5%8f%96%e4%b8%bb%e6%9d%bf%e4%bf%a1%e6%81%af%20%e5%86%85%e5%ad%98%e5%b8%a6%e5%ae%bd%e6%b5%8b%e8%af%95%20%e5%86%85%e5%ad%98%e8%b5%84%e6%ba%90%e4%bd%bf%e7%94%a8%e6%83%85%e5%86%b5%20%e8%af%84%e4%bc%b0%e7%b3%bb%e7%bb%9f%e7%9a%84%e5%86%85%e5%ad%98%e5%88%86%e9%85%8d%e8%83%bd%e5%8a%9b%20%e7%b3%bb%e7%bb%9f%e8%87%aa%e8%ba%ab%e9%9c%80%e8%a6%81%e7%9a%84%e5%86%85%e5%ad%98..." class="popup">
+          <a href="http://www.linkedin.com/shareArticle?mini=true&amp;url=https://bg2bkk.github.io/post/how%20to%20perform%20server%20performance%20evaluation/&amp;title=%e6%80%8e%e6%a0%b7%e5%b0%bd%e5%8f%af%e8%83%bd%e5%85%a8%e9%9d%a2%e7%9a%84%e8%af%84%e4%bc%b0%e4%b8%80%e5%8f%b0%e6%9c%8d%e5%8a%a1%e5%99%a8%e7%9a%84%e6%80%a7%e8%83%bd&amp;summary=%e7%bb%99%e4%bd%a0%e4%b8%80%e5%8f%b0%e6%9c%8d%e5%8a%a1%e5%99%a8%ef%bc%8c%e6%80%8e%e6%a0%b7%e8%83%bd%e5%a4%9f%e5%85%a8%e9%9d%a2%e8%af%84%e4%bc%b0%e5%ae%83%e7%9a%84%e6%80%a7%e8%83%bd%ef%bc%9f%e9%9c%80%e8%a6%81%e6%b5%8b%e8%af%95%e5%93%aa%e4%ba%9b%e6%8c%87%e6%a0%87%ef%bc%9f%e8%af%b7%e5%86%99%e5%87%ba%e6%af%8f%e4%b8%aa%e6%8c%87%e6%a0%87%e7%9a%84%e5%85%b7%e4%bd%93%e6%b5%8b%e8%af%95%e5%8e%9f%e7%90%86%e5%92%8c%e6%b5%8b%e8%af%95%e4%bb%a3%e7%a0%81%e3%80%82%e5%81%87%e8%ae%be%e8%bf%99%e5%8f%b0%e6%9c%8d%e5%8a%a1%e5%99%a8%e5%ae%8c%e5%85%a8%e5%a4%84%e4%ba%8e%e7%ba%bf%e4%b8%8b%e3%80%82%20%e8%bf%99%e4%b8%aa%e9%97%ae%e9%a2%98%e7%9c%8b%e4%bc%bc%e5%b9%b3%e5%b8%b8%ef%bc%8c%e4%bd%86%e6%98%af%e7%bb%86%e7%bb%86%e5%ae%a1%e9%a2%98%e7%9a%84%e8%af%9d%ef%bc%8c%e5%8f%91%e7%8e%b0%e8%bf%98%e6%98%af%e4%b8%8d%e4%b8%80%e6%a0%b7%e7%9a%84%e3%80%82%e6%88%91%e4%bb%ac%e8%bf%87%e5%a4%9a%e5%85%b3%e6%b3%a8%e7%ba%bf%e4%b8%8a%e6%9c%ba%e5%99%a8%e7%9a%84%e6%80%a7%e8%83%bd%ef%bc%8c%e4%bd%86%e6%98%af%e5%a6%82%e6%9e%9c%e5%8d%95%e7%8b%ac%e6%8b%bf%e5%87%ba%e6%9d%a5%e4%b8%80%e5%8f%b0%e6%9c%8d%e5%8a%a1%e5%99%a8%ef%bc%8c%e5%ae%83%e7%9a%84%e6%80%a7%e8%83%bd%e6%80%8e%e6%a0%b7%e5%91%a2%ef%bc%9f%20%e8%af%84%e4%bc%b0%e5%92%8c%e5%8e%8b%e6%a6%a8%e4%b8%80%e5%8f%b0%e6%9c%8d%e5%8a%a1%e5%99%a8%e6%80%a7%e8%83%bd%e7%9a%84%e8%af%9d%ef%bc%8c%e6%89%be%e5%88%b0%e8%af%84%e4%bc%b0%e7%9a%84%e6%8c%87%e6%a0%87%ef%bc%8c%e7%84%b6%e5%90%8e%e8%bf%9b%e8%a1%8c%e5%8e%8b%e6%b5%8b%e5%8a%a0%e8%a7%82%e5%af%9f%e7%9a%84%e6%96%b9%e5%bc%8f%ef%bc%8c%e5%be%97%e5%88%b0%e6%80%a7%e8%83%bd%e5%8f%82%e6%95%b0%e3%80%82%20%e8%a7%82%e5%af%9f%e5%93%aa%e4%ba%9b%e6%8c%87%e6%a0%87%ef%bc%8c%e6%84%8f%e4%b9%89%e4%bd%95%e5%9c%a8%ef%bc%9f%20%e5%a6%82%e4%bd%95%e8%a7%82%e5%af%9f%e8%bf%99%e4%ba%9b%e6%8c%87%e6%a0%87%ef%bc%8c%e6%b5%8b%e8%af%95%e5%8e%9f%e7%90%86%ef%bc%8c%e8%a7%82%e6%b5%8b%e5%b7%a5%e5%85%b7%2f%e7%bb%9f%e8%ae%a1%e4%bb%a3%e7%a0%81%20%e5%a6%82%e4%bd%95%e8%bf%9b%e8%a1%8c%e5%8e%8b%e6%b5%8b%ef%bc%8c%e5%ae%9e%e7%8e%b0%e6%b5%8b%e8%af%95%e5%9c%ba%e6%99%af%ef%bc%8c%e5%8e%8b%e6%b5%8b%e5%b7%a5%e5%85%b7%2f%e5%8e%8b%e6%b5%8b%e4%bb%a3%e7%a0%81%20bench%e4%b9%9f%e5%88%86macro%20bench%e5%92%8cmicro%20bench%20%e5%af%b9%e4%ba%8emacro%20bench%ef%bc%8c%e5%be%88%e5%a4%9a%e6%97%b6%e5%80%99%e6%88%91%e4%bb%ac%e5%be%97%e5%88%b0%e7%9a%84%e6%98%af%e4%b8%80%e4%b8%aa%e6%95%b4%e4%bd%93%e8%80%8c%e7%b2%97%e7%95%a5%e7%9a%84%e7%bb%93%e6%9e%9c%ef%bc%8c%e9%80%9a%e8%bf%87top%e6%88%91%e4%bb%ac%e5%8f%af%e4%bb%a5%e7%9c%8b%e5%88%b0%e7%b3%bb%e7%bb%9f%e8%b4%9f%e8%bd%bd%ef%bc%8c%e8%bf%99%e4%ba%9b%e5%af%b9%e4%ba%8e%e6%88%91%e4%bb%ac%e5%ae%9a%e4%bd%8d%e7%ba%bf%e4%b8%8a%e9%97%ae%e9%a2%98%ef%bc%8c%e5%88%86%e6%9e%90%e5%ba%94%e7%94%a8%e7%a8%8b%e5%ba%8f%e7%9a%84%e6%80%a7%e8%83%bd%e7%83%ad%e7%82%b9%e5%be%88%e6%9c%89%e5%b8%ae%e5%8a%a9%ef%bc%8c%e7%84%b6%e8%80%8c%e8%bf%99%e5%b9%b6%e4%b8%8d%e8%83%bd%e7%b2%be%e7%a1%ae%e8%a1%a1%e9%87%8f%e4%b8%80%e5%8f%b0Linux%20Server%e7%9a%84%e6%80%a7%e8%83%bd%ef%bc%9b%e5%ba%94%e7%94%a8%e7%a8%8b%e5%ba%8f%e5%a4%9a%e7%a7%8d%e5%a4%9a%e6%a0%b7%ef%bc%8c%e7%ba%bf%e4%b8%8a%e7%b3%bb%e7%bb%9f%e7%9b%ae%e7%9a%84%e5%90%84%e4%b8%8d%e7%9b%b8%e5%90%8c%ef%bc%8c%e6%89%80%e4%bb%a5macro%20bench%e4%b8%80%e8%88%ac%e7%94%a8%e4%ba%8ecase%20by%20case%e7%9a%84%e6%80%a7%e8%83%bd%e5%88%86%e6%9e%90%ef%bc%8c%e7%94%a8%e4%ba%8e%e8%a7%a3%e5%86%b3%e5%ba%94%e7%94%a8%e7%9a%84%e6%80%a7%e8%83%bd%e7%93%b6%e9%a2%88%ef%bc%9b%e8%80%8cmicro%20bench%e5%8f%af%e4%bb%a5%e5%ae%9a%e9%87%8f%e7%9a%84%e5%88%86%e6%9e%90%e4%b8%80%e5%8f%b0%e6%9c%ba%e5%99%a8%2b%e6%93%8d%e4%bd%9c%e7%b3%bb%e7%bb%9f%e7%9a%84%e6%80%a7%e8%83%bd%ef%bc%8c%e9%87%87%e7%94%a8%e7%9b%b8%e5%90%8c%e7%9a%84%e6%b5%8b%e8%af%95%e5%9f%ba%e5%87%86%ef%bc%8c%e9%80%9a%e8%bf%87%e6%97%a0%e5%b9%b2%e6%89%b0%e7%9a%84%e5%a4%a7%e9%87%8f%e9%87%8d%e5%a4%8d%e5%9f%ba%e6%9c%ac%e6%93%8d%e4%bd%9c%ef%bc%8c%e6%af%94%e5%a6%82%e4%bb%8eL1%20Cache%e8%af%bb%e5%8f%96%e5%8d%95%e4%b8%aa%e5%ad%97%e8%8a%82%ef%bc%8c%e8%80%97%e6%97%b6%e4%b8%80%e4%b8%aaCPU%e6%97%b6%e9%92%9f%ef%bc%8c%e5%9c%a8%e5%a4%a7%e9%87%8f%e9%87%8d%e5%a4%8d%e4%b8%ad%e5%be%97%e5%88%b0%e8%be%83%e4%b8%ba%e5%ae%8f%e8%a7%82%e7%9a%84%e7%bb%93%e6%9e%9c%ef%bc%8c%e5%86%8d%e6%8e%92%e9%99%a4loop%e6%8d%9f%e8%80%97%e3%80%81%e5%8f%96%e8%bf%90%e8%a1%8c%e6%97%b6%e9%97%b4%e7%9a%84%e6%8d%9f%e8%80%97%ef%bc%8c%e5%8f%af%e4%bb%a5%e7%94%a8%e4%ba%8e%e5%9f%ba%e6%9c%ac%e8%a1%a1%e9%87%8f%e4%b8%80%e5%8f%b0server%e7%9a%84%e8%bf%90%e8%a1%8c%e6%95%88%e7%8e%87%e3%80%82%20.%2fbin%2fx86_64-linux-gnu%2fenough%e7%bb%93%e6%9e%9c%e4%b8%ban%3d322229%2c%20u%3d5172%ef%bc%8c%e6%89%a7%e8%a1%8c322229%e6%ac%a1%20TEN%28%20p%20%3d%20%2ap%20%29%ef%bc%8cTEN%28T%29%e8%a1%a8%e7%a4%ba%e5%be%aa%e7%8e%af%e5%b1%95%e5%bc%80%e6%89%a7%e8%a1%8c10%e6%ac%a1%e4%bb%bb%e5%8a%a1T%ef%bc%8c%e5%8f%af%e4%bd%bfloop%e5%bc%80%e9%94%80%e5%af%b9%e5%8d%95%e6%ac%a1%e6%89%a7%e8%a1%8c%e7%bb%93%e6%9e%9c%e7%9a%84%e5%bd%b1%e5%93%8d%e9%99%8d%e4%bd%8e1%2f10%ef%bc%9b%e6%80%bb%e5%85%b1%e7%94%a8%e6%97%b65172000ns%ef%bc%8c%e5%8d%95%e6%ac%a1%e5%b9%b3%e5%9d%870.623ns%ef%bc%9b%e8%80%8cCPU%e4%b8%bb%e9%a2%911999.830MHz%ef%bc%8c%e6%8a%98%e5%90%88%e4%b8%80%e4%b8%aacycle%200.500ns%ef%bc%8c%e6%95%b0%e6%8d%ae%e5%9f%ba%e6%9c%ac%e5%8f%af%e4%bf%a1%e3%80%82%20%e7%9b%ae%e7%9a%84%e6%98%af%e6%8a%8aCPU%e5%96%82%e9%a5%b1%ef%bc%8c%e6%89%80%e6%9c%89%e7%9a%84%e6%80%a7%e8%83%bd%e9%83%bd%e6%98%af%e4%bb%8eCPU%e7%9a%84%e8%a7%92%e5%ba%a6%e6%9d%a5%e8%a1%a1%e9%87%8f%ef%bc%9b%e5%86%85%e5%ad%98%e8%af%bb%e5%86%99%e5%bf%ab%e6%85%a2%ef%bc%8c%e5%8d%95%e7%ba%af%e6%af%94%e8%be%83%e6%95%b0%e6%8d%ae%e4%bb%8e%e5%86%85%e5%ad%98%e7%9a%84%e4%b8%80%e4%b8%aa%e4%bd%8d%e7%bd%ae%e7%a7%bb%e5%8a%a8%e5%88%b0%e5%8f%a6%e4%b8%80%e4%b8%aa%e4%bd%8d%e7%bd%ae%ef%bc%8c%e8%bf%99%e6%98%af%e8%ae%be%e5%a4%87%e5%8e%82%e5%95%86%e7%94%a8%e6%9d%a5%e5%81%9a%e5%b9%bf%e5%91%8a%e7%94%a8%e7%9a%84%ef%bc%8c%e4%b8%8d%e6%98%af%e8%ae%a1%e7%ae%97%e6%9c%ba%e7%b3%bb%e7%bb%9f%e6%9d%a5%e8%af%84%e4%bc%b0%e6%80%a7%e8%83%bd%e7%9a%84%ef%bc%8c%e4%b8%8d%e6%8a%8a%e6%95%b0%e6%8d%ae%e4%bb%8e%e5%86%85%e5%ad%98%e8%af%bb%e5%88%b0CPU%ef%bc%8c%e8%a1%a1%e9%87%8f%e8%bf%99%e6%ae%b5%e6%97%b6%e9%97%b4%e7%9a%84%e6%80%a7%e8%83%bd%ef%bc%9b%e6%8a%8a%e6%95%b0%e6%8d%ae%e4%bb%8eCPU%e8%af%bb%e4%b8%80%e9%81%8d%ef%bc%8c%e7%84%b6%e5%90%8e%e5%86%99%e5%88%b0%e5%8f%a6%e4%b8%80%e4%b8%aa%e5%9c%b0%e5%9d%80%ef%bc%8c%e6%95%b0%e6%8d%ae%e6%b5%81%e7%bb%8f%e8%bf%87CPU%e5%90%8e%e7%ae%97%e6%98%af%e7%bb%8f%e8%bf%87%e4%ba%86%e8%ae%a1%e7%ae%97%e6%9c%ba%e7%b3%bb%e7%bb%9f%ef%bc%8c%e6%b5%8b%e9%87%8f%e8%bf%99%e6%ae%b5%e6%97%b6%e9%97%b4%e6%89%8d%e6%98%af%e6%9c%89%e6%84%8f%e4%b9%89%e7%9a%84%e3%80%82%e5%9f%ba%e4%ba%8e%e6%ad%a4%ef%bc%8c%e5%85%b6%e4%bb%96%e7%9a%84bench%ef%bc%8c%e6%af%94%e5%a6%82pipe%e7%9a%84%e6%80%a7%e8%83%bd%ef%bc%8c%e9%9c%80%e8%a6%81%e6%8e%92%e9%99%a4%e6%95%b0%e6%8d%ae%e6%b5%81%e5%8a%a8%e7%9a%84%e6%97%b6%e9%97%b4%ef%bc%8c%e6%8e%92%e9%99%a4%e5%85%b6%e4%bd%99%e7%9a%84%e6%97%b6%e9%97%b4%ef%bc%8c%e6%89%8d%e6%98%af%e5%8d%95%e7%ba%afpipe%e7%9a%84%e6%80%a7%e8%83%bd%ef%bc%8c%ef%bc%9b%e5%a6%82context%20switch%ef%bc%8c%e9%9c%80%e8%a6%81bench%e6%97%b6%e7%94%a8pipe%e6%9d%a5%e9%a9%b1%e5%8a%a8%ef%bc%8c%e8%bf%99%e9%87%8c%e9%9c%80%e8%a6%81%e6%8e%92%e9%99%a4%e6%8e%89%e6%95%b0%e6%8d%ae%e6%b5%81%e5%8a%a8%e7%9a%84%e6%97%b6%e9%97%b4%ef%bc%8cpipe%e9%80%9a%e4%bf%a1%e7%9a%84%e6%97%b6%e9%97%b4%ef%bc%8c%e5%85%b6%e4%bb%96%e6%97%b6%e9%97%b4%ef%bc%8c%e6%89%8d%e6%98%afcontext%20switch%e7%9a%84%e6%97%b6%e9%97%b4%20%e6%80%a7%e8%83%bd%e8%af%84%e4%bc%b0%e4%b8%bb%e8%a6%81%e5%af%b9CPU%e3%80%81memory%e3%80%81disk%20IO%e5%92%8cnetwork%20IO%e5%9b%9b%e4%b8%aa%e6%8c%87%e6%a0%87%ef%bc%8c%e4%bb%8e%e5%b8%a6%e5%ae%bd%e5%92%8c%e6%97%b6%e5%bb%b6%e4%b8%a4%e4%b8%aa%e8%a7%92%e5%ba%a6%e8%af%84%e4%bc%b0%e3%80%82%20%e6%b5%8b%e8%af%95%e5%89%8d%e7%9a%84%e5%87%86%e5%a4%87%20%e5%be%88%e5%a4%9a%e5%be%88%e9%87%8d%e8%a6%81%e7%9a%84%e9%80%89%e9%a1%b9%ef%bc%8c%e6%af%94%e5%a6%82%e8%ae%be%e8%ae%a1%e6%b5%8b%e8%af%95%e5%9c%ba%e6%99%af%ef%bc%8c%e4%bb%8e%e9%80%bb%e8%be%91%e4%b8%8a%e8%af%b4%e9%80%9a%e4%b8%80%e4%b8%aa%e6%b5%8b%e8%af%95%e4%b8%ad%e9%83%bd%e5%8c%85%e5%90%ab%e5%93%aa%e4%ba%9b%e6%97%b6%e9%97%b4%e5%bc%80%e9%94%80%ef%bc%8c%e5%a6%82%e4%bd%95%e6%b5%8b%e9%87%8f%20%e6%b5%8b%e9%87%8f%e6%95%b0%e6%8d%ae%e5%9d%97%e5%a4%a7%e5%b0%8f%20%e6%b5%8b%e9%87%8f%e4%bb%8e%e5%86%85%e5%ad%98%e7%bb%8f%e8%bf%87CPU%e6%8b%b7%e8%b4%9d%e5%88%b0%e5%8f%a6%e4%b8%80%e5%9d%97%e5%86%85%e5%ad%98%e6%97%b6%ef%bc%8c%e5%a6%82%e6%9e%9c%e6%95%b0%e6%8d%ae%e9%87%8f%e8%bf%87%e5%b0%8f%ef%bc%8c%e6%af%94%e5%a6%8232KB%ef%bc%8c%e5%8f%af%e8%83%bd%e8%bf%99%e4%b8%aa%e6%95%b0%e6%8d%ae%e5%8f%aa%e5%9c%a8%e6%9c%80%e6%ac%a1L2%20Cache%e4%b8%ad%e6%b5%81%e5%8a%a8%ef%bc%8c%e9%82%a3%e4%b9%88%e6%b5%8b%e9%87%8f%e7%bb%93%e6%9e%9c%e5%b0%86%e4%bc%9a%e6%af%94%e7%9c%9f%e5%ae%9e%e6%95%b0%e6%8d%ae%e5%a4%a7%ef%bc%9b%e5%a6%82%e6%9e%9c%e6%95%b0%e6%8d%ae%e9%87%8f%e8%bf%87%e5%a4%a7%ef%bc%8c%e5%8f%88%e6%9c%89%e5%8f%af%e8%83%bd%e8%a2%ab%e4%bb%8e%e5%86%85%e5%ad%98%e6%8d%a2%e5%88%b0%e7%a3%81%e7%9b%98%e4%b8%8a%20%e4%b8%ba%e6%ad%a4%e7%9a%84%e5%ba%94%e5%af%b9%e6%96%b9%e6%b3%95%e6%98%af%ef%bc%8c%e5%9c%a8%e5%be%aa%e7%8e%af%e4%b8%ad%e9%80%90%e6%b8%90%e5%a2%9e%e5%a4%a7%e4%b8%80%e5%80%8d%e6%95%b0%e6%8d%ae%e9%87%8f%ef%bc%8c%e5%88%97%e5%87%ba%e4%b8%8d%e5%90%8c%e6%95%b0%e6%8d%ae%e9%87%8f%e5%a4%a7%e5%b0%8f%e7%9a%84%e6%b5%8b%e8%af%95%e6%95%b0%e6%8d%ae%ef%bc%8c%e6%88%91%e4%bb%ac%e5%85%b6%e5%ae%9e%e5%8f%af%e4%bb%a5%e5%88%86%e8%be%a8%e5%87%ba%e5%93%aa%e4%ba%9b%e6%98%afL1%20Cache%ef%bc%8c%e5%93%aa%e4%ba%9b%e6%98%afCache%e5%b7%b2%e7%bb%8f%e5%a4%b1%e6%95%88%ef%bc%8c%e5%9b%a0%e4%b8%ba%e4%bb%96%e4%bb%ac%e4%b9%8b%e9%97%b4%e7%9a%84%e9%80%9f%e5%ba%a6%e5%b7%ae%e5%bc%82%e6%98%af%e5%b7%a8%e5%a4%a7%e7%9a%84%ef%bc%9b%e5%8f%a6%e5%a4%96%ef%bc%8c%e5%bd%93%e6%88%91%e4%bb%ac%e6%af%8f%e6%ac%a1%e8%b7%a8%e8%bf%87%e4%b8%80%e9%a1%b5%e8%ae%bf%e9%97%ae%e8%af%a5%e9%a1%b5%e5%86%85%e5%ad%98%ef%bc%8c%e5%a6%82%e6%9e%9c%e8%ae%bf%e9%97%ae%e6%97%b6%e9%97%b4%e9%9c%80%e8%a6%81%e5%a5%bd%e5%87%a0%e4%b8%aaus%ef%bc%8c%e9%82%a3%e4%b9%88%e8%af%b4%e6%98%8e%e8%bf%99%e4%b8%aa%e5%86%85%e5%ad%98%e9%a1%b5%e4%b8%8d%e5%9c%a8%e5%86%85%e5%ad%98%e4%b8%ad%20%e6%b5%8b%e9%87%8f%e6%97%b6%e9%97%b4%20%e4%b8%8d%e8%ae%ba%e7%94%a8%e5%a4%9a%e4%b9%88%e7%b2%be%e7%a1%ae%e7%9a%84%e6%97%b6%e9%92%9f%ef%bc%8c%e7%94%b1%e4%ba%8ebenchmark%e6%97%b6%e5%8d%95%e6%ac%a1%e4%bb%bb%e5%8a%a1%e6%89%a7%e8%a1%8c%e6%97%b6%e9%97%b4%e9%83%bd%e9%9d%9e%e5%b8%b8%e7%9f%ad%ef%bc%8c%e5%9b%a0%e6%ad%a4%e7%94%a8%e5%a4%9a%e6%ac%a1loop%e4%b8%ad%e6%b1%82%e6%95%b4%e4%bd%93%e8%bf%90%e8%a1%8c%e6%97%b6%e9%97%b4%ef%bc%8c%e5%8f%96%e5%b9%b3%e5%9d%87%e5%90%8e%e8%83%bd%e5%a4%9f%e5%be%97%e5%88%b0%e8%af%af%e5%b7%ae%e8%be%83%e5%b0%8f%e7%9a%84%e7%bb%93%e6%9e%9c%e3%80%82%20lmbench%e7%9a%84%e6%97%b6%e9%97%b4%e6%9c%ba%e5%88%b6%e5%86%99%e7%9a%84%e5%be%88%e7%b2%be%e5%a6%99%ef%bc%8c%e6%af%94%e5%a6%82%e9%92%88%e5%af%b9%e4%b8%8d%e5%90%8c%e7%9a%84%e4%bb%bb%e5%8a%a1%ef%bc%8c%e5%9c%a8%e6%af%8f%e6%ac%a1bench%e7%9a%84%e6%97%b6%e5%80%99%ef%bc%8c%e9%83%bd%e4%bc%9a%e9%a2%84%e4%bc%b0%e6%89%a7%e8%a1%8c%e5%bd%93%e5%89%8d%e4%bb%bb%e5%8a%a1%e6%89%a7%e8%a1%8c%e6%af%94%e5%a6%82500000us%ef%bc%8c%e9%9c%80%e8%a6%81%e6%89%a7%e8%a1%8c%e5%a4%9a%e5%b0%91%e6%ac%a1%ef%bc%8c%e8%bf%99%e5%b0%b1%e6%98%af%e9%9c%80%e8%a6%81loop%e7%9a%84%e6%ac%a1%e6%95%b0%ef%bc%9b%e6%af%94%e8%be%83%e7%b2%be%e5%a6%99%ef%bc%8c%e8%83%bd%e5%a4%9f%e7%85%a7%e9%a1%be%e5%88%b0%e5%8d%b3%e4%bd%bf%e6%98%af%e7%9b%b8%e5%90%8c%e8%ae%a1%e7%ae%97%e6%9c%ba%ef%bc%8c%e5%9c%a8%e8%b4%9f%e8%bd%bd%e4%b8%8d%e4%b8%80%e6%a0%b7%e7%9a%84%e6%97%b6%e5%80%99%ef%bc%8c%e5%af%b9%e4%b8%8d%e5%90%8c%e4%bb%bb%e5%8a%a1%e6%9c%89%e4%b8%80%e5%ae%9a%e7%9a%84%e9%80%82%e5%ba%94%e8%83%bd%e5%8a%9b%ef%bc%8c%e5%9c%a8%e8%bf%90%e8%a1%8c%e8%b6%b3%e5%a4%9f%e6%97%b6%e9%97%b4%e5%90%8e%e4%bd%bf%e5%be%97%e7%b3%bb%e7%bb%9f%e8%a1%a8%e7%8e%b0%e7%a8%b3%e5%ae%9a%ef%bc%8c%e5%be%97%e5%88%b0%e7%a8%b3%e5%ae%9a%e7%9a%84%e7%bb%93%e6%9e%9c%ef%bc%9b%e4%bd%bf%e7%94%a8lmbench%e5%af%b9%e7%9b%b8%e5%90%8c%e4%bb%bb%e5%8a%a1%e5%81%9abench%e7%9a%84%e6%97%b6%e5%80%99%ef%bc%8c%e6%af%8f%e6%ac%a1%e6%89%a7%e8%a1%8c%e7%bb%93%e6%9e%9c%e7%9a%84%e8%af%af%e5%b7%ae%e9%83%bd%e4%b8%8d%e5%a4%a7%ef%bc%8c%e4%bd%8e%e4%ba%8e2%25%ef%bc%8c%e8%bf%99%e4%b8%aa%e7%bb%93%e6%9e%9c%e6%88%91%e6%83%b3%e8%bf%98%e6%98%af%e5%be%88%e7%a8%b3%e5%ae%9a%e7%9a%84%e3%80%82%20%e8%80%83%e8%99%91%e5%a4%9a%e8%bf%9b%e7%a8%8b%ef%bc%8c%e4%bb%a5%e5%8f%8a%e7%bc%96%e8%af%91%e5%99%a8%e5%8f%af%e8%83%bd%e5%af%bc%e8%87%b4%e7%9a%84%e9%97%ae%e9%a2%98%20%e6%b5%8b%e8%af%95%e6%97%b6%e8%bf%90%e8%a1%8c%e7%9a%84benchmark%e4%b9%9f%e9%83%bd%e6%af%94%e8%be%83%e5%b0%8f%ef%bc%8c%e5%85%b6%e5%ae%9e%e5%8f%af%e4%bb%a5%e8%a7%86%e4%b8%ba%e5%92%8c%e5%8d%95%e5%a4%84%e7%90%86%e5%99%a8%e6%b2%a1%e6%9c%89%e5%8c%ba%e5%88%ab%ef%bc%9b%e6%88%96%e8%80%85%e6%88%91%e4%bb%ac%e5%8f%af%e4%bb%a5%e5%b0%86%e8%bf%9b%e7%a8%8b%e7%bb%91%e5%ae%9a%e5%88%b0%e6%9f%90%e4%b8%aaCPU%e4%b8%8a%e3%80%82%20%e7%94%a8gcc%e7%bc%96%e8%af%91benchmark%ef%bc%8c%e4%bc%98%e5%8c%96%e7%ba%a7%e5%88%ab%e4%b8%ba%20-O%ef%bc%8c%e5%8f%af%e4%bb%a5%e9%81%bf%e5%85%8d%e4%bc%98%e5%8c%96%e8%bf%87%e5%ba%a6%ef%bc%9b%e6%b3%a8%e6%84%8f%e4%b8%80%e4%ba%9bload%e6%8c%87%e4%bb%a4%ef%bc%8c%e5%a6%82%e6%9e%9cload%e7%bb%93%e6%9e%9c%e6%b2%a1%e6%9c%89%e8%a2%ab%e7%94%a8%e5%88%b0%e7%9a%84%e8%af%9d%ef%bc%8c%e5%8f%af%e8%83%bd%e4%bc%9a%e8%a2%ab%e4%bc%98%e5%8c%96%e6%8e%89%20%e6%89%80%e8%b0%93%e5%b8%a6%e5%ae%bd%ef%bc%8c%e4%b8%8d%e4%bb%85%e4%bb%85%e6%98%af%e7%a1%ac%e4%bb%b6%e4%b8%8a%e7%9a%84%e8%af%bb%e5%86%99%e9%80%9f%e5%ba%a6%ef%bc%8c%e8%80%8c%e6%98%af%e6%95%b0%e6%8d%ae%e4%bb%8e%e6%ba%90%e5%a4%b4%e5%88%b0%e8%be%beCPU%ef%bc%8c%e7%84%b6%e5%90%8eCPU%e5%b0%86%e5%85%b6%e9%80%81%e5%be%80%e7%9b%ae%e7%9a%84%e5%9c%b0%e7%9a%84%e9%80%9f%e5%ba%a6%ef%bc%8c%e8%80%83%e9%aa%8c%e7%9a%84%e6%98%af%e4%bc%a0%e8%be%93%e8%83%bd%e5%8a%9b%ef%bc%9b%e6%89%80%e8%b0%93%e6%97%b6%e5%bb%b6%ef%bc%8c%e6%9b%b4%e5%a4%9a%e7%9a%84%e8%af%84%e4%bc%b0%e4%bc%a0%e8%be%93%e7%9a%84%e6%95%88%e7%8e%87%ef%bc%8c%e8%af%bb%e5%8f%96%e4%b8%80%e5%ae%9a%e9%87%8f%e7%9a%84%e6%95%b0%e6%8d%ae%ef%bc%8c%e6%95%b0%e6%8d%ae%e5%8f%af%e4%bb%a5%e5%9c%a8%e5%a4%9a%e9%95%bf%e6%97%b6%e9%97%b4%e5%86%85%e4%bb%8e%e5%86%85%e5%ad%98%e8%af%bb%e5%8f%96%e5%88%b0CPU%e3%80%82%20%e5%b8%a6%e5%ae%bd%e6%80%a7%e8%83%bd%e6%b5%8b%e8%af%95%20Memory%3a%20%e6%95%b0%e6%8d%ae%e4%bb%8e%e5%86%85%e5%ad%98%e5%88%b0CPU%e7%9a%84%e5%b8%a6%e5%ae%bd%20rd%20%e5%8d%95%e6%ac%a1%e8%af%bb%e5%8f%96512Byte%e6%95%b0%e6%8d%ae%ef%bc%8c%e5%8d%b3128%e4%b8%aaint%e6%95%b4%e6%95%b0%ef%bc%8c%e5%b9%b6%e5%81%9a%e7%9b%b8%e5%8a%a0%e6%93%8d%e4%bd%9c%e4%bb%a5%e9%98%b2%e6%ad%a2%e7%bc%96%e8%af%91%e5%99%a8%e4%bc%98%e5%8c%96%ef%bc%9b%e5%be%aa%e7%8e%af%e5%b1%95%e5%bc%80%ef%bc%8c%e8%80%8c%e9%9d%9e%e5%9c%a8for%e4%b8%ad%e6%8c%a8%e4%b8%aa%e7%9b%b8%e5%8a%a0%20use_int%28sum%29%e7%ad%89%e6%8c%87%e4%bb%a4%e4%b9%9f%e6%98%af%e9%98%b2%e6%ad%a2%e7%bc%96%e8%af%91%e5%99%a8%e4%bc%98%e5%8c%96%e7%9a%84%20%e6%af%8f%e6%ac%a1%e8%af%bb%e5%8f%96512Byte%ef%bc%8c%e7%9b%b4%e5%88%b0%e8%af%bb%e5%ae%8c%ef%bc%8c%e7%ae%97%e6%98%af%e4%b8%80%e6%ac%a1%e8%af%bb%e5%8f%96%e5%ae%8c%e6%88%90%20%e5%a6%82%e6%9e%9crd%e7%9a%84%e6%95%b0%e6%8d%ae%e5%9d%97%e5%a4%aa%e5%b0%8f%ef%bc%8c%e6%af%94%e5%a6%8232MB%ef%bc%8c%e5%be%88%e5%bf%ab%e8%a2%ab%e8%af%bb%e5%ae%8c%ef%bc%8c%e8%bf%99%e6%97%b6%e9%9c%80%e8%a6%81%e8%b0%83%e6%95%b4%e8%bf%9e%e7%bb%ad%e5%be%aa%e7%8e%af%e8%af%bb%e5%8f%96iterations%e6%ac%a1%ef%bc%8c%e7%84%b6%e5%90%8e%e6%b1%82%e5%b9%b3%e5%9d%87%ef%bc%9biterations%e7%9a%84%e5%8f%96%e5%80%bc%e5%8f%96%e5%86%b3%e4%ba%8e%e6%a0%b9%e6%8d%ae%e7%b3%bb%e7%bb%9f%e8%b4%9f%e8%bd%bd%e6%83%85%e5%86%b5%ef%bc%8c%e5%ae%9e%e6%97%b6%e8%ae%a1%e7%ae%97%e9%9c%80%e8%a6%81%e6%89%a7%e8%a1%8c%e7%9a%84%e6%ac%a1%e6%95%b0%e3%80%82%20%e6%88%91%e7%9a%84CPU%e6%98%af%e8%87%b3%e5%bc%baE5-2620%ef%bc%8c%e5%8c%85%e5%90%ab6%2a32KB%e7%9a%848%e8%b7%af%e7%bb%84%e7%9b%b8%e8%bf%9e%e6%95%b0%e6%8d%aeL1%e7%bc%93%e5%ad%98%ef%bc%8c6%2a256KB%e7%9a%848%e8%b7%af%e7%bb%84%e7%9b%b8%e8%bf%9eL2%2c15MB%e7%9a%8420%e8%b7%af%e5%85%b1%e4%ba%abL3cache%20%e6%a0%b9%e6%8d%ae%e8%af%bb%e5%8f%96%e7%9a%84%e6%95%b0%e6%8d%ae%e5%9d%97%e5%a4%a7%e5%b0%8f%ef%bc%8c%e6%88%91%e4%bb%ac%e5%8f%af%e4%bb%a5%e9%80%bb%e8%be%91%e4%b8%8a%e6%8e%a8%e6%96%ad%e8%af%a5%e6%95%b0%e6%8d%ae%e5%a4%84%e4%ba%8e%e5%93%aa%e7%ba%a7%e7%bc%93%e5%ad%98%ef%bc%9b%e6%9c%ac%e6%9c%ba%e7%9a%84L1%2fL2%2fL3%e5%88%86%e5%88%ab%e4%b8%ba192kb%2f1536kb%2f15360kb%ef%bc%8c%20%e6%95%b0%e6%8d%ae%e5%9d%9716KB%ef%bc%8c%e5%b8%a6%e5%ae%bd34999.46MB%2fs%20%e6%95%b0%e6%8d%ae%e5%9d%9732KB%ef%bc%8c%e5%b8%a6%e5%ae%bd19191.28MB%2fs%20%e6%95%b0%e6%8d%ae%e5%9d%97320KB%ef%bc%8c%e5%b8%a6%e5%ae%bd10669.75MB%2fs%20%e6%95%b0%e6%8d%ae%e5%9d%978MB%ef%bc%8c%e5%b8%a6%e5%ae%bd6394.37MB%2fs%20%e6%95%b0%e6%8d%ae%e5%9d%9716MB%ef%bc%8c%e5%b8%a6%e5%ae%bd4993.96MB%2fs%20%e6%95%b0%e6%8d%ae%e5%9d%971024MB%ef%bc%8c%e5%b8%a6%e5%ae%bd4979.76MB%2fs%20%e7%ba%af%e5%86%85%e5%ad%98%e5%b8%a6%e5%ae%bd%20wr%20%e5%90%91%e5%86%85%e5%ad%98%e5%9d%97%e6%af%8f%e4%b8%80%e4%b8%aa4%e5%ad%97%e8%8a%82%e5%86%99%e5%85%a51%20rdwr%20wr%e4%b8%8erd%e7%9a%84%e7%bb%93%e5%90%88%ef%bc%8c%e6%80%a7%e8%83%bd%e7%95%a5%e5%b7%ae%20pipe%ef%bc%9a%e7%b3%bb%e7%bb%9f%e6%8f%90%e4%be%9b%e7%9a%84IPC%e6%9c%ba%e5%88%b6%e7%9a%84%e5%b8%a6%e5%ae%bd%20%e6%b5%8b%e9%87%8f%e6%96%b9%e5%bc%8f%ef%bc%9a%e7%88%b6%e5%ad%90%e8%bf%9b%e7%a8%8b%e9%98%bb%e5%a1%9e%e8%af%bb%e5%86%99pipe%20tips..." class="popup">
               <span class="icon">
                   <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="28px" height="28px" viewBox="0 0 28 28" enable-background="new 0 0 28 28" xml:space="preserve">
                       <path d="M25.424,15.887v8.447h-4.896v-7.882c0-1.979-0.709-3.331-2.48-3.331c-1.354,0-2.158,0.911-2.514,1.803 c-0.129,0.315-0.162,0.753-0.162,1.194v8.216h-4.899c0,0,0.066-13.349,0-14.731h4.899v2.088c-0.01,0.016-0.023,0.032-0.033,0.048 h0.033V11.69c0.65-1.002,1.812-2.435,4.414-2.435C23.008,9.254,25.424,11.361,25.424,15.887z M5.348,2.501 c-1.676,0-2.772,1.092-2.772,2.539c0,1.421,1.066,2.538,2.717,2.546h0.032c1.709,0,2.771-1.132,2.771-2.546 C8.054,3.593,7.019,2.501,5.343,2.501H5.348z M2.867,24.334h4.897V9.603H2.867V24.334z"/>

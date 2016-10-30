@@ -107,7 +107,7 @@
     <h1 class="post-title">pipe在内核中的实现</h1>
     
 
-<h2 id="pipe在linux内核中的实现">pipe在linux内核中的实现</h2>
+<h2 id="pipe在linux内核中的实现:eef8af46b03027cdd30025ef9f062910">pipe在linux内核中的实现</h2>
 
 <p>在之前关于linux shell多线程并发数控制的<a href="https://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/">博文</a>中，我们使用了fifo作为token池，通过读写fifo实现token分发控制，进而实现了控制线程数的目的。
 我对pipe这个*** *NIX ***系统中最常用的组件（|）产生了兴趣</p>
@@ -135,7 +135,7 @@
 
 <p>本文主要基于linux-2.4.20内核中的pipe实现进行分析，理由是该版本的pipe实现与新版本kernel并没有太大差别，但是代码可读性要强很多，可以快速了解pipe的实际实现；从2.4.20内核中对pipe的架构有整体了解后，再阅读新版本(4.4.1)中的新feature，会比较顺遂。</p>
 
-<h3 id="pipe在fs-pipe-c中一些函数">pipe在fs/pipe.c中一些函数</h3>
+<h3 id="pipe在fs-pipe-c中一些函数:eef8af46b03027cdd30025ef9f062910">pipe在fs/pipe.c中一些函数</h3>
 
 <pre><code>- new_inode()
 - register_filesystem()
@@ -146,7 +146,7 @@
 - struct dentry在include/linux/dcache.h中定义
 </code></pre>
 
-<h3 id="具体实现">具体实现</h3>
+<h3 id="具体实现:eef8af46b03027cdd30025ef9f062910">具体实现</h3>
 
 <pre><code>* pipe文件系统初始化
     * 注册pipefs
