@@ -175,9 +175,10 @@ TEN(T)表示循环展开执行10次任务T，可使loop开销对单次执行结�
 &lt;h3 id=&#34;内存延时:93ed95293dee210367c755a042ec6458&#34;&gt;内存延时&lt;/h3&gt;
 
 &lt;ul&gt;
-&lt;li&gt;内存延时有多种定义，刨去硬件相关的内存芯片和系统总线时延外，从总线和内存空闲时读数据，和连续读数据这两种场景的差异值得探讨。
+&lt;li&gt;&lt;p&gt;定义:&lt;/p&gt;
 
 &lt;ul&gt;
+&lt;li&gt;刨去硬件相关的内存芯片和系统总线时延外，从总线和内存空闲时读数据，和连续读数据这两种场景的差异值得探讨。&lt;/li&gt;
 &lt;li&gt;总线空闲时读取内存数据
 
 &lt;ul&gt;
@@ -195,9 +196,27 @@ TEN(T)表示循环展开执行10次任务T，可使loop开销对单次执行结�
 &lt;li&gt;连续读内存时，每次load都会跟着一个load。&lt;/li&gt;
 &lt;li&gt;连续读可能会导致时延高于空闲读，有些系统会有&amp;rdquo;关键字优先&amp;rdquo;的机制，读取某个字时不等待整个cache line填充就把该line中的要读取数据喂给CPU，然而此时cache依然处于busy状态；如果此时再有第二次load，会因为当前cache busy而停顿等待。在UltraSPARC中空闲读和连续读的差异可达35%.&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;所以lmbench采用的是测试连续读时的内存时延，一来连续读的测量比空闲读容易些，二来连续读更贴近实际情况。&lt;/li&gt;
+&lt;li&gt;所以lmbench采用的是测试连续读时的内存时延，一来连续读的测量比空闲读容易些，二来连续读更贴近实际情况。由于处理器速度很快，即使发生cache miss，引起的load latency也和连续读更接近。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;测量方法&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;del&gt;读取一块数据，每次读取的长度，从cache line的长度到较大的一块&lt;/del&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;h3 id=&#34;调用系统组件:93ed95293dee210367c755a042ec6458&#34;&gt;调用系统组件&lt;/h3&gt;
+
+&lt;p&gt;调用操作系统的入口，比如读写设备；选择操作/dev/null设备，每次写一个字，一般为4字节；选择该设备的原因是所有操作系统都没有对该设备进行优化，相对于其他系统调用比如getpid、gettimeofday的不同优化，甚至是实现在用户层。&lt;/p&gt;
+
+&lt;p&gt;向/dev/null设备写一个字，整个过程可用于测量调用系统接口的时延。&lt;/p&gt;
+
+&lt;h3 id=&#34;信号处理耗时:93ed95293dee210367c755a042ec6458&#34;&gt;信号处理耗时&lt;/h3&gt;
+
+&lt;h3 id=&#34;创建进程开销:93ed95293dee210367c755a042ec6458&#34;&gt;创建进程开销&lt;/h3&gt;
+
+&lt;h3 id=&#34;上下文切换:93ed95293dee210367c755a042ec6458&#34;&gt;上下文切换&lt;/h3&gt;
 
 &lt;h2 id=&#34;lmbench测试框架:93ed95293dee210367c755a042ec6458&#34;&gt;lmbench测试框架&lt;/h2&gt;
 
