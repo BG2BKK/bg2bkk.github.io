@@ -57,7 +57,7 @@
         },
         "datePublished": "2016-10-23",
         "description": "",
-        "wordCount":  340 
+        "wordCount":  366 
     }
     </script>
     
@@ -288,6 +288,7 @@ TEN(T)表示循环展开执行10次任务T，可使loop开销对单次执行结�
 <li><p>测量方法</p>
 
 <ul>
+<li>通过读取不同大小的内存块，采用不同的stride跨度</li>
 <li><del>读取一块数据，每次读取的长度，从cache line的长度到较大的一块</del></li>
 </ul></li>
 </ul>
@@ -399,7 +400,48 @@ TEN(T)表示循环展开执行10次任务T，可使loop开销对单次执行结�
 
 <h3 id="创建进程开销">创建进程开销</h3>
 
-<h3 id="上下文切换">上下文切换</h3>
+<p>进程相关的benchmark主要是衡量几个进程原语：创建新进程、执行新的程序以及上下文切换。</p>
+
+<ul>
+<li>创建进程的开销：fork process
+
+<ul>
+<li>测量原理：
+
+<ul>
+<li>通过fork创建子进程，子进程直接执行exit退出；所以最后测量的时间是：fork() + exit()
+
+<ul>
+<li>其实这里的开销还包括了父进程调用wait系统调用和父子进程上下文切换的开销，前者在本机50ns、后者在本机1.93us，相对进程创建来说非常小</li>
+</ul></li>
+</ul></li>
+<li>测量结果：
+
+<ul>
+<li>Process fork+exit: 107.1001 microseconds</li>
+</ul></li>
+</ul></li>
+<li>创建进程并执行新程序的开销：fork + execlp
+
+<ul>
+<li>测量原理：
+
+<ul>
+<li>不光测量fork的时间开销，还要通过execlp系统调用加载新程序/tmp/hello，打印一条hello world信息</li>
+</ul></li>
+<li>测量结果：
+
+<ul>
+<li>Process fork+execve: 372.2349 microseconds</li>
+</ul></li>
+</ul></li>
+</ul>
+
+<h3 id="上下文切换的开销">上下文切换的开销</h3>
+
+<ul>
+<li>上下文切换会受到多个因素影响：切换进程数量、每个进程自身的内存大小，以及Cache在其中的影响</li>
+</ul>
 
 <h2 id="intel的超线程技术">intel的超线程技术</h2>
 
