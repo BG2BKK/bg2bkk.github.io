@@ -101,7 +101,7 @@
     <h1 class="post-title">SO_REUSEADDR和SO_REUSEPORT</h1>
     
 
-<h2 id="结论:035fb573c14692e64241442f4294aac6">结论</h2>
+<h2 id="结论">结论</h2>
 
 <pre><code>1. SO_REUSEPORT用于多个socket监听同一个TCP链接
 2. SO_REUSEADDR可用于多个进程bind同一端口，但需要TCP连接的四元组不一样。
@@ -109,7 +109,7 @@
 4. SO_REUSEADDR的最大作用是，当服务因故障重启时，不用等待需要绑定的端口从TIME_WAIT状态变更到CLOSED状态，就可以直接绑定该端口
 </code></pre>
 
-<h2 id="引言:035fb573c14692e64241442f4294aac6">引言</h2>
+<h2 id="引言">引言</h2>
 
 <p>nginx 1.9.1引入了 SO_REUSEPORT选项，在高版本（linux kernel 3.9以上）系统上可用。该选项允许多个socket监听同一个IP:PORT组合，</p>
 
@@ -128,7 +128,7 @@
 </ul></li>
 </ul>
 
-<h2 id="听听linux-kernle-维护者怎么说-https-lwn-net-articles-542629:035fb573c14692e64241442f4294aac6">听听linux kernle<a href="https://lwn.net/Articles/542629/">维护者怎么说</a></h2>
+<h2 id="听听linux-kernle-维护者怎么说-https-lwn-net-articles-542629">听听linux kernle<a href="https://lwn.net/Articles/542629/">维护者怎么说</a></h2>
 
 <ul>
 <li>允许多个进程绑定host上的同一端口</li>
@@ -144,7 +144,7 @@
 </ul></li>
 </ul>
 
-<h2 id="传统多线程的工作模式的缺点:035fb573c14692e64241442f4294aac6">传统多线程的工作模式的缺点</h2>
+<h2 id="传统多线程的工作模式的缺点">传统多线程的工作模式的缺点</h2>
 
 <ul>
 <li>1. 传统的多线程server都是有一个listener线程绑定端口并接受所有的请求，然后传递给其他线程，而这个listener往往会成为瓶颈</li>
@@ -156,7 +156,7 @@
 </ul></li>
 </ul>
 
-<h2 id="so-reuseport的应用举例:035fb573c14692e64241442f4294aac6">SO_REUSEPORT的应用举例</h2>
+<h2 id="so-reuseport的应用举例">SO_REUSEPORT的应用举例</h2>
 
 <ul>
 <li>server.py</li>
@@ -226,14 +226,14 @@ data
 </ul></li>
 </ul>
 
-<h2 id="so-reuseport-和-so-reuseaddr-对比-待续:035fb573c14692e64241442f4294aac6">SO_REUSEPORT 和 SO_REUSEADDR 对比（待续）</h2>
+<h2 id="so-reuseport-和-so-reuseaddr-对比-待续">SO_REUSEPORT 和 SO_REUSEADDR 对比（待续）</h2>
 
 <ul>
 <li>前者可以防止端口被恶意进程劫持</li>
 <li>前者可以使请求平均分配给各个进程</li>
 </ul>
 
-<h2 id="参考链接:035fb573c14692e64241442f4294aac6">参考链接</h2>
+<h2 id="参考链接">参考链接</h2>
 
 <ul>
 <li><a href="https://lwn.net/Articles/542629/">lwn: the SO_REUSEPORT socket option</a></li>
