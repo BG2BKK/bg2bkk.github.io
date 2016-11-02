@@ -205,6 +205,7 @@ TEN(T)表示循环展开执行10次任务T，可使loop开销对单次执行结�
 &lt;ul&gt;
 &lt;li&gt;采用不同内存大小、不同读取跨度stride来评估、探测系统的各级内存：L1、L2、L3以及主存的时延&lt;/li&gt;
 &lt;li&gt;读取内存，每跨读一步，如果跨度很小，比如64B/128B小于Cache line，那么时延会很小，如果跨度很大，比如1M，可能就需要从主存中将该地址内容读出，时延会相应增大&lt;/li&gt;
+&lt;li&gt;&lt;del&gt;每次测量前先通过分配一块内存将cache内容全部替换掉&lt;/del&gt;&lt;/li&gt;
 &lt;li&gt;与bw_mem不同的是，并不读取数据块，而是通过地址链表跨stride去访问内存，以此测试内存时延，可见目的和测试bandwidth不一样&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 
@@ -358,7 +359,9 @@ TEN(T)表示循环展开执行10次任务T，可使loop开销对单次执行结�
 &lt;h3 id=&#34;上下文切换的开销&#34;&gt;上下文切换的开销&lt;/h3&gt;
 
 &lt;ul&gt;
-&lt;li&gt;上下文切换会受到多个因素影响：切换进程数量、每个进程自身的内存大小，以及Cache在其中的影响&lt;/li&gt;
+&lt;li&gt;&lt;p&gt;上下文切换会受到多个因素影响：切换进程数量、每个进程自身的内存大小，以及Cache在其中的影响&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;测量结果：&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h2 id=&#34;intel的超线程技术&#34;&gt;intel的超线程技术&lt;/h2&gt;
