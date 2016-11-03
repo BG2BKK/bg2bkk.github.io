@@ -225,6 +225,10 @@ TEN(T)表示循环展开执行10次任务T，可使loop开销对单次执行结�
     系统L1 Cache 32KB、L2 Cache 256KB、L3 Cache 3072KB
 &lt;/code&gt;&lt;/pre&gt;
 
+&lt;h2 id=&#34;todo&#34;&gt;TODO&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://www.ibm.com/developerworks/community/wikis/home?lang=en#!/wiki/W51a7ffcf4dfd_4b40_9d82_446ebc23c550/page/Untangling%20memory%20access%20measurements%20-%20memory%20latency&#34;&gt;IBM关于lmbench对mem latency的深度benchmark&lt;/a&gt;&lt;/p&gt;
+
 &lt;h3 id=&#34;调用系统组件-系统调用&#34;&gt;调用系统组件（系统调用）&lt;/h3&gt;
 
 &lt;p&gt;调用操作系统的入口，一般指系统调用，比如读写设备的read/write，比如getpid()或getimeofday()。&lt;/p&gt;
