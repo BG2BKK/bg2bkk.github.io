@@ -212,9 +212,11 @@ TEN(T)表示循环展开执行10次任务T，可使loop开销对单次执行结�
 &lt;li&gt;&lt;p&gt;测量结果&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;测量结果&lt;a href=&#34;https://raw.githubusercontent.com/BG2BKK/githubio/master/static/lat_mem_latency.png&#34;&gt;如图所示&lt;/a&gt;，原始数据&lt;a href=&#34;https://github.com/BG2BKK/githubio/blob/master/static/data.set&#34;&gt;见文件&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;测量结果如下图所示，&lt;a href=&#34;https://raw.githubusercontent.com/BG2BKK/githubio/master/static/lat_mem_latency.png&#34;&gt;原图见&lt;/a&gt;，原始数据&lt;a href=&#34;https://github.com/BG2BKK/githubio/blob/master/static/data.set&#34;&gt;见文件&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;https://raw.githubusercontent.com/BG2BKK/githubio/master/static/lat_mem_latency.png&#34; &gt;&lt;p&gt;多级内存的读写速度，从L1、L2、L3到主存&lt;/p&gt;&lt;/div&gt;
 
 &lt;h3 id=&#34;调用系统组件-系统调用&#34;&gt;调用系统组件（系统调用）&lt;/h3&gt;
 
