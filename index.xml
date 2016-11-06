@@ -219,9 +219,9 @@ TEN(T)表示循环展开执行10次任务T，可使loop开销对单次执行结�
 &lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;
 	char *buf = (char *)malloc(sizeof(char ) * 1024);
 	memset(buf, 0, 1024);
-	*(char **)&amp;amp;(buf[0]) = (char **)&amp;amp;(buf[512]);
+	*(char **)&amp;amp;(buf[0]) = (char *)&amp;amp;(buf[512]);
 	printf(&amp;quot;%p\t%p\n&amp;quot;, buf, buf + 512);
-	char **p = (char **)&amp;amp;buf[0];
+	char **p = (char *)&amp;amp;buf[0];
 	printf(&amp;quot;%p\t%p\n&amp;quot;, p, *p);
 
 &lt;/code&gt;&lt;/pre&gt;
@@ -274,7 +274,7 @@ Remote Dram ~100 ns
 
 &lt;h5 id=&#34;l1-cache-latency&#34;&gt;L1 Cache Latency&lt;/h5&gt;
 
-&lt;p&gt;对于intel i5-2520M来说，L1 Cache的32KB容量，cache line长64KB，8路组相连，每路4KB大小，有64组cache line供选择；在不考虑其他因素的情况下，每32KB连续数据中一定会产生L1 miss，每4KB连续数据一定会有一次组内选择哪路cache line存储数据，可能产生cache miss；一旦产生cache miss，会进行L2乃至下一级的读取，造成时延加大，影响L1 cache的latency测量。因此为了避免cache miss带来的影响，在测量L1时尽量采用小步长，小内存块进行逼近，得到尽可能精确的L1 Cache的latency。&lt;/p&gt;
+&lt;p&gt;对于intel i5-2520M来说，L1 Cache的32KB容量，cache line长64B，8路组相连，每路4KB大小，有64组cache line供选择；在不考虑其他因素的情况下，每32KB连续数据中一定会产生L1 miss，每4KB连续数据一定会有一次组内选择哪路cache line存储数据，可能产生cache miss；一旦产生cache miss，会进行L2乃至下一级的读取，造成时延加大，影响L1 cache的latency测量。因此为了避免cache miss带来的影响，在测量L1时尽量采用小步长，小内存块进行逼近，得到尽可能精确的L1 Cache的latency。&lt;/p&gt;
 
 &lt;h5 id=&#34;l2-cache-latency&#34;&gt;L2 Cache Latency&lt;/h5&gt;
 
@@ -294,6 +294,14 @@ Remote Dram ~100 ns
 &lt;li&gt;&lt;a href=&#34;https://lwn.net/Articles/252125/&#34;&gt;lwn&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://www.ibm.com/developerworks/community/wikis/home?lang=en#!/wiki/W51a7ffcf4dfd_4b40_9d82_446ebc23c550/page/Untangling%20memory%20access%20measurements%20-%20memory%20latency&#34;&gt;IBM关于lmbench对mem latency的深度benchmark&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/4087280/approximate-cost-to-access-various-caches-and-main-memory&#34;&gt;stackoverflow_1&lt;/a&gt; &lt;a href=&#34;http://stackoverflow.com/questions/10274355/cycles-cost-for-l1-cache-hit-vs-register-on-x86&#34;&gt;stackoverflow_2&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;读内存过程
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://yuhaozhu.com/CacheMemory.pdf&#34;&gt;CPU读数据的一系列过程&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://duartes.org/gustavo/blog/post/what-your-computer-does-while-you-wait/&#34;&gt;What Your Computer Dos While You Wait&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.cnblogs.com/xkfz007/archive/2012/10/08/2715163.html&#34;&gt;译文&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://software.intel.com/sites/default/files/m/1/1/7/0/a/12645-6.7__Cache_e7_9b_b8_e5_85_b3_e9_97_ae_e9_a2_98.pdf&#34;&gt;intel: Cache相关的问题&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 
 &lt;h3 id=&#34;调用系统组件-系统调用&#34;&gt;调用系统组件（系统调用）&lt;/h3&gt;
