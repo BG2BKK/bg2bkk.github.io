@@ -101,9 +101,9 @@
     <h1 class="post-title">livestream的几种初步解决方案</h1>
     
 
-<h1 id="实时视频流解决方案">实时视频流解决方案</h1>
+<h1 id="实时视频流解决方案:522c154dca6ec9c4e9be4965f54df0ed">实时视频流解决方案</h1>
 
-<h2 id="mjpg-streamer">mjpg-streamer</h2>
+<h2 id="mjpg-streamer:522c154dca6ec9c4e9be4965f54df0ed">mjpg-streamer</h2>
 
 <pre><code>site: https://github.com/codewithpassion/mjpg-streamer/tree/master/mjpg-streamer
 
@@ -122,7 +122,7 @@
     127.0.0.1:8080访问主页，可以获得stream、static以及通过vlc和mplayer播放
 </code></pre>
 
-<h2 id="ffmpeg-websocket播放">ffmpeg+websocket播放</h2>
+<h2 id="ffmpeg-websocket播放:522c154dca6ec9c4e9be4965f54df0ed">ffmpeg+websocket播放</h2>
 
 <pre><code>site: https://github.com/phoboslab/jsmpeg
 link: http://segmentfault.com/a/1190000000392586
@@ -143,7 +143,7 @@ link: http://segmentfault.com/a/1190000000392586
     google-chrome stream-example.html		使用websocket在线观看
 </code></pre>
 
-<h2 id="vlc视频流输出和vlc视频流播放">vlc视频流输出和vlc视频流播放</h2>
+<h2 id="vlc视频流输出和vlc视频流播放:522c154dca6ec9c4e9be4965f54df0ed">vlc视频流输出和vlc视频流播放</h2>
 
 <pre><code>site: http://www.cnblogs.com/fx2008/p/4315416.html
 </code></pre>
@@ -156,7 +156,7 @@ link: http://segmentfault.com/a/1190000000392586
     f、vlc rtsp://127.0.0.1:5554/Test 启动vlc观看视频流，这里还差声音
 </code></pre>
 
-<h2 id="nginx的rtmp转播">nginx的rtmp转播</h2>
+<h2 id="nginx的rtmp转播:522c154dca6ec9c4e9be4965f54df0ed">nginx的rtmp转播</h2>
 
 <pre><code>site: http://itony.me/619.html
 site: https://github.com/arut/nginx-rtmp-module
@@ -187,7 +187,7 @@ site: http://blog.csdn.net/fireroll/article/details/18899285
     e、ffmpeg -f video4linux2 -i /dev/video0 -c:v libx264 -an -f flv rtmp://localhost:1935/live1/room1 试试摄像头
 </code></pre>
 
-<h2 id="aliyun-nginx-rtmp在线转播">aliyun+nginx+rtmp在线转播</h2>
+<h2 id="aliyun-nginx-rtmp在线转播:522c154dca6ec9c4e9be4965f54df0ed">aliyun+nginx+rtmp在线转播</h2>
 
 <pre><code>site: http://blog.csdn.net/xdwyyan/article/details/43198985
 注意：在nginx中配置rtmp后，reload是不够的，需要kill掉重新启动nginx。
@@ -233,7 +233,7 @@ site: http://blog.csdn.net/fireroll/article/details/18899285
     }
 </code></pre>
 
-<h2 id="extra-info">Extra Info</h2>
+<h2 id="extra-info:522c154dca6ec9c4e9be4965f54df0ed">Extra Info</h2>
 
 <pre><code>防火墙设置，配置1985端口可以被外网访问
 huang@vultr:~$ sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 1985 -j ACCEPT

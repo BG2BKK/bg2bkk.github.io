@@ -16,11 +16,11 @@
       <guid>https://bg2bkk.github.io/post/New%20Evolvement%20of%20Epoll/</guid>
       <description>
 
-&lt;h2 id=&#34;epoll在linux-内核中的新发展&#34;&gt;EPOLL在linux 内核中的新发展&lt;/h2&gt;
+&lt;h2 id=&#34;epoll在linux-内核中的新发展:b489f0f2178b22438ad2d1ac9c25dd2c&#34;&gt;EPOLL在linux 内核中的新发展&lt;/h2&gt;
 
 &lt;p&gt;Epoll是linux专有的系统调用，用于快速地高效轮询大规模文件描述符fd。这个API在kernel-2.5版本时就已经合并，并使用至今。即使如此，epoll和其他接口一样，仍然有提升空间。现在有两个patch为epoll系列系统调用添加了新的功能。&lt;/p&gt;
 
-&lt;h2 id=&#34;epoll概述&#34;&gt;epoll概述&lt;/h2&gt;
+&lt;h2 id=&#34;epoll概述:b489f0f2178b22438ad2d1ac9c25dd2c&#34;&gt;epoll概述&lt;/h2&gt;
 
 &lt;p&gt;epoll的功能与select或者poll类似，但是epoll在应对轮询处理大规模文件描述符时拥有更灵活的选项和更高的性能。每次调用select和poll，都会将被轮询的fd集合复制，生成新的fd集合，所以内核需要检查每一个描述符是否合法，是否IO就绪，然后将执行监听的进程添加到相应的唤醒等待队列。但实际上，一般情况下，在两次select或者poll调用之间，有事件产生的fd并不多，所以对每个fd都进行前述流程实际上有很多不必要的重复性操作。Epoll将设置被监听fd和轮询fd是否就绪这两个任务分开，从而解决这一问题。&lt;/p&gt;
 
@@ -50,7 +50,7 @@
 
 &lt;p&gt;有事件发生时，epoll_wait将返回，产生的时间存在参数events中，最多maxevents个事件。如果timeout时间内没有事件发生，epoll_wait也将返回，timeout的单位是ms。epoll_pwait可以使用信号集sigmask来屏蔽特定信号，可以使应用程序安全的等待fd就绪或者捕获信号。二者的关系和select与pselect关系一样。&lt;/p&gt;
 
-&lt;h2 id=&#34;patch-1-epoll-ctl-batch-和-epoll-pwait1&#34;&gt;patch 1：epoll_ctl_batch() 和 epoll_pwait1()&lt;/h2&gt;
+&lt;h2 id=&#34;patch-1-epoll-ctl-batch-和-epoll-pwait1:b489f0f2178b22438ad2d1ac9c25dd2c&#34;&gt;patch 1：epoll_ctl_batch() 和 epoll_pwait1()&lt;/h2&gt;
 
 &lt;p&gt;&lt;a href=&#34;https://lwn.net/Articles/633195/&#34;&gt;Fam Zheng为epoll引入了两个新的系统调用&lt;/a&gt;。&lt;/p&gt;
 
@@ -95,7 +95,7 @@
 
 &lt;p&gt;本版本的epoll_pwait1()添加了一个flags参数，但是并未定义任何flag值，所以flags置为0即可。其他参数，包括时间控制、信号屏蔽设置，都写在params参数中，目的是为应用程序提供更精细的时间控制。对于epoll_wait()来说，毫秒级的时钟分辨率已经被证明在一些场景中过于粗糙，新的系统供调用提供了纳秒级别的精度，解决了这个问题。&lt;/p&gt;
 
-&lt;h2 id=&#34;patch2-多线程环境下更好的性能-解决-惊群-问题&#34;&gt;patch2: 多线程环境下更好的性能，解决“惊群”问题&lt;/h2&gt;
+&lt;h2 id=&#34;patch2-多线程环境下更好的性能-解决-惊群-问题:b489f0f2178b22438ad2d1ac9c25dd2c&#34;&gt;patch2: 多线程环境下更好的性能，解决“惊群”问题&lt;/h2&gt;
 
 &lt;p&gt;Jason Baron（Akamai公司）主要解决一个相对来说不那么常见的场景下，epoll现有的一个问题。通常情况下，一个给定的fd只被一个进程轮询，但是在Jason的场景中，会有多个进程轮询同一个fd集合。在这个场景设定下，一个fd有事件产生时将会唤醒所有监听进程，即使最后只有一个进程能够得到处理该事件的机会，这就是所谓的“惊群”问题。&lt;/p&gt;
 
@@ -112,7 +112,7 @@
 
 &lt;p&gt;Jason的提交patch的同时也提交了一个用于压测的程序，压测结果显示，互斥模式使得执行时间降低了50%，当有大量的唤醒发生时，“惊群”效应带来的性能损耗就不会发生了。&lt;/p&gt;
 
-&lt;h2 id=&#34;结语&#34;&gt;结语&lt;/h2&gt;
+&lt;h2 id=&#34;结语:b489f0f2178b22438ad2d1ac9c25dd2c&#34;&gt;结语&lt;/h2&gt;
 
 &lt;p&gt;以上提到的两个patch已经被多次review和comments，Fam的patch自从&lt;a href=&#34;https://lwn.net/Articles/630097/&#34;&gt;1月份提出&lt;/a&gt;后进行了多次修改。现在的编辑们对API相关的patch投入了越来越多的关注和审视，这是对的，因为API将会长期有效，(API lives forever),甚至是永远有效。所以最好在向用户推出之前就搞定所有bug，以提供永久支持的态度提交。这些patch目前看来已经接近就绪，可能将会在下一个窗口中合并。&lt;/p&gt;
 </description>
@@ -126,7 +126,7 @@
       <guid>https://bg2bkk.github.io/post/VFS%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/</guid>
       <description>
 
-&lt;h2 id=&#34;虚拟文件系统&#34;&gt;虚拟文件系统&lt;/h2&gt;
+&lt;h2 id=&#34;虚拟文件系统:33c34adef684867bc26f32ab644d7c6f&#34;&gt;虚拟文件系统&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;虚拟文件系统为用户空间程序提供了文件和文件系统的接口&lt;/li&gt;
@@ -134,7 +134,7 @@
 &lt;li&gt;Linux等现代操作系统引入VFS作为抽象层，极大方便系统调用&lt;/li&gt;
 &lt;/ul&gt;
 
-&lt;h2 id=&#34;unix文件系统&#34;&gt;Unix文件系统&lt;/h2&gt;
+&lt;h2 id=&#34;unix文件系统:33c34adef684867bc26f32ab644d7c6f&#34;&gt;Unix文件系统&lt;/h2&gt;
 
 &lt;ul&gt;
 &lt;li&gt;UNIX系统使用了四种和文件系统相关的抽象概念: 文件、目录项、索引结点和挂载点。&lt;/li&gt;
@@ -336,8 +336,7 @@
 &lt;li&gt;&lt;p&gt;struct namespace {}&lt;/p&gt;
 
 &lt;ul&gt;
-&lt;li&gt;使得每个进程在系统中能看到唯一的安装文件系统，mm-&amp;gt;namespace
-&lt;br /&gt;&lt;/li&gt;
+&lt;li&gt;使得每个进程在系统中能看到唯一的安装文件系统，mm-&amp;gt;namespace&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 
 &lt;li&gt;&lt;p&gt;每个进程都有指向自己的fs_struct和files_struct，多个进程可能指向同一个，比如通过带有CLONE_FILES和CLONE_FS标志创建的进程（其实是线程），所以这两个struct都有引用计数，以防出错&lt;/p&gt;&lt;/li&gt;
@@ -356,7 +355,7 @@
       <guid>https://bg2bkk.github.io/post/pipe%E5%9C%A8%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/</guid>
       <description>
 
-&lt;h2 id=&#34;pipe在linux内核中的实现&#34;&gt;pipe在linux内核中的实现&lt;/h2&gt;
+&lt;h2 id=&#34;pipe在linux内核中的实现:eef8af46b03027cdd30025ef9f062910&#34;&gt;pipe在linux内核中的实现&lt;/h2&gt;
 
 &lt;p&gt;在之前关于linux shell多线程并发数控制的&lt;a href=&#34;https://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/&#34;&gt;博文&lt;/a&gt;中，我们使用了fifo作为token池，通过读写fifo实现token分发控制，进而实现了控制线程数的目的。
 我对pipe这个*** *NIX ***系统中最常用的组件（|）产生了兴趣&lt;/p&gt;
@@ -384,7 +383,7 @@
 
 &lt;p&gt;本文主要基于linux-2.4.20内核中的pipe实现进行分析，理由是该版本的pipe实现与新版本kernel并没有太大差别，但是代码可读性要强很多，可以快速了解pipe的实际实现；从2.4.20内核中对pipe的架构有整体了解后，再阅读新版本(4.4.1)中的新feature，会比较顺遂。&lt;/p&gt;
 
-&lt;h3 id=&#34;pipe在fs-pipe-c中一些函数&#34;&gt;pipe在fs/pipe.c中一些函数&lt;/h3&gt;
+&lt;h3 id=&#34;pipe在fs-pipe-c中一些函数:eef8af46b03027cdd30025ef9f062910&#34;&gt;pipe在fs/pipe.c中一些函数&lt;/h3&gt;
 
 &lt;pre&gt;&lt;code&gt;- new_inode()
 - register_filesystem()
@@ -395,7 +394,7 @@
 - struct dentry在include/linux/dcache.h中定义
 &lt;/code&gt;&lt;/pre&gt;
 
-&lt;h3 id=&#34;具体实现&#34;&gt;具体实现&lt;/h3&gt;
+&lt;h3 id=&#34;具体实现:eef8af46b03027cdd30025ef9f062910&#34;&gt;具体实现&lt;/h3&gt;
 
 &lt;pre&gt;&lt;code&gt;* pipe文件系统初始化
     * 注册pipefs

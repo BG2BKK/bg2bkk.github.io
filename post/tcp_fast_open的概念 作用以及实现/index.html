@@ -101,7 +101,7 @@
     <h1 class="post-title">tcp_fast_open的概念 作用以及实现</h1>
     
 
-<h2 id="引言">引言</h2>
+<h2 id="引言:dcfa70d5873a9471dad227ae4d6ecbe0">引言</h2>
 
 <blockquote>
 <p>三次握手的过程中，当用户首次访问server时，发送syn包，server根据用户IP生成cookie，并与syn+ack一同发回client；client再次访问server时，在syn包携带TCP cookie；如果server校验合法，则在用户回复ack前就可以直接发送数据；否则按照正常三次握手进行。</p>
@@ -416,14 +416,14 @@ net.ipv4.tcp_fastopen = 3
 
 <p>nginx 1.5.18（2013年）开始支持tcp fast open</p>
 
-<h2 id="todo-list">TODO LIST</h2>
+<h2 id="todo-list:dcfa70d5873a9471dad227ae4d6ecbe0">TODO LIST</h2>
 
 <ul>
 <li>TFO在移动端场景中的性能体现：android+nginx</li>
 <li>tcp fast open 在内核中的实现</li>
 </ul>
 
-<h2 id="参考链接">参考链接</h2>
+<h2 id="参考链接:dcfa70d5873a9471dad227ae4d6ecbe0">参考链接</h2>
 
 <ul>
 <li><a href="http://blog.sina.com.cn/s/blog_583f42f101011veh.html">TFO&mdash;google tcp fast open protocol</a></li>

@@ -101,7 +101,7 @@
     <h1 class="post-title">effective tips in daily work</h1>
     
 
-<h2 id="sar在ubuntu中的配置">sar在ubuntu中的配置</h2>
+<h2 id="sar在ubuntu中的配置:1350fa5c56171e9d9c8991f08929cd14">sar在ubuntu中的配置</h2>
 
 <pre><code class="language-bash">sudo apt-get install sysstat
 
@@ -118,14 +118,14 @@ sudo vim /etc/cron.d/sysstat
 sudo /etc/init.d/sysstat restart
 </code></pre>
 
-<h2 id="全世界最愚蠢的事情就是-重复做相同的事情-却期待有不同的结果发生">全世界最愚蠢的事情就是，重复做相同的事情，却期待有不同的结果发生</h2>
+<h2 id="全世界最愚蠢的事情就是-重复做相同的事情-却期待有不同的结果发生:1350fa5c56171e9d9c8991f08929cd14">全世界最愚蠢的事情就是，重复做相同的事情，却期待有不同的结果发生</h2>
 
 <pre><code>Insanity: doing the same thing over and over again and expecting different results.
 </code></pre>
 
 <p>说实话，在写代码、调代码的时候，一但出现非预期结果，首先检查之前自己的编码和输入，确定后不应该再二次重试，毕竟相同条件下不可能产生不同结果，此时应该将思维跳脱出来，另辟蹊径为好。</p>
 
-<h2 id="ubuntu下解压zip文件出现乱码的解决办法">ubuntu下解压zip文件出现乱码的解决办法</h2>
+<h2 id="ubuntu下解压zip文件出现乱码的解决办法:1350fa5c56171e9d9c8991f08929cd14">ubuntu下解压zip文件出现乱码的解决办法</h2>
 
 <p><a href="https://www.zhihu.com/question/20523036">参考链接</a></p>
 
@@ -135,7 +135,7 @@ sudo /etc/init.d/sysstat restart
 
 <p>亲测好用，不好用的看链接</p>
 
-<h2 id="redis设置和清除密码">redis设置和清除密码</h2>
+<h2 id="redis设置和清除密码:1350fa5c56171e9d9c8991f08929cd14">redis设置和清除密码</h2>
 
 <p>正规项目终于要对redis设置密码了，<a href="http://blog.csdn.net/zyz511919766/article/details/42268219">如何加密码呢</a></p>
 
@@ -173,7 +173,7 @@ sudo /etc/init.d/sysstat restart
 </ul></li>
 </ul>
 
-<h2 id="epoll是同步非阻塞的">epoll是同步非阻塞的</h2>
+<h2 id="epoll是同步非阻塞的:1350fa5c56171e9d9c8991f08929cd14">epoll是同步非阻塞的</h2>
 
 <p>epoll、select等多路服用IO，将fd加入等待时间的队列中，每隔一段时间去轮询一次，因此是同步的；优点是能够在等待任务的时间里去做别的任务；缺点是任务完成的响应延迟增大，因为每隔一段时间去轮询他们，在时间间隔内任务可能已经完成而等待处理等待了一段时间了。</p>
 
@@ -185,7 +185,7 @@ sudo /etc/init.d/sysstat restart
 
 <p>因此epoll是同步和非阻塞的。</p>
 
-<h2 id="sed合并相邻两行">sed合并相邻两行</h2>
+<h2 id="sed合并相邻两行:1350fa5c56171e9d9c8991f08929cd14">sed合并相邻两行</h2>
 
 <p>从redis中取出一个键的所有内容时，比如hgetall，得到的结果并不是排序好的，类似于这样</p>
 
@@ -219,14 +219,14 @@ sudo /etc/init.d/sysstat restart
 <pre><code class="language-bash">sed '$!N;s/\n/\t/' filename 
 </code></pre>
 
-<h2 id="redis分析实例中所有key和单个key的内存占用情况">redis分析实例中所有key和单个key的内存占用情况</h2>
+<h2 id="redis分析实例中所有key和单个key的内存占用情况:1350fa5c56171e9d9c8991f08929cd14">redis分析实例中所有key和单个key的内存占用情况</h2>
 
 <p>采用<a href="https://github.com/sripathikrishnan/redis-rdb-tools">rdb工具</a></p>
 
 <pre><code class="language-bash">rdb -c memory /path/to/ab-dump.rdb &gt; memory.csv
 </code></pre>
 
-<h2 id="sort进行多重排序">sort进行多重排序</h2>
+<h2 id="sort进行多重排序:1350fa5c56171e9d9c8991f08929cd14">sort进行多重排序</h2>
 
 <p>sort和uniq在文本处理，尤其是日志处理中用的较多的工具，记得当年校招时候准备面试，用到这两个命令，惊为天人，非常shock。在日常工作中，用的也非常多。</p>
 
@@ -273,7 +273,7 @@ sudo /etc/init.d/sysstat restart
 <pre><code class="language-bash">sort -k1 -k2n out
 </code></pre>
 
-<h2 id="shell脚本批量处理文本">shell脚本批量处理文本</h2>
+<h2 id="shell脚本批量处理文本:1350fa5c56171e9d9c8991f08929cd14">shell脚本批量处理文本</h2>
 
 <p>善用awk、grep、xargs、bash、sed等工具，可以提高生产力</p>
 
@@ -285,7 +285,7 @@ sudo /etc/init.d/sysstat restart
 <pre><code class="language-bash">for j in {a..z}; do echo $j; done
 </code></pre>
 
-<h2 id="redis批量删除key">redis批量删除key</h2>
+<h2 id="redis批量删除key:1350fa5c56171e9d9c8991f08929cd14">redis批量删除key</h2>
 
 <p>手动清理redis中的key时，很想通过 <strong><em>del keys</em></strong>* 的方式实现批量删除，而redis却没有提供这样的选项，因此需要借助外部工具</p>
 
@@ -311,7 +311,7 @@ sudo /etc/init.d/sysstat restart
 </ul></li>
 </ul>
 
-<h2 id="unix获取时间戳">unix获取时间戳</h2>
+<h2 id="unix获取时间戳:1350fa5c56171e9d9c8991f08929cd14">unix获取时间戳</h2>
 
 <pre><code class="language-bash">date '+%s'
 
@@ -331,7 +331,7 @@ date -d &quot;@1279592730&quot;
 
 <p><a href="http://blog.csdn.net/hittata/article/details/7640974">链接</a>中提到了各种各样的格式，以后写shell脚本就不担心时间戳问题了</p>
 
-<h2 id="docker-设置代理下载镜像">docker 设置代理下载镜像</h2>
+<h2 id="docker-设置代理下载镜像:1350fa5c56171e9d9c8991f08929cd14">docker 设置代理下载镜像</h2>
 
 <p><a href="http://stackoverflow.com/questions/23111631/cannot-download-docker-images-behind-a-proxy">在systemd中设置</a></p>
 
@@ -346,14 +346,14 @@ date -d &quot;@1279592730&quot;
 
 <p>tested on Ubuntu 16.04</p>
 
-<h2 id="用ps查看进程的执行时间">用ps查看进程的执行时间</h2>
+<h2 id="用ps查看进程的执行时间:1350fa5c56171e9d9c8991f08929cd14">用ps查看进程的执行时间</h2>
 
 <pre><code class="language-bash">ps -eo pid,tty,user,comm,stime,etime | grep main
 </code></pre>
 
 <p>可以打印进程的开始时间和执行时间</p>
 
-<h2 id="vim下以16进制查看文本文件">vim下以16进制查看文本文件</h2>
+<h2 id="vim下以16进制查看文本文件:1350fa5c56171e9d9c8991f08929cd14">vim下以16进制查看文本文件</h2>
 
 <p>vim的功能实在是太强大了，<a href="http://blog.sina.com.cn/s/blog_4c451e0e0100h4nl.html">可以以16进制查看文本信息</a>：</p>
 
@@ -363,7 +363,7 @@ date -d &quot;@1279592730&quot;
 :%!xxd -r
 </code></pre>
 
-<h2 id="linux获取系统调度时间片长度">Linux获取系统调度时间片长度</h2>
+<h2 id="linux获取系统调度时间片长度:1350fa5c56171e9d9c8991f08929cd14">Linux获取系统调度时间片长度</h2>
 
 <pre><code class="language-cpp">#define _GNU_SOURCE
 #include &lt;sched.h&gt;
@@ -392,7 +392,7 @@ The time is 0s:16000000ns.
 
 <p>可见Ubuntu-16.04 64bit的系统进程时间片是16ms</p>
 
-<h2 id="c语言中short-int-long内存占用">C语言中short、int、long内存占用</h2>
+<h2 id="c语言中short-int-long内存占用:1350fa5c56171e9d9c8991f08929cd14">C语言中short、int、long内存占用</h2>
 
 <p>随着工作年限的增加，很多基本功反而落了下来，甚至开始怀疑short等类型的内存占用问题了呵呵。印象里一直记得int和long类型都是4字节大小啊</p>
 
@@ -437,11 +437,11 @@ Linux-32Bit-platform
 
 <p>看来，long和int大小一样已经是32位机器的老黄历了，基础知识还是应该常用常新啊</p>
 
-<h2 id="文件操作的线程安全相关-待续">文件操作的线程安全相关（待续）</h2>
+<h2 id="文件操作的线程安全相关-待续:1350fa5c56171e9d9c8991f08929cd14">文件操作的线程安全相关（待续）</h2>
 
 <p><a href="http://stackoverflow.com/questions/29981050/concurrent-writing-to-a-file">http://stackoverflow.com/questions/29981050/concurrent-writing-to-a-file</a></p>
 
-<h2 id="ubuntu关闭键盘和触摸板的方法">ubuntu关闭键盘和触摸板的方法</h2>
+<h2 id="ubuntu关闭键盘和触摸板的方法:1350fa5c56171e9d9c8991f08929cd14">ubuntu关闭键盘和触摸板的方法</h2>
 
 <p>家里的猫就是喜欢趴在笔记本键盘上看你干活，我只能再买一个键盘，然后笔记本键盘留给猫大爷了。</p>
 
@@ -504,7 +504,7 @@ function doit() {
 doit 
 </code></pre>
 
-<h2 id="小于1024的保留端口都有哪些">小于1024的保留端口都有哪些</h2>
+<h2 id="小于1024的保留端口都有哪些:1350fa5c56171e9d9c8991f08929cd14">小于1024的保留端口都有哪些</h2>
 
 <p>我们会遇到如下情况：</p>
 
@@ -559,7 +559,7 @@ prospero-np	1525/tcp			# Prospero non-privileged
 
 </code></pre>
 
-<h2 id="git修改默认分支名">git修改默认分支名</h2>
+<h2 id="git修改默认分支名:1350fa5c56171e9d9c8991f08929cd14">git修改默认分支名</h2>
 
 <p>在develop分支改动太大了，导致merge 到master分支时非常被动，这个时候我想，干脆将develop分支作为分支好了。还好碰到<a href="http://stackoverflow.com/questions/1485578/change-a-git-remote-head-to-point-to-something-besides-master">stackoverflow的一个帖子</a></p>
 
@@ -571,17 +571,17 @@ prospero-np	1525/tcp			# Prospero non-privileged
 
 <p>另一个方法是从github的<a href="https://help.github.com/articles/setting-the-default-branch/">项目主页上更改</a></p>
 
-<h2 id="编译openssl-1-0-2g">编译openssl 1.0.2g</h2>
+<h2 id="编译openssl-1-0-2g:1350fa5c56171e9d9c8991f08929cd14">编译openssl 1.0.2g</h2>
 
 <pre><code class="language-bash">./config shared -fPIC zlib-dynamic &amp;&amp; make depend -j   &amp;&amp; make -j
 </code></pre>
 
-<h2 id="编译nginx-tengine-cpp模块">编译nginx/tengine: CPP模块</h2>
+<h2 id="编译nginx-tengine-cpp模块:1350fa5c56171e9d9c8991f08929cd14">编译nginx/tengine: CPP模块</h2>
 
 <pre><code class="language-bash">./configure --add-module=../cpp_module  --with-ld-opt=&quot;-lstdc++&quot;
 </code></pre>
 
-<h2 id="curl-i-和-i的区别">curl -i 和 -I的区别</h2>
+<h2 id="curl-i-和-i的区别:1350fa5c56171e9d9c8991f08929cd14">curl -i 和 -I的区别</h2>
 
 <p>man page:</p>
 
@@ -596,7 +596,7 @@ prospero-np	1525/tcp			# Prospero non-privileged
 
 <p>-I选项会发送HEAD请求，获取信息</p>
 
-<h2 id="linux系统如何将父子进程一起kill掉">linux系统如何将父子进程一起kill掉</h2>
+<h2 id="linux系统如何将父子进程一起kill掉:1350fa5c56171e9d9c8991f08929cd14">linux系统如何将父子进程一起kill掉</h2>
 
 <p>对于普通进程而言，kill掉父进程将会连带着把子进程kill掉；而对于daemon等类型进程而言，kill掉父进程，子进程会被daemon接管，所以如果想父子一起kill掉的话，不能直接kill父进程。</p>
 
@@ -612,16 +612,16 @@ prospero-np	1525/tcp			# Prospero non-privileged
 <li><p>使用exec或者xargs来kill掉他们</p></li>
 </ul>
 
-<h2 id="dns查询中-域名是否可以有多个cname呢">dns查询中，域名是否可以有多个cname呢？</h2>
+<h2 id="dns查询中-域名是否可以有多个cname呢:1350fa5c56171e9d9c8991f08929cd14">dns查询中，域名是否可以有多个cname呢？</h2>
 
 <p>不可以
     * <a href="http://serverfault.com/questions/574072/can-we-have-multiple-cnames-for-a-single-name">http://serverfault.com/questions/574072/can-we-have-multiple-cnames-for-a-single-name</a></p>
 
-<h2 id="git代理访问">git代理访问</h2>
+<h2 id="git代理访问:1350fa5c56171e9d9c8991f08929cd14">git代理访问</h2>
 
 <p>git config &ndash;global http.proxy 10.8.0.1:8118</p>
 
-<h2 id="ubuntu操作-挂载-格式化sd卡">ubuntu操作、挂载、格式化SD卡</h2>
+<h2 id="ubuntu操作-挂载-格式化sd卡:1350fa5c56171e9d9c8991f08929cd14">ubuntu操作、挂载、格式化SD卡</h2>
 
 <p>玩树莓派等板子的时候，需要从host机器将os镜像烧进sd卡，然后启动。那么ubuntu如何操作呢？</p>
 
@@ -686,7 +686,7 @@ Device         Boot Start      End  Sectors  Size Id Type
 
 <p>推荐使用USB读卡器，速度较为快一些。</p>
 
-<h2 id="lua库文件的加载路径">Lua库文件的加载路径</h2>
+<h2 id="lua库文件的加载路径:1350fa5c56171e9d9c8991f08929cd14">Lua库文件的加载路径</h2>
 
 <p>Lua 提供一个名为 <a href="http://www.lua.org/manual/5.1/manual.html#pdf-require">require</a> 的函数来加载模块，使用也很简单，它只有一个参数，这个参数就是要指定加载的模块名，<a href="http://dhq.me/lua-learning-notes-package-and-module">例如</a>：</p>
 
@@ -751,7 +751,7 @@ require &quot;fun&quot;
 <p>这点对于我们自己的lua project的设置来说无疑是很方便的。
 <a href="http://www.runoob.com/lua/lua-modules-packages.html">参考链接</a></p>
 
-<h2 id="cpp调用c函数">cpp调用c函数</h2>
+<h2 id="cpp调用c函数:1350fa5c56171e9d9c8991f08929cd14">cpp调用c函数</h2>
 
 <p>由于CPP在链接时与C不太一样，因此在调用C函数时，<a href="http://www.cnblogs.com/skynet/archive/2010/07/10/1774964.html">需要做一定处理。</a></p>
 
@@ -770,14 +770,14 @@ extern &quot;C&quot; {
 #endif
 </code></pre>
 
-<h2 id="多少人在猜你机器的密码呢">多少人在猜你机器的密码呢</h2>
+<h2 id="多少人在猜你机器的密码呢:1350fa5c56171e9d9c8991f08929cd14">多少人在猜你机器的密码呢</h2>
 
 <p>VPS在公网就是个待宰的肥肉，都想去登陆，那<a href="https://plus.google.com/+AlbertSu2015/posts/Uu1vbeJY1Hw">都谁猜我的IP了呢？</a></p>
 
 <pre><code class="language-bash">sudo grep &quot;Failed password for root&quot; /var/log/auth.log | awk '{print $11}' | sort | uniq -c | sort -nr | more
 </code></pre>
 
-<h2 id="grep的简单使用-与-或-非">grep的简单使用，与 或 非</h2>
+<h2 id="grep的简单使用-与-或-非:1350fa5c56171e9d9c8991f08929cd14">grep的简单使用，与 或 非</h2>
 
 <ul>
 <li>或操作</li>
@@ -808,7 +808,7 @@ grep -v pattern files ：不匹配pattern
 grep -C number pattern files ：匹配的上下文分别显示[number]行，
 </code></pre>
 
-<h2 id="iptables的简单使用">iptables的简单使用</h2>
+<h2 id="iptables的简单使用:1350fa5c56171e9d9c8991f08929cd14">iptables的简单使用</h2>
 
 <p>其实并不想写iptables相关的内容，因为用的不熟，但是一些常用的命令还是记一下吧</p>
 
@@ -870,7 +870,7 @@ iptables -A INPUT -p icmp -m icmp --icmp-type 8 -j ACCEPT
 <pre><code>/sbin/iptables -F
 </code></pre>
 
-<h2 id="vps简单的ssh登陆设置">VPS简单的ssh登陆设置</h2>
+<h2 id="vps简单的ssh登陆设置:1350fa5c56171e9d9c8991f08929cd14">VPS简单的ssh登陆设置</h2>
 
 <p>初次使用VPS，不懂得安全的重要性，直到扣款时候才心疼，这个时候，弱口令，密码登陆什么的，还是都放弃吧，只用ssh登陆，并且换一个自己的端口。<a href="https://imququ.com/post/bandwagon-vps-and-basicly-usage.html">参考链接</a></p>
 
@@ -898,7 +898,7 @@ Port 11111
 <pre><code class="language-bash">sudo service ssh restart
 </code></pre>
 
-<h2 id="vim删除空行">vim删除空行</h2>
+<h2 id="vim删除空行:1350fa5c56171e9d9c8991f08929cd14">vim删除空行</h2>
 
 <ul>
 <li>从网页上copy下代码后，发现很多情况下有不想要的空行，非常影响阅读，通过<a href="http://bbs.chinaunix.net/thread-510754-1-1.html">vim的正则</a>可以解决
@@ -912,14 +912,14 @@ Port 11111
 <pre><code class="language-bash">:g/^\s*$/d
 </code></pre>
 
-<h2 id="ubuntu通过命令设置系统时间">ubuntu通过命令设置系统时间</h2>
+<h2 id="ubuntu通过命令设置系统时间:1350fa5c56171e9d9c8991f08929cd14">ubuntu通过命令设置系统时间</h2>
 
 <p>在嵌入式开发中，在pcduino或者rpi板子上安装好linux后，系统时间是UTC时间1970年，对于有些软件来说可能影响安装，所以需要命令行修改date</p>
 
 <pre><code class="language-bash">sudo date -s &quot;13 DEC 2015 20:43&quot;
 </code></pre>
 
-<h2 id="ubuntu终端下中文设置">ubuntu终端下中文设置</h2>
+<h2 id="ubuntu终端下中文设置:1350fa5c56171e9d9c8991f08929cd14">ubuntu终端下中文设置</h2>
 
 <p>在安装完ubuntu系统后，我们发现中文支持的不好，主要体现在locale的错误，<a href="http://www.linuxidc.com/Linux/2015-08/122501.htm">解决方法：</a></p>
 
@@ -998,7 +998,7 @@ Generation complete.
 
 <p>一般就都能解决</p>
 
-<h2 id="linux终端下的颜色设置输出">Linux终端下的颜色设置输出</h2>
+<h2 id="linux终端下的颜色设置输出:1350fa5c56171e9d9c8991f08929cd14">Linux终端下的颜色设置输出</h2>
 
 <p>Linux终端下，如果有一个彩色的终端，可以明显提升人的阅读兴趣，通过printf的简单设置即可<a href="http://www.w2bc.com/Article/39141">实现彩色输出</a></p>
 
@@ -1036,7 +1036,7 @@ printf(&quot;\033[1;31;40m&quot;);
 printf(&quot;\033[0m&quot;);
 </code></pre>
 
-<h2 id="tsar监控系统负载和nginx运行情况">tsar监控系统负载和nginx运行情况</h2>
+<h2 id="tsar监控系统负载和nginx运行情况:1350fa5c56171e9d9c8991f08929cd14">tsar监控系统负载和nginx运行情况</h2>
 
 <p><a href="https://github.com/alibaba/tsar">tsar</a>是阿里巴巴发布的一款能够实时监控系统状态的命令行工具，并且支持第三方模块扩展，其中比较注明的是nginx模块。使用tsar时，可以将系统负载和nginx运行情况同步同时打出，可以用来定位系统瓶颈，所以广受好评。</p>
 
@@ -1080,7 +1080,7 @@ Time                util     util   retran    bytin  bytout     util     load1  
 
 </code></pre>
 
-<h2 id="wrk在centos系统上的编译方法">wrk在CentOS系统上的编译方法</h2>
+<h2 id="wrk在centos系统上的编译方法:1350fa5c56171e9d9c8991f08929cd14">wrk在CentOS系统上的编译方法</h2>
 
 <p><a href="https://github.com/wg/wrk">wrk</a>作为一款可以内嵌lua脚本的，支持多线程的压测工具，受到了广泛欢迎。在高版本CentOS 7上，直接在wrk目录下执行make，可以首先编译deps/luajit，得到deps/luajit/libluajit.a，然而在低版本上，CentOS 6.5系统中，会报一些莫名奇妙的错误。</p>
 
@@ -1095,7 +1095,7 @@ make -j24
 
 </code></pre>
 
-<h2 id="rpmbuild环境的快速初始化">rpmbuild环境的快速初始化</h2>
+<h2 id="rpmbuild环境的快速初始化:1350fa5c56171e9d9c8991f08929cd14">rpmbuild环境的快速初始化</h2>
 
 <p>需要将代码打包为CentOS的RPM包时，可以先自己在本地新建一个环境</p>
 
@@ -1105,7 +1105,7 @@ make -j24
 4. rpmbuild -ba path/to/software.spec 即可
 </code></pre>
 
-<h2 id="git记住密码-不用每次都输密码才登入">git记住密码，不用每次都输密码才登入</h2>
+<h2 id="git记住密码-不用每次都输密码才登入:1350fa5c56171e9d9c8991f08929cd14">git记住密码，不用每次都输密码才登入</h2>
 
 <p>git有两种方式，一种是ssh方式，配置公钥私钥，对于新手而言还是比较麻烦的；另一种是http方式，这里有一个办法可以让git记住密码，避免每次都需要输入密码</p>
 
@@ -1118,7 +1118,7 @@ make -j24
     helper = store 
 </code></pre>
 
-<h2 id="centos系统上某些软件-比如gcc-python等版本过低的解决方案">centos系统上某些软件，比如gcc、python等版本过低的解决方案</h2>
+<h2 id="centos系统上某些软件-比如gcc-python等版本过低的解决方案:1350fa5c56171e9d9c8991f08929cd14">centos系统上某些软件，比如gcc、python等版本过低的解决方案</h2>
 
 <p>在CentOS Server上，经常会遇到某些软件依赖版本过低的问题，比如CentOS 6.5的python是2.7版本的，gcc是4.2版本的，那么我们如何获得一个干净的、与原版本无冲突的运行环境呢。CentOS系提供了一个叫SCL的工具，可以帮我们实现目的</p>
 
@@ -1137,7 +1137,7 @@ scl enable python27 bash
 python --version
 </code></pre>
 
-<h2 id="ubuntu系统上某些软件-比如gcc等版本过高的解决方案">ubuntu系统上某些软件，比如gcc等版本过高的解决方案</h2>
+<h2 id="ubuntu系统上某些软件-比如gcc等版本过高的解决方案:1350fa5c56171e9d9c8991f08929cd14">ubuntu系统上某些软件，比如gcc等版本过高的解决方案</h2>
 
 <p>与CentOS相反，debian系发行版的软件版本都很高，Ubuntu 16.04的gcc 版本已经到了5.2，然而编译一些早期linux内核的话，需要gcc-4.7左右的版本，这时候我们怎么办呢，有两个方法：
 * 通过apt安装低版本gcc
@@ -1147,7 +1147,7 @@ python --version
     * <a href="http://www.metsky.com/archives/607.html">参考链接1</a>
     * <a href="http://blog.csdn.net/zyxlinux888/article/details/6708775">参考链接2</a> <a href="http://blog.csdn.net/zyxlinux888/article/details/6709036">附赠</a></p>
 
-<h2 id="python的matplotlib库实现绘制图标">python的matplotlib库实现绘制图标</h2>
+<h2 id="python的matplotlib库实现绘制图标:1350fa5c56171e9d9c8991f08929cd14">python的matplotlib库实现绘制图标</h2>
 
 <ul>
 <li>sudo apt-get install python-matplotlib</li>
@@ -1156,15 +1156,15 @@ python --version
 <p><a href="http://matplotlib.org/index.html">参考链接</a>
 <a href="http://matplotlib.org/examples/index.html">example</a></p>
 
-<h2 id="python使用requests库发送http请求">python使用requests库发送http请求</h2>
+<h2 id="python使用requests库发送http请求:1350fa5c56171e9d9c8991f08929cd14">python使用requests库发送http请求</h2>
 
 <p><a href="http://cn.python-requests.org/zh_CN/latest/user/quickstart.html#json">参考链接</a></p>
 
-<h2 id="python解析命令行参数-argparse">python解析命令行参数：argparse</h2>
+<h2 id="python解析命令行参数-argparse:1350fa5c56171e9d9c8991f08929cd14">python解析命令行参数：argparse</h2>
 
 <p><a href="http://blog.xiayf.cn/2013/03/30/argparse/">参考链接</a></p>
 
-<h2 id="git比较两次commit的差异">git比较两次commit的差异</h2>
+<h2 id="git比较两次commit的差异:1350fa5c56171e9d9c8991f08929cd14">git比较两次commit的差异</h2>
 
 <p>通过比较两次commit的代码差异，能够快速理解此次commit的目的，理解作者意图</p>
 
@@ -1193,7 +1193,7 @@ Date:   Sat Mar 12 01:16:00 2016 +0800
 <li>git diff commit 2279c3f4a8a42e696a0f34e6e9b6289487da92c1 2b9d85f8427c5ca9e4f9c128c22acd280eb94405</li>
 </ul>
 
-<h2 id="git返回强制返回某次提交">git返回强制返回某次提交</h2>
+<h2 id="git返回强制返回某次提交:1350fa5c56171e9d9c8991f08929cd14">git返回强制返回某次提交</h2>
 
 <ul>
 <li>git log</li>
@@ -1204,7 +1204,7 @@ Date:   Sat Mar 12 01:16:00 2016 +0800
 </ul></li>
 </ul>
 
-<h2 id="iptables允许端口被外网访问">iptables允许端口被外网访问</h2>
+<h2 id="iptables允许端口被外网访问:1350fa5c56171e9d9c8991f08929cd14">iptables允许端口被外网访问</h2>
 
 <p>防火墙设置，配置1985端口可以被外网访问</p>
 
@@ -1212,7 +1212,7 @@ Date:   Sat Mar 12 01:16:00 2016 +0800
 <li>sudo iptables -A INPUT -m state &ndash;state NEW -m tcp -p tcp &ndash;dport 1985 -j ACCEPT</li>
 </ul>
 
-<h2 id="tcpdump过滤指定标志的packet">tcpdump过滤指定标志的packet</h2>
+<h2 id="tcpdump过滤指定标志的packet:1350fa5c56171e9d9c8991f08929cd14">tcpdump过滤指定标志的packet</h2>
 
 <pre><code class="language-bash"># tcp包里有个flags字段表示包的类型，tcpdump可以根据该字段抓取相应类型的包：
 # tcp[13] 就是 TCP flags (URG,ACK,PSH,RST,SYN,FIN)
@@ -1233,7 +1233,7 @@ tcpdump -ni any port 9001 and 'tcp[13] &amp; 4 != 0 ' -s0  -w rst.cap -vvv
 
 <p><a href="http://babyhe.blog.51cto.com/1104064/1395489">参考链接</a></p>
 
-<h2 id="查看进程的内存占用情况">查看进程的内存占用情况</h2>
+<h2 id="查看进程的内存占用情况:1350fa5c56171e9d9c8991f08929cd14">查看进程的内存占用情况</h2>
 
 <p>用Ternary Search Tree代替Trie Tree后，我想知道我的进程内存占用有多大区别。</p>
 

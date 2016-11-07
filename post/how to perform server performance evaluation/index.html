@@ -57,7 +57,7 @@
         },
         "datePublished": "2016-10-23",
         "description": "",
-        "wordCount":  554 
+        "wordCount":  556 
     }
     </script>
     
@@ -132,7 +132,7 @@ TEN(T)表示循环展开执行10次任务T，可使loop开销对单次执行结�
 
 <p>所谓时延，其实也是另一种意义的速度，比如context switch，并没有吞吐量这个概念，但是通过将多个进程切换N次，得到总体时间，平均后可以获得单次切换用时，用以评估context switch的latency。</p>
 
-<h2 id="测试前的准备">测试前的准备</h2>
+<h2 id="测试前的准备:93ed95293dee210367c755a042ec6458">测试前的准备</h2>
 
 <p>很多很重要的选项，比如设计测试场景，从逻辑上说通一个测试中都包含哪些时间开销，如何测量</p>
 
@@ -159,7 +159,7 @@ TEN(T)表示循环展开执行10次任务T，可使loop开销对单次执行结�
 </ul></li>
 </ul>
 
-<h2 id="带宽性能测试">带宽性能测试</h2>
+<h2 id="带宽性能测试:93ed95293dee210367c755a042ec6458">带宽性能测试</h2>
 
 <ul>
 <li><p>Memory: 数据从内存到CPU的带宽</p>
@@ -196,8 +196,7 @@ TEN(T)表示循环展开执行10次任务T，可使loop开销对单次执行结�
 <li>rdwr
 
 <ul>
-<li>wr与rd的结合，性能略差
-<br /></li>
+<li>wr与rd的结合，性能略差</li>
 </ul></li>
 </ul></li>
 
@@ -241,21 +240,20 @@ TEN(T)表示循环展开执行10次任务T，可使loop开销对单次执行结�
 <ul>
 <li>读取1024m数据；测试采用-C标志，复制文件后再进行，可以以冷数据的方式避开文件缓存</li>
 <li>一、5526.29 MB/s</li>
-<li>二、5442.29 MB/s
-<br /></li>
+<li>二、5442.29 MB/s</li>
 </ul></li>
 </ul></li>
 
 <li><p>注：带宽测试中使用的计算机为 至强E5-2620；之后机器收回，我采用我的一台闲置笔记本Thinkpad X220进行时延性能测试，CPU为 i5-2520M</p></li>
 </ul>
 
-<h2 id="时延性能测试">时延性能测试</h2>
+<h2 id="时延性能测试:93ed95293dee210367c755a042ec6458">时延性能测试</h2>
 
 <p>计算机所有的时延几乎都跟memory时延有关，做context switch时首先要store当前进程状态，然后load下一个进程。可以说准确测量计算机内存时延是评估其他时延的前提，虽然内存时延的准确测量不太容易。</p>
 
 <p>计算机系统中存在的时延主要有内存访问时延、调用操作系统组件如读写文件和系统调用等、进程创建的时延，以及进程切换导致的上下文切换时延。</p>
 
-<h3 id="内存延时">内存延时</h3>
+<h3 id="内存延时:93ed95293dee210367c755a042ec6458">内存延时</h3>
 
 <ul>
 <li><p>定义:</p>
@@ -355,21 +353,23 @@ Remote Dram ~100 ns
 
 </code></pre>
 
-<h4 id="对于测量各级cache的latency来说-需要对每级进行特定分析">对于测量各级Cache的latency来说，需要对每级进行特定分析。</h4>
+<h4 id="对于测量各级cache的latency来说-需要对每级进行特定分析:93ed95293dee210367c755a042ec6458">对于测量各级Cache的latency来说，需要对每级进行特定分析。</h4>
 
-<h5 id="l1-cache-latency">L1 Cache Latency</h5>
+<h5 id="l1-cache-latency:93ed95293dee210367c755a042ec6458">L1 Cache Latency</h5>
 
 <p>对于intel i5-2520M来说，L1 Cache的32KB容量，cache line长64B，8路组相连，每路4KB大小，有64组cache line供选择；在不考虑其他因素的情况下，每32KB连续数据中一定会产生L1 miss，每4KB连续数据一定会有一次组内选择哪路cache line存储数据，可能产生cache miss；一旦产生cache miss，会进行L2乃至下一级的读取，造成时延加大，影响L1 cache的latency测量。因此为了避免cache miss带来的影响，在测量L1时尽量采用小步长，小内存块进行逼近，得到尽可能精确的L1 Cache的latency。</p>
 
-<h5 id="l2-cache-latency">L2 Cache Latency</h5>
+<h5 id="l2-cache-latency:93ed95293dee210367c755a042ec6458">L2 Cache Latency</h5>
 
 <p>对于L2 Cache来说，所用内存块和步长应该加大，尽量使L1 Cache失效，访问L2；也应该注意步长不能过大，造成L2 失效；所采用的内存块大小倒不是关键，因为即使再大的内存块也需要按照步长读取</p>
 
-<h5 id="l3-cache-latency">L3 Cache Latency</h5>
+<h5 id="l3-cache-latency:93ed95293dee210367c755a042ec6458">L3 Cache Latency</h5>
 
 <p>L3 Cache的latency反而难以测量，原因一是L3可能是多核共享的，容易受干扰，二是相比L1/L2和DRAM的性能差异，L3与DRAM的访问差异显得不那么大。此外，TLB的因素也应该考虑在内。</p>
 
-<h4 id="todo">TODO</h4>
+<p>拜读完<a href="yuhaozhu.com/CacheMemory.pdf">CacheMemory.pdf</a>的第一章后，发现自己考虑的太少了，所以以上的测量方法其实只能说明一个大概，并不能极具说服力的得出时延数据就是L1 Latency。</p>
+
+<h4 id="todo:93ed95293dee210367c755a042ec6458">TODO</h4>
 
 <hr />
 
@@ -389,7 +389,7 @@ Remote Dram ~100 ns
 </ul></li>
 </ul>
 
-<h3 id="调用系统组件-系统调用">调用系统组件（系统调用）</h3>
+<h3 id="调用系统组件-系统调用:93ed95293dee210367c755a042ec6458">调用系统组件（系统调用）</h3>
 
 <p>调用操作系统的入口，一般指系统调用，比如读写设备的read/write，比如getpid()或getimeofday()。</p>
 
@@ -419,7 +419,7 @@ Remote Dram ~100 ns
 </ul></li>
 </ul>
 
-<h3 id="信号处理耗时">信号处理耗时</h3>
+<h3 id="信号处理耗时:93ed95293dee210367c755a042ec6458">信号处理耗时</h3>
 
 <ul>
 <li><p>建立信号sigaction耗时</p>
@@ -494,7 +494,7 @@ Remote Dram ~100 ns
 </ul></li>
 </ul>
 
-<h3 id="创建进程开销">创建进程开销</h3>
+<h3 id="创建进程开销:93ed95293dee210367c755a042ec6458">创建进程开销</h3>
 
 <p>进程相关的benchmark主要是衡量几个进程原语：创建新进程、执行新的程序以及上下文切换。</p>
 
@@ -533,7 +533,7 @@ Remote Dram ~100 ns
 </ul></li>
 </ul>
 
-<h3 id="上下文切换的开销">上下文切换的开销</h3>
+<h3 id="上下文切换的开销:93ed95293dee210367c755a042ec6458">上下文切换的开销</h3>
 
 <ul>
 <li><p>上下文切换会受到多个因素影响：切换进程数量、每个进程自身的内存大小，以及Cache在其中的影响</p></li>
@@ -541,7 +541,7 @@ Remote Dram ~100 ns
 <li><p>测量结果：</p></li>
 </ul>
 
-<h2 id="intel的超线程技术">intel的超线程技术</h2>
+<h2 id="intel的超线程技术:93ed95293dee210367c755a042ec6458">intel的超线程技术</h2>
 
 <p><a href="https://www.ibm.com/developerworks/cn/linux/l-htl/">CPU的超线程机制</a>通过复制、分区和共享 Intel NetBurst 微结构管道中的资源，使得一个物理处理器能包含两个逻辑处理器。逻辑处理器有自己的处理器状态、指令指针、重命名逻辑以及一些较小的资源，共享的资源有乱序执行引擎和高速缓存。超线程机制HT利用各资源的速度差异，在时间上并行模拟出两份计算资源，理论上讲提供多一倍的计算能力，而代价是，既然涉及到共享，那么在一些操作中会因为共享和竞争而有性能损耗。下表是超线程对Linux API的影响，采用lmbench测试结果，这份bench报表在运行有linux-2.4.19内核的Intel Xeon处理器上，主频1.60GHz。</p>
 
@@ -550,7 +550,7 @@ Remote Dram ~100 ns
 
 <p>我认为上表中，ht没有影响的API是一些lmbench单进程可以测试的项，比如read、write等，而ht有影响的选项，比如管道延迟、进程fork+exit等，是lmbench需要发起多个进程进行bench，这些进程在逻辑处理器间有竞争，导致性能有些下降。从报表中可以看到，开启ht的bench结果在有些项目中耗时加长，但是比较小，但是整个系统获得了一倍的计算资源。</p>
 
-<h2 id="intel的turbo技术">intel的turbo技术</h2>
+<h2 id="intel的turbo技术:93ed95293dee210367c755a042ec6458">intel的turbo技术</h2>
 
 <p><a href="https://magiclen.org/linux-intel-cpu/">linux的睿频工具</a>可以实时看到CPU的运行频率</p>
 
@@ -575,7 +575,7 @@ Remote Dram ~100 ns
 
 <p>可见睿频的主要作用是动态调整CPU主频适应处理任务，当我们运行lmbench时，理所应当的CPU将会满载运行，所以计算CPU主频时完全不用担心睿频导致的频率变化，总是接近最高值的。</p>
 
-<h2 id="lmbench测试框架">lmbench测试框架</h2>
+<h2 id="lmbench测试框架:93ed95293dee210367c755a042ec6458">lmbench测试框架</h2>
 
 <ul>
 <li>fork出child进程，作为bench执行体；parent作为控制体；</li>
