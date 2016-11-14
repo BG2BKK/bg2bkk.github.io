@@ -107,7 +107,7 @@
     <h1 class="post-title">VFS虚拟文件系统</h1>
     
 
-<h2 id="虚拟文件系统:33c34adef684867bc26f32ab644d7c6f">虚拟文件系统</h2>
+<h2 id="虚拟文件系统">虚拟文件系统</h2>
 
 <ul>
 <li>虚拟文件系统为用户空间程序提供了文件和文件系统的接口</li>
@@ -115,7 +115,7 @@
 <li>Linux等现代操作系统引入VFS作为抽象层，极大方便系统调用</li>
 </ul>
 
-<h2 id="unix文件系统:33c34adef684867bc26f32ab644d7c6f">Unix文件系统</h2>
+<h2 id="unix文件系统">Unix文件系统</h2>
 
 <ul>
 <li>UNIX系统使用了四种和文件系统相关的抽象概念: 文件、目录项、索引结点和挂载点。</li>
@@ -317,7 +317,8 @@
 <li><p>struct namespace {}</p>
 
 <ul>
-<li>使得每个进程在系统中能看到唯一的安装文件系统，mm-&gt;namespace</li>
+<li>使得每个进程在系统中能看到唯一的安装文件系统，mm-&gt;namespace
+<br /></li>
 </ul></li>
 
 <li><p>每个进程都有指向自己的fs_struct和files_struct，多个进程可能指向同一个，比如通过带有CLONE_FILES和CLONE_FS标志创建的进程（其实是线程），所以这两个struct都有引用计数，以防出错</p></li>

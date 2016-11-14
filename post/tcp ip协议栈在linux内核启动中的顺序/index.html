@@ -116,7 +116,7 @@
 
 <p>那我就先把原作者的文章翻译过来，再继续下一步工作吧。</p>
 
-<h2 id="先说结论:45e9e7b94f065f59195b43c12d821283">先说结论</h2>
+<h2 id="先说结论">先说结论</h2>
 
 <ol>
 <li>kernel启动时，第一个与network有关的函数是sock_init()，用来向kernel注册sock文件系统并挂载，以及加载其他模块，比如netfilter</li>
@@ -126,7 +126,7 @@
 <li>Unix Domain Socket是在af_unix_init()中初始化的。1~5步按时间顺序排列。</li>
 </ol>
 
-<h2 id="linux-kernel-2-4的入口函数:45e9e7b94f065f59195b43c12d821283">Linux Kernel 2.4的入口函数</h2>
+<h2 id="linux-kernel-2-4的入口函数">Linux Kernel 2.4的入口函数</h2>
 
 <p>1.经过基本硬件设置后，启动代码(定义在head.S中)调用 /init/main.c 的 start_kernel()函数</p>
 

@@ -101,7 +101,7 @@
     <h1 class="post-title">HTTP2的实践过程</h1>
     
 
-<h2 id="目录:7c9d76473bce6d4e5d302b3b042a765b">目录</h2>
+<h2 id="目录">目录</h2>
 
 <ul>
 <li>前言</li>
@@ -122,7 +122,7 @@
 </ul></li>
 </ul>
 
-<h2 id="前言:7c9d76473bce6d4e5d302b3b042a765b">前言</h2>
+<h2 id="前言">前言</h2>
 
 <ul>
 <li>在研究HTTP/2协议时，常常和https协议混在一起，而二者之间的关系是怎样的呢？</li>
@@ -133,7 +133,7 @@
 
 <p>关于涉及到的概念等，需要在别的文档中写。</p>
 
-<h2 id="基于openssl自建证书:7c9d76473bce6d4e5d302b3b042a765b">基于openssl自建证书</h2>
+<h2 id="基于openssl自建证书">基于openssl自建证书</h2>
 
 <p>在线上配置HTTPS时，需要从权威CA申请证书，在nginx中配置证书crt和私钥key。</p>
 
@@ -145,7 +145,7 @@
 <p>而在线下调试时，如果需要配置https，则需要自建和签发证书。
 <a href="http://segmentfault.com/a/1190000002569859">基于openssl自建证书</a></p>
 
-<h3 id="在centos系统上自建证书:7c9d76473bce6d4e5d302b3b042a765b">在CentOS系统上自建证书</h3>
+<h3 id="在centos系统上自建证书">在CentOS系统上自建证书</h3>
 
 <p>1.自建CA，颁发证书</p>
 
@@ -352,7 +352,7 @@ $ mkdir demoCA/private
 this is abtesting server
 </code></pre>
 
-<h2 id="nginx的支持http-2的patch:7c9d76473bce6d4e5d302b3b042a765b">nginx的支持HTTP/2的patch</h2>
+<h2 id="nginx的支持http-2的patch">nginx的支持HTTP/2的patch</h2>
 
 <blockquote>
 <p>nginx目前已正式支持HTTP/2，包括tengine-2.1.2+ 和 openresty</p>
@@ -374,7 +374,7 @@ $ make install
 
 <p>只需要在listen后加http2就可以了。目前curl在基于nghttp2提供的HTTP/2库后，可以支持访问http2的server，但是目前没有配置成功，所以对支持http2的nginx进行访问的工作，将在介绍完nghttp2后一并记录。</p>
 
-<h2 id="nghttp2安装-配置-使用:7c9d76473bce6d4e5d302b3b042a765b">nghttp2安装，配置，使用</h2>
+<h2 id="nghttp2安装-配置-使用">nghttp2安装，配置，使用</h2>
 
 <p><a href="https://github.com/tatsuhiro-t/nghttp2">nghttp2</a>是由tatsuhiro开发的，之前的spdylay也是他开发的，一直走在http2.0的前列。nghttp2包括了HTTP/2.0的库，基于这个库tatsu实现了HTTP/2.0的server、client和压测工具h2load。</p>
 
@@ -444,7 +444,7 @@ $ make
 <pre><code class="language-bash">make html
 </code></pre>
 
-<h3 id="nghttpd作为http2-server:7c9d76473bce6d4e5d302b3b042a765b">nghttpd作为http2 server</h3>
+<h3 id="nghttpd作为http2-server">nghttpd作为http2 server</h3>
 
 <p>http2-no-tls</p>
 
@@ -458,7 +458,7 @@ $ make
 
 <p>关于nghttpd的选项，其实可以与nginx配置做到一一对照的。目前对nghttpd的源码及实现了解的比较少，因其日本人的过于C++代码的风格实在晦涩难懂，所以很少做调优。</p>
 
-<h3 id="nghttp作为http2-client:7c9d76473bce6d4e5d302b3b042a765b">nghttp作为http2 client</h3>
+<h3 id="nghttp作为http2-client">nghttp作为http2 client</h3>
 
 <p>http2-client-no-tls</p>
 
@@ -476,7 +476,7 @@ nghttp https://127.0.0.1:8080
 
 <p>通过strace和阅读源码，nghttp（包括压测工具h2load）作为client时，会读取系统的证书/usr/lib/ssl/demoCA/cacert.pem，因此可以不用指定。</p>
 
-<h3 id="nghttpx作为proxy-转向nginx后端:7c9d76473bce6d4e5d302b3b042a765b">nghttpx作为proxy，转向nginx后端</h3>
+<h3 id="nghttpx作为proxy-转向nginx后端">nghttpx作为proxy，转向nginx后端</h3>
 
 <p>client ——&gt; http2-proxy-no-tls ——&gt; http1.1 upstream(nginx):</p>
 
@@ -499,7 +499,7 @@ this is beta3 server
 
 <p>采用nginx-http2作为proxy，使用方法与nginx-http1.1没有区别。</p>
 
-<h3 id="h2load作为压测工具:7c9d76473bce6d4e5d302b3b042a765b">h2load作为压测工具</h3>
+<h3 id="h2load作为压测工具">h2load作为压测工具</h3>
 
 <pre><code class="language-bash">$ h2load -n100 -c10 -t4  https://127.0.0.1:8080
 starting benchmark...
