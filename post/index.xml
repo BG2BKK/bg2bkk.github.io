@@ -1184,6 +1184,12 @@ PCIE驱动就知道，将PCIE设备的配置寄存器映射到Host的内存空�
 &lt;li&gt;start+length=0x40000，注意不能越界&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;ram
+
+&lt;ul&gt;
+&lt;li&gt;start 0x20002000&lt;/li&gt;
+&lt;li&gt;length 0x2000 16KB的话协议栈和应用程序各占8KB，比较寒酸&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;li&gt;如果你发现无协议栈的程序无法启动，那么你需要修改查看flash和ram的布局&lt;/li&gt;
