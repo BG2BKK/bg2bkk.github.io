@@ -1138,6 +1138,256 @@ PCIE驱动就知道，将PCIE设备的配置寄存器映射到Host的内存空�
     </item>
     
     <item>
+      <title>BLE 和 NRF51822 开发</title>
+      <link>https://bg2bkk.github.io/post/ble_nrf51822/</link>
+      <pubDate>Sat, 15 Oct 2016 03:12:18 +0800</pubDate>
+      
+      <guid>https://bg2bkk.github.io/post/ble_nrf51822/</guid>
+      <description>&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;flash和ram布局&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;在armgcc文件夹里的ld文件，应用程序的ld需要严格按照51822的内存布局来，&lt;/li&gt;
+&lt;li&gt;我用的是256KB Flash和16KB的Ram，
+
+&lt;ul&gt;
+&lt;li&gt;无协议栈
+
+&lt;ul&gt;
+&lt;li&gt;flash&lt;br /&gt;
+
+&lt;ul&gt;
+&lt;li&gt;start 0x00000&lt;/li&gt;
+&lt;li&gt;length 0x40000 / 256KB&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;ram
+
+&lt;ul&gt;
+&lt;li&gt;start 0x20000000&lt;/li&gt;
+&lt;li&gt;length 0x4000 / 16KB&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;有协议栈
+
+&lt;ul&gt;
+&lt;li&gt;flash
+
+&lt;ul&gt;
+&lt;li&gt;start 0x18000
+
+&lt;ul&gt;
+&lt;li&gt;协议栈一般放在0x0位置，s110是80KB，即0x14000，所以应用程序的start比0x14000大就可以&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;length 0x28000
+
+&lt;ul&gt;
+&lt;li&gt;start+length=0x40000，注意不能越界&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;如果你发现无协议栈的程序无法启动，那么你需要修改查看flash和ram的布局&lt;/li&gt;
+&lt;li&gt;如果你发现有协议栈的程序无法启动，那么你还需要关注协议栈和应用程序是否和谐相处
+
+&lt;ul&gt;
+&lt;li&gt;如果还无法启动或者不正常运行，那么你的程序可能出现了运行错误比如访问越界内存，但是单片机的话由于没有core dump所以机器崩溃但你并不知道。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://www.segger.com/downloads/jlink/JLink_Linux_V610d_x86_64.deb&#34;&gt;Jlink&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;JLink的Linux版非常方便，感觉比&lt;a href=&#34;https://github.com/texane/stlink&#34;&gt;st-link&lt;/a&gt;好用一些&lt;/li&gt;
+&lt;li&gt;如何在一台电脑上搞多个JLink，还需要再学习&lt;/li&gt;
+&lt;li&gt;JLink在Ubuntu上进行带协议栈的调试还需要学习，带协议栈真是个蛋疼的事情&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://www.nordicsemi.com/eng/nordic/Products/nRF51822/nRF5x-Command-Line-Tools-Linux64/51386&#34;&gt;nRF5x-Command-Line-Tool&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;nrfjprog烧写芯片工具，应该是基于Jlink的&lt;/li&gt;
+&lt;li&gt;nrfjprog &amp;ndash;eraseall 清空芯片&lt;/li&gt;
+&lt;li&gt;nrfjprog &amp;ndash;program xyz.hex -f nrf51 &amp;ndash;chiperase 烧写程序&lt;/li&gt;
+&lt;li&gt;nrfjprog -r 重启&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://blog.csdn.net/a369000753/article/details/51192707&#34;&gt;Segger RTT使用&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;在sdk的external/segger_rtt文件夹中，记得include和添加c文件&lt;/li&gt;
+&lt;li&gt;编译方式：
+
+&lt;ul&gt;
+&lt;li&gt;armgcc: Makefile中记得使能CFLAGS += -DNRF_LOG_USES_RTT=1&lt;/li&gt;
+&lt;li&gt;Keil MDK: option中添加 -DNRF_LOG_USES_RTT&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;使用方式：
+
+&lt;ul&gt;
+&lt;li&gt;Keil MDK: 在新版的JLink软件(大于6.0版本)中的J-Link RTT Viewer&lt;/li&gt;
+&lt;li&gt;armgcc:
+
+&lt;ul&gt;
+&lt;li&gt;JLinkRTTClient 打开连接&lt;/li&gt;
+&lt;li&gt;JLinkRTTLogger 连接nrf51822，并将log写入文件中&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;代码如下&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;#include &amp;quot;SEGGER_RTT.h&amp;quot;
+#include &amp;quot;SEGGER_RTT_Conf.h&amp;quot;
+
+main() {
+	NRF_LOG_INIT();
+	SEGGER_RTT_Init();
+	// 两种方式
+	SEGGER_RTT_printf(0, &amp;quot;\r\nello,rtt\r\n&amp;quot;);
+	NRF_LOG_PRINTF(&amp;quot;ADC example\r\n&amp;quot;);
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;例程要对应sdk的版本&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;每个sdk里有很多例程，都是可以直接用keil、iar和armgcc编译的，后者就是我用的ubuntu&lt;/li&gt;
+&lt;li&gt;目前我采用的是sdk10，由于sdk10和sdk11在twi，即I2C的驱动上有差别，sdk11不能一次写超过256B字节，导致我的12864的oled不能正常工作，所以采用sdk10&lt;/li&gt;
+&lt;li&gt;但是我发现sdk11更加成熟些，目前只能暂时这样，解决方法要么是改造sdk11的twi驱动，要么是用GPIO模拟I2C控制oled，要么是等待sdk13发布&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;uart&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;nrf51822的uart驱动使用起来比较有意思
+
+&lt;ul&gt;
+&lt;li&gt;一般我们采用115200波特率，所以需要修改&lt;/li&gt;
+&lt;li&gt;一般我们不用流控，所以将APP_UART_FLOW_CONTROL_ENABLED改为APP_UART_FLOW_CONTROL_DISABLED&lt;/li&gt;
+&lt;li&gt;printf的话，Keil的microlib勾选上来；armgcc的话可以直接开搞。
+&lt;br /&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-cpp&#34;&gt;    uint32_t err_code;
+    const app_uart_comm_params_t comm_params =
+      {
+          RX_PIN_NUMBER,
+          TX_PIN_NUMBER,
+          RTS_PIN_NUMBER,
+          CTS_PIN_NUMBER,
+          APP_UART_FLOW_CONTROL_DISABLED,
+          false,
+          UART_BAUDRATE_BAUDRATE_Baud115200
+      };
+
+    APP_UART_FIFO_INIT(&amp;amp;comm_params,
+                         UART_RX_BUF_SIZE,
+                         UART_TX_BUF_SIZE,
+                         uart_error_handle,
+                         APP_IRQ_PRIORITY_LOW,
+                         err_code);
+
+    APP_ERROR_CHECK(err_code);
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;twi / I2C&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;ssd1306_128x64_oled
+
+&lt;ul&gt;
+&lt;li&gt;ssd1306是比较常用的oled驱动芯片了，各种例程很多，还便宜&lt;/li&gt;
+&lt;li&gt;可以用I2C和SPI驱动，后者比前者多2根线，所以用I2C了；实际上很多oled都可以通过改led电阻来更改驱动方式&lt;/li&gt;
+&lt;li&gt;ssd1306的话最好能够将u8g的lib移植一下，这个目前还没有做&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;nrf有两个twi，需要在例程中config文件夹里的头文件中将设备使能，置为1&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://www.doc00.com/doc/100100a28&#34;&gt;adc&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;选对管脚
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;https://raw.githubusercontent.com/BG2BKK/githubio/master/static/nrf51822_adc_pin.png&#34; &gt;&lt;p&gt;nrf51822 adc的通道和输入管脚的对应&lt;/p&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+&lt;li&gt;P0.01到P0.06分别对应通道2至通道7，P0.26和P0.27对应通道0和通道1&lt;/li&gt;
+&lt;li&gt;我选择通道3，P0.02&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;选对参考电压&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;可选择：&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;#define ADC_CONFIG_REFSEL_VBG (0x00UL)
+
+&lt;ul&gt;
+&lt;li&gt;选择内部稳定的1.2V作为参考电压&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;#define ADC_CONFIG_REFSEL_External (0x01UL)
+
+&lt;ul&gt;
+&lt;li&gt;采用外部参考电压&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;#define ADC_CONFIG_REFSEL_SupplyOneHalfPrescaling (0x02UL)
+
+&lt;ul&gt;
+&lt;li&gt;采用外部电压的1/2作为参考电压，一般用于测量1.7V到2.6V&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;#define ADC_CONFIG_REFSEL_SupplyOneThirdPrescaling (0x03UL)
+
+&lt;ul&gt;
+&lt;li&gt;采用外部电压的1/3作为参考电压，一般用于测量2.5V到3.6V&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;一般来说内部稳定的1.2V是比较好的选择，我选择ADC_CONFIG_REFSEL_VBG&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;选对输入比例&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;可选择：
+
+&lt;ul&gt;
+&lt;li&gt;#define ADC_CONFIG_INPSEL_AnalogInputNoPrescaling (0x00UL)
+
+&lt;ul&gt;
+&lt;li&gt;直接将待检测电压输入&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;#define ADC_CONFIG_INPSEL_AnalogInputTwoThirdsPrescaling (0x01UL)
+
+&lt;ul&gt;
+&lt;li&gt;测量带检测电压的1/2&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;#define ADC_CONFIG_INPSEL_AnalogInputOneThirdPrescaling (0x02UL)
+
+&lt;ul&gt;
+&lt;li&gt;测量带检测电压的1/3&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;#define ADC_CONFIG_INPSEL_SupplyTwoThirdsPrescaling (0x05UL)&lt;/li&gt;
+&lt;li&gt;#define ADC_CONFIG_INPSEL_SupplyOneThirdPrescaling (0x06UL)&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;测量电压不能大于参考电压，因此采用1.2V作为参考电压时，只使用测量电压的1/3比较安全&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;adc转换的结果在adc中断里取&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://blog.chinaunix.net/uid-28852942-id-5711152.html&#34;&gt;ble利用adc实现电量检测服务&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;https://raw.githubusercontent.com/BG2BKK/githubio/master/static/nrf51822_adc_config.png&#34; &gt;&lt;p&gt;nrf51822 adc的配置寄存器&lt;/p&gt;&lt;/div&gt;
+</description>
+    </item>
+    
+    <item>
       <title>futex和linux的线程同步机制</title>
       <link>https://bg2bkk.github.io/post/futex%E5%92%8Clinux%E7%9A%84%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6/</link>
       <pubDate>Thu, 13 Oct 2016 13:57:31 +0800</pubDate>
@@ -4383,209 +4633,6 @@ main	false	cannot resume dead coroutine
 &lt;li&gt;以后再也不碰FPGA了，VHDL这种逻辑语言其实没必要人肉来写&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>DNS with golang</title>
-      <link>https://bg2bkk.github.io/post/DNS%20with%20golang/</link>
-      <pubDate>Wed, 13 Apr 2016 11:37:24 +0800</pubDate>
-      
-      <guid>https://bg2bkk.github.io/post/DNS%20with%20golang/</guid>
-      <description>&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.cnblogs.com/cobbliu/archive/2013/04/02/2996333.html&#34;&gt;DNS消息格式&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://www.cnblogs.com/cobbliu/p/3188632.html&#34;&gt;EDNS详解&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://tools.ietf.org/html/rfc6891&#34;&gt;rfc6891&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://www.ietf.org/id/draft-ietf-dnsop-edns-client-subnet-08.txt&#34;&gt;edns_client_subnet draft&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://noops.me/?p=653&#34;&gt;小米的ends实践&lt;/a&gt;
-&lt;br /&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;6. respond时也需要增加一个Additional RRs区域，直接把请求的Additional内容发过去就可以(如果支持source netmask，将请求中的source netmask复制到scope netmask中，OpenDNS要求必须支持scope netmask)
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;pre&gt;&lt;code&gt;* 意思是非OpenDNS就可以不支持scope netmask吗？目前新浪的仍然不支持
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/miekg/dns&#34;&gt;miekg/dns: golang lib&lt;/a&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;dig with edns&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://www.gsic.uva.es/~jnisigl/dig-edns-client-subnet.html&#34;&gt;https://www.gsic.uva.es/~jnisigl/dig-edns-client-subnet.html&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;http://xmodulo.com/geographic-location-ip-address-command-line.html&#34;&gt;http://xmodulo.com/geographic-location-ip-address-command-line.html&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;在线查询：curl ipinfo.io/23.66.166.151&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;DNS报文格式&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;IP packet
-
-&lt;ul&gt;
-&lt;li&gt;IP Header 20 bytes&lt;/li&gt;
-&lt;li&gt;IP Data: UDP
-
-&lt;ul&gt;
-&lt;li&gt;UDP Header 8 bytes&lt;/li&gt;
-&lt;li&gt;UDP Data: DNS
-
-&lt;ul&gt;
-&lt;li&gt;DNS Header 12 bytes&lt;/li&gt;
-&lt;li&gt;DNS Data: RR
-
-&lt;ul&gt;
-&lt;li&gt;RR: Question[]&lt;/li&gt;
-&lt;li&gt;RR: Answer[]&lt;/li&gt;
-&lt;li&gt;RR: Authority[]&lt;/li&gt;
-&lt;li&gt;RR: Additional[]&lt;/li&gt;
-&lt;li&gt;RR
-
-&lt;ul&gt;
-&lt;li&gt;QName&lt;/li&gt;
-&lt;li&gt;QType&lt;/li&gt;
-&lt;li&gt;QClass&lt;/li&gt;
-&lt;li&gt;RDLENGTH&lt;/li&gt;
-&lt;li&gt;RDATA&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;RR OPT
-
-&lt;ul&gt;
-&lt;li&gt;QName null&lt;/li&gt;
-&lt;li&gt;QType OPT=41&lt;/li&gt;
-&lt;li&gt;QClass = UDP payload 2bytes&lt;/li&gt;
-&lt;li&gt;TTL = Extended-RCODE 1byte: extend + VERSION 1byte: 0 + Z 2bytes: 0&lt;/li&gt;
-&lt;li&gt;RDLen len of data(OPT)&lt;/li&gt;
-&lt;li&gt;OPT
-
-&lt;ul&gt;
-&lt;li&gt;Option-Code 2bytes: EDNS0_SUBNET&lt;/li&gt;
-&lt;li&gt;Option-Length 2bytes&lt;/li&gt;
-&lt;li&gt;Option-Data&lt;br /&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Family 1byte: IPV4(1)&lt;/li&gt;
-&lt;li&gt;Source Netmask 1byte: 32&lt;/li&gt;
-&lt;li&gt;Scope Netmask 1byte: 0&lt;/li&gt;
-&lt;li&gt;Client Subnet 4bytes: 65.135.152.203
-&lt;br /&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;我们总是在追一些时髦的技术，而不顾基础还不牢靠&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;我们总是看见新的框架，然而框架本质上仍然是那些东西，mvc，cs&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;!-- http://www.tcpipguide.com/free/index.htm --&gt;
-
-&lt;style type=&#34;text/css&#34;&gt;
-div.t-h:hover &gt; div {display:block;}
-.t-m-s {font-size:80%;border: 2px solid #ccc;border-spacing:0;border-collapse:collapse;}
-.g-h-s {background:#9bf;color:#339;padding:4px; font-size:80%;font-weight:normal;border:1px solid #ccc;}
-&lt;/style&gt;
-
-&lt;table class=&#34;t-m-s&#34;&gt;
-&lt;div align=&#34;center&#34;&gt;&lt;table border=&#34;3&#34; cellpadding=&#34;4&#34; cellspacing=&#34;2&#34;&gt;&lt;caption align=&#34;top&#34;&gt;&lt;p align=&#34;center&#34;&gt;&lt;font face=&#34;Arial&#34;&gt;&lt;b&gt;TCP Message Format &lt;/b&gt;&lt;/font&gt;&lt;/p&gt;&lt;/caption&gt;
-&lt;tbody&gt;&lt;tr class=&#34;g-h-s&#34;&gt;
-&lt;td&gt;Octet&lt;/td&gt;
-&lt;td&gt;Bits&lt;/td&gt;
-&lt;td&gt;Len&lt;/td&gt;
-&lt;td&gt;Name&lt;/td&gt;
-&lt;td&gt;Notes&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;0-1&lt;/td&gt;
-&lt;td&gt;-&lt;/td&gt;
-&lt;td&gt;2&lt;/td&gt;
-&lt;td&gt;Source port&lt;/td&gt;
-&lt;td&gt;-&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;2-3&lt;/td&gt;
-&lt;td&gt;-&lt;/td&gt;
-&lt;td&gt;2&lt;/td&gt;
-&lt;td&gt;Destination Port&lt;/td&gt;
-&lt;td&gt;-&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;4-7&lt;/td&gt;
-&lt;td&gt;-&lt;/td&gt;
-&lt;td&gt;4&lt;/td&gt;
-&lt;td&gt;Sequence number&lt;/td&gt;
-&lt;td&gt;position of last octet we sent.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;8-11&lt;/td&gt;
-&lt;td&gt;-&lt;/td&gt;
-&lt;td&gt;4&lt;/td&gt;
-&lt;td&gt;Acknowledge Number&lt;/td&gt;
-&lt;td&gt;Next octet number we expect from the peer.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;12&lt;/td&gt;
-&lt;td&gt;0-3&lt;/td&gt;
-&lt;td&gt;-&lt;/td&gt;
-&lt;td&gt;HLEN&lt;/td&gt;
-&lt;td&gt;4 bits. The number of 32 bit multiples (4 octets) in the TCP header including any &#39;options&#39; fields.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;12&lt;/td&gt;
-&lt;td&gt;4-7&lt;/td&gt;
-&lt;td&gt;-&lt;/td&gt;
-&lt;td&gt;Reserved&lt;/td&gt;
-&lt;td&gt;should be zero&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;13&lt;/td&gt;
-&lt;td&gt;-&lt;/td&gt;
-&lt;td&gt;1&lt;/td&gt;
-&lt;td&gt;Code bits&lt;/td&gt;
-&lt;td&gt;8 bits (6 used) valid if 1&lt;br&gt;
-bit 0 (URG) Urgent&lt;br&gt;
-bit 1 (ACK) Acknowledgement&lt;br&gt;
-bit 2 (PSH) Requests PUSH&lt;br&gt;
-bit 3 (RST) Reset connection&lt;br&gt;
-bit 4 (SYN) Sync sequence numbers&lt;br&gt;
-bit 5 (FIN) sender finished&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;14-15&lt;/td&gt;
-&lt;td&gt;-&lt;/td&gt;
-&lt;td&gt;2&lt;/td&gt;
-&lt;td&gt;Window&lt;/td&gt;
-&lt;td&gt;Specifies the amount of data we can accept.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;16-17&lt;/td&gt;
-&lt;td&gt;-&lt;/td&gt;
-&lt;td&gt;2&lt;/td&gt;
-&lt;td&gt;Checksum&lt;/td&gt;
-&lt;td&gt;Standard IP checksum. Includes a &lt;a href=&#34;#tcp-check&#34; class=&#34;t-db&#34;&gt;TCP pseudo header&lt;/a&gt;.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr&gt;
-&lt;td&gt;18-19&lt;/td&gt;
-&lt;td&gt;-&lt;/td&gt;
-&lt;td&gt;2&lt;/td&gt;
-&lt;td&gt;Urgent pointer&lt;/td&gt;
-&lt;td&gt;Points to end of urgent data.&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr class=&#34;t-c&#34;&gt;
-&lt;td colspan=&#34;5&#34;&gt;&lt;a href=&#34;#tcp_opts&#34; class=&#34;t-db&#34;&gt;TCP Options&lt;/a&gt;&lt;/td&gt;
-&lt;/tr&gt;
-&lt;tr class=&#34;t-c&#34;&gt;
-&lt;td colspan=&#34;5&#34;&gt;TCP data&lt;/td&gt;
-&lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/div&gt;
-&lt;/table&gt;
 </description>
     </item>
     
