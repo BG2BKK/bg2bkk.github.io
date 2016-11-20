@@ -5,353 +5,8 @@
     <link>https://bg2bkk.github.io/</link>
     <description>Recent content on BG2BKK Site</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Sun, 20 Nov 2016 15:31:44 +0800</lastBuildDate>
+    <lastBuildDate>Sun, 23 Oct 2016 16:43:44 +0800</lastBuildDate>
     <atom:link href="https://bg2bkk.github.io/index.xml" rel="self" type="application/rss+xml" />
-    
-    <item>
-      <title>ble_nrf51822_dfu_空中升级</title>
-      <link>https://bg2bkk.github.io/post/ble_nrf51822_dfu_%E7%A9%BA%E4%B8%AD%E5%8D%87%E7%BA%A7/</link>
-      <pubDate>Sun, 20 Nov 2016 15:31:44 +0800</pubDate>
-      
-      <guid>https://bg2bkk.github.io/post/ble_nrf51822_dfu_%E7%A9%BA%E4%B8%AD%E5%8D%87%E7%BA%A7/</guid>
-      <description>&lt;p&gt;nrf51822的dfu与别的芯片的空中升级几乎没有差别，以ESP8266为例，本次启动是从启动点bank0启动，空中升级的过程是，从远程网络服务器获取固件并写在bank1中，校验成功后设置下次启动点为bank1，重启后升级成功；nrf51822有点不同的是，空中升级通过ble获取固件并写入flash的bank1后，校验成功会擦除bank0，将bank1内容复制到bank0中，然后重启。&lt;/p&gt;
-
-&lt;p&gt;我的芯片是nrf51822 QFAA，16KB Ram，256KB Flash，使用SDK10。nrf51822启动时，bootloader检查是否进入dfu流程中。bootloader采用 SDK_10_PATH/examples/dfu/bootloader/pca10028/dual_bank_ble_s110，该例程启动时读取button4状态，如果被按下，说明需要进入dfu状态，在讯连的板子上没有button4，所以改用button0。&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://blog.csdn.net/a369000753/article/details/51153882&#34;&gt;Keil MDK实现空中升级&lt;/a&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;如上链接所示的过程写的比较详细&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;准备工作
-
-&lt;ul&gt;
-&lt;li&gt;softdevice: SDK_10_PATH/components/softdevice/s110/hex/s110_nrf51_8.0.0_softdevice.hex&lt;/li&gt;
-&lt;li&gt;bootloader: SDK_10_PATH/examples/dfu/bootloader/pca10028/dual_bank_ble_s110&lt;/li&gt;
-&lt;li&gt;ble application: SDK_10_PATH/examples/ble_peripheral/ble_app_uart&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/NordicSemiconductor/Android-nRF-Connect&#34;&gt;nrf-Connect&lt;/a&gt;，主要使用hex2bin.exe和&lt;a href=&#34;https://raw.githubusercontent.com/BG2BKK/githubio/master/static/How%20to%20generate%20the%20INIT%20file%20for%20DFU.pdf&#34;&gt;怎样制作DFU初始化包&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Keil MDK4/5&lt;/li&gt;
-&lt;li&gt;Master Control Panel，采用最新版3.10.0.14
-
-&lt;ul&gt;
-&lt;li&gt;制作升级包&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;制作bootloader，采用dual_bank_ble_s110&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;dual_bank_ble_s110的flash和ram布局
-
-&lt;ul&gt;
-&lt;li&gt;nrf51822 QFAC 32KB Ram 256 KB Flash
-
-&lt;ul&gt;
-&lt;li&gt;flash
-
-&lt;ul&gt;
-&lt;li&gt;start 0x3C000&lt;/li&gt;
-&lt;li&gt;length 0x3C00&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;ram
-
-&lt;ul&gt;
-&lt;li&gt;ram1
-
-&lt;ul&gt;
-&lt;li&gt;start 0x20002C00&lt;/li&gt;
-&lt;li&gt;length 0x5380&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;ram2
-
-&lt;ul&gt;
-&lt;li&gt;start 0x20007F80&lt;/li&gt;
-&lt;li&gt;length 0x80&lt;/li&gt;
-&lt;li&gt;NoInit&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;nrf51822 QFAA 16KB Ram 256 KB Flash
-
-&lt;ul&gt;
-&lt;li&gt;flash
-
-&lt;ul&gt;
-&lt;li&gt;start 0x3C000&lt;/li&gt;
-&lt;li&gt;length 0x3C00&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;ram
-
-&lt;ul&gt;
-&lt;li&gt;ram1
-
-&lt;ul&gt;
-&lt;li&gt;start 0x20002C00&lt;/li&gt;
-&lt;li&gt;length 0x1380&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;ram2
-
-&lt;ul&gt;
-&lt;li&gt;start 0x20001F80&lt;/li&gt;
-&lt;li&gt;length 0x80&lt;/li&gt;
-&lt;li&gt;NoInit&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;烧写bootloader
-
-&lt;ul&gt;
-&lt;li&gt;首先烧写　softdevice s110，采用nrfgo studio写入s110.hex
-
-&lt;ul&gt;
-&lt;li&gt;SDK_10_PATH/components/softdevice/s110/hex/s110_nrf51_8.0.0_softdevice.hex&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;烧写bootloader&lt;/li&gt;
-&lt;li&gt;重启，可以在手机的nrf Connect或者nrf Beacon看到DfuTarg，说明bootloader写成功；由于目前只有bootloader没有app，所以bootloader默认进入DFU状态
-&lt;br /&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;开发应用程序和升级包&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;应用程序可以在ble_peripheral中找，我习惯用ble_app_uart&lt;/li&gt;
-&lt;li&gt;ble_app_uart的flash和ram布局
-
-&lt;ul&gt;
-&lt;li&gt;nrf51822 QFAC 32KB Ram 256 KB Flash
-
-&lt;ul&gt;
-&lt;li&gt;flash
-
-&lt;ul&gt;
-&lt;li&gt;start 0x18000&lt;/li&gt;
-&lt;li&gt;length 0x28000&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;ram
-
-&lt;ul&gt;
-&lt;li&gt;start 0x20002000&lt;/li&gt;
-&lt;li&gt;length 0x4000&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;nrf51822 QFAA 16KB Ram 256 KB Flash
-
-&lt;ul&gt;
-&lt;li&gt;flash
-
-&lt;ul&gt;
-&lt;li&gt;start 0x18000&lt;/li&gt;
-&lt;li&gt;length 0x28000&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;ram
-
-&lt;ul&gt;
-&lt;li&gt;start 0x20002000&lt;/li&gt;
-&lt;li&gt;length 0x2000&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;生成应用程序bin文件
-
-&lt;ul&gt;
-&lt;li&gt;MDK编译生成hex文件，伴有axf文件&lt;/li&gt;
-&lt;li&gt;生成bin文件的两种方式
-
-&lt;ul&gt;
-&lt;li&gt;keil mdk fromelf.exe
-
-&lt;ul&gt;
-&lt;li&gt;PATH: &lt;code&gt;C:\Keil\ARM\ARMCC\bin\fromelf.exe&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;cmd: &lt;code&gt;fromelf.exe --bin --output outfile.bin infile.axf&lt;/code&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;Android-nRF-Connect的hex2bin方式
-
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;git clone https://github.com/NordicSemiconductor/Android-nRF-Connect&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;path/Android-nRF-Connect/init packet handling/hex2bin.exe _build/nrf51422_xxac_s110.hex&lt;/code&gt; 就可以生成bin文件&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;推荐方式为后者，并借助keil的设置
-
-&lt;ul&gt;
-&lt;li&gt;在&lt;code&gt;option-&amp;gt;User-&amp;gt;Run User Programs After Buidl/Rebuild&lt;/code&gt; 的&lt;code&gt;run #1&lt;/code&gt; 中&lt;/li&gt;
-&lt;li&gt;填写&lt;code&gt;&amp;quot;D:\workspace\android\Android-nRF-Connect-master\init packet handling\hex2bin.exe&amp;quot; _build/nrf51422_xxac_s110.hex&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;每次编译后，生成hex之后会自动调用hex2bin工具生成bin文件&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;制作升级包
-
-&lt;ul&gt;
-&lt;li&gt;安装Master Control Panel，我采用最新版3.10.0.14&lt;/li&gt;
-&lt;li&gt;工具： &lt;code&gt;C:\Program Files (x86)\Nordic Semiconductor\Master Control Panel\3.10.0.14\nrf\nrfutil.exe&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;命令： &lt;code&gt;nrfutil.exe dfu genpkg --application nrf51422_xxac_s110.bin --application-version 0xFFFFFFFF --dev-revision 0xFFFF --dev-type 0xFFFF --sd-req 100 nrf51422_xxac_s110.zip&lt;/code&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://creeus.blogspot.com/2015/09/nrf51822-bootloader.html&#34;&gt;参数讲解&lt;/a&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;--application-version version&lt;/code&gt; : the version of the application image, for example, 0xff&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;--dev-revision version&lt;/code&gt; : the revision of the device that should accept the image, for example, 1&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;--dev-type type&lt;/code&gt; : the type of the device that should accept the image, for example, 1&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;--sd-req sd_list&lt;/code&gt; : a comma-separated list of FWID values of SoftDevices that are valid to be used with the new image, for example, 0x4f,0x5a&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;空中升级
-
-&lt;ul&gt;
-&lt;li&gt;将zip文件传到手机&lt;/li&gt;
-&lt;li&gt;打开nrf Beacon，在dfu tab下select file，选择zip文件&lt;/li&gt;
-&lt;li&gt;点击select device选择DfuTarg&lt;/li&gt;
-&lt;li&gt;点击upload开始上传更新包&lt;/li&gt;
-&lt;li&gt;传输完成后，nrf51822重启，进入ble_app_uart应用中&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;手动方式
-
-&lt;ul&gt;
-&lt;li&gt;按住button0然后重新启动nrf51822，进入dfu模式&lt;/li&gt;
-&lt;li&gt;重复空中升级的手机操作&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;[Linux下使用armgcc和nrf工具实现DFU升级]&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;准备工作
-
-&lt;ul&gt;
-&lt;li&gt;softdevice: SDK_10_PATH/components/softdevice/s130/hex/s130_nrf51_8.0.0_softdevice.hex
-
-&lt;ul&gt;
-&lt;li&gt;采用s130，而非Keil中用的s110&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;bootloader: SDK_10_PATH/examples/dfu/bootloader/pca10028/dual_bank_ble_s130&lt;/li&gt;
-&lt;li&gt;ble application: SDK_10_PATH/examples/ble_peripheral/ble_app_uart&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://www.nordicsemi.com/eng/nordic/Products/nRF51822/nRF5x-Command-Line-Tools-Linux64/51386&#34;&gt;nRF5x-Command-Line-Tool&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/NordicSemiconductor/pc-nrfutil/tree/0_5_2&#34;&gt;nrfutil 0.5.2&lt;/a&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/NordicSemiconductor/pc-nrfutil&#34;&gt;nrfutil master分支&lt;/a&gt;介绍sdk11和sdk11之前的版本用nrfutil-0.5.2，之后的sdk用nrfutil高版本，目前是2.0.0版本。&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;制作bootloader
-
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;SDK_10_PATH/examples/dfu/bootloader/pca10028/dual_bank_ble_s130/armgcc&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;由于nrf51822 QFAA蛋疼的16KB Ram，所以内存和flash布局要做相应修改，修改 &lt;code&gt;SDK_10_PATH/examples/dfu/bootloader/dfu_gcc_nrf51.ld&lt;/code&gt;的相应布局&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;MEMORY
-{
-  /** Flash start address for the bootloader. This setting will also be stored in UICR to allow the
-   *  MBR to init the bootloader when starting the system. This value must correspond to 
-   *  BOOTLOADER_REGION_START found in dfu_types.h. The system is prevented from starting up if 
-   *  those values do not match. The check is performed in main.c, see
-   *  APP_ERROR_CHECK_BOOL(*((uint32_t *)NRF_UICR_BOOT_START_ADDRESS) == BOOTLOADER_REGION_START);
-   */
-  FLASH (rx) : ORIGIN = 0x3C000, LENGTH = 0x3C00
-
-  /** RAM Region for bootloader. This setting is suitable when used with s110, s120, s130, s310. */
-  RAM (rwx) :  ORIGIN = 0x20002C00, LENGTH = 0x1380
-
-  /** Location of non initialized RAM. Non initialized RAM is used for exchanging bond information
-   *  from application to bootloader when using buttonluss DFU OTA. 
-   */
-  NOINIT (rwx) :  ORIGIN = 0x20001F80, LENGTH = 0x80
-
-  /** Location of bootloader setting in at the last flash page. */
-  BOOTLOADER_SETTINGS (rw) : ORIGIN = 0x0003FC00, LENGTH = 0x0400
-
-  /** Location in UICR where bootloader start address is stored. */
-  UICR_BOOTLOADER (r) : ORIGIN = 0x10001014, LENGTH = 0x04
-}
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;br&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;br&gt;
-
-&lt;ul&gt;
-&lt;li&gt;烧写bootloader
-
-&lt;ul&gt;
-&lt;li&gt;方式与Keil烧写顺序一样，由于sdk10提供的bootloader中Makefile缺少&lt;code&gt;make flash_softdevice&lt;/code&gt;，因此修改Makefile，添加如下配置&lt;/li&gt;
-&lt;li&gt;make; make flash_softdevice; make flash&lt;/li&gt;
-&lt;li&gt;可以在nrf Beacon中看到DfuTarg设备&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;flash: nrf51422_xxac
-	@echo Flashing: $(OUTPUT_BINARY_DIRECTORY)/$&amp;lt;.hex
-	nrfjprog --program $(OUTPUT_BINARY_DIRECTORY)/$&amp;lt;.hex -f nrf51  --sectorerase
-	nrfjprog --reset
-
-## Flash softdevice
-flash_softdevice:
-	@echo Flashing: s130_nrf51_1.0.0_softdevice.hex
-	nrfjprog --program ../../../../../../components/softdevice/s130/hex/s130_nrf51_1.0.0_softdevice.hex -f nrf51 --chiperase
-	nrfjprog --reset
-
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;开发应用程序和制作升级包
-
-&lt;ul&gt;
-&lt;li&gt;其实我觉得，采用armgcc方式开发，比采用Keil方式要简便很多，Keil还要钱。&lt;/li&gt;
-&lt;li&gt;nrfutil-0.5.2
-
-&lt;ul&gt;
-&lt;li&gt;git clone &lt;a href=&#34;https://github.com/NordicSemiconductor/pc-nrfutil&#34;&gt;https://github.com/NordicSemiconductor/pc-nrfutil&lt;/a&gt; -b 0_5_2&lt;/li&gt;
-&lt;li&gt;python setup.py install&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;ble_app_uart
-
-&lt;ul&gt;
-&lt;li&gt;/home/huang/workspace/nrf51822/sdk10/examples/ble_peripheral/ble_app_oled/pca10028/s130/armgcc&lt;/li&gt;
-&lt;li&gt;make&lt;/li&gt;
-&lt;li&gt;在_build/ 中生成nrf51422_xxac_s130.hex和nrf51422_xxac_s130.bin，但是在linux下不需要bin文件，使用hex作为应用程序&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;制作升级包
-
-&lt;ul&gt;
-&lt;li&gt;&lt;code&gt;nrfutil dfu genpkg --application _build/nrf51422_xxac_s130.hex --application-version 0xffffffff --dev-revision 0xffff --dev-type 0xffff --sd-req 0xfffe _build/nrf51422_xxac_s130.zip&lt;/code&gt;&lt;/li&gt;
-&lt;li&gt;注意观察&lt;code&gt;--sd-req 0xfff3&lt;/code&gt;，在&lt;a href=&#34;https://raw.githubusercontent.com/BG2BKK/githubio/master/static/How%20to%20generate%20the%20INIT%20file%20for%20DFU.pdf&#34;&gt;文档How to generate the INIT file for DFU.pdf&lt;/a&gt;中讲到softdevice版本对应的0x5A代表SD 7.1.0,0x4F代表 SD 7.0.0，0x64代表SD 8.0.0，而SDK10中的SD正是8.0.0，但是我怎么试都不好使，只能使用0xFFFE，它可以接受任何版本的softdevice&lt;/li&gt;
-&lt;li&gt;注意观察&lt;code&gt;--application _build/nrf51422_xxac_s130.hex&lt;/code&gt;，application采用的是hex文件&lt;/li&gt;
-&lt;li&gt;可能是nrfutil版本和SDK版本较老的原因吧，很多参数都很不正规，比如application-version，采用的全是FF&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;空中升级
-
-&lt;ul&gt;
-&lt;li&gt;将zip文件传到手机&lt;/li&gt;
-&lt;li&gt;bootloader烧写进nrf51822后，打开nrf Beacon&lt;/li&gt;
-&lt;li&gt;select file选择zip文件，select device选择DfuTarg设备&lt;/li&gt;
-&lt;li&gt;upload更新程序
-&lt;br /&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;以上就是根据nordic的sdk10提供的官方bootloader例程和ble_app_uart应用程序实现的空中升级，只是一个最简单的实现，还需要多学习和总结&lt;/p&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
     
     <item>
       <title>怎样尽可能全面的评估一台服务器的性能</title>
@@ -2905,6 +2560,351 @@ tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.ca
     </item>
     
     <item>
+      <title>ble_nrf51822_dfu_空中升级</title>
+      <link>https://bg2bkk.github.io/post/ble_nrf51822_dfu_%E7%A9%BA%E4%B8%AD%E5%8D%87%E7%BA%A7/</link>
+      <pubDate>Wed, 20 Jul 2016 15:31:44 +0800</pubDate>
+      
+      <guid>https://bg2bkk.github.io/post/ble_nrf51822_dfu_%E7%A9%BA%E4%B8%AD%E5%8D%87%E7%BA%A7/</guid>
+      <description>&lt;p&gt;nrf51822的dfu与别的芯片的空中升级几乎没有差别，以ESP8266为例，本次启动是从启动点bank0启动，空中升级的过程是，从远程网络服务器获取固件并写在bank1中，校验成功后设置下次启动点为bank1，重启后升级成功；nrf51822有点不同的是，空中升级通过ble获取固件并写入flash的bank1后，校验成功会擦除bank0，将bank1内容复制到bank0中，然后重启。&lt;/p&gt;
+
+&lt;p&gt;我的芯片是nrf51822 QFAA，16KB Ram，256KB Flash，使用SDK10。nrf51822启动时，bootloader检查是否进入dfu流程中。bootloader采用 SDK_10_PATH/examples/dfu/bootloader/pca10028/dual_bank_ble_s110，该例程启动时读取button4状态，如果被按下，说明需要进入dfu状态，在讯连的板子上没有button4，所以改用button0。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://blog.csdn.net/a369000753/article/details/51153882&#34;&gt;Keil MDK实现空中升级&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;如上链接所示的过程写的比较详细&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;准备工作
+
+&lt;ul&gt;
+&lt;li&gt;softdevice: SDK_10_PATH/components/softdevice/s110/hex/s110_nrf51_8.0.0_softdevice.hex&lt;/li&gt;
+&lt;li&gt;bootloader: SDK_10_PATH/examples/dfu/bootloader/pca10028/dual_bank_ble_s110&lt;/li&gt;
+&lt;li&gt;ble application: SDK_10_PATH/examples/ble_peripheral/ble_app_uart&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/NordicSemiconductor/Android-nRF-Connect&#34;&gt;nrf-Connect&lt;/a&gt;，主要使用hex2bin.exe和&lt;a href=&#34;https://raw.githubusercontent.com/BG2BKK/githubio/master/static/How%20to%20generate%20the%20INIT%20file%20for%20DFU.pdf&#34;&gt;怎样制作DFU初始化包&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Keil MDK4/5&lt;/li&gt;
+&lt;li&gt;Master Control Panel，采用最新版3.10.0.14
+
+&lt;ul&gt;
+&lt;li&gt;制作升级包&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;制作bootloader，采用dual_bank_ble_s110&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;dual_bank_ble_s110的flash和ram布局
+
+&lt;ul&gt;
+&lt;li&gt;nrf51822 QFAC 32KB Ram 256 KB Flash
+
+&lt;ul&gt;
+&lt;li&gt;flash
+
+&lt;ul&gt;
+&lt;li&gt;start 0x3C000&lt;/li&gt;
+&lt;li&gt;length 0x3C00&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;ram
+
+&lt;ul&gt;
+&lt;li&gt;ram1
+
+&lt;ul&gt;
+&lt;li&gt;start 0x20002C00&lt;/li&gt;
+&lt;li&gt;length 0x5380&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;ram2
+
+&lt;ul&gt;
+&lt;li&gt;start 0x20007F80&lt;/li&gt;
+&lt;li&gt;length 0x80&lt;/li&gt;
+&lt;li&gt;NoInit&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;nrf51822 QFAA 16KB Ram 256 KB Flash
+
+&lt;ul&gt;
+&lt;li&gt;flash
+
+&lt;ul&gt;
+&lt;li&gt;start 0x3C000&lt;/li&gt;
+&lt;li&gt;length 0x3C00&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;ram
+
+&lt;ul&gt;
+&lt;li&gt;ram1
+
+&lt;ul&gt;
+&lt;li&gt;start 0x20002C00&lt;/li&gt;
+&lt;li&gt;length 0x1380&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;ram2
+
+&lt;ul&gt;
+&lt;li&gt;start 0x20001F80&lt;/li&gt;
+&lt;li&gt;length 0x80&lt;/li&gt;
+&lt;li&gt;NoInit&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;烧写bootloader
+
+&lt;ul&gt;
+&lt;li&gt;首先烧写　softdevice s110，采用nrfgo studio写入s110.hex
+
+&lt;ul&gt;
+&lt;li&gt;SDK_10_PATH/components/softdevice/s110/hex/s110_nrf51_8.0.0_softdevice.hex&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;烧写bootloader&lt;/li&gt;
+&lt;li&gt;重启，可以在手机的nrf Connect或者nrf Beacon看到DfuTarg，说明bootloader写成功；由于目前只有bootloader没有app，所以bootloader默认进入DFU状态
+&lt;br /&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;开发应用程序和升级包&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;应用程序可以在ble_peripheral中找，我习惯用ble_app_uart&lt;/li&gt;
+&lt;li&gt;ble_app_uart的flash和ram布局
+
+&lt;ul&gt;
+&lt;li&gt;nrf51822 QFAC 32KB Ram 256 KB Flash
+
+&lt;ul&gt;
+&lt;li&gt;flash
+
+&lt;ul&gt;
+&lt;li&gt;start 0x18000&lt;/li&gt;
+&lt;li&gt;length 0x28000&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;ram
+
+&lt;ul&gt;
+&lt;li&gt;start 0x20002000&lt;/li&gt;
+&lt;li&gt;length 0x4000&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;nrf51822 QFAA 16KB Ram 256 KB Flash
+
+&lt;ul&gt;
+&lt;li&gt;flash
+
+&lt;ul&gt;
+&lt;li&gt;start 0x18000&lt;/li&gt;
+&lt;li&gt;length 0x28000&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;ram
+
+&lt;ul&gt;
+&lt;li&gt;start 0x20002000&lt;/li&gt;
+&lt;li&gt;length 0x2000&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;生成应用程序bin文件
+
+&lt;ul&gt;
+&lt;li&gt;MDK编译生成hex文件，伴有axf文件&lt;/li&gt;
+&lt;li&gt;生成bin文件的两种方式
+
+&lt;ul&gt;
+&lt;li&gt;keil mdk fromelf.exe
+
+&lt;ul&gt;
+&lt;li&gt;PATH: &lt;code&gt;C:\Keil\ARM\ARMCC\bin\fromelf.exe&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;cmd: &lt;code&gt;fromelf.exe --bin --output outfile.bin infile.axf&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Android-nRF-Connect的hex2bin方式
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;git clone https://github.com/NordicSemiconductor/Android-nRF-Connect&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;path/Android-nRF-Connect/init packet handling/hex2bin.exe _build/nrf51422_xxac_s110.hex&lt;/code&gt; 就可以生成bin文件&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;推荐方式为后者，并借助keil的设置
+
+&lt;ul&gt;
+&lt;li&gt;在&lt;code&gt;option-&amp;gt;User-&amp;gt;Run User Programs After Buidl/Rebuild&lt;/code&gt; 的&lt;code&gt;run #1&lt;/code&gt; 中&lt;/li&gt;
+&lt;li&gt;填写&lt;code&gt;&amp;quot;D:\workspace\android\Android-nRF-Connect-master\init packet handling\hex2bin.exe&amp;quot; _build/nrf51422_xxac_s110.hex&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;每次编译后，生成hex之后会自动调用hex2bin工具生成bin文件&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;制作升级包
+
+&lt;ul&gt;
+&lt;li&gt;安装Master Control Panel，我采用最新版3.10.0.14&lt;/li&gt;
+&lt;li&gt;工具： &lt;code&gt;C:\Program Files (x86)\Nordic Semiconductor\Master Control Panel\3.10.0.14\nrf\nrfutil.exe&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;命令： &lt;code&gt;nrfutil.exe dfu genpkg --application nrf51422_xxac_s110.bin --application-version 0xFFFFFFFF --dev-revision 0xFFFF --dev-type 0xFFFF --sd-req 100 nrf51422_xxac_s110.zip&lt;/code&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://creeus.blogspot.com/2015/09/nrf51822-bootloader.html&#34;&gt;参数讲解&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;--application-version version&lt;/code&gt; : the version of the application image, for example, 0xff&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--dev-revision version&lt;/code&gt; : the revision of the device that should accept the image, for example, 1&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--dev-type type&lt;/code&gt; : the type of the device that should accept the image, for example, 1&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--sd-req sd_list&lt;/code&gt; : a comma-separated list of FWID values of SoftDevices that are valid to be used with the new image, for example, 0x4f,0x5a&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;空中升级
+
+&lt;ul&gt;
+&lt;li&gt;将zip文件传到手机&lt;/li&gt;
+&lt;li&gt;打开nrf Beacon，在dfu tab下select file，选择zip文件&lt;/li&gt;
+&lt;li&gt;点击select device选择DfuTarg&lt;/li&gt;
+&lt;li&gt;点击upload开始上传更新包&lt;/li&gt;
+&lt;li&gt;传输完成后，nrf51822重启，进入ble_app_uart应用中&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;手动方式
+
+&lt;ul&gt;
+&lt;li&gt;按住button0然后重新启动nrf51822，进入dfu模式&lt;/li&gt;
+&lt;li&gt;重复空中升级的手机操作&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;[Linux下使用armgcc和nrf工具实现DFU升级]&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;准备工作
+
+&lt;ul&gt;
+&lt;li&gt;softdevice: SDK_10_PATH/components/softdevice/s130/hex/s130_nrf51_8.0.0_softdevice.hex
+
+&lt;ul&gt;
+&lt;li&gt;采用s130，而非Keil中用的s110&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;bootloader: SDK_10_PATH/examples/dfu/bootloader/pca10028/dual_bank_ble_s130&lt;/li&gt;
+&lt;li&gt;ble application: SDK_10_PATH/examples/ble_peripheral/ble_app_uart&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.nordicsemi.com/eng/nordic/Products/nRF51822/nRF5x-Command-Line-Tools-Linux64/51386&#34;&gt;nRF5x-Command-Line-Tool&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/NordicSemiconductor/pc-nrfutil/tree/0_5_2&#34;&gt;nrfutil 0.5.2&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/NordicSemiconductor/pc-nrfutil&#34;&gt;nrfutil master分支&lt;/a&gt;介绍sdk11和sdk11之前的版本用nrfutil-0.5.2，之后的sdk用nrfutil高版本，目前是2.0.0版本。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;制作bootloader
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;SDK_10_PATH/examples/dfu/bootloader/pca10028/dual_bank_ble_s130/armgcc&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;由于nrf51822 QFAA蛋疼的16KB Ram，所以内存和flash布局要做相应修改，修改 &lt;code&gt;SDK_10_PATH/examples/dfu/bootloader/dfu_gcc_nrf51.ld&lt;/code&gt;的相应布局&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;MEMORY
+{
+  /** Flash start address for the bootloader. This setting will also be stored in UICR to allow the
+   *  MBR to init the bootloader when starting the system. This value must correspond to 
+   *  BOOTLOADER_REGION_START found in dfu_types.h. The system is prevented from starting up if 
+   *  those values do not match. The check is performed in main.c, see
+   *  APP_ERROR_CHECK_BOOL(*((uint32_t *)NRF_UICR_BOOT_START_ADDRESS) == BOOTLOADER_REGION_START);
+   */
+  FLASH (rx) : ORIGIN = 0x3C000, LENGTH = 0x3C00
+
+  /** RAM Region for bootloader. This setting is suitable when used with s110, s120, s130, s310. */
+  RAM (rwx) :  ORIGIN = 0x20002C00, LENGTH = 0x1380
+
+  /** Location of non initialized RAM. Non initialized RAM is used for exchanging bond information
+   *  from application to bootloader when using buttonluss DFU OTA. 
+   */
+  NOINIT (rwx) :  ORIGIN = 0x20001F80, LENGTH = 0x80
+
+  /** Location of bootloader setting in at the last flash page. */
+  BOOTLOADER_SETTINGS (rw) : ORIGIN = 0x0003FC00, LENGTH = 0x0400
+
+  /** Location in UICR where bootloader start address is stored. */
+  UICR_BOOTLOADER (r) : ORIGIN = 0x10001014, LENGTH = 0x04
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;br&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;br&gt;
+
+&lt;ul&gt;
+&lt;li&gt;烧写bootloader
+
+&lt;ul&gt;
+&lt;li&gt;方式与Keil烧写顺序一样，由于sdk10提供的bootloader中Makefile缺少&lt;code&gt;make flash_softdevice&lt;/code&gt;，因此修改Makefile，添加如下配置&lt;/li&gt;
+&lt;li&gt;make; make flash_softdevice; make flash&lt;/li&gt;
+&lt;li&gt;可以在nrf Beacon中看到DfuTarg设备&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;flash: nrf51422_xxac
+	@echo Flashing: $(OUTPUT_BINARY_DIRECTORY)/$&amp;lt;.hex
+	nrfjprog --program $(OUTPUT_BINARY_DIRECTORY)/$&amp;lt;.hex -f nrf51  --sectorerase
+	nrfjprog --reset
+
+## Flash softdevice
+flash_softdevice:
+	@echo Flashing: s130_nrf51_1.0.0_softdevice.hex
+	nrfjprog --program ../../../../../../components/softdevice/s130/hex/s130_nrf51_1.0.0_softdevice.hex -f nrf51 --chiperase
+	nrfjprog --reset
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;开发应用程序和制作升级包
+
+&lt;ul&gt;
+&lt;li&gt;其实我觉得，采用armgcc方式开发，比采用Keil方式要简便很多，Keil还要钱。&lt;/li&gt;
+&lt;li&gt;nrfutil-0.5.2
+
+&lt;ul&gt;
+&lt;li&gt;git clone &lt;a href=&#34;https://github.com/NordicSemiconductor/pc-nrfutil&#34;&gt;https://github.com/NordicSemiconductor/pc-nrfutil&lt;/a&gt; -b 0_5_2&lt;/li&gt;
+&lt;li&gt;python setup.py install&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;ble_app_uart
+
+&lt;ul&gt;
+&lt;li&gt;/home/huang/workspace/nrf51822/sdk10/examples/ble_peripheral/ble_app_oled/pca10028/s130/armgcc&lt;/li&gt;
+&lt;li&gt;make&lt;/li&gt;
+&lt;li&gt;在_build/ 中生成nrf51422_xxac_s130.hex和nrf51422_xxac_s130.bin，但是在linux下不需要bin文件，使用hex作为应用程序&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;制作升级包
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;nrfutil dfu genpkg --application _build/nrf51422_xxac_s130.hex --application-version 0xffffffff --dev-revision 0xffff --dev-type 0xffff --sd-req 0xfffe _build/nrf51422_xxac_s130.zip&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;注意观察&lt;code&gt;--sd-req 0xfff3&lt;/code&gt;，在&lt;a href=&#34;https://raw.githubusercontent.com/BG2BKK/githubio/master/static/How%20to%20generate%20the%20INIT%20file%20for%20DFU.pdf&#34;&gt;文档How to generate the INIT file for DFU.pdf&lt;/a&gt;中讲到softdevice版本对应的0x5A代表SD 7.1.0,0x4F代表 SD 7.0.0，0x64代表SD 8.0.0，而SDK10中的SD正是8.0.0，但是我怎么试都不好使，只能使用0xFFFE，它可以接受任何版本的softdevice&lt;/li&gt;
+&lt;li&gt;注意观察&lt;code&gt;--application _build/nrf51422_xxac_s130.hex&lt;/code&gt;，application采用的是hex文件&lt;/li&gt;
+&lt;li&gt;可能是nrfutil版本和SDK版本较老的原因吧，很多参数都很不正规，比如application-version，采用的全是FF&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;空中升级
+
+&lt;ul&gt;
+&lt;li&gt;将zip文件传到手机&lt;/li&gt;
+&lt;li&gt;bootloader烧写进nrf51822后，打开nrf Beacon&lt;/li&gt;
+&lt;li&gt;select file选择zip文件，select device选择DfuTarg设备&lt;/li&gt;
+&lt;li&gt;upload更新程序
+&lt;br /&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;以上就是根据nordic的sdk10提供的官方bootloader例程和ble_app_uart应用程序实现的空中升级，只是一个最简单的实现，还需要多学习和总结&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
       <title>BLE 和 NRF51822 开发</title>
       <link>https://bg2bkk.github.io/post/ble_nrf51822/</link>
       <pubDate>Fri, 15 Jul 2016 03:12:18 +0800</pubDate>
@@ -3203,7 +3203,7 @@ main() {
 &lt;li&gt;&lt;a href=&#34;https://devzone.nordicsemi.com/documentation/nrf51/4.4.1/html/group__bootloader__dfu__description.html&#34;&gt;dfu&lt;/a&gt;
 
 &lt;ul&gt;
-&lt;li&gt;如何根据官方例程进行DFU升级，可以参考我的另一篇博客&lt;/li&gt;
+&lt;li&gt;如何根据官方例程进行DFU升级，可以参考我的&lt;a href=&#34;https://bg2bkk.github.io/post/ble_nrf51822_dfu_%E7%A9%BA%E4%B8%AD%E5%8D%87%E7%BA%A7/&#34;&gt;博客 nrf51822 dfu 升级&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
