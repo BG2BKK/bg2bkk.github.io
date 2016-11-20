@@ -5,8 +5,353 @@
     <link>https://bg2bkk.github.io/</link>
     <description>Recent content on BG2BKK Site</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Sun, 23 Oct 2016 16:43:44 +0800</lastBuildDate>
+    <lastBuildDate>Sun, 20 Nov 2016 15:31:44 +0800</lastBuildDate>
     <atom:link href="https://bg2bkk.github.io/index.xml" rel="self" type="application/rss+xml" />
+    
+    <item>
+      <title>ble_nrf51822_dfu_空中升级</title>
+      <link>https://bg2bkk.github.io/post/ble_nrf51822_dfu_%E7%A9%BA%E4%B8%AD%E5%8D%87%E7%BA%A7/</link>
+      <pubDate>Sun, 20 Nov 2016 15:31:44 +0800</pubDate>
+      
+      <guid>https://bg2bkk.github.io/post/ble_nrf51822_dfu_%E7%A9%BA%E4%B8%AD%E5%8D%87%E7%BA%A7/</guid>
+      <description>&lt;p&gt;nrf51822的dfu与别的芯片的空中升级几乎没有差别，以ESP8266为例，本次启动是从启动点bank0启动，空中升级的过程是，从远程网络服务器获取固件并写在bank1中，校验成功后设置下次启动点为bank1，重启后升级成功；nrf51822有点不同的是，空中升级通过ble获取固件并写入flash的bank1后，校验成功会擦除bank0，将bank1内容复制到bank0中，然后重启。&lt;/p&gt;
+
+&lt;p&gt;我的芯片是nrf51822 QFAA，16KB Ram，256KB Flash，使用SDK10。nrf51822启动时，bootloader检查是否进入dfu流程中。bootloader采用 SDK_10_PATH/examples/dfu/bootloader/pca10028/dual_bank_ble_s110，该例程启动时读取button4状态，如果被按下，说明需要进入dfu状态，在讯连的板子上没有button4，所以改用button0。&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://blog.csdn.net/a369000753/article/details/51153882&#34;&gt;Keil MDK实现空中升级&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;如上链接所示的过程写的比较详细&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;准备工作
+
+&lt;ul&gt;
+&lt;li&gt;softdevice: SDK_10_PATH/components/softdevice/s110/hex/s110_nrf51_8.0.0_softdevice.hex&lt;/li&gt;
+&lt;li&gt;bootloader: SDK_10_PATH/examples/dfu/bootloader/pca10028/dual_bank_ble_s110&lt;/li&gt;
+&lt;li&gt;ble application: SDK_10_PATH/examples/ble_peripheral/ble_app_uart&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/NordicSemiconductor/Android-nRF-Connect&#34;&gt;nrf-Connect&lt;/a&gt;，主要使用hex2bin.exe和&lt;a href=&#34;https://raw.githubusercontent.com/BG2BKK/githubio/master/static/How%20to%20generate%20the%20INIT%20file%20for%20DFU.pdf&#34;&gt;怎样制作DFU初始化包&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Keil MDK4/5&lt;/li&gt;
+&lt;li&gt;Master Control Panel，采用最新版3.10.0.14
+
+&lt;ul&gt;
+&lt;li&gt;制作升级包&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;制作bootloader，采用dual_bank_ble_s110&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;dual_bank_ble_s110的flash和ram布局
+
+&lt;ul&gt;
+&lt;li&gt;nrf51822 QFAC 32KB Ram 256 KB Flash
+
+&lt;ul&gt;
+&lt;li&gt;flash
+
+&lt;ul&gt;
+&lt;li&gt;start 0x3C000&lt;/li&gt;
+&lt;li&gt;length 0x3C00&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;ram
+
+&lt;ul&gt;
+&lt;li&gt;ram1
+
+&lt;ul&gt;
+&lt;li&gt;start 0x20002C00&lt;/li&gt;
+&lt;li&gt;length 0x5380&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;ram2
+
+&lt;ul&gt;
+&lt;li&gt;start 0x20007F80&lt;/li&gt;
+&lt;li&gt;length 0x80&lt;/li&gt;
+&lt;li&gt;NoInit&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;nrf51822 QFAA 16KB Ram 256 KB Flash
+
+&lt;ul&gt;
+&lt;li&gt;flash
+
+&lt;ul&gt;
+&lt;li&gt;start 0x3C000&lt;/li&gt;
+&lt;li&gt;length 0x3C00&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;ram
+
+&lt;ul&gt;
+&lt;li&gt;ram1
+
+&lt;ul&gt;
+&lt;li&gt;start 0x20002C00&lt;/li&gt;
+&lt;li&gt;length 0x1380&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;ram2
+
+&lt;ul&gt;
+&lt;li&gt;start 0x20001F80&lt;/li&gt;
+&lt;li&gt;length 0x80&lt;/li&gt;
+&lt;li&gt;NoInit&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;烧写bootloader
+
+&lt;ul&gt;
+&lt;li&gt;首先烧写　softdevice s110，采用nrfgo studio写入s110.hex
+
+&lt;ul&gt;
+&lt;li&gt;SDK_10_PATH/components/softdevice/s110/hex/s110_nrf51_8.0.0_softdevice.hex&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;烧写bootloader&lt;/li&gt;
+&lt;li&gt;重启，可以在手机的nrf Connect或者nrf Beacon看到DfuTarg，说明bootloader写成功；由于目前只有bootloader没有app，所以bootloader默认进入DFU状态
+&lt;br /&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;开发应用程序和升级包&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;应用程序可以在ble_peripheral中找，我习惯用ble_app_uart&lt;/li&gt;
+&lt;li&gt;ble_app_uart的flash和ram布局
+
+&lt;ul&gt;
+&lt;li&gt;nrf51822 QFAC 32KB Ram 256 KB Flash
+
+&lt;ul&gt;
+&lt;li&gt;flash
+
+&lt;ul&gt;
+&lt;li&gt;start 0x18000&lt;/li&gt;
+&lt;li&gt;length 0x28000&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;ram
+
+&lt;ul&gt;
+&lt;li&gt;start 0x20002000&lt;/li&gt;
+&lt;li&gt;length 0x4000&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;nrf51822 QFAA 16KB Ram 256 KB Flash
+
+&lt;ul&gt;
+&lt;li&gt;flash
+
+&lt;ul&gt;
+&lt;li&gt;start 0x18000&lt;/li&gt;
+&lt;li&gt;length 0x28000&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;ram
+
+&lt;ul&gt;
+&lt;li&gt;start 0x20002000&lt;/li&gt;
+&lt;li&gt;length 0x2000&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;生成应用程序bin文件
+
+&lt;ul&gt;
+&lt;li&gt;MDK编译生成hex文件，伴有axf文件&lt;/li&gt;
+&lt;li&gt;生成bin文件的两种方式
+
+&lt;ul&gt;
+&lt;li&gt;keil mdk fromelf.exe
+
+&lt;ul&gt;
+&lt;li&gt;PATH: &lt;code&gt;C:\Keil\ARM\ARMCC\bin\fromelf.exe&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;cmd: &lt;code&gt;fromelf.exe --bin --output outfile.bin infile.axf&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Android-nRF-Connect的hex2bin方式
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;git clone https://github.com/NordicSemiconductor/Android-nRF-Connect&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;path/Android-nRF-Connect/init packet handling/hex2bin.exe _build/nrf51422_xxac_s110.hex&lt;/code&gt; 就可以生成bin文件&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;推荐方式为后者，并借助keil的设置
+
+&lt;ul&gt;
+&lt;li&gt;在&lt;code&gt;option-&amp;gt;User-&amp;gt;Run User Programs After Buidl/Rebuild&lt;/code&gt; 的&lt;code&gt;run #1&lt;/code&gt; 中&lt;/li&gt;
+&lt;li&gt;填写&lt;code&gt;&amp;quot;D:\workspace\android\Android-nRF-Connect-master\init packet handling\hex2bin.exe&amp;quot; _build/nrf51422_xxac_s110.hex&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;每次编译后，生成hex之后会自动调用hex2bin工具生成bin文件&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;制作升级包
+
+&lt;ul&gt;
+&lt;li&gt;安装Master Control Panel，我采用最新版3.10.0.14&lt;/li&gt;
+&lt;li&gt;工具： &lt;code&gt;C:\Program Files (x86)\Nordic Semiconductor\Master Control Panel\3.10.0.14\nrf\nrfutil.exe&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;命令： &lt;code&gt;nrfutil.exe dfu genpkg --application nrf51422_xxac_s110.bin --application-version 0xFFFFFFFF --dev-revision 0xFFFF --dev-type 0xFFFF --sd-req 100 nrf51422_xxac_s110.zip&lt;/code&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://creeus.blogspot.com/2015/09/nrf51822-bootloader.html&#34;&gt;参数讲解&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;--application-version version&lt;/code&gt; : the version of the application image, for example, 0xff&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--dev-revision version&lt;/code&gt; : the revision of the device that should accept the image, for example, 1&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--dev-type type&lt;/code&gt; : the type of the device that should accept the image, for example, 1&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;--sd-req sd_list&lt;/code&gt; : a comma-separated list of FWID values of SoftDevices that are valid to be used with the new image, for example, 0x4f,0x5a&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;空中升级
+
+&lt;ul&gt;
+&lt;li&gt;将zip文件传到手机&lt;/li&gt;
+&lt;li&gt;打开nrf Beacon，在dfu tab下select file，选择zip文件&lt;/li&gt;
+&lt;li&gt;点击select device选择DfuTarg&lt;/li&gt;
+&lt;li&gt;点击upload开始上传更新包&lt;/li&gt;
+&lt;li&gt;传输完成后，nrf51822重启，进入ble_app_uart应用中&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;手动方式
+
+&lt;ul&gt;
+&lt;li&gt;按住button0然后重新启动nrf51822，进入dfu模式&lt;/li&gt;
+&lt;li&gt;重复空中升级的手机操作&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;[Linux下使用armgcc和nrf工具实现DFU升级]&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;准备工作
+
+&lt;ul&gt;
+&lt;li&gt;softdevice: SDK_10_PATH/components/softdevice/s130/hex/s130_nrf51_8.0.0_softdevice.hex
+
+&lt;ul&gt;
+&lt;li&gt;采用s130，而非Keil中用的s110&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;bootloader: SDK_10_PATH/examples/dfu/bootloader/pca10028/dual_bank_ble_s130&lt;/li&gt;
+&lt;li&gt;ble application: SDK_10_PATH/examples/ble_peripheral/ble_app_uart&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.nordicsemi.com/eng/nordic/Products/nRF51822/nRF5x-Command-Line-Tools-Linux64/51386&#34;&gt;nRF5x-Command-Line-Tool&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/NordicSemiconductor/pc-nrfutil/tree/0_5_2&#34;&gt;nrfutil 0.5.2&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://github.com/NordicSemiconductor/pc-nrfutil&#34;&gt;nrfutil master分支&lt;/a&gt;介绍sdk11和sdk11之前的版本用nrfutil-0.5.2，之后的sdk用nrfutil高版本，目前是2.0.0版本。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;制作bootloader
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;SDK_10_PATH/examples/dfu/bootloader/pca10028/dual_bank_ble_s130/armgcc&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;由于nrf51822 QFAA蛋疼的16KB Ram，所以内存和flash布局要做相应修改，修改 &lt;code&gt;SDK_10_PATH/examples/dfu/bootloader/dfu_gcc_nrf51.ld&lt;/code&gt;的相应布局&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;MEMORY
+{
+  /** Flash start address for the bootloader. This setting will also be stored in UICR to allow the
+   *  MBR to init the bootloader when starting the system. This value must correspond to 
+   *  BOOTLOADER_REGION_START found in dfu_types.h. The system is prevented from starting up if 
+   *  those values do not match. The check is performed in main.c, see
+   *  APP_ERROR_CHECK_BOOL(*((uint32_t *)NRF_UICR_BOOT_START_ADDRESS) == BOOTLOADER_REGION_START);
+   */
+  FLASH (rx) : ORIGIN = 0x3C000, LENGTH = 0x3C00
+
+  /** RAM Region for bootloader. This setting is suitable when used with s110, s120, s130, s310. */
+  RAM (rwx) :  ORIGIN = 0x20002C00, LENGTH = 0x1380
+
+  /** Location of non initialized RAM. Non initialized RAM is used for exchanging bond information
+   *  from application to bootloader when using buttonluss DFU OTA. 
+   */
+  NOINIT (rwx) :  ORIGIN = 0x20001F80, LENGTH = 0x80
+
+  /** Location of bootloader setting in at the last flash page. */
+  BOOTLOADER_SETTINGS (rw) : ORIGIN = 0x0003FC00, LENGTH = 0x0400
+
+  /** Location in UICR where bootloader start address is stored. */
+  UICR_BOOTLOADER (r) : ORIGIN = 0x10001014, LENGTH = 0x04
+}
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;br&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;br&gt;
+
+&lt;ul&gt;
+&lt;li&gt;烧写bootloader
+
+&lt;ul&gt;
+&lt;li&gt;方式与Keil烧写顺序一样，由于sdk10提供的bootloader中Makefile缺少&lt;code&gt;make flash_softdevice&lt;/code&gt;，因此修改Makefile，添加如下配置&lt;/li&gt;
+&lt;li&gt;make; make flash_softdevice; make flash&lt;/li&gt;
+&lt;li&gt;可以在nrf Beacon中看到DfuTarg设备&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;flash: nrf51422_xxac
+	@echo Flashing: $(OUTPUT_BINARY_DIRECTORY)/$&amp;lt;.hex
+	nrfjprog --program $(OUTPUT_BINARY_DIRECTORY)/$&amp;lt;.hex -f nrf51  --sectorerase
+	nrfjprog --reset
+
+## Flash softdevice
+flash_softdevice:
+	@echo Flashing: s130_nrf51_1.0.0_softdevice.hex
+	nrfjprog --program ../../../../../../components/softdevice/s130/hex/s130_nrf51_1.0.0_softdevice.hex -f nrf51 --chiperase
+	nrfjprog --reset
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;开发应用程序和制作升级包
+
+&lt;ul&gt;
+&lt;li&gt;其实我觉得，采用armgcc方式开发，比采用Keil方式要简便很多，Keil还要钱。&lt;/li&gt;
+&lt;li&gt;nrfutil-0.5.2
+
+&lt;ul&gt;
+&lt;li&gt;git clone &lt;a href=&#34;https://github.com/NordicSemiconductor/pc-nrfutil&#34;&gt;https://github.com/NordicSemiconductor/pc-nrfutil&lt;/a&gt; -b 0_5_2&lt;/li&gt;
+&lt;li&gt;python setup.py install&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;ble_app_uart
+
+&lt;ul&gt;
+&lt;li&gt;/home/huang/workspace/nrf51822/sdk10/examples/ble_peripheral/ble_app_oled/pca10028/s130/armgcc&lt;/li&gt;
+&lt;li&gt;make&lt;/li&gt;
+&lt;li&gt;在_build/ 中生成nrf51422_xxac_s130.hex和nrf51422_xxac_s130.bin，但是在linux下不需要bin文件，使用hex作为应用程序&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;制作升级包
+
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;nrfutil dfu genpkg --application _build/nrf51422_xxac_s130.hex --application-version 0xffffffff --dev-revision 0xffff --dev-type 0xffff --sd-req 0xfffe _build/nrf51422_xxac_s130.zip&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;注意观察&lt;code&gt;--sd-req 0xfff3&lt;/code&gt;，在&lt;a href=&#34;https://raw.githubusercontent.com/BG2BKK/githubio/master/static/How%20to%20generate%20the%20INIT%20file%20for%20DFU.pdf&#34;&gt;文档How to generate the INIT file for DFU.pdf&lt;/a&gt;中讲到softdevice版本对应的0x5A代表SD 7.1.0,0x4F代表 SD 7.0.0，0x64代表SD 8.0.0，而SDK10中的SD正是8.0.0，但是我怎么试都不好使，只能使用0xFFFE，它可以接受任何版本的softdevice&lt;/li&gt;
+&lt;li&gt;注意观察&lt;code&gt;--application _build/nrf51422_xxac_s130.hex&lt;/code&gt;，application采用的是hex文件&lt;/li&gt;
+&lt;li&gt;可能是nrfutil版本和SDK版本较老的原因吧，很多参数都很不正规，比如application-version，采用的全是FF&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;空中升级
+
+&lt;ul&gt;
+&lt;li&gt;将zip文件传到手机&lt;/li&gt;
+&lt;li&gt;bootloader烧写进nrf51822后，打开nrf Beacon&lt;/li&gt;
+&lt;li&gt;select file选择zip文件，select device选择DfuTarg设备&lt;/li&gt;
+&lt;li&gt;upload更新程序
+&lt;br /&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;以上就是根据nordic的sdk10提供的官方bootloader例程和ble_app_uart应用程序实现的空中升级，只是一个最简单的实现，还需要多学习和总结&lt;/p&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
     
     <item>
       <title>怎样尽可能全面的评估一台服务器的性能</title>
@@ -2566,6 +2911,8 @@ tcpdump -ni any port 9001 and &#39;tcp[13] &amp;amp; 4 != 0 &#39; -s0  -w rst.ca
       
       <guid>https://bg2bkk.github.io/post/ble_nrf51822/</guid>
       <description>&lt;ul&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;http://developer.nordicsemi.com/nRF51_SDK/doc/&#34;&gt;nrf51822 sdk document&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
+
 &lt;li&gt;&lt;p&gt;flash和ram布局&lt;/p&gt;
 
 &lt;ul&gt;
@@ -2812,6 +3159,53 @@ main() {
 &lt;/ul&gt;
 
 &lt;div align=&#34;center&#34;&gt;&lt;img src=&#34;https://raw.githubusercontent.com/BG2BKK/githubio/master/static/nrf51822_adc_config.png&#34; &gt;&lt;p&gt;nrf51822 adc的配置寄存器&lt;/p&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+&lt;li&gt;疑难杂症
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://devzone.nordicsemi.com/question/3771/ld-region-ram-overflowed-with-stack/&#34;&gt;armgcc: region RAM overflowed with stack&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;原因是sd+app的ram布局超过了芯片整体的ram大小&lt;/li&gt;
+&lt;li&gt;其实设置app start=0x20002800 length=0x1800 是刚够0x4000即16KB的，应该不会有这个问题；所以在注释掉&lt;SDK_PATH&gt;/components/toolchain/gcc/nrf5x_common.ld的最后一句ASSERT(__StackLimit &amp;gt;= __HeapLimit, &amp;ldquo;region RAM overflowed with stack&amp;rdquo;)并编译、烧写是可以正常工作的&lt;/li&gt;
+&lt;li&gt;内存超过布局是因为还留有一定ram给heap内存了，但是如果没有malloc等动态内存分配函数的话，&lt;a href=&#34;https://devzone.nordicsemi.com/question/3771/ld-region-ram-overflowed-with-stack/?answer=3778#post-id-3778&#34;&gt;是用不到heap内存的，所以将HEAP_SIZE设置为0或者512&lt;/a&gt;，可以编译通过
+
+&lt;ul&gt;
+&lt;li&gt;&lt;SDK_PATH&gt;/components/toolchain/gcc/gcc_startup_nrf51.s&lt;/li&gt;
+&lt;li&gt;.equ    Heap_Size, 2048   改为 512&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://devzone.nordicsemi.com/question/64564/having-problem-of-region-ram-overflowed-with-stack/&#34;&gt;另一个方法更优雅一点&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;在Makefile中添加ASMFLAGS += -D__HEAP_SIZE=0&lt;/li&gt;
+&lt;li&gt;如果是keil的话，Target &amp;gt;&amp;gt; C/C++ &amp;gt;&amp;gt; Preproccesor Symbols 添加 __HEAP_SIZE = 0&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;参考链接
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://devzone.nordicsemi.com/question/38781/region-ram-overflowed-with-stack/&#34;&gt;课外阅读1&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://devzone.nordicsemi.com/question/1088/putting-my-app-on-a-ram-memory-diet/&#34;&gt;课外阅读2&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://devzone.nordicsemi.com/question/79873/region-ram-overflowed-with-stack-when-upgrading-segger-rtt/&#34;&gt;region ram overflow after upgrading with Segger RTT&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;    Linking target: nrf51422_xxac_s130.out
+    /home/huang/workspace/nrf51822/gcc-arm-none-eabi-4_9-2015q3/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/bin/ld: region RAM overflowed with stack
+    collect2: error: ld returned 1 exit status
+    Makefile:174: recipe for target &#39;nrf51422_xxac_s130&#39; failed
+    make: *** [nrf51422_xxac_s130] Error 1
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://devzone.nordicsemi.com/documentation/nrf51/4.4.1/html/group__bootloader__dfu__description.html&#34;&gt;dfu&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;如何根据官方例程进行DFU升级，可以参考我的另一篇博客&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
 </description>
     </item>
     
@@ -4353,290 +4747,6 @@ main	false	cannot resume dead coroutine
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href=&#34;http://tengj.top/2016/04/04/sjms3abstractfactory/&#34;&gt;http://tengj.top/2016/04/04/sjms3abstractfactory/&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-</description>
-    </item>
-    
-    <item>
-      <title>resume</title>
-      <link>https://bg2bkk.github.io/post/resume/</link>
-      <pubDate>Fri, 22 Apr 2016 11:25:56 +0800</pubDate>
-      
-      <guid>https://bg2bkk.github.io/post/resume/</guid>
-      <description>
-
-&lt;h1 id=&#34;黄振栋简历&#34;&gt;黄振栋简历&lt;/h1&gt;
-
-&lt;h2 id=&#34;联系方式&#34;&gt;联系方式&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;Email：bg2bkk # gmail.com&lt;/li&gt;
-&lt;li&gt;微博：&lt;a href=&#34;http://weibo.com/BG2BKK&#34;&gt;@bg2bkk&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;个人信息&#34;&gt;个人信息&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;男/1990&lt;/li&gt;
-&lt;li&gt;硕士/哈工大深圳研究生院计算机系&lt;/li&gt;
-&lt;li&gt;工作年限：14个月&lt;/li&gt;
-&lt;li&gt;英语水平：CET-6&lt;/li&gt;
-&lt;li&gt;技术博客：&lt;a href=&#34;http://bg2bkk.github.io&#34;&gt;http://bg2bkk.github.io&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;Github：&lt;a href=&#34;http://github.com/bg2bkk&#34;&gt;http://github.com/bg2bkk&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h2 id=&#34;教育背景&#34;&gt;教育背景&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code&gt;- 2012.09 ~ 2015.01 哈尔滨工业大学 计算机 硕士
-- 2008.09 ~ 2012.06 哈尔滨工程大学 计算机 学士 
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;hr /&gt;
-
-&lt;h2 id=&#34;技能清单&#34;&gt;技能清单&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;c/ lua/ python/ golang/ shell/ vhdl&lt;/li&gt;
-&lt;li&gt;nginx/ ngx_lua/ redis&lt;/li&gt;
-&lt;li&gt;linux kernel/ performance profiling&lt;/li&gt;
-&lt;li&gt;算法、数据结构和设计模式&lt;/li&gt;
-&lt;li&gt;linux系统编程、多线程编程、网络编程&lt;/li&gt;
-&lt;li&gt;embedded system &amp;amp;&amp;amp; IOT: ble/mqtt/elua&lt;/li&gt;
-&lt;li&gt;microprocessor: stm32 51 avr FPGA&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;hr /&gt;
-
-&lt;h2 id=&#34;自我评价&#34;&gt;自我评价&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;热爱计算机，热爱编程，热爱程序员这个工作&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;hr /&gt;
-
-&lt;h2 id=&#34;工作经历&#34;&gt;工作经历&lt;/h2&gt;
-
-&lt;pre&gt;&lt;code&gt;- 2015.01 ~ NOW      新浪微博   系统开发工程师 
-- 2013.09 ~ 2014.05  极光推送   后台开发实习生 
-&lt;/code&gt;&lt;/pre&gt;
-
-&lt;h2 id=&#34;项目经历&#34;&gt;项目经历&lt;/h2&gt;
-
-&lt;h4 id=&#34;新浪微博-系统开发工程师-2015年1月-2016年8月&#34;&gt;新浪微博 系统开发工程师 （ 2015年1月 ~ 2016年8月 ）&lt;/h4&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;微博防抓站系统&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;手机微博、PC微博以及Wap版微博的防抓站系统
-
-&lt;ul&gt;
-&lt;li&gt;微博访问量日益增长，恶意抓站同时增多&lt;/li&gt;
-&lt;li&gt;封禁非法访问的IP，阻止恶意抓站&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;防抓站系统的松耦合架构
-
-&lt;ul&gt;
-&lt;li&gt;管理节点
-
-&lt;ul&gt;
-&lt;li&gt;ngx_lua开发&lt;/li&gt;
-&lt;li&gt;管理节点提供提交封禁IP、解禁IP、白名单等接口，微博安全组分析得出恶意IP向管理节点提交&lt;/li&gt;
-&lt;li&gt;管理节点将封禁IP等信息写入redis中&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;封禁节点
-
-&lt;ul&gt;
-&lt;li&gt;ngx_lua开发&lt;/li&gt;
-&lt;li&gt;封禁节点的nginx worker启动定时任务，定期从远程redis拉取新的封禁信息，并将获取到的封禁IP加入到ngx_lua的shared dict共享内存中&lt;/li&gt;
-&lt;li&gt;封禁模块工作在nginx的access阶段，获取用户请求的IP，从shared dict查询是否是封禁IP，如果是，则返回403终止用户访问，否则放行&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;可靠性
-
-&lt;ul&gt;
-&lt;li&gt;对于nginx的定时任务，由于脱离worker主进程，所以即使出错，不影响原有nginx业务&lt;/li&gt;
-&lt;li&gt;对于封禁模块，采用lua的类try-catch机制的xpcall方法，保证即使access阶段的lua代码出错时，会将用户请求放行，所以最坏情况下是不封禁所有IP&lt;/li&gt;
-&lt;li&gt;日志监控，监控定时任务执行，实时报警；收集封禁数据，统计IP拦截量&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;运行情况
-
-&lt;ul&gt;
-&lt;li&gt;封禁模块嵌入在微博前端机的nginx中，承载全量访问&lt;/li&gt;
-&lt;li&gt;封禁模块执行任务最轻，仅仅获取用户IP以及查询nginx的shm，用时低于1ms&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;手机微博七层动态调度系统dygateway&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;动态调度系统&lt;strong&gt;&lt;em&gt;dygateway&lt;/em&gt;&lt;/strong&gt; 在手机微博7层实现
-
-&lt;ul&gt;
-&lt;li&gt;系统资源的动态伸缩&lt;/li&gt;
-&lt;li&gt;用户请求的动态分流&lt;/li&gt;
-&lt;li&gt;产品服务的灰度发布&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;dygateway作为7层服务时：
-
-&lt;ul&gt;
-&lt;li&gt;动态分流子系统 &lt;a href=&#34;https://github.com/CNSRE/ABTestingGateway&#34;&gt;ABTestingGateway&lt;/a&gt;
-
-&lt;ul&gt;
-&lt;li&gt;根据用户请求的特征和分流策略将请求转发至不同的后端upstream；&lt;/li&gt;
-&lt;li&gt;动态设置分流策略，实时生效；&lt;/li&gt;
-&lt;li&gt;支持单级分流和多级分流。&lt;/li&gt;
-&lt;li&gt;基于ngx_lua 和 redis 开发&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;动态upstream模块&lt;a href=&#34;https://github.com/CNSRE/lua-upstream-nginx-module&#34;&gt;lua-upstream-nginx-module&lt;/a&gt;
-
-&lt;ul&gt;
-&lt;li&gt;该模块可以实时修改nginx的upstream列表，增减upstream，增减upstream中的member成员，实现动态伸缩。&lt;/li&gt;
-&lt;li&gt;nginx模块开发&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;目前应用于手机微博、微博头条等产品线&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;!--
-修改nginx内部的upstream模块，在高并发压力下性能不下降，实时动态分流
-灰度子系统在对用户请求做一定处理，比如添加uri参数、header头部等后，再转发至目标后端。可以动态设置分流策略，实时生效，无需重启
---&gt;
-
-&lt;hr /&gt;
-
-&lt;ul&gt;
-&lt;li&gt;手机微博 HTTP DNS 服务端开发
-
-&lt;ul&gt;
-&lt;li&gt;手机微博httpdns项目用于解决客户端恶意劫持的问题，并能够实现节点的智能调度。&lt;/li&gt;
-&lt;li&gt;一期：nginx + edns server松耦合实现
-
-&lt;ul&gt;
-&lt;li&gt;参与开发nginx的http dns模块&lt;/li&gt;
-&lt;li&gt;对项目进行压测和评估，目前已灰度上线&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;二期：golang + edns查询
-
-&lt;ul&gt;
-&lt;li&gt;参与golang server的架构设计及系统开发&lt;/li&gt;
-&lt;li&gt;开发golang 版本的edns查询模块和并发更新模块
-
-&lt;ul&gt;
-&lt;li&gt;全量并发更新域名对应IP的DNS记录，每个域名对应26万段IP，更新时间低于3分钟&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;li&gt;httpdns server端一期已上线，手机微博客户端采用渠道包灰度；二期已完成edns查询模块。&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;h4 id=&#34;极光推送-jpush-cn-后台开发实习生-2013年9月-2014年5月&#34;&gt;极光推送(jpush.cn) 后台开发实习生（ 2013年9月 ~ 2014年5月 ）&lt;/h4&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;大规模用户模拟系统&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;实习项目，该系统是极光推送后台系统中用于功能和负载测试的子系统，通过模拟真实用户的功能，保持大规模用户在线，统计模拟用户的运行数据，以测试推送系统的推送速度、负载强度和其他情况。&lt;/li&gt;
-&lt;li&gt;在mentor指导下独立完成。&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;经过系统设计、功能实现、压力测试及系统调优，单机可实现最高200万TCP长连接，线上运行时单机模拟50万用户，长期稳定运行。&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;linux cpp tcp epoll 多线程及线程间通信&lt;/li&gt;
-&lt;li&gt;单进程epoll和非阻塞IO实现高并发&lt;/li&gt;
-&lt;li&gt;多线程分别实现配置上传下发模块、统计模块、上报模块和心跳模块&lt;/li&gt;
-&lt;li&gt;tornado实现管理界面和监控界面&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;hr /&gt;
-
-&lt;h2 id=&#34;项目-演讲和讲义&#34;&gt;项目 演讲和讲义&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://github.com/WEIBOMSRE/ABTestingGateway&#34;&gt;ABTestingGateway&lt;/a&gt;：手机微博七层动态调度系统中关于灰度发布和动态分流的子项目，780+ stars。&lt;/li&gt;
-&lt;li&gt;2015年OSC源创会运维专场：&lt;a href=&#34;https://github.com/WEIBOMSRE/ABTestingGateway/blob/master/doc/%E5%9F%BA%E4%BA%8E%E5%8A%A8%E6%80%81%E7%AD%96%E7%95%A5%E7%9A%84%E7%81%B0%E5%BA%A6%E5%8F%91%E5%B8%83%E7%B3%BB%E7%BB%9F.pdf&#34;&gt;基于动态策略的灰度发布系统&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;hr /&gt;
-
-&lt;h2 id=&#34;兴趣点&#34;&gt;兴趣点&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;兴趣广泛，从Linux服务端开发到安卓开发，从单片机开发到FPGA开发，从kernel源码到lua源码，我都有兴趣:)&lt;/p&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;对所使用的软件或服务，愿意并有能力进行深入理解，从设计思路到源码实现着手&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;TCP/ DNS/ HTTP&lt;/li&gt;
-&lt;li&gt;Linux/ Nginx/ Redis/ Lua/&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;对动态追踪和性能优化尤其有兴趣&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;linux/nginx的配置参数调优&lt;/li&gt;
-&lt;li&gt;通过perf或者systemtap分析性能瓶颈&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;Linux kernel&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;tcp/ip stack&lt;/li&gt;
-&lt;li&gt;epoll&lt;/li&gt;
-&lt;li&gt;memory management&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;
-
-&lt;hr /&gt;
-
-&lt;h2 id=&#34;个人项目&#34;&gt;个人项目&lt;/h2&gt;
-
-&lt;ul&gt;
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/BG2BKK/smarthome&#34;&gt;smarthome&lt;/a&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;基于ESP8266单片机的家庭环境参数监测模块，目前支持温度、湿度、PM2.5等参数&lt;/li&gt;
-&lt;li&gt;通过wifi上传监测参数和心跳到远程server&lt;/li&gt;
-&lt;li&gt;通过mqtt进行远程推送和远程控制&lt;/li&gt;
-&lt;li&gt;server端采用nginx+nodejs+redis实现&lt;/li&gt;
-&lt;li&gt;使用nginx的rtmp模块实现实时视频监控&lt;/li&gt;
-&lt;li&gt;TODO LIST
-
-&lt;ul&gt;
-&lt;li&gt;opencv抓取关键帧上报&lt;/li&gt;
-&lt;li&gt;android app简易开发&lt;/li&gt;
-&lt;li&gt;使用dart 甲醛传感器监测室内甲醛气体&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/BG2BKK/MyDict&#34;&gt;MyDict&lt;/a&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;一个离线词典&lt;/li&gt;
-&lt;li&gt;原作者采用trie树对离线词库生成索引，我采用三向单词查找树(Ternary search tries TSTs)实现&lt;/li&gt;
-&lt;li&gt;数据结构解决实际问题，体现程序员的价值&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/BG2BKK/NFA_by_Python&#34;&gt;NFA_By_Python&lt;/a&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;《计算理论》专业课作业，内容是将使用NFA解析正则表达式，并将其可视化。&lt;/li&gt;
-&lt;li&gt;python分析正则表达式，自动生成dot代码，通过graphviz画图并生成pdf&lt;/li&gt;
-&lt;li&gt;这恐怕是我离计算机科学最近的一次了:)&lt;/li&gt;
-&lt;li&gt;其实想想，计算理论还是非常有趣的，而我也无比热爱这门科学&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
-
-&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://github.com/BG2BKK/img_process_vhdl&#34;&gt;img_process_vhdl&lt;/a&gt;&lt;/p&gt;
-
-&lt;ul&gt;
-&lt;li&gt;纯VHDL写的通用图像处理框架，在FPGA进行图像卷积运算，进而可以实现滤波、开闭等操作&lt;/li&gt;
-&lt;li&gt;考虑到github上好像逻辑工程师不多，我就不写README了。&lt;/li&gt;
-&lt;li&gt;以后再也不碰FPGA了，VHDL这种逻辑语言其实没必要人肉来写&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
