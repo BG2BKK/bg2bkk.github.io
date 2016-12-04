@@ -2900,6 +2900,24 @@ flash_softdevice:
 &lt;/ul&gt;&lt;/li&gt;
 
 &lt;li&gt;&lt;p&gt;以上就是根据nordic的sdk10提供的官方bootloader例程和ble_app_uart应用程序实现的空中升级，只是一个最简单的实现，还需要多学习和总结&lt;/p&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;在应用程序中添加dfu支持&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://developer.nordicsemi.com/nRF51_SDK/nRF51_SDK_v8.x.x/doc/8.0.0/s110/html/a00082.html&#34;&gt;官方文档&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://developer.nordicsemi.com/nRF51_SDK/nRF51_SDK_v8.x.x/doc/8.0.0/s110/html/a00081.html&#34;&gt;方法&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://developer.nordicsemi.com/nRF51_SDK/nRF51_SDK_v8.x.x/doc/8.0.0/s110/html/a00083.html&#34;&gt;应用程序切换到dfu&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.chinaunix.net/uid-28852942-id-5753917.html&#34;&gt;网友供稿&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;如何提高ble通信速率&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.chinaunix.net/uid-28852942-id-5753308.html&#34;&gt;csdn&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
     </item>
@@ -3200,10 +3218,140 @@ main() {
 &lt;/code&gt;&lt;/pre&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;https://devzone.nordicsemi.com/documentation/nrf51/4.4.1/html/group__bootloader__dfu__description.html&#34;&gt;dfu&lt;/a&gt;
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://devzone.nordicsemi.com/documentation/nrf51/4.4.1/html/group__bootloader__dfu__description.html&#34;&gt;dfu&lt;/a&gt;&lt;/p&gt;
 
 &lt;ul&gt;
 &lt;li&gt;如何根据官方例程进行DFU升级，可以参考我的&lt;a href=&#34;https://bg2bkk.github.io/post/ble_nrf51822_dfu_%E7%A9%BA%E4%B8%AD%E5%8D%87%E7%BA%A7/&#34;&gt;博客 nrf51822 dfu 升级&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://devzone.nordicsemi.com/tutorials/&#34;&gt;nordic tutorials of bluetooth low energy&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://devzone.nordicsemi.com/tutorials/5/&#34;&gt;advertising&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;advertising address
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://devzone.nordicsemi.com/question/6496/gap-address-types/&#34;&gt;gap address type&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Public Address
+
+&lt;ul&gt;
+&lt;li&gt;公共地址&lt;/li&gt;
+&lt;li&gt;在IEEE 注册&lt;/li&gt;
+&lt;li&gt;设备地址终身不变&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://devzone.nordicsemi.com/question/43670/how-to-distinguish-between-random-and-public-gap-addresses/&#34;&gt;Random Static Address&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;可变静态地址&lt;/li&gt;
+&lt;li&gt;在设备启动时动态设置&lt;/li&gt;
+&lt;li&gt;设备断电前地址不变&lt;/li&gt;
+&lt;li&gt;默认设置&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Private Resolvable Address
+
+&lt;ul&gt;
+&lt;li&gt;这种地址由identity resolving key(IRK)和一个随机数生成&lt;/li&gt;
+&lt;li&gt;可以更改，甚至可以在一个连接的生命周期内更改，从而避免被位置设备标定和跟踪&lt;/li&gt;
+&lt;li&gt;设备只能被拥有其下发IRK的设备解析，允许他们识别自己&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Private Non-Resolvable Address
+
+&lt;ul&gt;
+&lt;li&gt;不常用&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;advertising type
+
+&lt;ul&gt;
+&lt;li&gt;non-connectable
+
+&lt;ul&gt;
+&lt;li&gt;ibeacon&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;connectable&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;advertising data
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://devzone.nordicsemi.com/tutorials/5/&#34;&gt;限制31bytes&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;可以在scan response data中再加31bytes，这样在被扫描的时候可以总共发送62bytes的负载数据&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://devzone.nordicsemi.com/tutorials/8/ble-services-a-beginners-tutorial/&#34;&gt;service&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://devzone.nordicsemi.com/tutorials/8/ble-services-a-beginners-tutorial/&#34;&gt;the Generic Attribute Profile, GATT&lt;/a&gt;
+
+&lt;ul&gt;
+&lt;li&gt;he GATT Profile specifies the structure in which profile data is exchanged. This structure defines basic elements such as services and characteristics, used in a profile.
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.bluetooth.com/specifications/adopted-specifications&#34;&gt;GATT&lt;/a&gt;指定了描述数据传输的结构体，这个结构体定义描述了基本元素：services服务和characteristics特征。&lt;/li&gt;
+&lt;li&gt;通俗来讲，GATT是一组描述使用BLE进行数据的绑定、展现和传输的规则&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Services
+
+&lt;ul&gt;
+&lt;li&gt;A service is a collection of data and associated behaviors to accomplish a particular function or feature. [&amp;hellip;] A service definition may contain […] mandatory characteristics and optional characteristics.
+
+&lt;ul&gt;
+&lt;li&gt;服务，&lt;strong&gt;&lt;em&gt;The Bluetooth Core Specification&lt;/em&gt;&lt;/strong&gt; 定义为，一个服务是数据及数据的关联操作的集合，用于实现特定功能。一个service包括一个必须要有的characteristics和几个可选的characteritics。&lt;/li&gt;
+&lt;li&gt;换句话说，一个service是信息的集合，比如传感器的值。Bluetooth SIG&lt;a href=&#34;https://developer.bluetooth.org/gatt/services/Pages/ServicesHome.aspx&#34;&gt;预先定义了一些服务&lt;/a&gt;，比如battery service，比如Heart Rate service，你也可以自定义服务。&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;Characteristics
+
+&lt;ul&gt;
+&lt;li&gt;A characteristic is a value used in a service along with properties and configuration information about how the value is accessed and information about how the value is displayed or represented.
+
+&lt;ul&gt;
+&lt;li&gt;特性，官方定义是在一个服务里，所包含的属性值和配置信息，用于确定数据值如何被访问，如何呈现。&lt;/li&gt;
+&lt;li&gt;换句话说，特征决定了值和信息如何被呈现和访问。&lt;/li&gt;
+&lt;li&gt;Security parameters，units和其他相关元数据也封装在特征中&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;三者的关系相当于是，在房间里有柜子，柜子里有抽屉。GATT是房间，services是柜子，而特征就是存东西的抽屉。&lt;/li&gt;
+&lt;li&gt;Universally Unique ID, UUID
+
+&lt;ul&gt;
+&lt;li&gt;UUID是我们在BLE中经常看到的一个缩写，这是一个独一无二的数字，用来表示一个service、特征或者描述符。通过传输这些ID，peripheral设备可以向centeral设备通知自己提供的服务。&lt;/li&gt;
+&lt;li&gt;有两类UUID
+
+&lt;ul&gt;
+&lt;li&gt;16-bit UUID
+
+&lt;ul&gt;
+&lt;li&gt;比如预先定义的Heart rate service是0x180D，Heart Rate Measurement characteristic是0x2A37.&lt;/li&gt;
+&lt;li&gt;16-bit UUID是出于节省内存和能量来设计的，你只能用来表示已经定义好的这些UUID&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;128-bit UUID
+
+&lt;ul&gt;
+&lt;li&gt;128-bit UUID可以表示自定义的UUID，一般来说可以自定义UUID作为base UUID，比如4A98xxxx-1CC4-E7C1-C757-F1267DD021E8，中间的x表示你可以将service和特征的UUID填充进去&lt;/li&gt;
+&lt;li&gt;nRFgo Studio可以生成UUID&lt;/li&gt;
+&lt;li&gt;该类随机生成的UUID只有3e~-39的概率是一样的，所以如果是随机生成的，一般不会冲突
+&lt;br /&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://devzone.nordicsemi.com/question/60/what-is-connection-parameters/&#34;&gt;ble connection parameters&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Connection Interval&lt;/li&gt;
+&lt;li&gt;Slave latency&lt;/li&gt;
+&lt;li&gt;Connection supervision timeout&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+
+&lt;li&gt;&lt;p&gt;&lt;a href=&#34;https://devzone.nordicsemi.com/question/15099/changing-gatt-characteristic-properties/&#34;&gt;changing Gatt Characteristic Properties&lt;/a&gt;&lt;/p&gt;&lt;/li&gt;
 &lt;/ul&gt;&lt;/li&gt;
 &lt;/ul&gt;
 </description>
@@ -4301,6 +4449,14 @@ net.ipv4.tcp_fastopen = 3
       
       <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20learning/</guid>
       <description>
+
+&lt;ul&gt;
+&lt;li&gt;markdown
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.csdn.net/phunxm/article/details/49565427&#34;&gt;markdown边角料&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
 
 &lt;h2 id=&#34;kernel&#34;&gt;kernel&lt;/h2&gt;
 
