@@ -2,7 +2,7 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>BG2BKK Site</title>
-    <link>https://bg2bkk.github.io/</link>
+    <link>https://bg2bkk.github.io/index.xml</link>
     <description>Recent content on BG2BKK Site</description>
     <generator>Hugo -- gohugo.io</generator>
     <lastBuildDate>Sun, 23 Oct 2016 16:43:44 +0800</lastBuildDate>
@@ -1410,6 +1410,28 @@ String obj(other);
       
       <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</guid>
       <description>
+
+&lt;h2 id=&#34;普通用户获取linux的root权限&#34;&gt;普通用户获取linux的root权限&lt;/h2&gt;
+
+&lt;ul&gt;
+&lt;li&gt;方法一：sudo sh -c &amp;ldquo;su&amp;rdquo;&lt;/li&gt;
+&lt;li&gt;方法二：sudo strace su&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&#34;改变默认登录的shell&#34;&gt;改变默认登录的shell&lt;/h2&gt;
+
+&lt;p&gt;使用不同linux发行版或者上不同机器时，发现shell不是我喜欢的bash，而是sh等，这个时候需要修改&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;修改登录shell
+
+&lt;ul&gt;
+&lt;li&gt;方法一：chsh -s /bin/bash&lt;/li&gt;
+&lt;li&gt;方法二：修改/etc/passwd中的shell设置&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://blog.sina.com.cn/s/blog_56aa61930101773n.html&#34;&gt;解决shell不显示路径的方法&lt;/a&gt;&lt;/p&gt;
 
 &lt;h2 id=&#34;sar在ubuntu中的配置&#34;&gt;sar在ubuntu中的配置&lt;/h2&gt;
 

@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Read Kernel Code on BG2BKK Site</title>
-    <link>https://bg2bkk.github.io/series/read-kernel-code/</link>
-    <description>Recent content in Read Kernel Code on BG2BKK Site</description>
+    <title>BG2BKK Site</title>
+    <link>https://bg2bkk.github.io/series/read-kernel-code/index.xml</link>
+    <description>Recent content on BG2BKK Site</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Tue, 22 Mar 2016 01:48:41 +0800</lastBuildDate>
     <atom:link href="https://bg2bkk.github.io/series/read-kernel-code/index.xml" rel="self" type="application/rss+xml" />
     
     <item>
