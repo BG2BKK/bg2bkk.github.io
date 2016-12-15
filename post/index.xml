@@ -1210,6 +1210,15 @@ futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily una
       <guid>https://bg2bkk.github.io/post/cpp_basis/</guid>
       <description>
 
+&lt;h2 id=&#34;lamba学习&#34;&gt;lamba学习&lt;/h2&gt;
+
+&lt;ol&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.lellansin.com/c-lambda表达式基本用法.html&#34;&gt;直观认识&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://en.cppreference.com/w/cpp/language/lambda&#34;&gt;cppreference&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://msdn.microsoft.com/zh-cn/library/dd293608.aspx&#34;&gt;微软cpp&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.csdn.net/crayondeng/article/details/9996625&#34;&gt;function bind 和lambda的关系&lt;/a&gt;&lt;/li&gt;
+&lt;/ol&gt;
+
 &lt;h2 id=&#34;static和const关键字各自的作用&#34;&gt;static和const关键字各自的作用&lt;/h2&gt;
 
 &lt;ul&gt;
@@ -1410,6 +1419,10 @@ String obj(other);
       
       <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</guid>
       <description>
+
+&lt;h2 id=&#34;mac-os下virtual-box与虚拟机进行网络互通&#34;&gt;mac os下virtual box与虚拟机进行网络互通&lt;/h2&gt;
+
+&lt;p&gt;方法见&lt;a href=&#34;https://dplord.com/2016/03/10/some-exploration-of-the-virtualbox-on-mac-os/&#34;&gt;链接&lt;/a&gt;，需要在virtual box添加host only网卡，并在虚拟机中添加网卡。&lt;/p&gt;
 
 &lt;h2 id=&#34;普通用户获取linux的root权限&#34;&gt;普通用户获取linux的root权限&lt;/h2&gt;
 
