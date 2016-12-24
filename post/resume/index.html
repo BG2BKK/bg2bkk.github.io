@@ -57,7 +57,7 @@
         },
         "datePublished": "2016-04-22",
         "description": "",
-        "wordCount":  200 
+        "wordCount":  145 
     }
     </script>
     
@@ -189,95 +189,68 @@
 -->
 
 <ul>
-<li>手机微博七层动态调度系统dygateway
-&lt;!&ndash;
-
-<ul>
-<li>动态调度系统<strong><em>dygateway</em></strong> 在手机微博7层实现
-
-<ul>
-<li>系统资源的动态伸缩</li>
-<li>用户请求的动态分流</li>
-<li>产品服务的灰度发布</li>
-</ul></li>
-<li>dygateway作为7层服务时：
-
-<ul>
-<li>动态分流子系统 <a href="https://github.com/CNSRE/ABTestingGateway">ABTestingGateway</a>
-
-<ul>
-<li>根据用户请求的特征和分流策略将请求转发至不同的后端upstream；</li>
-<li>动态设置分流策略，实时生效；</li>
-<li>支持单级分流和多级分流。</li>
-<li>基于ngx_lua 和 redis 开发</li>
-</ul></li>
-<li>动态upstream模块<a href="https://github.com/CNSRE/lua-upstream-nginx-module">lua-upstream-nginx-module</a>
-
-<ul>
-<li>该模块可以实时修改nginx的upstream列表，增减upstream，增减upstream中的member成员，实现动态伸缩。</li>
-<li>nginx模块开发</li>
-</ul></li>
-</ul></li>
-<li>目前应用于手机微博、微博头条等产品线</li>
-</ul></li>
+<li>手机微博七层动态调度系统dygateway</li>
 </ul>
 
-<p>&ndash;&gt;
+<!--
+    * 动态调度系统***dygateway*** 在手机微博7层实现
+        * 系统资源的动态伸缩
+        * 用户请求的动态分流
+        * 产品服务的灰度发布
+    * dygateway作为7层服务时：
+        * 动态分流子系统 [ABTestingGateway](https://github.com/CNSRE/ABTestingGateway)
+            * 根据用户请求的特征和分流策略将请求转发至不同的后端upstream；
+            * 动态设置分流策略，实时生效；
+            * 支持单级分流和多级分流。
+            * 基于ngx_lua 和 redis 开发
+        * 动态upstream模块[lua-upstream-nginx-module](https://github.com/CNSRE/lua-upstream-nginx-module)
+            * 该模块可以实时修改nginx的upstream列表，增减upstream，增减upstream中的member成员，实现动态伸缩。
+            * nginx模块开发
+    * 目前应用于手机微博、微博头条等产品线
+
+-->
+
 <!--
 修改nginx内部的upstream模块，在高并发压力下性能不下降，实时动态分流
 灰度子系统在对用户请求做一定处理，比如添加uri参数、header头部等后，再转发至目标后端。可以动态设置分流策略，实时生效，无需重启
---></p>
+-->
 
 <hr />
 
 <ul>
-<li><p>手机微博 HTTP DNS 服务端开发
-&lt;!&ndash;</p>
-
-<ul>
-<li>手机微博httpdns项目用于解决客户端恶意劫持的问题，并能够实现节点的智能调度。</li>
-<li>一期：nginx + edns server松耦合实现
-
-<ul>
-<li>参与开发nginx的http dns模块</li>
-<li>对项目进行压测和评估，目前已灰度上线</li>
-</ul></li>
-<li>二期：golang + edns查询
-
-<ul>
-<li>参与golang server的架构设计及系统开发</li>
-<li>开发golang 版本的edns查询模块和并发更新模块
-
-<ul>
-<li>全量并发更新域名对应IP的DNS记录，每个域名对应26万段IP，更新时间低于3分钟</li>
-</ul></li>
-</ul></li>
-
-<li><p>httpdns server端一期已上线，手机微博客户端采用渠道包灰度；二期已完成edns查询模块。
-&ndash;&gt;</p>
-
-<h4 id="极光推送-jpush-cn-后台开发实习生-2013年9月-2014年5月">极光推送(jpush.cn) 后台开发实习生（ 2013年9月 ~ 2014年5月 ）</h4></li>
-</ul></li>
-
-<li><p>大规模用户模拟系统
-&lt;!&ndash;</p>
-
-<ul>
-<li>实习项目，该系统是极光推送后台系统中用于功能和负载测试的子系统，通过模拟真实用户的功能，保持大规模用户在线，统计模拟用户的运行数据，以测试推送系统的推送速度、负载强度和其他情况。</li>
-<li>在mentor指导下独立完成。</li>
-
-<li><p>经过系统设计、功能实现、压力测试及系统调优，单机可实现最高200万TCP长连接，线上运行时单机模拟50万用户，长期稳定运行。</p>
-
-<ul>
-<li>linux cpp tcp epoll 多线程及线程间通信</li>
-<li>单进程epoll和非阻塞IO实现高并发</li>
-<li>多线程分别实现配置上传下发模块、统计模块、上报模块和心跳模块</li>
-<li>tornado实现管理界面和监控界面
-&ndash;&gt;
-&mdash;</li>
-</ul></li>
-</ul></li>
+<li>手机微博 HTTP DNS 服务端开发</li>
 </ul>
+
+<!--
+    * 手机微博httpdns项目用于解决客户端恶意劫持的问题，并能够实现节点的智能调度。
+    * 一期：nginx + edns server松耦合实现
+        * 参与开发nginx的http dns模块
+        * 对项目进行压测和评估，目前已灰度上线
+    * 二期：golang + edns查询
+        * 参与golang server的架构设计及系统开发
+        * 开发golang 版本的edns查询模块和并发更新模块
+            * 全量并发更新域名对应IP的DNS记录，每个域名对应26万段IP，更新时间低于3分钟
+    * httpdns server端一期已上线，手机微博客户端采用渠道包灰度；二期已完成edns查询模块。
+--> 
+
+<h4 id="极光推送-jpush-cn-后台开发实习生-2013年9月-2014年5月">极光推送(jpush.cn) 后台开发实习生（ 2013年9月 ~ 2014年5月 ）</h4>
+
+<ul>
+<li>大规模用户模拟系统</li>
+</ul>
+
+<!--
+    * 实习项目，该系统是极光推送后台系统中用于功能和负载测试的子系统，通过模拟真实用户的功能，保持大规模用户在线，统计模拟用户的运行数据，以测试推送系统的推送速度、负载强度和其他情况。
+    * 在mentor指导下独立完成。
+    * 经过系统设计、功能实现、压力测试及系统调优，单机可实现最高200万TCP长连接，线上运行时单机模拟50万用户，长期稳定运行。
+
+        * linux cpp tcp epoll 多线程及线程间通信
+        * 单进程epoll和非阻塞IO实现高并发
+        * 多线程分别实现配置上传下发模块、统计模块、上报模块和心跳模块
+        * tornado实现管理界面和监控界面
+-->
+
+<hr />
 
 <h2 id="项目-演讲和讲义">项目 演讲和讲义</h2>
 
