@@ -4485,13 +4485,17 @@ net.ipv4.tcp_fastopen = 3
       <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20learning/</guid>
       <description>
 
-&lt;ul&gt;
-&lt;li&gt;markdown
+&lt;h2 id=&#34;omnigraffle&#34;&gt;OmniGraffle&lt;/h2&gt;
 
 &lt;ul&gt;
-&lt;li&gt;&lt;a href=&#34;http://blog.csdn.net/phunxm/article/details/49565427&#34;&gt;markdown边角料&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.jianshu.com/p/52f3ecbe8f2d&#34;&gt;OmniGraffle简书&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://beforweb.com/node/202&#34;&gt;UX基础 - OmniGraffle新手指南&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
+
+&lt;h2 id=&#34;markdown&#34;&gt;markdown&lt;/h2&gt;
+
+&lt;pre&gt;&lt;code&gt;* [markdown边角料](http://blog.csdn.net/phunxm/article/details/49565427)
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;h2 id=&#34;kernel&#34;&gt;kernel&lt;/h2&gt;
 
