@@ -292,7 +292,11 @@ Remote Dram ~100 ns
 
 &lt;ul&gt;
 &lt;li&gt;measure cache line&lt;/li&gt;
-&lt;li&gt;measure tlb&lt;/li&gt;
+&lt;li&gt;measure tlb
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;http://blog.chinaunix.net/uid-26009500-id-3089718.html&#34;&gt;tlb和cache区别&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://lwn.net/Articles/252125/&#34;&gt;lwn&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;https://www.ibm.com/developerworks/community/wikis/home?lang=en#!/wiki/W51a7ffcf4dfd_4b40_9d82_446ebc23c550/page/Untangling%20memory%20access%20measurements%20-%20memory%20latency&#34;&gt;IBM关于lmbench对mem latency的深度benchmark&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href=&#34;http://stackoverflow.com/questions/4087280/approximate-cost-to-access-various-caches-and-main-memory&#34;&gt;stackoverflow_1&lt;/a&gt; &lt;a href=&#34;http://stackoverflow.com/questions/10274355/cycles-cost-for-l1-cache-hit-vs-register-on-x86&#34;&gt;stackoverflow_2&lt;/a&gt;&lt;/li&gt;
@@ -1419,6 +1423,54 @@ String obj(other);
       
       <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20work/</guid>
       <description>
+
+&lt;h2 id=&#34;ubuntu命令行连接wifi&#34;&gt;ubuntu命令行连接wifi&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://i.cmgine.net/archives/11053.html&#34;&gt;wifi设置&lt;/a&gt;&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt; cat /etc/network/interfaces
+
+ # interfaces(5) file used by ifup(8) and ifdown(8)
+ auto lo
+ iface lo inet loopback
+
+# 添加如下，启动时自动启动wlp2s0网卡，dhcp模式，采用wpa_conf配置
+ auto wlp2s0
+ iface wlp2s0 inet dhcp
+ wpa_conf /etc/wpa_supplicant/wpa_supplicant.conf
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;wpa_supplicant.conf内容&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;network={
+    ssid=&amp;quot;wills&amp;quot;
+    psk=&amp;quot;1234567890&amp;quot;
+    priority=1
+}
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;连接wifi和密码，priority为优先级，数字越大级别越高&lt;/p&gt;
+
+&lt;h2 id=&#34;vim和shell的配置方式&#34;&gt;vim和shell的配置方式&lt;/h2&gt;
+
+&lt;p&gt;作为一个懒人，现在自然期待有一键脚本能够将我的shell和vim配置好。github上有很多repo帮助我们实现。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://www.zhihu.com/question/19989337&#34;&gt;知乎帮助一&lt;/a&gt;
+&lt;a href=&#34;https://www.zhihu.com/question/20151659&#34;&gt;知乎帮助二&lt;/a&gt;
+&lt;a href=&#34;https://github.com/spf13/spf13-vim&#34;&gt;vim一键配置&lt;/a&gt;
+&lt;a href=&#34;https://github.com/robbyrussell/oh-my-zsh&#34;&gt;shell &amp;amp;&amp;amp; zsh&lt;/a&gt;
+&lt;a href=&#34;https://github.com/ma6174/vim&#34;&gt;vim一键配置二&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;linux下进程的有效用户id和实际用户id&#34;&gt;linux下进程的有效用户ID和实际用户ID&lt;/h2&gt;
+
+&lt;p&gt;见&lt;a href=&#34;http://www.cpplive.com/html/1352.html&#34;&gt;博客&lt;/a&gt;，getuid()&lt;/p&gt;
+
+&lt;h2 id=&#34;hexdump查看文件指定位置&#34;&gt;hexdump查看文件指定位置&lt;/h2&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://crazyof.me/blog/archives/254.html&#34;&gt;方法为&lt;/a&gt;所示，&lt;/p&gt;
+
+&lt;pre&gt;&lt;code class=&#34;language-bash&#34;&gt;hexdump -s OFFSET -l LENGTH FILENAME
+&lt;/code&gt;&lt;/pre&gt;
 
 &lt;h2 id=&#34;mac-os下virtual-box与虚拟机进行网络互通&#34;&gt;mac os下virtual box与虚拟机进行网络互通&lt;/h2&gt;
 
@@ -4484,6 +4536,14 @@ net.ipv4.tcp_fastopen = 3
       
       <guid>https://bg2bkk.github.io/post/effective%20tips%20in%20daily%20learning/</guid>
       <description>
+
+&lt;h2 id=&#34;c语言中的宏&#34;&gt;C语言中的宏&lt;/h2&gt;
+
+&lt;p&gt;在看代码的过程中我看到了 ## 和 # 两个符号，前一个我知道，后一个就不清楚了。在&lt;a href=&#34;http://blog.csdn.net/dotphoenix/article/details/4345174&#34;&gt;文档&lt;/a&gt;中我才知道C语言有这么多的宏，##表示连接符concat，而#EXP表示将代码中的表达式EXP转为字符串，这样写在错误日志中我们就知道是那句代码导致错误的了。&lt;/p&gt;
+
+&lt;p&gt;C语言中的宏以及用法还有很多，上述文档总结的非常好，除了##和#外，还有&amp;hellip;、宏展开时多次求值问题都有讲解，值得一读一试。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://hbprotoss.github.io/posts/cyu-yan-hong-de-te-shu-yong-fa-he-ji-ge-keng.html&#34;&gt;这篇文章&lt;/a&gt;也不错，他们都源自于&lt;a href=&#34;http://gcc.gnu.org/onlinedocs/cpp/Macros.html&#34;&gt;gnu的官方文档&lt;/a&gt;&lt;/p&gt;
 
 &lt;h2 id=&#34;omnigraffle&#34;&gt;OmniGraffle&lt;/h2&gt;
 
