@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='协程是什么？ what is coroutine ?  协程的概念   Coroutines are computer program components that generalize subroutines for nonpreemptive multitasking, by allowing multiple entry points for suspending and resuming execution at certain locations. Coroutines are well-suited for implementing more familiar program components such as cooperative tasks, exceptions, event loop, iterators, infinite lists and pipes.
+  According to Donald Knuth, the term coroutine was coined by Melvin Conway in 1958, after he applied it to construction of an assembly program.'>
+<title>coroutine and goroutine</title>
+
+<link rel='canonical' href='https://bg2bkk.github.io/p/coroutine-and-goroutine/'>
+
+<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='coroutine and goroutine'>
+<meta property='og:description' content='协程是什么？ what is coroutine ?  协程的概念   Coroutines are computer program components that generalize subroutines for nonpreemptive multitasking, by allowing multiple entry points for suspending and resuming execution at certain locations. Coroutines are well-suited for implementing more familiar program components such as cooperative tasks, exceptions, event loop, iterators, infinite lists and pipes.
+  According to Donald Knuth, the term coroutine was coined by Melvin Conway in 1958, after he applied it to construction of an assembly program.'>
+<meta property='og:url' content='https://bg2bkk.github.io/p/coroutine-and-goroutine/'>
+<meta property='og:site_name' content='Bg2bkk Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-03-13T17:59:29&#43;08:00'/><meta property='article:modified_time' content='2016-03-13T17:59:29&#43;08:00'/>
+<meta name="twitter:title" content="coroutine and goroutine">
+<meta name="twitter:description" content="协程是什么？ what is coroutine ?  协程的概念   Coroutines are computer program components that generalize subroutines for nonpreemptive multitasking, by allowing multiple entry points for suspending and resuming execution at certain locations. Coroutines are well-suited for implementing more familiar program components such as cooperative tasks, exceptions, event loop, iterators, infinite lists and pipes.
+  According to Donald Knuth, the term coroutine was coined by Melvin Conway in 1958, after he applied it to construction of an assembly program.">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu9dfb7228514195dbb950046570d90a5c_100216_300x0_resize_q75_box.jpg" width="300"
+                            height="221" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/coroutine-and-goroutine/">coroutine and goroutine</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Mar 13, 2016</time>
+            </div>
+        
+
+    
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    11 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h4 id="协程是什么-what-is-coroutine-">协程是什么？ what is coroutine ?</h4>
+<ul>
+<li><a class="link" href="https://en.wikipedia.org/wiki/Coroutine"  target="_blank" rel="noopener"
+    >协程的概念</a></li>
+</ul>
+<blockquote>
+<p>Coroutines are computer program components that generalize subroutines for nonpreemptive multitasking, by allowing multiple entry points for suspending and resuming execution at certain locations. Coroutines are well-suited for implementing more familiar program components such as cooperative tasks, exceptions, event loop, iterators, infinite lists and pipes.</p>
+</blockquote>
+<blockquote>
+<p>According to Donald Knuth, the term coroutine was coined by Melvin Conway in 1958, after he applied it to construction of an assembly program.[1] The first published explanation of the coroutine appeared later, in 1963.[2]</p>
+</blockquote>
+<p>协程是为实现非抢占式多任务而提出的计算机子程序，通过提供多个程序入口使得程序可以在特定地址挂起和恢复执行。协程天生的支持实现常见程序组件，比如协作式任务、异常、时间循环、迭代器、无边界列表和管道等。</p>
+<p>根据祖师爷高纳德节说，协程的概念由Melvin Conway在1958年提出，随后他将协程应用在编写汇编程序上。协程的第一个公开发表的解释出现在1963年。</p>
+<p>可见协程的概念比多线程还早，而且按照Knuth的说法，<a class="link" href="http://coolshell.cn/articles/10975.html"  target="_blank" rel="noopener"
+    >”子例程是协程的特例“，一次子例程调用就是一次子函数调用</a>，协程是类函数一样的组件，我们可以在单线程中创建N多个协程，只要内存够用。</p>
+<pre><code>* 协程与子例程的[区别](https://en.wikipedia.org/wiki/Coroutine)
+	* 子例程只有一个调用入口起点，子例程退出后，执行结束；子例程只返回一次，在两次调用之间不保存状态；
+	* 协程有多个入口，调用起始点、或者从上一次返回点接着执行；从协程自己的角度来看，他放弃执行时不是退出，而是去调用另一个协程，或者说将CPU主动让给另一个协程；协程保存状态;
+		* 计算机科学中，[yield](https://en.wikipedia.org/wiki/Yield_(multithreading))用于使处理器放弃当前运行的线程thread，并将它放入运行队列的末尾
+		* 协程coroutine中的yield需要显式调用
+	* 每个子例程可以转换为一个不带yield的协程
+</code></pre>
+<p>协程有关的四个概念：<a class="link" href="https://en.wikipedia.org/wiki/Coroutine"  target="_blank" rel="noopener"
+    >coroutine</a>、[yield](<a class="link" href="https://en.wikipedia.org/wiki/Yield_%28multithreading%29"  target="_blank" rel="noopener"
+    >https://en.wikipedia.org/wiki/Yield_(multithreading)</a>、<a class="link" href="https://en.wikipedia.org/wiki/Continuation"  target="_blank" rel="noopener"
+    >Continuation</a>、<a class="link" href="https://en.wikipedia.org/wiki/Cooperative_multitasking"  target="_blank" rel="noopener"
+    >cooperative multitasking</a>。以及其他相关概念：<a class="link" href="https://en.wikipedia.org/wiki/Call_stack#Unwinding"  target="_blank" rel="noopener"
+    >call stack</a></p>
+<ul>
+<li><a class="link" href="http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html"  target="_blank" rel="noopener"
+    >Coroutines in C</a>
+<ul>
+<li><a class="link" href="http://www.hawkwithwind.net/blog/2011/02/18/%E5%8D%8F%E7%A8%8B%E7%9A%84c%E5%AE%9E%E7%8E%B0/"  target="_blank" rel="noopener"
+    >给你一个直观的认识</a></li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span><span class="cp"></span><span class="kt">int</span> <span class="nf">function</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+	<span class="k">static</span> <span class="kt">int</span> <span class="n">i</span><span class="p">,</span> <span class="n">state</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">switch</span> <span class="p">(</span><span class="n">state</span><span class="p">)</span> <span class="p">{</span>
+		<span class="k">case</span> <span class="mi">0</span><span class="o">:</span> <span class="k">goto</span> <span class="n">LABEL0</span><span class="p">;</span>
+		<span class="k">case</span> <span class="mi">1</span><span class="o">:</span> <span class="k">goto</span> <span class="n">LABEL1</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="nl">LABEL0</span><span class="p">:</span> <span class="cm">/* start of function */</span>
+	<span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\t\t\t</span><span class="s">i = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+		<span class="n">state</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="cm">/* so we will come back to LABEL1 */</span>
+		<span class="k">return</span> <span class="n">i</span><span class="p">;</span>
+<span class="nl">LABEL1</span><span class="p">:</span>
+		<span class="p">;</span> <span class="cm">/* resume control straight after the return */</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+	<span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">for</span> <span class="p">(</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">21</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">){</span>
+		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;j = %d, func = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">j</span><span class="p">,</span> <span class="n">function</span><span class="p">());</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p>执行结果</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">			<span class="nv">i</span> <span class="o">=</span> <span class="m">0</span>
+<span class="nv">j</span> <span class="o">=</span> 0, <span class="nv">func</span> <span class="o">=</span> <span class="m">0</span>
+			<span class="nv">i</span> <span class="o">=</span> <span class="m">1</span>
+<span class="nv">j</span> <span class="o">=</span> 1, <span class="nv">func</span> <span class="o">=</span> <span class="m">1</span>
+			<span class="nv">i</span> <span class="o">=</span> <span class="m">2</span>
+<span class="nv">j</span> <span class="o">=</span> 2, <span class="nv">func</span> <span class="o">=</span> <span class="m">2</span>
+			<span class="nv">i</span> <span class="o">=</span> <span class="m">3</span>
+<span class="nv">j</span> <span class="o">=</span> 3, <span class="nv">func</span> <span class="o">=</span> <span class="m">3</span>
+			<span class="nv">i</span> <span class="o">=</span> <span class="m">4</span>
+<span class="nv">j</span> <span class="o">=</span> 4, <span class="nv">func</span> <span class="o">=</span> <span class="m">4</span>
+			<span class="nv">i</span> <span class="o">=</span> <span class="m">5</span>
+<span class="nv">j</span> <span class="o">=</span> 5, <span class="nv">func</span> <span class="o">=</span> <span class="m">5</span>
+			<span class="nv">i</span> <span class="o">=</span> <span class="m">6</span>
+<span class="nv">j</span> <span class="o">=</span> 6, <span class="nv">func</span> <span class="o">=</span> <span class="m">6</span>
+			<span class="nv">i</span> <span class="o">=</span> <span class="m">7</span>
+<span class="nv">j</span> <span class="o">=</span> 7, <span class="nv">func</span> <span class="o">=</span> <span class="m">7</span>
+			<span class="nv">i</span> <span class="o">=</span> <span class="m">8</span>
+<span class="nv">j</span> <span class="o">=</span> 8, <span class="nv">func</span> <span class="o">=</span> <span class="m">8</span>
+			<span class="nv">i</span> <span class="o">=</span> <span class="m">9</span>
+<span class="nv">j</span> <span class="o">=</span> 9, <span class="nv">func</span> <span class="o">=</span> <span class="m">9</span>
+<span class="nv">j</span> <span class="o">=</span> 10, <span class="nv">func</span> <span class="o">=</span> <span class="m">10</span>
+<span class="nv">j</span> <span class="o">=</span> 11, <span class="nv">func</span> <span class="o">=</span> <span class="m">11</span>
+<span class="nv">j</span> <span class="o">=</span> 12, <span class="nv">func</span> <span class="o">=</span> <span class="m">12</span>
+<span class="nv">j</span> <span class="o">=</span> 13, <span class="nv">func</span> <span class="o">=</span> <span class="m">13</span>
+<span class="nv">j</span> <span class="o">=</span> 14, <span class="nv">func</span> <span class="o">=</span> <span class="m">14</span>
+<span class="nv">j</span> <span class="o">=</span> 15, <span class="nv">func</span> <span class="o">=</span> <span class="m">15</span>
+<span class="nv">j</span> <span class="o">=</span> 16, <span class="nv">func</span> <span class="o">=</span> <span class="m">16</span>
+<span class="nv">j</span> <span class="o">=</span> 17, <span class="nv">func</span> <span class="o">=</span> <span class="m">17</span>
+<span class="nv">j</span> <span class="o">=</span> 18, <span class="nv">func</span> <span class="o">=</span> <span class="m">18</span>
+<span class="nv">j</span> <span class="o">=</span> 19, <span class="nv">func</span> <span class="o">=</span> <span class="m">19</span>
+<span class="nv">j</span> <span class="o">=</span> 20, <span class="nv">func</span> <span class="o">=</span> <span class="m">20</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>执行结果分析</p>
+<ul>
+<li>变量i 和 state 都是 static类型的，是文件全局作用域的</li>
+<li>首次执行function函数时，state = 0，goto 到 LABEL0，然后进行正常循环和返回</li>
+<li>当function调用次数超过十次后，每次进入function函数内部时，由switch分发到LABEL1；执行完循环体后，对i增1，然后进行判断是否 i &lt; 10，发现不满足，退出程序</li>
+<li>可能我们会比较纠结function程序在 i &gt; 10后不再执行return i语句，为什么还会返回自增后的结果呢？
+<ul>
+<li>从代码的汇编结果来看，每次function返回时，i都在之前赋值给寄存器eax了，而eax存储的是函数的返回值，所以每次function的返回结果是i，即使不执行return语句</li>
+</ul>
+</li>
+<li>return在这里并不是返回的意思，而是yield的意思</li>
+</ul>
+</li>
+<li>
+<p>仍然有两种更优化的写法: <a class="link" href="http://coolshell.cn/articles/10975.html"  target="_blank" rel="noopener"
+    >左耳朵耗子的例子</a>和<a class="link" href="http://www.hawkwithwind.net/blog/2011/02/18/%E5%8D%8F%E7%A8%8B%E7%9A%84c%E5%AE%9E%E7%8E%B0/"  target="_blank" rel="noopener"
+    >上例</a>的来源都是天才程序员  <a class="link" href="http://www.chiark.greenend.org.uk/~sgtatham/"  target="_blank" rel="noopener"
+    >imon Tatham</a>对<a class="link" href="http://www.chiark.greenend.org.uk/~sgtatham/coroutines.html"  target="_blank" rel="noopener"
+    >协程做的尝试</a>，以及关于swtich-case写法的duff机器的<a class="link" href="http://bbs.chinaunix.net/thread-1833313-1-1.html"  target="_blank" rel="noopener"
+    >讨论</a></p>
+</li>
+<li>
+<p>理解<a class="link" href="http://www.colaghost.net/os/unix_linux/341"  target="_blank" rel="noopener"
+    >协程实现的基础</a>就是程序中的函数调用导致的<a class="link" href="http://blog.csdn.net/ylyuanlu/article/details/18947951"  target="_blank" rel="noopener"
+    >栈帧切换</a>，在切换前先保存被切换subroutine的上下文，在切换时用新subroutine替换当前程序的执行状态。以Linux中用于实现协程的一个api：ucontext来说，makecontext函数将context的eip设置为func参数的地址，所以当该context得以执行时，func函数就开始执行了；swapcontext(old, new)将当前程序处于的old状态切换到new状态，然后new状态的func就得以执行。</p>
+</li>
+<li>
+<p>Linux对于协程实现提供了setjmp/longjmp和ucontext两种机制，现有的协程库，比如<a class="link" href="http://dunkels.com/adam/pt/"  target="_blank" rel="noopener"
+    >protothread</a>，甚至是LuaVM中的协程实现，也会基于这两种机制之一来实现。当然，您也可以手动切换cpu的所有寄存器状态，以实现协程，也是可以的，但是是极不推荐的。</p>
+</li>
+</ul>
+<h2 id="setjump--longjmp">setjump &amp; longjmp</h2>
+<h5 id="man-longjmp">man longjmp</h5>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">NAME
+       longjmp, siglongjmp - nonlocal jump to a saved stack context
+
+SYNOPSIS
+       <span class="c1">#include &lt;setjmp.h&gt;</span>
+
+       void longjmp<span class="o">(</span>jmp_buf env, int val<span class="o">)</span><span class="p">;</span>
+       void siglongjmp<span class="o">(</span>sigjmp_buf env, int val<span class="o">)</span><span class="p">;</span>
+
+DESCRIPTION
+       longjmp<span class="o">()</span>  and  setjmp<span class="o">(</span>3<span class="o">)</span> are useful <span class="k">for</span> dealing with errors and interrupts encountered in a low-level subroutine of a program. 
+	   
+       longjmp和setjmp在处理程序调用子例程过程中遇到错误或中断时非常有用。
+	   
+       longjmp<span class="o">()</span> restores the environment saved by the last call of setjmp<span class="o">(</span>3<span class="o">)</span> with the corresponding env argument.  After longjmp<span class="o">()</span> is completed, program execution continues as <span class="k">if</span> the corresponding call of setjmp<span class="o">(</span>3<span class="o">)</span> had just returned the value val.  longjmp<span class="o">()</span> cannot cause <span class="m">0</span> to be returned.  If longjmp<span class="o">()</span> is invoked with a second argument of 0, <span class="m">1</span> will be returned instead.
+
+       longjmp将恢复最近一次调用setjmp时通过env参数保存的上下文环境。longjmp完成后，原来调用setjmp的地方将会返回，并且setjmp的返回值是longjmp的val参数。longjmp不会返回0。如果longjmp调用时第二个参数是0，那么它将会返回1.
+
+       siglongjmp<span class="o">()</span>  is  similar  to longjmp<span class="o">()</span> except <span class="k">for</span> the <span class="nb">type</span> of its env argument.  If, and only <span class="k">if</span>, the sigsetjmp<span class="o">(</span>3<span class="o">)</span> call that <span class="nb">set</span> this env used a nonzero savesigs flag, siglongjmp<span class="o">()</span> also restores the signal mask that was saved by sigsetjmp<span class="o">(</span>3<span class="o">)</span>.
+
+RETURN VALUE
+       These functions never <span class="k">return</span>.
+
+</code></pre></td></tr></table>
+</div>
+</div><h5 id="man-setjmp">man setjmp</h5>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">NAME
+       setjmp, sigsetjmp - save stack context <span class="k">for</span> nonlocal goto
+
+SYNOPSIS
+       <span class="c1">#include &lt;setjmp.h&gt;</span>
+
+       int setjmp<span class="o">(</span>jmp_buf env<span class="o">)</span><span class="p">;</span>
+       int sigsetjmp<span class="o">(</span>sigjmp_buf env, int savesigs<span class="o">)</span><span class="p">;</span>
+	 
+DESCRIPTION
+       setjmp<span class="o">()</span>  and  longjmp<span class="o">(</span>3<span class="o">)</span>  are  useful <span class="k">for</span> dealing with errors and interrupts encountered in a low-level subroutine of a program.  
+	   
+       setjmp<span class="o">()</span> saves the stack context/environment in env <span class="k">for</span> later use by longjmp<span class="o">(</span>3<span class="o">)</span>.  The stack context will be invalidated <span class="k">if</span> the <span class="k">function</span> which called setjmp<span class="o">()</span> returns.
+
+	   setjmp<span class="o">()</span> 在参数env中保存栈帧，稍后longjmp调用时，将从setjmp执行；
+
+       sigsetjmp<span class="o">()</span> is similar to setjmp<span class="o">()</span>.  If, and only <span class="k">if</span>, savesigs is nonzero, the process<span class="err">&#39;</span>s current signal mask is saved in env and will be restored <span class="k">if</span> a siglongjmp<span class="o">(</span>3<span class="o">)</span> is later performed with this env.
+
+RETURN VALUE
+       setjmp<span class="o">()</span> and sigsetjmp<span class="o">()</span> <span class="k">return</span> <span class="m">0</span> <span class="k">if</span> returning directly, and nonzero when returning from longjmp<span class="o">(</span>3<span class="o">)</span> or siglongjmp<span class="o">(</span>3<span class="o">)</span> using the saved context.
+
+</code></pre></td></tr></table>
+</div>
+</div><h5 id="示例代码">示例代码</h5>
+<p><a class="link" href="http://blog.linux.org.tw/~jserv/archives/001848.html"  target="_blank" rel="noopener"
+    >代码地址</a> 博客评论区</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;                                                                                  </span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;setjmp.h&gt;</span><span class="cp">
+</span><span class="cp"></span>
+<span class="n">jmp_buf</span> <span class="n">jmpbuf_th0</span><span class="p">;</span>
+<span class="n">jmp_buf</span> <span class="n">jmpbuf_th1</span><span class="p">;</span>
+
+<span class="k">static</span> <span class="kt">int</span> <span class="n">cnt1</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="k">static</span> <span class="kt">int</span> <span class="n">cnt0</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">thread_0</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;%s </span><span class="se">\n\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">__FUNCTION__</span><span class="p">);</span>
+	<span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+	<span class="n">longjmp</span><span class="p">(</span><span class="n">jmpbuf_th0</span><span class="p">,</span> <span class="n">cnt0</span><span class="o">++</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="kt">void</span> <span class="nf">thread_1</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;%s </span><span class="se">\n\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">__FUNCTION__</span><span class="p">);</span>
+	<span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+	<span class="n">longjmp</span><span class="p">(</span><span class="n">jmpbuf_th1</span><span class="p">,</span> <span class="n">cnt1</span><span class="o">++</span><span class="p">);</span>
+<span class="p">}</span>
+
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">rc0</span><span class="p">,</span> <span class="n">rc1</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+<span class="nl">entry_thread_0</span><span class="p">:</span>
+	<span class="n">rc0</span> <span class="o">=</span> <span class="n">setjmp</span><span class="p">(</span><span class="n">jmpbuf_th0</span><span class="p">);</span>
+	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;rc0 = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">rc0</span><span class="p">);</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">rc0</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+		<span class="n">thread_1</span><span class="p">();</span>
+<span class="nl">entry_thread_1</span><span class="p">:</span>
+	<span class="n">rc1</span> <span class="o">=</span> <span class="n">setjmp</span><span class="p">(</span><span class="n">jmpbuf_th1</span><span class="p">);</span>
+	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;rc1 = %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">rc1</span><span class="p">);</span>
+	<span class="n">thread_0</span><span class="p">();</span>
+
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>执行结果</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nv">rc0</span> <span class="o">=</span> <span class="m">0</span>
+<span class="nv">rc1</span> <span class="o">=</span> <span class="m">0</span>
+thread_0 
+
+<span class="nv">rc0</span> <span class="o">=</span> <span class="m">1</span>
+thread_1 
+
+<span class="nv">rc1</span> <span class="o">=</span> <span class="m">1</span>
+thread_0 
+
+<span class="nv">rc0</span> <span class="o">=</span> <span class="m">1</span>
+thread_1 
+
+<span class="nv">rc1</span> <span class="o">=</span> <span class="m">1</span>
+thread_0 
+
+<span class="nv">rc0</span> <span class="o">=</span> <span class="m">2</span>
+thread_1 
+
+<span class="nv">rc1</span> <span class="o">=</span> <span class="m">2</span>
+thread_0 
+
+<span class="nv">rc0</span> <span class="o">=</span> <span class="m">3</span>
+thread_1 
+
+<span class="nv">rc1</span> <span class="o">=</span> <span class="m">3</span>
+thread_0 
+
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>执行过程分析</p>
+<ul>
+<li>setjmp和longjmp都是基于程序空间中额外的jmpbuf</li>
+<li>setjmp将当前环境存储在jmpbuf中，longjmp到同一个jmpbuf时，setjmp将会再次返回，返回值是longjmp的第二个参数val</li>
+<li>如果setjmp不是因为longjmp返回的，返回值为0</li>
+<li>不知道为什么执行结果中，自增的cnt0和cnt1在值为1的时候停顿了一次？</li>
+</ul>
+</li>
+<li>
+<p><a class="link" href="https://github.com/nasrallahmounir/context-switch-setjmp-longjm"  target="_blank" rel="noopener"
+    >setjump &amp; longjmp 进阶实现</a></p>
+</li>
+<li>
+<p><a class="link" href="https://github.com/mrquincle/event-abbey"  target="_blank" rel="noopener"
+    >setjump &amp; longjmp 进阶实现</a></p>
+</li>
+</ul>
+<h2 id="ucontext">ucontext</h2>
+<h5 id="man-getcontext">man getcontext</h5>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">In  a  System  V-like  environment,  one has the two types mcontext_t and ucontext_t defined in &lt;ucontext.h&gt; and the four functions getcontext<span class="o">()</span>, setcontext<span class="o">()</span>, makecontext<span class="o">(</span>3<span class="o">)</span>, and swapcontext<span class="o">(</span>3<span class="o">)</span> that
+allow user-level context switching between multiple threads of control within a process.
+
+The mcontext_t <span class="nb">type</span> is machine-dependent and opaque.  The ucontext_t <span class="nb">type</span> is a structure that has at least the following fields:
+
+    typedef struct ucontext <span class="o">{</span>
+        struct ucontext *uc_link<span class="p">;</span>
+        sigset_t         uc_sigmask<span class="p">;</span>
+        stack_t          uc_stack<span class="p">;</span>
+        mcontext_t       uc_mcontext<span class="p">;</span>
+        ...
+    <span class="o">}</span> ucontext_t<span class="p">;</span>
+
+with sigset_t and stack_t defined in &lt;signal.h&gt;.  Here uc_link points to the context that will be resumed when the current context terminates <span class="o">(</span>in <span class="k">case</span> the current context was created  using  makecon‐
+text<span class="o">(</span>3<span class="o">))</span>,  uc_sigmask is the <span class="nb">set</span> of signals blocked in this context <span class="o">(</span>see sigprocmask<span class="o">(</span>2<span class="o">))</span>, uc_stack is the stack used by this context <span class="o">(</span>see sigaltstack<span class="o">(</span>2<span class="o">))</span>, and uc_mcontext is the machine-specific rep‐
+resentation of the saved context, that includes the calling thread<span class="err">&#39;</span>s machine registers.
+
+The <span class="k">function</span> getcontext<span class="o">()</span> initializes the structure pointed at by ucp to the currently active context.
+
+The <span class="k">function</span> setcontext<span class="o">()</span> restores the user context pointed at by ucp.  A successful call does not <span class="k">return</span>.  The context should have been obtained by a call  of  getcontext<span class="o">()</span>,  or  makecontext<span class="o">(</span>3<span class="o">)</span>,  or
+passed as third argument to a signal handler.
+
+If the context was obtained by a call of getcontext<span class="o">()</span>, program execution continues as <span class="k">if</span> this call just returned.
+
+If the context was obtained by a call of makecontext<span class="o">(</span>3<span class="o">)</span>, program execution continues by a call to the <span class="k">function</span> func specified as the second argument of that call to makecontext<span class="o">(</span>3<span class="o">)</span>.  When the <span class="k">function</span>
+func returns, we <span class="k">continue</span> with the uc_link member of the structure ucp specified as the first argument of that call to makecontext<span class="o">(</span>3<span class="o">)</span>.  When this member is NULL, the thread exits.
+
+If the context was obtained by a call to a signal handler, <span class="k">then</span> old standard text says that <span class="s2">&#34;program execution continues with the program instruction following the instruction interrupted by the sig‐
+</span><span class="s2">nal&#34;</span>.  However, this sentence was removed in SUSv2, and the present verdict is <span class="s2">&#34;the result is unspecified&#34;</span>.
+</code></pre></td></tr></table>
+</div>
+</div><h5 id="man-makecontext">man makecontext</h5>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">In  a  System  V-like  environment,  one has the <span class="nb">type</span> ucontext_t defined in &lt;ucontext.h&gt; and the four functions getcontext<span class="o">(</span>3<span class="o">)</span>, setcontext<span class="o">(</span>3<span class="o">)</span>, makecontext<span class="o">()</span> and swapcontext<span class="o">()</span> that allow user-level context switching between multiple threads of control within a
+process.
+
+在类System V环境下，结构体ucontext_t和四个函数 getcontext、setcontext、makecontext和swapcontext提供了在一个进程内通过用户级上下文切换的方式实现多线程的方式
+
+For the <span class="nb">type</span> and the first two functions, see getcontext<span class="o">(</span>3<span class="o">)</span>.
+
+The makecontext<span class="o">()</span> <span class="k">function</span> modifies the context pointed to by ucp <span class="o">(</span>which was obtained from a call to getcontext<span class="o">(</span>3<span class="o">))</span>.  Before invoking makecontext<span class="o">()</span>, the <span class="nb">caller</span> must allocate a new stack <span class="k">for</span> this context and assign its address to ucp-&gt;uc_stack, and  define  a
+successor context and assign its address to ucp-&gt;uc_link.
+
+makecontext函数将修改ucp指向的 ucontext_t（必须是从getcontext获得的对象），在调用makecontext前，调用者必须为改上下文分配一个新的栈，并将ucp-&gt;uc_stack指向栈的地址，同时将ucp-&gt;uc_link指向下一个context
+
+When  this  context  is  later activated <span class="o">(</span>using setcontext<span class="o">(</span>3<span class="o">)</span> or swapcontext<span class="o">())</span> the <span class="k">function</span> func is called, and passed the series of integer <span class="o">(</span>int<span class="o">)</span> arguments that follow argc<span class="p">;</span> the <span class="nb">caller</span> must specify the number of these arguments in argc.  When this <span class="k">function</span>
+returns, the successor context is activated.  If the successor context pointer is NULL, the thread exits.
+
+当该context稍后被激活<span class="o">(</span>通过setcontext或者swapcontext<span class="o">)</span>，makecontext函数参数中的func将被调用，同时向func传递argc个参数。当func返回时，下一个context将被激活调用。如果下一个context是null的话，该线程结束。
+
+The swapcontext<span class="o">()</span> <span class="k">function</span> saves the current context in the structure pointed to by oucp, and <span class="k">then</span> activates the context pointed to by ucp.
+
+swapcontext函数将当前context保存在oucp结构体，同时激活ucp指向的context。
+</code></pre></td></tr></table>
+</div>
+</div><h5 id="man-page-中的例子">man page 中的例子</h5>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1">#include &lt;ucontext.h&gt;</span>
+<span class="c1">#include &lt;stdio.h&gt;</span>
+<span class="c1">#include &lt;stdlib.h&gt;</span>
+
+static ucontext_t uctx_main, uctx_func1, uctx_func2<span class="p">;</span>
+
+<span class="c1">#define handle_error(msg) \</span>
+    <span class="k">do</span> <span class="o">{</span> perror<span class="o">(</span>msg<span class="o">)</span><span class="p">;</span> exit<span class="o">(</span>EXIT_FAILURE<span class="o">)</span><span class="p">;</span> <span class="o">}</span> <span class="k">while</span> <span class="o">(</span>0<span class="o">)</span>
+
+static void
+func1<span class="o">(</span>void<span class="o">)</span>
+<span class="o">{</span>
+    printf<span class="o">(</span><span class="s2">&#34;func1: started\n&#34;</span><span class="o">)</span><span class="p">;</span>
+    printf<span class="o">(</span><span class="s2">&#34;func1: swapcontext(&amp;uctx_func1, &amp;uctx_func2)\n&#34;</span><span class="o">)</span><span class="p">;</span>
+    <span class="k">if</span> <span class="o">(</span>swapcontext<span class="o">(</span><span class="p">&amp;</span>uctx_func1, <span class="p">&amp;</span>uctx_func2<span class="o">)</span> <span class="o">==</span> -1<span class="o">)</span>
+        handle_error<span class="o">(</span><span class="s2">&#34;swapcontext&#34;</span><span class="o">)</span><span class="p">;</span>
+    printf<span class="o">(</span><span class="s2">&#34;func1: returning\n&#34;</span><span class="o">)</span><span class="p">;</span>
+<span class="o">}</span>
+
+static void
+func2<span class="o">(</span>void<span class="o">)</span>
+<span class="o">{</span>
+    printf<span class="o">(</span><span class="s2">&#34;func2: started\n&#34;</span><span class="o">)</span><span class="p">;</span>
+    printf<span class="o">(</span><span class="s2">&#34;func2: swapcontext(&amp;uctx_func2, &amp;uctx_func1)\n&#34;</span><span class="o">)</span><span class="p">;</span>
+    <span class="k">if</span> <span class="o">(</span>swapcontext<span class="o">(</span><span class="p">&amp;</span>uctx_func2, <span class="p">&amp;</span>uctx_func1<span class="o">)</span> <span class="o">==</span> -1<span class="o">)</span>
+        handle_error<span class="o">(</span><span class="s2">&#34;swapcontext&#34;</span><span class="o">)</span><span class="p">;</span>
+    printf<span class="o">(</span><span class="s2">&#34;func2: returning\n&#34;</span><span class="o">)</span><span class="p">;</span>
+<span class="o">}</span>
+
+int
+main<span class="o">(</span>int argc, char *argv<span class="o">[])</span>
+<span class="o">{</span>
+    char func1_stack<span class="o">[</span>16384<span class="o">]</span><span class="p">;</span>
+    char func2_stack<span class="o">[</span>16384<span class="o">]</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="o">(</span>getcontext<span class="o">(</span><span class="p">&amp;</span>uctx_func1<span class="o">)</span> <span class="o">==</span> -1<span class="o">)</span>
+        handle_error<span class="o">(</span><span class="s2">&#34;getcontext&#34;</span><span class="o">)</span><span class="p">;</span>
+    uctx_func1.uc_stack.ss_sp <span class="o">=</span> func1_stack<span class="p">;</span>
+    uctx_func1.uc_stack.ss_size <span class="o">=</span> sizeof<span class="o">(</span>func1_stack<span class="o">)</span><span class="p">;</span>
+    uctx_func1.uc_link <span class="o">=</span> <span class="p">&amp;</span>uctx_main<span class="p">;</span>
+    makecontext<span class="o">(</span><span class="p">&amp;</span>uctx_func1, func1, 0<span class="o">)</span><span class="p">;</span>
+
+    <span class="k">if</span> <span class="o">(</span>getcontext<span class="o">(</span><span class="p">&amp;</span>uctx_func2<span class="o">)</span> <span class="o">==</span> -1<span class="o">)</span>
+        handle_error<span class="o">(</span><span class="s2">&#34;getcontext&#34;</span><span class="o">)</span><span class="p">;</span>
+    uctx_func2.uc_stack.ss_sp <span class="o">=</span> func2_stack<span class="p">;</span>
+    uctx_func2.uc_stack.ss_size <span class="o">=</span> sizeof<span class="o">(</span>func2_stack<span class="o">)</span><span class="p">;</span>
+    /* Successor context is f1<span class="o">()</span>, unless argc &gt; <span class="m">1</span> */
+    uctx_func2.uc_link <span class="o">=</span> <span class="o">(</span>argc &gt; 1<span class="o">)</span> ? NULL : <span class="p">&amp;</span>uctx_func1<span class="p">;</span>
+    makecontext<span class="o">(</span><span class="p">&amp;</span>uctx_func2, func2, 0<span class="o">)</span><span class="p">;</span>
+
+    printf<span class="o">(</span><span class="s2">&#34;main: swapcontext(&amp;uctx_main, &amp;uctx_func2)\n&#34;</span><span class="o">)</span><span class="p">;</span>
+    <span class="k">if</span> <span class="o">(</span>swapcontext<span class="o">(</span><span class="p">&amp;</span>uctx_main, <span class="p">&amp;</span>uctx_func2<span class="o">)</span> <span class="o">==</span> -1<span class="o">)</span>
+        handle_error<span class="o">(</span><span class="s2">&#34;swapcontext&#34;</span><span class="o">)</span><span class="p">;</span>
+
+    printf<span class="o">(</span><span class="s2">&#34;main: exiting\n&#34;</span><span class="o">)</span><span class="p">;</span>
+    exit<span class="o">(</span>EXIT_SUCCESS<span class="o">)</span><span class="p">;</span>
+<span class="o">}</span>
+
+
+// http://stackoverflow.com/questions/20778735/is-the-type-stack-t-no-longer-defined-on-linux
+
+</code></pre></td></tr></table>
+</div>
+</div><p>执行结果：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ gcc context.c -o context.o
+
+$ ./context.o 
+main: swapcontext<span class="o">(</span><span class="p">&amp;</span>uctx_main, <span class="p">&amp;</span>uctx_func2<span class="o">)</span>
+func2: started
+func2: swapcontext<span class="o">(</span><span class="p">&amp;</span>uctx_func2, <span class="p">&amp;</span>uctx_func1<span class="o">)</span>
+func1: started
+func1: swapcontext<span class="o">(</span><span class="p">&amp;</span>uctx_func1, <span class="p">&amp;</span>uctx_func2<span class="o">)</span>
+func2: returning
+func1: returning
+main: exiting
+</code></pre></td></tr></table>
+</div>
+</div><p>通过manpage中提供的ucontext_t源码，结合man page中的解释，我们对此做一分析。</p>
+<ul>
+<li>执行过程详解
+<ul>
+<li>getcontext(&amp;uctx_func2) 用当前上下文初始化ucontext_t结构体对象：uctx_func2</li>
+<li>在调用makecontext前，调用者为该上下文分配一个新的栈，并将成员uc_stack指向栈的地址，同时将uc_link指向下一个context。此时argc为0，所以uctx_func2的uc_link指向uctx_func1，也就是说当uctx_func2执行完后，会自动激活uctx_func1执行</li>
+<li>makecontext(&amp;uctx_func2, func2, 0) 函数设置当uctx_func2激活时，调用func2函数，参数为0个；当func2返回时，下一个context将被激活，在这里是uctx_func1</li>
+<li>swapcontext(&amp;uctx_main, &amp;uctx_func2) 函数将进程当前执行的上下文保存在uctx_main中，并激活uctx_func2；uctx_func2开始执行，首先被执行的是func2函数，
+<ul>
+<li>func2: started</li>
+<li>func2: swapcontext(&amp;uctx_func2, &amp;uctx_func1)</li>
+</ul>
+</li>
+<li>随后func2函数调用 swapcontext(&amp;uctx_func2, &amp;uctx_func1)，将当前上下文环境保存在uctx_func2中，激活uctx_func1；uctx_func1开始执行，首先执行的是func1，打印出：
+<ul>
+<li>func1: started</li>
+<li>func1: swapcontext(&amp;uctx_func1, &amp;uctx_func2)</li>
+</ul>
+</li>
+<li>随后func1函数调用swapcontext(&amp;uctx_func1, &amp;uctx_func2)，将当前上下文环境保存在uctx_func1中，并激活uctx_func2；上一次uctx_func2保存的上下文环境将被回复，然后进程执行返回到上次被swap_context的点，打印出:
+<ul>
+<li>func2: returning</li>
+</ul>
+</li>
+<li>func2函数返回后，uctx_func2也就返回了，下一个context将被激活，也就是uctx_func1；打印出：
+<ul>
+<li>func1: returning</li>
+</ul>
+</li>
+<li>uctx_func1也执行结束，而它的下一个context是uctx_main，在main函数中最开始调用swap_context(&amp;uctx_main, &amp;uctx_func2)时，当时程序执行的上下文的地址就是这句，那么在main中继续执行，打印出：
+<ul>
+<li>main: exiting</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ ./context.o x
+main: swapcontext<span class="o">(</span><span class="p">&amp;</span>uctx_main, <span class="p">&amp;</span>uctx_func2<span class="o">)</span>
+func2: started
+func2: swapcontext<span class="o">(</span><span class="p">&amp;</span>uctx_func2, <span class="p">&amp;</span>uctx_func1<span class="o">)</span>
+func1: started
+func1: swapcontext<span class="o">(</span><span class="p">&amp;</span>uctx_func1, <span class="p">&amp;</span>uctx_func2<span class="o">)</span>
+func2: returning
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>执行过程详解
+<ul>
+<li>当argc个数不为0时，uctx_func2的uc_link为NULL，所以如果uctx_func2结束生命周期，那么整个进程将会退出</li>
+<li>在第一次swap_context(&amp;uctx_main, &amp;uctx_func2)时开始调用func2，func2中打印出：
+<ul>
+<li>func2: started</li>
+<li>func2: swapcontext(&amp;uctx_func2, &amp;uctx_func1)</li>
+</ul>
+</li>
+<li>随后swap执行uctx_func1，打印：
+<ul>
+<li>func1: started</li>
+<li>func1: swapcontext(&amp;uctx_func1, &amp;uctx_func2)</li>
+</ul>
+</li>
+<li>随后swap返回uctx_func2，打印：
+<ul>
+<li>func2: returning</li>
+</ul>
+</li>
+<li>而func2返回时，由于uctx_func2-&gt;uc_link为NULL，所以整个进程退出，并不会返回到之前保存过的uctx_main执行上下文中。</li>
+</ul>
+</li>
+</ul>
+<p>通过以上分析，您有没有对协程有一个直观的认识呢？本质上，协程调度只是将当前执行的上下文保存起来；调度协程的时候就是将两个执行上下文context切换；指定context的下一个context，在本context执行结束后自动激活下一个context，实现协作；本context执行过程中，通过swap_context主动让出CPU，而不是被抢占放弃CPU。</p>
+<ul>
+<li>可以参考下<a class="link" href="http://courses.cs.vt.edu/~cs3214/spring2016/examples/threads/coroutines.c"  target="_blank" rel="noopener"
+    >进一步的实现</a>，加深下印象：</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;stdbool.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;ucontext.h&gt;</span><span class="cp">
+</span><span class="cp"></span>
+<span class="k">static</span> <span class="kt">char</span> <span class="n">stack</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">65536</span><span class="p">];</span>            <span class="c1">// a stack for each coroutine
+</span><span class="c1"></span><span class="k">static</span> <span class="n">ucontext_t</span> <span class="n">coroutine_state</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>   <span class="c1">// container to remember context
+</span><span class="c1"></span>
+<span class="c1">// switch current coroutine (0 -&gt; 1 -&gt; 0 -&gt; 1 ...)
+</span><span class="c1"></span><span class="k">static</span> <span class="kr">inline</span> <span class="kt">void</span>
+<span class="nf">yield_to_next</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> 
+<span class="p">{</span>
+    <span class="k">static</span> <span class="kt">int</span> <span class="n">current</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="kt">int</span> <span class="n">prev</span> <span class="o">=</span> <span class="n">current</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">next</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">current</span><span class="p">;</span>
+
+    <span class="n">current</span> <span class="o">=</span> <span class="n">next</span><span class="p">;</span>
+    <span class="n">swapcontext</span><span class="p">(</span><span class="o">&amp;</span><span class="n">coroutine_state</span><span class="p">[</span><span class="n">prev</span><span class="p">],</span> <span class="o">&amp;</span><span class="n">coroutine_state</span><span class="p">[</span><span class="n">next</span><span class="p">]);</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="kt">void</span>
+<span class="nf">coroutine</span><span class="p">(</span><span class="kt">int</span> <span class="n">coroutine_number</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&#34;Coroutine %d counts i=%d (&amp;i=%p)</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">coroutine_number</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">i</span><span class="p">);</span>
+        <span class="n">yield_to_next</span><span class="p">();</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span>
+<span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">ucontext_t</span> <span class="n">return_to_main</span><span class="p">;</span>
+
+    <span class="c1">// set up
+</span><span class="c1"></span>    <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// initialize ucontext_t
+</span><span class="c1"></span>        <span class="n">getcontext</span><span class="p">(</span><span class="o">&amp;</span><span class="n">coroutine_state</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+        <span class="c1">// set up per-context stack
+</span><span class="c1"></span>        <span class="n">coroutine_state</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">uc_stack</span><span class="p">.</span><span class="n">ss_sp</span> <span class="o">=</span> <span class="n">stack</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+        <span class="n">coroutine_state</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">uc_stack</span><span class="p">.</span><span class="n">ss_size</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">stack</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+        <span class="c1">// when done, resume &#39;return_to_main&#39; context
+</span><span class="c1"></span>        <span class="n">coroutine_state</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">uc_link</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">return_to_main</span><span class="p">;</span>
+        <span class="c1">// let context[i] perform a call to coroutine(i) when swapped to
+</span><span class="c1"></span>        <span class="n">makecontext</span><span class="p">(</span><span class="o">&amp;</span><span class="n">coroutine_state</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="p">(</span><span class="kt">void</span> <span class="p">(</span><span class="o">*</span><span class="p">)(</span><span class="kt">void</span><span class="p">))</span><span class="n">coroutine</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;Starting coroutines...</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+    <span class="n">swapcontext</span><span class="p">(</span><span class="o">&amp;</span><span class="n">return_to_main</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">coroutine_state</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&#34;Done.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p><a class="link" href="http://1234n.com/?post/aukxju"  target="_blank" rel="noopener"
+    >another demo</a></p>
+<ul>
+<li><a class="link" href="http://1234n.com/?post/4vzsvm"  target="_blank" rel="noopener"
+    >lib</a></li>
+</ul>
+</li>
+<li>
+<p><a class="link" href="https://www.gnu.org/software/pth/"  target="_blank" rel="noopener"
+    >gnu portable threads</a></p>
+<ul>
+<li><a class="link" href="http://www.ossp.org/pkg/lib/pth/"  target="_blank" rel="noopener"
+    >pt</a></li>
+</ul>
+</li>
+<li>
+<p><a class="link" href="https://swtch.com/libtask/"  target="_blank" rel="noopener"
+    >libtask</a></p>
+<ul>
+<li><a class="link" href="http://www.cnblogs.com/foxmailed/p/3509359.html"  target="_blank" rel="noopener"
+    >libtask的coroutine</a></li>
+</ul>
+</li>
+<li>
+<p><a class="link" href="https://github.com/cloudwu/coroutine"  target="_blank" rel="noopener"
+    >云风的实现</a></p>
+</li>
+<li>
+<p>其他一些应用</p>
+<ul>
+<li><a class="link" href="https://github.com/colaghost/coroutine_event"  target="_blank" rel="noopener"
+    >coroutine-libevent</a>
+<ul>
+<li>在libevent里通过协程实现同步</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="lua的协程">Lua的协程</h2>
+<ul>
+<li>
+<p>lua不支持那种真正的多线程（共享同一地址空间的抢占式线程），原因是</p>
+<ul>
+<li>ANSI C没有原生的多线程，所以lua不能直接调用实现</li>
+<li>最重要的原因是，我们不认为多线程在lua中是个好主意</li>
+</ul>
+</li>
+<li>
+<p>多线程是提供给底层编程的。多线程的同步机制，比如信号量和监控都是在操作系统上下文实现的，而非应用程序。调试多线程比较麻烦。而且，由于程序临界区的同步和竞争，多线程也会引起性能下降。</p>
+</li>
+<li>
+<p>多线程引起的问题，主要是抢占式线程和共享内存导致的，lua解决这两个问题的方法是：lua coroutine是协作式的，非抢占式的，所以能避免线程切换导致的问题；lua coroutine之间不共享内存。</p>
+</li>
+<li>
+<p>我见过的最lua的<a class="link" href="https://techsingular.org/2012/12/22/programming-in-lua%EF%BC%88%E5%9B%9B%EF%BC%89%EF%BC%8D-nil-%E5%92%8C-list/"  target="_blank" rel="noopener"
+    >lua代码和博客</a></p>
+</li>
+<li>
+<p>lua的<a class="link" href="https://techsingular.org/2013/05/09/programming-in-lua%EF%BC%88%E4%BA%94%EF%BC%89%EF%BC%8D-coroutine-lua-stack/"  target="_blank" rel="noopener"
+    >coroutine and stack</a></p>
+</li>
+<li>
+<p>lua的c runtime stack和lua runtime stack是<a class="link" href="https://techsingular.org/2013/07/14/programming-in-lua%EF%BC%88%E5%85%AD%EF%BC%89%EF%BC%8Dcontinuation/"  target="_blank" rel="noopener"
+    >什么样子的</a></p>
+</li>
+<li>
+<p><a class="link" href="https://www.zhihu.com/question/21483863"  target="_blank" rel="noopener"
+    >https://www.zhihu.com/question/21483863</a></p>
+</li>
+<li>
+<p><a class="link" href="https://www.zhihu.com/question/30133749"  target="_blank" rel="noopener"
+    >lua协程调度</a></p>
+<ul>
+<li>lua内部
+<ul>
+<li>当resume的时候，就切换lua_state环境，然后setjmp，紧接着由于pc指向新地址，所以会直接跳转到该位置</li>
+<li>当yield时，直接回复环境，然后longjmp到该resume点</li>
+</ul>
+</li>
+<li>lua with C
+<ul>
+<li>当在C函数内入yield时，会恢复环境，longjmp到resume点，之后再次resume的时候，会因为环境被破坏，导致resume出错，此时lua会调用k系列函数，让resume继续下去</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><a class="link" href="http://www.ibm.com/developerworks/cn/opensource/os-cn-python-yield/"  target="_blank" rel="noopener"
+    >lua实现调度器</a></p>
+</li>
+<li>
+<p><a class="link" href="https://www.lua.org/pil/9.2.html"  target="_blank" rel="noopener"
+    >consumer-producer</a></p>
+</li>
+<li>
+<p><a class="link" href="http://www.lua.org/manual/5.2/manual.html#2.6"  target="_blank" rel="noopener"
+    >lua yield 和 resume</a></p>
+<ul>
+<li><a class="link" href="http://www.lua.org/manual/5.2/manual.html#pdf-coroutine.resume"  target="_blank" rel="noopener"
+    >http://www.lua.org/manual/5.2/manual.html#pdf-coroutine.resume</a></li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua"><span class="c1">-- http://my.oschina.net/wangxuanyihaha/blog/186401</span>
+
+<span class="kr">function</span> <span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="n">print</span><span class="p">(</span><span class="s2">&#34;foo&#34;</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+    <span class="kr">return</span> <span class="n">coroutine.yield</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">a</span><span class="p">)</span>
+<span class="kr">end</span>
+
+<span class="n">co</span> <span class="o">=</span> <span class="n">coroutine.create</span><span class="p">(</span><span class="kr">function</span> <span class="p">(</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="p">)</span>
+    <span class="n">print</span><span class="p">(</span><span class="s2">&#34;co-body&#34;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+    <span class="kd">local</span> <span class="n">r</span> <span class="o">=</span> <span class="n">foo</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">print</span><span class="p">(</span><span class="s2">&#34;co-body&#34;</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+    <span class="kd">local</span> <span class="n">r</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">coroutine.yield</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span>
+    <span class="n">print</span><span class="p">(</span><span class="s2">&#34;co-body&#34;</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="kr">return</span> <span class="n">b</span><span class="p">,</span> <span class="s2">&#34;end&#34;</span>
+<span class="kr">end</span><span class="p">)</span>
+
+<span class="n">print</span><span class="p">(</span><span class="s2">&#34;main&#34;</span><span class="p">,</span> <span class="n">coroutine.resume</span><span class="p">(</span><span class="n">co</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="n">print</span><span class="p">(</span><span class="s2">&#34;main&#34;</span><span class="p">,</span> <span class="n">coroutine.resume</span><span class="p">(</span><span class="n">co</span><span class="p">,</span> <span class="s2">&#34;m&#34;</span><span class="p">))</span>	<span class="c1">-- resume的参数 &#39;m&#39; 是在调用yield传入的，所以本次是在第5行 return m</span>
+<span class="n">print</span><span class="p">(</span><span class="s2">&#34;main&#34;</span><span class="p">,</span> <span class="n">coroutine.resume</span><span class="p">(</span><span class="n">co</span><span class="p">,</span> <span class="s2">&#34;x&#34;</span><span class="p">,</span> <span class="s2">&#34;y&#34;</span><span class="p">))</span>
+<span class="n">print</span><span class="p">(</span><span class="s2">&#34;main&#34;</span><span class="p">,</span> <span class="n">coroutine.resume</span><span class="p">(</span><span class="n">co</span><span class="p">,</span> <span class="s2">&#34;x&#34;</span><span class="p">,</span> <span class="s2">&#34;y&#34;</span><span class="p">))</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">co-body	1	<span class="m">10</span>
+foo	<span class="m">2</span>
+main	<span class="nb">true</span>	<span class="m">4</span>
+co-body	m
+main	<span class="nb">true</span>	11	-9
+co-body	x	y
+main	<span class="nb">true</span>	10	end
+main	<span class="nb">false</span>	cannot resume dead coroutine
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="python的协程待续">python的协程(待续)</h2>
+<ul>
+<li><a class="link" href="http://www.ibm.com/developerworks/cn/opensource/os-cn-python-yield/"  target="_blank" rel="noopener"
+    >http://www.ibm.com/developerworks/cn/opensource/os-cn-python-yield/</a>
+<ul>
+<li>简单地讲，yield 的作用就是把一个函数变成一个 generator，带有 yield 的函数不再是一个普通函数，Python 解释器会将其视为一个 generator</li>
+<li>产生一个iterable对象</li>
+</ul>
+</li>
+</ul>
+<h2 id="golang的协程待续">golang的协程(待续)</h2>
+<ul>
+<li><a class="link" href="http://stackoverflow.com/questions/13107958/what-exactly-does-runtime-gosched-do"  target="_blank" rel="noopener"
+    >http://stackoverflow.com/questions/13107958/what-exactly-does-runtime-gosched-do</a></li>
+</ul>
+<h2 id="stm32-contiki-coroutine">stm32/ contiki/ coroutine</h2>
+<p><a class="link" href="http://wiki.csie.ncku.edu.tw/embedded/Lab2"  target="_blank" rel="noopener"
+    >stm32上的协程实现</a>
+* <a class="link" href="http://blog.linux.org.tw/~jserv/archives/001848.html"  target="_blank" rel="noopener"
+    >http://blog.linux.org.tw/~jserv/archives/001848.html</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2022 Bg2bkk Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

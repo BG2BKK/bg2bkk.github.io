@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='lj-gc  usage:  1  [zhendong@D13124441 stapxx]$ sudo ./stap&#43;&#43; ./samples/lj-gc.sxx -x 43376    error:  1 2 3 4 5 6 7  Found exact match for libluajit: /usr/local/lib/libluajit-5.1.so.2.1.0 WARNING: cannot find module /usr/local/lib/libluajit-5.1.so.2.1.0 debuginfo: No DWARF information found [man warning::debuginfo] semantic error: type definition &amp;#39;lua_State&amp;#39; not found in &amp;#39;/usr/local/lib/libluajit-5.1.so.2.1.0&amp;#39;: operator &amp;#39;@cast&amp;#39; at stapxx-QIH_WYIt/luajit.stp:162:12 source: return @cast(L, &amp;#34;lua_State&amp;#34;, &amp;#34;/usr/local/lib/libluajit-5.1.so.2.1.0&amp;#34;)-&amp;gt;glref-&amp;gt;ptr32 ^ Pass 2: analysis failed. [man error::pass2]     reason:'>
+<title>stapxx使用过程</title>
+
+<link rel='canonical' href='https://bg2bkk.github.io/p/stapxx%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B/'>
+
+<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='stapxx使用过程'>
+<meta property='og:description' content='lj-gc  usage:  1  [zhendong@D13124441 stapxx]$ sudo ./stap&#43;&#43; ./samples/lj-gc.sxx -x 43376    error:  1 2 3 4 5 6 7  Found exact match for libluajit: /usr/local/lib/libluajit-5.1.so.2.1.0 WARNING: cannot find module /usr/local/lib/libluajit-5.1.so.2.1.0 debuginfo: No DWARF information found [man warning::debuginfo] semantic error: type definition &amp;#39;lua_State&amp;#39; not found in &amp;#39;/usr/local/lib/libluajit-5.1.so.2.1.0&amp;#39;: operator &amp;#39;@cast&amp;#39; at stapxx-QIH_WYIt/luajit.stp:162:12 source: return @cast(L, &amp;#34;lua_State&amp;#34;, &amp;#34;/usr/local/lib/libluajit-5.1.so.2.1.0&amp;#34;)-&amp;gt;glref-&amp;gt;ptr32 ^ Pass 2: analysis failed. [man error::pass2]     reason:'>
+<meta property='og:url' content='https://bg2bkk.github.io/p/stapxx%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B/'>
+<meta property='og:site_name' content='Bg2bkk Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-04-01T18:38:31&#43;08:00'/><meta property='article:modified_time' content='2016-04-01T18:38:31&#43;08:00'/>
+<meta name="twitter:title" content="stapxx使用过程">
+<meta name="twitter:description" content="lj-gc  usage:  1  [zhendong@D13124441 stapxx]$ sudo ./stap&#43;&#43; ./samples/lj-gc.sxx -x 43376    error:  1 2 3 4 5 6 7  Found exact match for libluajit: /usr/local/lib/libluajit-5.1.so.2.1.0 WARNING: cannot find module /usr/local/lib/libluajit-5.1.so.2.1.0 debuginfo: No DWARF information found [man warning::debuginfo] semantic error: type definition &amp;#39;lua_State&amp;#39; not found in &amp;#39;/usr/local/lib/libluajit-5.1.so.2.1.0&amp;#39;: operator &amp;#39;@cast&amp;#39; at stapxx-QIH_WYIt/luajit.stp:162:12 source: return @cast(L, &amp;#34;lua_State&amp;#34;, &amp;#34;/usr/local/lib/libluajit-5.1.so.2.1.0&amp;#34;)-&amp;gt;glref-&amp;gt;ptr32 ^ Pass 2: analysis failed. [man error::pass2]     reason:">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu9dfb7228514195dbb950046570d90a5c_100216_300x0_resize_q75_box.jpg" width="300"
+                            height="221" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/stapxx%E4%BD%BF%E7%94%A8%E8%BF%87%E7%A8%8B/">stapxx使用过程</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Apr 01, 2016</time>
+            </div>
+        
+
+    
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    2 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="lj-gc">lj-gc</h2>
+<ul>
+<li>usage:</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>zhendong@D13124441 stapxx<span class="o">]</span>$ sudo ./stap++  ./samples/lj-gc.sxx -x <span class="m">43376</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>error:</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">Found exact match <span class="k">for</span> libluajit: /usr/local/lib/libluajit-5.1.so.2.1.0
+WARNING: cannot find module /usr/local/lib/libluajit-5.1.so.2.1.0 debuginfo: No DWARF information found <span class="o">[</span>man warning::debuginfo<span class="o">]</span>
+semantic error: <span class="nb">type</span> definition <span class="s1">&#39;lua_State&#39;</span> not found in <span class="s1">&#39;/usr/local/lib/libluajit-5.1.so.2.1.0&#39;</span>: operator <span class="s1">&#39;@cast&#39;</span> at stapxx-QIH_WYIt/luajit.stp:162:12
+        source:     <span class="k">return</span> @cast<span class="o">(</span>L, <span class="s2">&#34;lua_State&#34;</span>, <span class="s2">&#34;/usr/local/lib/libluajit-5.1.so.2.1.0&#34;</span><span class="o">)</span>-&gt;glref-&gt;ptr32
+                           ^
+
+Pass 2: analysis failed.  <span class="o">[</span>man error::pass2<span class="o">]</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>reason:</p>
+<p>libluajit-5.1没有dwarf信息，需要重新编译</p>
+</li>
+<li>
+<p>resolve:</p>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">make <span class="nv">CCDEBUG</span><span class="o">=</span><span class="s2">&#34;-g -O0 -gdwarf-2&#34;</span> -j
+<span class="c1"># -gdwarf-2将会保持DWARF参数</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>elf一般由多个节(section)组成，不熟悉的可以看关于<a class="link" href="http://blog.csdn.net/coutcin/article/details/1065470"  target="_blank" rel="noopener"
+    >elf文件格式的文章</a>。调试信息被包含在某几个节中，如果是用dwarf2格式编译的，这些节的名字一般是以.debug开头，如.debug_info，.debug_line，.debug_frame等，如果是用dwarf1格式编译的，这些节的名字一般是.debug，.line等。现在的编译器默认大多数是dwarf2格式编译，当然可以通过gcc的编译选项改变。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 查看elf文件的各段头部</span>
+readelf -S elffile
+
+<span class="c1"># 查看elf文件的.debug_info段，关键在于info的i，所以采用 -wi参数</span>
+readelf -wi src/libluajit.so
+
+<span class="c1"># 查看elf文件的.debug_line段，关键在于info的l，所以采用 -wl参数</span>
+readelf -wl src/libluajit.so
+
+</code></pre></td></tr></table>
+</div>
+</div><p>对于LuaJIT来说，-O0和-O2(默认)对于DWARF信息来说没有区别，因为dwarf信息是调试信息。而-gdwarf-2和-g的差别在于，前者能够保留更详细一步的信息(对于.dubeg_info段而言)</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1">#output by -gdwarf-2</span>
+ &lt;2&gt;&lt;134&gt;: Abbrev Number: <span class="m">8</span> <span class="o">(</span>DW_TAG_member<span class="o">)</span>
+    &lt;135&gt;   DW_AT_name        : env	
+    &lt;139&gt;   DW_AT_decl_file   : 2	
+    &lt;13a&gt;   DW_AT_decl_line   : 661	
+    &lt;13c&gt;   DW_AT_type        : &lt;0x3b9&gt;	
+    &lt;140&gt;   DW_AT_data_member_location: <span class="m">2</span> byte block: <span class="m">23</span> 2c 	<span class="o">(</span>DW_OP_plus_uconst: 44<span class="o">)</span>
+
+<span class="c1">#output by -g</span>
+ &lt;2&gt;&lt;11c&gt;: Abbrev Number: <span class="m">8</span> <span class="o">(</span>DW_TAG_member<span class="o">)</span>
+    &lt;11d&gt;   DW_AT_name        : env	
+    &lt;121&gt;   DW_AT_decl_file   : 2	
+    &lt;122&gt;   DW_AT_decl_line   : 661	
+    &lt;124&gt;   DW_AT_type        : &lt;0x37e&gt;	
+    &lt;128&gt;   DW_AT_data_member_location: 44	
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>correct result</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>zhendong@D13124441 stapxx<span class="o">]</span>$ sudo ./stap++  ./samples/lj-gc.sxx -x <span class="m">13337</span>
+Found exact match <span class="k">for</span> libluajit: /usr/local/lib/libluajit-5.1.so.2.1.0
+Start tracing <span class="m">13337</span> <span class="o">(</span>/usr/local/nginx/sbin/nginx<span class="o">)</span>
+Total GC count: <span class="m">128828</span> bytes
+
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>extrainfo</li>
+</ul>
+<p>在压测时，采用-c10000的压力，发现压力较大时报错</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="o">[</span>zhendong@D13124441 stapxx<span class="o">]</span>$ sudo ./stap++  ./samples/lj-gc.sxx -x <span class="m">13337</span>
+Found exact match <span class="k">for</span> libluajit: /usr/local/lib/libluajit-5.1.so.2.1.0
+ERROR: <span class="nb">read</span> fault <span class="o">[</span>man error::fault<span class="o">]</span> at 0x000000000077d8e8 <span class="o">(</span>addr<span class="o">)</span> near operator <span class="s1">&#39;@var&#39;</span> at stapxx-j8srK_I0/nginx.config.stp:7:80
+Start tracing <span class="m">13337</span> <span class="o">(</span>/usr/local/nginx/sbin/nginx<span class="o">)</span>
+WARNING: Number of errors: 1, skipped probes: <span class="m">0</span>
+WARNING: /usr/bin/staprun exited with status: <span class="m">1</span>
+Pass 5: run failed.  <span class="o">[</span>man error::pass5<span class="o">]</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p>重启解决，很无奈</p>
+<h2 id="ngx-lua-shdict-info">ngx-lua-shdict-info</h2>
+<ul>
+<li>采用openresty才能正常使用也是够了</li>
+</ul>
+<p>[zhendong@D13124441 stapxx]$ sudo ./stap++ ./samples/ngx-lua-shdict-info.sxx -x 5545 &ndash;arg dict=kv_api_root_upstream
+Start tracing 5545 (/data1/zhendong/openresty-1.9.7.4/build/nginx-1.9.7/objs/nginx)
+shm zone &ldquo;api_root_sysConfig&rdquo;
+shm zone &ldquo;kv_api_root_upstream&rdquo;
+shm zone &ldquo;kv_api_root_upstream&rdquo;
+owner: ngx_http_lua_shdict
+total size: 102400 KB
+free pages: 96392 KB (24098 pages, 29 blocks)
+rbtree black height: 10</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2022 Bg2bkk Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

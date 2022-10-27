@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='nginx从启动worker到处理一个用户请求
+  1、nginx启动时，在init_process阶段首先注册事件和处理方法。首先为每个listen fd分配一个ngx_connection_t，并为它设置读时间处理函数，ngx_event_accept
+ 如果nginx没有开启accept_mutex，则直接将ngx_event_accept挂载nginx的事件处理模型epoll上 否则等到init_process阶段结束，在worker的事件处理循环中竞争到锁之后才挂载用于接收新请求的读事件    2、当worker监听到读事件，nginx就可以接收客户端的请求；用户向nginx发起请求后，nginx的事件处理模型收到读事件，然后调用ngx_event_accept处理
+ ngx_event_accept中，nginx调用accept，从TCP协议栈的已连接队列中取到一个连接和对应的socket，接着分配一个ngx_connection_t，将其与该socket对应 接着初始化该连接：  src/event/ngx_event_accept.c 为该连接分配一个256B大小的内存池 初始化读写事件对应的处理和回调函数handler: c-&amp;gt;rev = ngx_recv等 分配log结构，以便后续log系统使用 分配一个套接口地址sockaddr，将对端tcp地址保存在其中 将本地套接口地址保存在local_sockaddr中；因为有时候从监听结构ngx_listenging_t中获得的监听地址可能是通配符*******，而本地套接地址是真实地址 设置ready为1，即设置该连接的写事件就绪 如果socket设置了TCP_DEFER_ACCEPT属性，则表示该连接上已经有数据包了，于是设置事件为读就绪 将sockaddr保存的对端地址格式化为可读字符串 最后调用ngx_http_init_connection初始化该连接的其他部分      1 2 3 4 5 6 7 8  TCP_DEFER_ACCEPT (since Linux 2.4) Allow a listener to be awakened only when data arrives on the socket. Takes an integer value (seconds), this can bound the maximum number of attempts TCP will make to complete the connection.'>
+<title>nginx接收用户请求的过程</title>
+
+<link rel='canonical' href='https://bg2bkk.github.io/p/nginx%E6%8E%A5%E6%94%B6%E7%94%A8%E6%88%B7%E8%AF%B7%E6%B1%82%E7%9A%84%E8%BF%87%E7%A8%8B/'>
+
+<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='nginx接收用户请求的过程'>
+<meta property='og:description' content='nginx从启动worker到处理一个用户请求
+  1、nginx启动时，在init_process阶段首先注册事件和处理方法。首先为每个listen fd分配一个ngx_connection_t，并为它设置读时间处理函数，ngx_event_accept
+ 如果nginx没有开启accept_mutex，则直接将ngx_event_accept挂载nginx的事件处理模型epoll上 否则等到init_process阶段结束，在worker的事件处理循环中竞争到锁之后才挂载用于接收新请求的读事件    2、当worker监听到读事件，nginx就可以接收客户端的请求；用户向nginx发起请求后，nginx的事件处理模型收到读事件，然后调用ngx_event_accept处理
+ ngx_event_accept中，nginx调用accept，从TCP协议栈的已连接队列中取到一个连接和对应的socket，接着分配一个ngx_connection_t，将其与该socket对应 接着初始化该连接：  src/event/ngx_event_accept.c 为该连接分配一个256B大小的内存池 初始化读写事件对应的处理和回调函数handler: c-&amp;gt;rev = ngx_recv等 分配log结构，以便后续log系统使用 分配一个套接口地址sockaddr，将对端tcp地址保存在其中 将本地套接口地址保存在local_sockaddr中；因为有时候从监听结构ngx_listenging_t中获得的监听地址可能是通配符*******，而本地套接地址是真实地址 设置ready为1，即设置该连接的写事件就绪 如果socket设置了TCP_DEFER_ACCEPT属性，则表示该连接上已经有数据包了，于是设置事件为读就绪 将sockaddr保存的对端地址格式化为可读字符串 最后调用ngx_http_init_connection初始化该连接的其他部分      1 2 3 4 5 6 7 8  TCP_DEFER_ACCEPT (since Linux 2.4) Allow a listener to be awakened only when data arrives on the socket. Takes an integer value (seconds), this can bound the maximum number of attempts TCP will make to complete the connection.'>
+<meta property='og:url' content='https://bg2bkk.github.io/p/nginx%E6%8E%A5%E6%94%B6%E7%94%A8%E6%88%B7%E8%AF%B7%E6%B1%82%E7%9A%84%E8%BF%87%E7%A8%8B/'>
+<meta property='og:site_name' content='Bg2bkk Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-08-11T18:07:19&#43;08:00'/><meta property='article:modified_time' content='2016-08-11T18:07:19&#43;08:00'/>
+<meta name="twitter:title" content="nginx接收用户请求的过程">
+<meta name="twitter:description" content="nginx从启动worker到处理一个用户请求
+  1、nginx启动时，在init_process阶段首先注册事件和处理方法。首先为每个listen fd分配一个ngx_connection_t，并为它设置读时间处理函数，ngx_event_accept
+ 如果nginx没有开启accept_mutex，则直接将ngx_event_accept挂载nginx的事件处理模型epoll上 否则等到init_process阶段结束，在worker的事件处理循环中竞争到锁之后才挂载用于接收新请求的读事件    2、当worker监听到读事件，nginx就可以接收客户端的请求；用户向nginx发起请求后，nginx的事件处理模型收到读事件，然后调用ngx_event_accept处理
+ ngx_event_accept中，nginx调用accept，从TCP协议栈的已连接队列中取到一个连接和对应的socket，接着分配一个ngx_connection_t，将其与该socket对应 接着初始化该连接：  src/event/ngx_event_accept.c 为该连接分配一个256B大小的内存池 初始化读写事件对应的处理和回调函数handler: c-&amp;gt;rev = ngx_recv等 分配log结构，以便后续log系统使用 分配一个套接口地址sockaddr，将对端tcp地址保存在其中 将本地套接口地址保存在local_sockaddr中；因为有时候从监听结构ngx_listenging_t中获得的监听地址可能是通配符*******，而本地套接地址是真实地址 设置ready为1，即设置该连接的写事件就绪 如果socket设置了TCP_DEFER_ACCEPT属性，则表示该连接上已经有数据包了，于是设置事件为读就绪 将sockaddr保存的对端地址格式化为可读字符串 最后调用ngx_http_init_connection初始化该连接的其他部分      1 2 3 4 5 6 7 8  TCP_DEFER_ACCEPT (since Linux 2.4) Allow a listener to be awakened only when data arrives on the socket. Takes an integer value (seconds), this can bound the maximum number of attempts TCP will make to complete the connection.">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu9dfb7228514195dbb950046570d90a5c_100216_300x0_resize_q75_box.jpg" width="300"
+                            height="221" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/nginx%E6%8E%A5%E6%94%B6%E7%94%A8%E6%88%B7%E8%AF%B7%E6%B1%82%E7%9A%84%E8%BF%87%E7%A8%8B/">nginx接收用户请求的过程</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Aug 11, 2016</time>
+            </div>
+        
+
+    
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <ul>
+<li>
+<p><a class="link" href="http://www.voidcn.com/blog/fengmo_q/article/p-2425250.html"  target="_blank" rel="noopener"
+    >nginx从启动worker到处理一个用户请求</a></p>
+</li>
+<li>
+<p>1、nginx启动时，在init_process阶段首先注册事件和处理方法。首先为每个listen fd分配一个ngx_connection_t，并为它设置读时间处理函数，ngx_event_accept</p>
+<ul>
+<li>如果nginx没有开启accept_mutex，则直接将ngx_event_accept挂载nginx的事件处理模型epoll上</li>
+<li>否则等到init_process阶段结束，在worker的事件处理循环中竞争到锁之后才挂载用于接收新请求的读事件</li>
+</ul>
+</li>
+<li>
+<p>2、当worker监听到读事件，nginx就可以接收客户端的请求；用户向nginx发起请求后，nginx的事件处理模型收到读事件，然后调用ngx_event_accept处理</p>
+<ul>
+<li>ngx_event_accept中，nginx调用accept，从TCP协议栈的已连接队列中取到一个连接和对应的socket，接着分配一个ngx_connection_t，将其与该socket对应</li>
+<li>接着初始化该连接：
+<ul>
+<li>src/event/ngx_event_accept.c</li>
+<li>为该连接分配一个256B大小的内存池</li>
+<li>初始化读写事件对应的处理和回调函数handler: c-&gt;rev = ngx_recv等</li>
+<li>分配log结构，以便后续log系统使用</li>
+<li>分配一个套接口地址sockaddr，将对端tcp地址保存在其中</li>
+<li>将本地套接口地址保存在local_sockaddr中；因为有时候从监听结构ngx_listenging_t中获得的监听地址可能是通配符*******，而本地套接地址是真实地址</li>
+<li>设置ready为1，即设置该连接的写事件就绪</li>
+<li>如果socket设置了TCP_DEFER_ACCEPT属性，则表示该连接上已经有数据包了，于是设置事件为读就绪</li>
+<li>将sockaddr保存的对端地址格式化为可读字符串</li>
+<li>最后调用ngx_http_init_connection初始化该连接的其他部分</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">       TCP_DEFER_ACCEPT <span class="o">(</span>since Linux 2.4<span class="o">)</span>
+              Allow a listener to be awakened only when data arrives on the
+              socket.  Takes an integer value <span class="o">(</span>seconds<span class="o">)</span>, this can bound the
+              maximum number of attempts TCP will make to <span class="nb">complete</span> the
+              connection.  This option should not be used in code intended
+              to be portable.
+
+		允许只有当监听事件者只有当有数据时才被唤醒；参数是整数，可以限制一个TCP为了处理完成一个连接所做的最多尝试次数
+</code></pre></td></tr></table>
+</div>
+</div><pre><code>	* ngx_http_init_connection
+		* 初始化读写事件处理函数
+			* 写事件：ngx_http_empty_handler
+			* 读事件：ngx_http_init_request
+				* 如果连接上有数据过来，则调用该函数处理数据
+				* 否则设置定时器，等待数据到来或者超时，再在该函数中处理
+* 初始化用户请求：ngx_http_init_request
+	* 它是一个事件处理函数，唯一的参数是ngx_event_t *；
+	* 进入该事件处理函数后，判断是否超时，如果超时，则直接关闭连接并返回；否则继续
+	* 在连接的内存池中分配一个ngx_http_request_t结构，用于保存请求的所有信息，并设置为该连接的request字段
+	* nginx根据该请求的端口和地址，找到一个默认vhost(第一个定义的server)，或者根据域名来区分监听相同端口和地址的vhost，临时使用，最终找到真正的目标vhost；
+	* 进入vhost后，将连接的读事件处理函数ngx_http_process_request_line函数，解析请求行；为这个请求分配缓冲区，保存header头在request-&gt;header_in，默认1024B，在该请求所在连接的内存池中分配
+	* 将请求的引用计数count字段设置为1；将当前时间设置为start_sec和start_mset；nginx以接收到客户端的第一个数据包的时间作为起始，apache则以接收到整个request line开始
+	* 初始化请求的其他字段，比如将uri_changes设置为11，表示最多可以将该请求的uri改写10次，subrequests被设置为201，表示一个请求最多可以发起200个子请求； 
+</code></pre>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2022 Bg2bkk Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='DNS消息格式 EDNS详解 rfc6891 edns_client_subnet draft 小米的ends实践  1  6. respond时也需要增加一个Additional RRs区域，直接把请求的Additional内容发过去就可以(如果支持source netmask，将请求中的source netmask复制到scope netmask中，OpenDNS要求必须支持scope netmask)   * 意思是非OpenDNS就可以不支持scope netmask吗？目前新浪的仍然不支持    miekg/dns: golang lib
+  dig with edns
+ https://www.gsic.uva.es/~jnisigl/dig-edns-client-subnet.html http://xmodulo.com/geographic-location-ip-address-command-line.html 在线查询：curl ipinfo.io/23.66.166.151    DNS报文格式
+ IP packet  IP Header 20 bytes IP Data: UDP  UDP Header 8 bytes UDP Data: DNS  DNS Header 12 bytes DNS Data: RR  RR: Question[] RR: Answer[] RR: Authority[] RR: Additional[] RR  QName QType QClass RDLENGTH RDATA   RR OPT  QName null QType OPT=41 QClass = UDP payload 2bytes TTL = Extended-RCODE 1byte: extend &#43; VERSION 1byte: 0 &#43; Z 2bytes: 0 RDLen	len of data(OPT) OPT  Option-Code 2bytes: EDNS0_SUBNET Option-Length 2bytes Option-Data  Family 1byte: IPV4(1) Source Netmask 1byte: 32 Scope Netmask 1byte: 0 Client Subnet 4bytes: 65.'>
+<title>DNS with golang</title>
+
+<link rel='canonical' href='https://bg2bkk.github.io/p/dns-with-golang/'>
+
+<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='DNS with golang'>
+<meta property='og:description' content='DNS消息格式 EDNS详解 rfc6891 edns_client_subnet draft 小米的ends实践  1  6. respond时也需要增加一个Additional RRs区域，直接把请求的Additional内容发过去就可以(如果支持source netmask，将请求中的source netmask复制到scope netmask中，OpenDNS要求必须支持scope netmask)   * 意思是非OpenDNS就可以不支持scope netmask吗？目前新浪的仍然不支持    miekg/dns: golang lib
+  dig with edns
+ https://www.gsic.uva.es/~jnisigl/dig-edns-client-subnet.html http://xmodulo.com/geographic-location-ip-address-command-line.html 在线查询：curl ipinfo.io/23.66.166.151    DNS报文格式
+ IP packet  IP Header 20 bytes IP Data: UDP  UDP Header 8 bytes UDP Data: DNS  DNS Header 12 bytes DNS Data: RR  RR: Question[] RR: Answer[] RR: Authority[] RR: Additional[] RR  QName QType QClass RDLENGTH RDATA   RR OPT  QName null QType OPT=41 QClass = UDP payload 2bytes TTL = Extended-RCODE 1byte: extend &#43; VERSION 1byte: 0 &#43; Z 2bytes: 0 RDLen	len of data(OPT) OPT  Option-Code 2bytes: EDNS0_SUBNET Option-Length 2bytes Option-Data  Family 1byte: IPV4(1) Source Netmask 1byte: 32 Scope Netmask 1byte: 0 Client Subnet 4bytes: 65.'>
+<meta property='og:url' content='https://bg2bkk.github.io/p/dns-with-golang/'>
+<meta property='og:site_name' content='Bg2bkk Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-04-13T11:37:24&#43;08:00'/><meta property='article:modified_time' content='2016-04-13T11:37:24&#43;08:00'/>
+<meta name="twitter:title" content="DNS with golang">
+<meta name="twitter:description" content="DNS消息格式 EDNS详解 rfc6891 edns_client_subnet draft 小米的ends实践  1  6. respond时也需要增加一个Additional RRs区域，直接把请求的Additional内容发过去就可以(如果支持source netmask，将请求中的source netmask复制到scope netmask中，OpenDNS要求必须支持scope netmask)   * 意思是非OpenDNS就可以不支持scope netmask吗？目前新浪的仍然不支持    miekg/dns: golang lib
+  dig with edns
+ https://www.gsic.uva.es/~jnisigl/dig-edns-client-subnet.html http://xmodulo.com/geographic-location-ip-address-command-line.html 在线查询：curl ipinfo.io/23.66.166.151    DNS报文格式
+ IP packet  IP Header 20 bytes IP Data: UDP  UDP Header 8 bytes UDP Data: DNS  DNS Header 12 bytes DNS Data: RR  RR: Question[] RR: Answer[] RR: Authority[] RR: Additional[] RR  QName QType QClass RDLENGTH RDATA   RR OPT  QName null QType OPT=41 QClass = UDP payload 2bytes TTL = Extended-RCODE 1byte: extend &#43; VERSION 1byte: 0 &#43; Z 2bytes: 0 RDLen	len of data(OPT) OPT  Option-Code 2bytes: EDNS0_SUBNET Option-Length 2bytes Option-Data  Family 1byte: IPV4(1) Source Netmask 1byte: 32 Scope Netmask 1byte: 0 Client Subnet 4bytes: 65.">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu9dfb7228514195dbb950046570d90a5c_100216_300x0_resize_q75_box.jpg" width="300"
+                            height="221" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/dns-with-golang/">DNS with golang</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Apr 13, 2016</time>
+            </div>
+        
+
+    
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <ul>
+<li><a class="link" href="http://www.cnblogs.com/cobbliu/archive/2013/04/02/2996333.html"  target="_blank" rel="noopener"
+    >DNS消息格式</a></li>
+<li><a class="link" href="http://www.cnblogs.com/cobbliu/p/3188632.html"  target="_blank" rel="noopener"
+    >EDNS详解</a></li>
+<li><a class="link" href="https://tools.ietf.org/html/rfc6891"  target="_blank" rel="noopener"
+    >rfc6891</a></li>
+<li><a class="link" href="https://www.ietf.org/id/draft-ietf-dnsop-edns-client-subnet-08.txt"  target="_blank" rel="noopener"
+    >edns_client_subnet draft</a></li>
+<li><a class="link" href="http://noops.me/?p=653"  target="_blank" rel="noopener"
+    >小米的ends实践</a></li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">6. respond时也需要增加一个Additional RRs区域，直接把请求的Additional内容发过去就可以<span class="o">(</span>如果支持source netmask，将请求中的source netmask复制到scope netmask中，OpenDNS要求必须支持scope netmask<span class="o">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><pre><code>* 意思是非OpenDNS就可以不支持scope netmask吗？目前新浪的仍然不支持
+</code></pre>
+<ul>
+<li>
+<p><a class="link" href="https://github.com/miekg/dns"  target="_blank" rel="noopener"
+    >miekg/dns: golang lib</a></p>
+</li>
+<li>
+<p>dig with edns</p>
+<ul>
+<li><a class="link" href="https://www.gsic.uva.es/~jnisigl/dig-edns-client-subnet.html"  target="_blank" rel="noopener"
+    >https://www.gsic.uva.es/~jnisigl/dig-edns-client-subnet.html</a></li>
+<li><a class="link" href="http://xmodulo.com/geographic-location-ip-address-command-line.html"  target="_blank" rel="noopener"
+    >http://xmodulo.com/geographic-location-ip-address-command-line.html</a></li>
+<li>在线查询：curl ipinfo.io/23.66.166.151</li>
+</ul>
+</li>
+<li>
+<p>DNS报文格式</p>
+<ul>
+<li>IP packet
+<ul>
+<li>IP Header 20 bytes</li>
+<li>IP Data: UDP
+<ul>
+<li>UDP Header 8 bytes</li>
+<li>UDP Data: DNS
+<ul>
+<li>DNS Header 12 bytes</li>
+<li>DNS Data: RR
+<ul>
+<li>RR: Question[]</li>
+<li>RR: Answer[]</li>
+<li>RR: Authority[]</li>
+<li>RR: Additional[]</li>
+<li>RR
+<ul>
+<li>QName</li>
+<li>QType</li>
+<li>QClass</li>
+<li>RDLENGTH</li>
+<li>RDATA</li>
+</ul>
+</li>
+<li>RR OPT
+<ul>
+<li>QName null</li>
+<li>QType OPT=41</li>
+<li>QClass = UDP payload 2bytes</li>
+<li>TTL = Extended-RCODE 1byte: extend + VERSION 1byte: 0 + Z 2bytes: 0</li>
+<li>RDLen	len of data(OPT)</li>
+<li>OPT
+<ul>
+<li>Option-Code 2bytes: EDNS0_SUBNET</li>
+<li>Option-Length 2bytes</li>
+<li>Option-Data
+<ul>
+<li>Family 1byte: IPV4(1)</li>
+<li>Source Netmask 1byte: 32</li>
+<li>Scope Netmask 1byte: 0</li>
+<li>Client Subnet 4bytes: 65.135.152.203</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>我们总是在追一些时髦的技术，而不顾基础还不牢靠</p>
+</li>
+<li>
+<p>我们总是看见新的框架，然而框架本质上仍然是那些东西，mvc，cs</p>
+</li>
+</ul>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2022 Bg2bkk Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

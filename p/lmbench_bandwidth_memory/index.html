@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='bw_mem   init_loop
+  get_enough
+  init_timing
+ compute_enough()  计算可以得到计算机准确执行时间的时间段，在该时间段内计算机的执行时间能够稳定   t_overload()  用循环计算 gettimeofday() 的开销   l_overload()  计算仅用于循环的时间开销   init_timing()在一次benchmakr中只执行一次，除非第二次运行程序    compute_enough()
+ 预估5000us、10000us、50000us和100000us，比如在5000us内计算机用时能够稳定，那么认为运行想运行的任务，5000us足够使计算机测量稳定下来，那么就返回5000us；如果四个都不行，则返回SHORT，也就是1000000us，一个足够大的数据。理论上讲其实计算机执行一个非常快或者用时普通的任务，在循环足够次数，运行足够时间，平均下来都能使单次时间稳定，但是如果能找到合适的时长，benchmark过程可以更快，且执行时间短意味着受到外界干扰小。 compute_enough() 调用 test_time() 依次评估每个预估值 test_time(enough)  find_N(enough)，得到执行任务A，执行时长为enough us，需要跑多少次，得到N。  find_N 首先执行 N = 10000, time_N(N)，看看执行10000次A的运行时间t，如果运行时间t与enough误差在2%以下，那么就返回N；如果运行时间t过小，低于1000us，说明执行N次还不够，需要加码，扩大10倍，N = N * 10；如果t不低于1000us，说明执行N次还可以，不过要按照运行时间t和enough的比值，再结合运行N次需要t us，折算出运行enough时间大概需要 N = enough * N / t; 拿着新的N再次find_N(N)，直到执行时间与enough相差不到2%时，可以认为，计算机执行N次任务A，需要用时enough us。 这个逼近过程循环10次，返回结果；如果不能收敛在2%里，则认为enough时长还不足以让CPU运行稳定，需要加长。  time_N(N)通过执行执行duration(N)，执行Nx10次 long **p; p = (long **) *p;这样一个赋值运算，汇编是[ move (%eax), %eax ]，从内存中读值，写入寄存器；读p地址的值只是读L1 cache中，所以在CPU内运行，不会有外界干扰。在不同平台不同性能的机器上，大家都执行这个duration(N)，通过执行N次达到时间u，作为cpu的基准。这样还是蛮科学的 执行TRIES次 time_N(N)，取最小值返回 duration(N)就是任务A。     test_time(enough)中，拿到find_N(enough)所需要的执行次数N后，再次计算执行N次用时，time_N(N)，以这次结果为baseline；然后将N扩大到1.'>
+<title>lmbench_bandwidth_memory</title>
+
+<link rel='canonical' href='https://bg2bkk.github.io/p/lmbench_bandwidth_memory/'>
+
+<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='lmbench_bandwidth_memory'>
+<meta property='og:description' content='bw_mem   init_loop
+  get_enough
+  init_timing
+ compute_enough()  计算可以得到计算机准确执行时间的时间段，在该时间段内计算机的执行时间能够稳定   t_overload()  用循环计算 gettimeofday() 的开销   l_overload()  计算仅用于循环的时间开销   init_timing()在一次benchmakr中只执行一次，除非第二次运行程序    compute_enough()
+ 预估5000us、10000us、50000us和100000us，比如在5000us内计算机用时能够稳定，那么认为运行想运行的任务，5000us足够使计算机测量稳定下来，那么就返回5000us；如果四个都不行，则返回SHORT，也就是1000000us，一个足够大的数据。理论上讲其实计算机执行一个非常快或者用时普通的任务，在循环足够次数，运行足够时间，平均下来都能使单次时间稳定，但是如果能找到合适的时长，benchmark过程可以更快，且执行时间短意味着受到外界干扰小。 compute_enough() 调用 test_time() 依次评估每个预估值 test_time(enough)  find_N(enough)，得到执行任务A，执行时长为enough us，需要跑多少次，得到N。  find_N 首先执行 N = 10000, time_N(N)，看看执行10000次A的运行时间t，如果运行时间t与enough误差在2%以下，那么就返回N；如果运行时间t过小，低于1000us，说明执行N次还不够，需要加码，扩大10倍，N = N * 10；如果t不低于1000us，说明执行N次还可以，不过要按照运行时间t和enough的比值，再结合运行N次需要t us，折算出运行enough时间大概需要 N = enough * N / t; 拿着新的N再次find_N(N)，直到执行时间与enough相差不到2%时，可以认为，计算机执行N次任务A，需要用时enough us。 这个逼近过程循环10次，返回结果；如果不能收敛在2%里，则认为enough时长还不足以让CPU运行稳定，需要加长。  time_N(N)通过执行执行duration(N)，执行Nx10次 long **p; p = (long **) *p;这样一个赋值运算，汇编是[ move (%eax), %eax ]，从内存中读值，写入寄存器；读p地址的值只是读L1 cache中，所以在CPU内运行，不会有外界干扰。在不同平台不同性能的机器上，大家都执行这个duration(N)，通过执行N次达到时间u，作为cpu的基准。这样还是蛮科学的 执行TRIES次 time_N(N)，取最小值返回 duration(N)就是任务A。     test_time(enough)中，拿到find_N(enough)所需要的执行次数N后，再次计算执行N次用时，time_N(N)，以这次结果为baseline；然后将N扩大到1.'>
+<meta property='og:url' content='https://bg2bkk.github.io/p/lmbench_bandwidth_memory/'>
+<meta property='og:site_name' content='Bg2bkk Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-10-31T11:07:28&#43;08:00'/><meta property='article:modified_time' content='2016-10-31T11:07:28&#43;08:00'/>
+<meta name="twitter:title" content="lmbench_bandwidth_memory">
+<meta name="twitter:description" content="bw_mem   init_loop
+  get_enough
+  init_timing
+ compute_enough()  计算可以得到计算机准确执行时间的时间段，在该时间段内计算机的执行时间能够稳定   t_overload()  用循环计算 gettimeofday() 的开销   l_overload()  计算仅用于循环的时间开销   init_timing()在一次benchmakr中只执行一次，除非第二次运行程序    compute_enough()
+ 预估5000us、10000us、50000us和100000us，比如在5000us内计算机用时能够稳定，那么认为运行想运行的任务，5000us足够使计算机测量稳定下来，那么就返回5000us；如果四个都不行，则返回SHORT，也就是1000000us，一个足够大的数据。理论上讲其实计算机执行一个非常快或者用时普通的任务，在循环足够次数，运行足够时间，平均下来都能使单次时间稳定，但是如果能找到合适的时长，benchmark过程可以更快，且执行时间短意味着受到外界干扰小。 compute_enough() 调用 test_time() 依次评估每个预估值 test_time(enough)  find_N(enough)，得到执行任务A，执行时长为enough us，需要跑多少次，得到N。  find_N 首先执行 N = 10000, time_N(N)，看看执行10000次A的运行时间t，如果运行时间t与enough误差在2%以下，那么就返回N；如果运行时间t过小，低于1000us，说明执行N次还不够，需要加码，扩大10倍，N = N * 10；如果t不低于1000us，说明执行N次还可以，不过要按照运行时间t和enough的比值，再结合运行N次需要t us，折算出运行enough时间大概需要 N = enough * N / t; 拿着新的N再次find_N(N)，直到执行时间与enough相差不到2%时，可以认为，计算机执行N次任务A，需要用时enough us。 这个逼近过程循环10次，返回结果；如果不能收敛在2%里，则认为enough时长还不足以让CPU运行稳定，需要加长。  time_N(N)通过执行执行duration(N)，执行Nx10次 long **p; p = (long **) *p;这样一个赋值运算，汇编是[ move (%eax), %eax ]，从内存中读值，写入寄存器；读p地址的值只是读L1 cache中，所以在CPU内运行，不会有外界干扰。在不同平台不同性能的机器上，大家都执行这个duration(N)，通过执行N次达到时间u，作为cpu的基准。这样还是蛮科学的 执行TRIES次 time_N(N)，取最小值返回 duration(N)就是任务A。     test_time(enough)中，拿到find_N(enough)所需要的执行次数N后，再次计算执行N次用时，time_N(N)，以这次结果为baseline；然后将N扩大到1.">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu9dfb7228514195dbb950046570d90a5c_100216_300x0_resize_q75_box.jpg" width="300"
+                            height="221" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/lmbench_bandwidth_memory/">lmbench_bandwidth_memory</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Oct 31, 2016</time>
+            </div>
+        
+
+    
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="bw_mem">bw_mem</h2>
+<ul>
+<li>
+<p>init_loop</p>
+</li>
+<li>
+<p>get_enough</p>
+<ul>
+<li>
+<p>init_timing</p>
+<ul>
+<li>compute_enough()
+<ul>
+<li>计算可以得到计算机准确执行时间的时间段，在该时间段内计算机的执行时间能够稳定</li>
+</ul>
+</li>
+<li>t_overload()
+<ul>
+<li>用循环计算 gettimeofday() 的开销</li>
+</ul>
+</li>
+<li>l_overload()
+<ul>
+<li>计算仅用于循环的时间开销</li>
+</ul>
+</li>
+<li>init_timing()在一次benchmakr中只执行一次，除非第二次运行程序</li>
+</ul>
+</li>
+<li>
+<p>compute_enough()</p>
+<ul>
+<li>预估5000us、10000us、50000us和100000us，比如在5000us内计算机用时能够稳定，那么认为运行想运行的任务，5000us足够使计算机测量稳定下来，那么就返回5000us；如果四个都不行，则返回SHORT，也就是1000000us，一个足够大的数据。理论上讲其实计算机执行一个非常快或者用时普通的任务，在循环足够次数，运行足够时间，平均下来都能使单次时间稳定，但是如果能找到合适的时长，benchmark过程可以更快，且执行时间短意味着受到外界干扰小。</li>
+<li>compute_enough() 调用 test_time() 依次评估每个预估值</li>
+<li>test_time(enough)
+<ul>
+<li>find_N(enough)，得到执行任务A，执行时长为enough us，需要跑多少次，得到N。
+<ul>
+<li>find_N 首先执行 N = 10000, time_N(N)，看看执行10000次A的运行时间t，如果运行时间t与enough误差在2%以下，那么就返回N；如果运行时间t过小，低于1000us，说明执行N次还不够，需要加码，扩大10倍，N = N * 10；如果t不低于1000us，说明执行N次还可以，不过要按照运行时间t和enough的比值，再结合运行N次需要t us，折算出运行enough时间大概需要  N = enough * N / t;</li>
+<li>拿着新的N再次find_N(N)，直到执行时间与enough相差不到2%时，可以认为，计算机执行N次任务A，需要用时enough us。</li>
+<li>这个逼近过程循环10次，返回结果；如果不能收敛在2%里，则认为enough时长还不足以让CPU运行稳定，需要加长。
+<ul>
+<li>time_N(N)通过执行执行duration(N)，执行Nx10次 long **p; p = (long **) *p;这样一个赋值运算，汇编是[ move (%eax), %eax ]，从内存中读值，写入寄存器；读p地址的值只是读L1 cache中，所以在CPU内运行，不会有外界干扰。在不同平台不同性能的机器上，大家都执行这个duration(N)，通过执行N次达到时间u，作为cpu的基准。这样还是蛮科学的</li>
+<li>执行TRIES次 time_N(N)，取最小值返回</li>
+<li>duration(N)就是任务A。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>test_time(enough)中，拿到find_N(enough)所需要的执行次数N后，再次计算执行N次用时，time_N(N)，以这次结果为baseline；然后将N扩大到1.015倍、1.020倍和1.035倍，计算执行所需要时间time_N(N * factor)，得到结果与baseline * factor比较，误差在0.25%内的话，说明执行enough时间，需要N次，这个经过更新的N存储在全局变量中(save_n())，也就是存储在全局变量iterations里。</li>
+<li>如果误差仍然较大，那么我们选用一个较大的时间，比如SHORT=1000000；此时的N并无意义。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>t_overload()</p>
+<ul>
+<li>如果在之前的compute_enough()没有计算得到enough时间，返回的是SHORT，或者即使得到了，但是大于50000，执行时间足够长，那么我们认为gettimeofday的时间开销可以忽略不计，记为0。</li>
+<li>如果得到一个时间enough小雨50000us，那么认为gettimeofday的开销有必要列入，需要在循环中确定它的调用所需时长</li>
+</ul>
+</li>
+<li>
+<p>l_overload()</p>
+<ul>
+<li>在需要循环很多次的benchmark中，loop的开销很有必要列入统计中，再bench总时长中排除loop的影响</li>
+<li>loop的计算比较巧妙，假设loop开销是overhead，在同样的loop下，loop循环体执行一个任务和两个任务，分别进行bench，循环n1次和n2次，得到执行时长为u1、u2
+<ul>
+<li>u1 = n1 * ( overhead + work)</li>
+<li>u2 = n2 * ( overhead + 2 * work)</li>
+<li>overhead = 2*u1/n1 - u2/n2</li>
+<li>overhead即为单次loop的开销，一般很小，但是累计起来比较客观。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>benchmp框架</p>
+<ul>
+<li>
+<p>fork出child进程，作为bench执行体；parent作为控制体；</p>
+</li>
+<li>
+<p>parent和child通过pipe互相通信，child通知parent准备好，parent通知child开始，child执行完毕后通知parent完成；parent取完执行结果，通知child结束。</p>
+</li>
+<li>
+<p>应用程序中child首先执行init程序，将准备工作做好；比如如果是bw_mem中的cp benchmark，需要首先分配好src内存块，然后分配dst内存块，准备好后即返回，init结束；</p>
+</li>
+<li>
+<p>init结束后，benchmp框架进行下一步，while循环中执行benchmark进入warmup状态</p>
+</li>
+<li>
+<p>child执行benchmark是以状态机方式实现的</p>
+<ul>
+<li>首先是warmup状态，在该状态中childparent发送ready信号，阻塞等待parent的start信号。child收到start后，状态设置为timing_interval，取iterations为1，执行benchmark程序；执行完后重入while循环；</li>
+<li>由于已经执行以此iterations为1的benchmark，重入循环时满足state-&gt;need_warmup == 0，所以开始统计上一次benchmark开始到现在的用时，并刨去t_overload和l_overload；进入状态机的timing_interval状态，该状态评估本次benchmark的用时是否符合期望，如果符合，将本次bench结果记录，并设置状态为cooldown；如果不符合期望，分情况，如果用时result小于150，说明单次benchmark用时太短，需要多次迭代得到总结果，因此将iterations扩大8倍去计算；如果用时大于150，说明单次benchmark执行时间是够的，但是需要微调迭代次数，按照 enough * 1.1 / (iterations / result)；所以说timing_interval状态是用来在bench过程中微调迭代次数以使执行时间符合预期的过程。</li>
+<li>在cooldown状态，child阻塞等待取结果信号，并将结果写回response管道中；执行清理函数后，得到parent发出的exit信号，结束自己。</li>
+</ul>
+</li>
+<li>
+<p>最终结果存储在全局变量iterations和stop_tv中，其实是通过get_time()和get_n()，以及set_time()/save_n()或者set_results()中，并在用户程序的结束时进行计算。</p>
+</li>
+<li>
+<p>如果进行多任务</p>
+<ul>
+<li>1</li>
+<li>2</li>
+<li>3</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2022 Bg2bkk Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

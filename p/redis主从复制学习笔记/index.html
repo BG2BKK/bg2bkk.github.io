@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='redis主从复制  在介绍REDIS的RDB持久化方式时，我们提到了主从复制的实现过程  第一次同步，slave发送sync命令开始同步，master生成快照全量发送给slave，快照生成之后的变更命令缓存起来，也一块发送给slave 第二次及以后的同步，master收到命令后修改数据，并将数据修改后的结果同步给slave；如果此时发生断开重连情况，则重新进行第一步操作； redis-2.8版本后，如果发生断开重连，则进行增量传输，而不是全量传输   这里有两个值得介绍的地方  不论是否设置RDB持久化，主从复制都会产生快照 redis.conf中不设置save 900 1等配置时，只是不自动产生快照，如果执行save，还是会产生快照的 主从复制时，master执行完命令后会立刻将结果返回client，而不是等待同步给slave后再返回给client。这里可能会有一个不一致窗口，如果主从在master执行完指令和同步给client之间断开，这里会发生不一致现象，需要注意   主从复制的常见设计思路  用于保证数据持久化  master正常读写，不设置RDB或者AOF的持久化 slave设置RDB和AOF方式持久化，保证数据安全   基于实用目的的主从复制  master设置为只写模式，将结果同步给slave slave设置为只读模式，作为系统缓存        一般而言，了解以上知识，只能算是对redis的主从同步机制有了整体和粗糙的认识，而主从复制过程中发生了什么，如果能充分挖掘，也能感受到作者当时的苦心孤诣，学习到新的知识。
+好吧，装逼的话说完了，我想说，面试58的分布式存储工程师的时候，我被问到了这些问题，这些问题问的非常好，我需要补补课！
+replication of redis replication
+抓包发现，首次同步时，master将rdb文件整体发给slave，之后master有变动的话，master将会同步命令给salve，比如直接同步set key val命令。
+v2.8之后的redis增量复制   redis slave有6个状态:
+ REDIS_REPL_NONE  收到 slaveof host port，或者初始化进行主从同步时，进入下一状态   REDIS_REPL_CONNECT  redis会周期的执行replicationCron函数，而在该状态下，replicationCron函数将创建socket连接master，进入下一状态   REDIS_REPL_CONNECTING  同步socket将发送PING消息给master，随后关闭该socket的写事件，进入下一状态   REDIS_REPL_RECEIVE_PONG  socket收到PONG后，进行redis认证，认证成功后发送SYNC命令请求同步；新建临时文件接收rdb文件；进入下一状态   REDIS_REPL_TRANSFER  socket读取rdb数据，写到rdb文件   REDIS_REPL_CONNECTED  完全获取rdb文件后，进入CONNECTED状态；把master当做一个特殊的client，接收写命令      redis master 有4个状态'>
+<title>redis主从复制学习笔记</title>
+
+<link rel='canonical' href='https://bg2bkk.github.io/p/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/'>
+
+<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='redis主从复制学习笔记'>
+<meta property='og:description' content='redis主从复制  在介绍REDIS的RDB持久化方式时，我们提到了主从复制的实现过程  第一次同步，slave发送sync命令开始同步，master生成快照全量发送给slave，快照生成之后的变更命令缓存起来，也一块发送给slave 第二次及以后的同步，master收到命令后修改数据，并将数据修改后的结果同步给slave；如果此时发生断开重连情况，则重新进行第一步操作； redis-2.8版本后，如果发生断开重连，则进行增量传输，而不是全量传输   这里有两个值得介绍的地方  不论是否设置RDB持久化，主从复制都会产生快照 redis.conf中不设置save 900 1等配置时，只是不自动产生快照，如果执行save，还是会产生快照的 主从复制时，master执行完命令后会立刻将结果返回client，而不是等待同步给slave后再返回给client。这里可能会有一个不一致窗口，如果主从在master执行完指令和同步给client之间断开，这里会发生不一致现象，需要注意   主从复制的常见设计思路  用于保证数据持久化  master正常读写，不设置RDB或者AOF的持久化 slave设置RDB和AOF方式持久化，保证数据安全   基于实用目的的主从复制  master设置为只写模式，将结果同步给slave slave设置为只读模式，作为系统缓存        一般而言，了解以上知识，只能算是对redis的主从同步机制有了整体和粗糙的认识，而主从复制过程中发生了什么，如果能充分挖掘，也能感受到作者当时的苦心孤诣，学习到新的知识。
+好吧，装逼的话说完了，我想说，面试58的分布式存储工程师的时候，我被问到了这些问题，这些问题问的非常好，我需要补补课！
+replication of redis replication
+抓包发现，首次同步时，master将rdb文件整体发给slave，之后master有变动的话，master将会同步命令给salve，比如直接同步set key val命令。
+v2.8之后的redis增量复制   redis slave有6个状态:
+ REDIS_REPL_NONE  收到 slaveof host port，或者初始化进行主从同步时，进入下一状态   REDIS_REPL_CONNECT  redis会周期的执行replicationCron函数，而在该状态下，replicationCron函数将创建socket连接master，进入下一状态   REDIS_REPL_CONNECTING  同步socket将发送PING消息给master，随后关闭该socket的写事件，进入下一状态   REDIS_REPL_RECEIVE_PONG  socket收到PONG后，进行redis认证，认证成功后发送SYNC命令请求同步；新建临时文件接收rdb文件；进入下一状态   REDIS_REPL_TRANSFER  socket读取rdb数据，写到rdb文件   REDIS_REPL_CONNECTED  完全获取rdb文件后，进入CONNECTED状态；把master当做一个特殊的client，接收写命令      redis master 有4个状态'>
+<meta property='og:url' content='https://bg2bkk.github.io/p/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/'>
+<meta property='og:site_name' content='Bg2bkk Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-02-26T16:15:31&#43;08:00'/><meta property='article:modified_time' content='2016-02-26T16:15:31&#43;08:00'/>
+<meta name="twitter:title" content="redis主从复制学习笔记">
+<meta name="twitter:description" content="redis主从复制  在介绍REDIS的RDB持久化方式时，我们提到了主从复制的实现过程  第一次同步，slave发送sync命令开始同步，master生成快照全量发送给slave，快照生成之后的变更命令缓存起来，也一块发送给slave 第二次及以后的同步，master收到命令后修改数据，并将数据修改后的结果同步给slave；如果此时发生断开重连情况，则重新进行第一步操作； redis-2.8版本后，如果发生断开重连，则进行增量传输，而不是全量传输   这里有两个值得介绍的地方  不论是否设置RDB持久化，主从复制都会产生快照 redis.conf中不设置save 900 1等配置时，只是不自动产生快照，如果执行save，还是会产生快照的 主从复制时，master执行完命令后会立刻将结果返回client，而不是等待同步给slave后再返回给client。这里可能会有一个不一致窗口，如果主从在master执行完指令和同步给client之间断开，这里会发生不一致现象，需要注意   主从复制的常见设计思路  用于保证数据持久化  master正常读写，不设置RDB或者AOF的持久化 slave设置RDB和AOF方式持久化，保证数据安全   基于实用目的的主从复制  master设置为只写模式，将结果同步给slave slave设置为只读模式，作为系统缓存        一般而言，了解以上知识，只能算是对redis的主从同步机制有了整体和粗糙的认识，而主从复制过程中发生了什么，如果能充分挖掘，也能感受到作者当时的苦心孤诣，学习到新的知识。
+好吧，装逼的话说完了，我想说，面试58的分布式存储工程师的时候，我被问到了这些问题，这些问题问的非常好，我需要补补课！
+replication of redis replication
+抓包发现，首次同步时，master将rdb文件整体发给slave，之后master有变动的话，master将会同步命令给salve，比如直接同步set key val命令。
+v2.8之后的redis增量复制   redis slave有6个状态:
+ REDIS_REPL_NONE  收到 slaveof host port，或者初始化进行主从同步时，进入下一状态   REDIS_REPL_CONNECT  redis会周期的执行replicationCron函数，而在该状态下，replicationCron函数将创建socket连接master，进入下一状态   REDIS_REPL_CONNECTING  同步socket将发送PING消息给master，随后关闭该socket的写事件，进入下一状态   REDIS_REPL_RECEIVE_PONG  socket收到PONG后，进行redis认证，认证成功后发送SYNC命令请求同步；新建临时文件接收rdb文件；进入下一状态   REDIS_REPL_TRANSFER  socket读取rdb数据，写到rdb文件   REDIS_REPL_CONNECTED  完全获取rdb文件后，进入CONNECTED状态；把master当做一个特殊的client，接收写命令      redis master 有4个状态">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu9dfb7228514195dbb950046570d90a5c_100216_300x0_resize_q75_box.jpg" width="300"
+                            height="221" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">redis主从复制学习笔记</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Feb 26, 2016</time>
+            </div>
+        
+
+    
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <ul>
+<li>redis<a class="link" href="http://qifuguang.me/2015/10/18/Redis%E4%B8%BB%E4%BB%8E%E5%A4%8D%E5%88%B6/"  target="_blank" rel="noopener"
+    >主从复制</a>
+<ul>
+<li>在介绍REDIS的RDB持久化方式时，我们提到了主从复制的实现过程
+<ul>
+<li>第一次同步，slave发送sync命令开始同步，master生成快照全量发送给slave，快照生成之后的变更命令缓存起来，也一块发送给slave</li>
+<li>第二次及以后的同步，master收到命令后修改数据，并将数据修改后的结果同步给slave；如果此时发生断开重连情况，则重新进行第一步操作；</li>
+<li>redis-2.8版本后，如果发生断开重连，则进行增量传输，而不是全量传输</li>
+</ul>
+</li>
+<li>这里有两个值得介绍的地方
+<ul>
+<li>不论是否设置RDB持久化，主从复制都会产生快照</li>
+<li>redis.conf中不设置save 900 1等配置时，只是不自动产生快照，如果执行save，还是会产生快照的</li>
+<li>主从复制时，master执行完命令后会立刻将结果返回client，而不是等待同步给slave后再返回给client。这里可能会有一个不一致窗口，如果主从在master执行完指令和同步给client之间断开，这里会发生不一致现象，需要注意</li>
+</ul>
+</li>
+<li>主从复制的常见设计思路
+<ul>
+<li>用于保证数据持久化
+<ul>
+<li>master正常读写，不设置RDB或者AOF的持久化</li>
+<li>slave设置RDB和AOF方式持久化，保证数据安全</li>
+</ul>
+</li>
+<li>基于实用目的的主从复制
+<ul>
+<li>master设置为只写模式，将结果同步给slave</li>
+<li>slave设置为只读模式，作为系统缓存</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>一般而言，了解以上知识，只能算是对redis的主从同步机制有了整体和粗糙的认识，而主从复制过程中发生了什么，如果能充分挖掘，也能感受到作者当时的苦心孤诣，学习到新的知识。</p>
+<p>好吧，装逼的话说完了，我想说，面试58的分布式存储工程师的时候，我被问到了这些问题，这些问题问的非常好，我需要补补课！</p>
+<h2 id="replication-of-redis">replication of redis</h2>
+<p><a class="link" href="http://redis.io/topics/replication"  target="_blank" rel="noopener"
+    >replication</a></p>
+<p>抓包发现，首次同步时，master将rdb文件整体发给slave，之后master有变动的话，master将会同步命令给salve，比如直接同步set key val命令。</p>
+<h2 id="v28之后的redis增量复制">v2.8之后的redis增量复制</h2>
+<ul>
+<li>
+<p>redis slave有6个状态:</p>
+<ul>
+<li>REDIS_REPL_NONE
+<ul>
+<li>收到 slaveof host port，或者初始化进行主从同步时，进入下一状态</li>
+</ul>
+</li>
+<li>REDIS_REPL_CONNECT
+<ul>
+<li>redis会周期的执行replicationCron函数，而在该状态下，replicationCron函数将创建socket连接master，进入下一状态</li>
+</ul>
+</li>
+<li>REDIS_REPL_CONNECTING
+<ul>
+<li>同步socket将发送PING消息给master，随后关闭该socket的写事件，进入下一状态</li>
+</ul>
+</li>
+<li>REDIS_REPL_RECEIVE_PONG
+<ul>
+<li>socket收到PONG后，进行redis认证，认证成功后发送SYNC命令请求同步；新建临时文件接收rdb文件；进入下一状态</li>
+</ul>
+</li>
+<li>REDIS_REPL_TRANSFER
+<ul>
+<li>socket读取rdb数据，写到rdb文件</li>
+</ul>
+</li>
+<li>REDIS_REPL_CONNECTED
+<ul>
+<li>完全获取rdb文件后，进入CONNECTED状态；把master当做一个特殊的client，接收写命令</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>redis master 有4个状态</p>
+<ul>
+<li>REDIS_REPL_WAIT_BGSAVE_START</li>
+<li>REDIS_REPL_WAIT_BGSAVE_END_</li>
+<li>REDIS_REPL_WAIT_BGSAVE_BULK</li>
+<li>REDIS_REPL_WAIT_BGSAVE_ONLINE</li>
+</ul>
+</li>
+<li>
+<p>增量复制</p>
+<ul>
+<li>增量复制的区别，同步时，客户端先做增量复制，不然时间太久也只能全量复制了。</li>
+<li><a class="link" href="https://github.com/sripathikrishnan/redis-rdb-tools/wiki/Redis-RDB-Dump-File-Format"  target="_blank" rel="noopener"
+    >rdb文件格式</a></li>
+</ul>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2022 Bg2bkk Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

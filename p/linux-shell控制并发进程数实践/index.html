@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='shell脚本多线程应用  同事将新上线APP的一部分log交给我，让我统计下这些log中供出现了哪些deviceid  采用awk就可以实现这部分匹配和统计功能，还是比较简单的 挑战在于，这批log文件非常多非常大，单进程工作处理起来非常的慢。因此我想到了多进程方式。 以往需要使用shell来实现多进程时，采用以下模板    1 2 3 4 5  for seq; do { task }&amp;amp; done   * 当任务较为简单，并发数不多时，这招很管用。然而现在log文件有好几K个，grep处理文件非常耗CPU，上述模板将会按文件数启动进程，系统的CPU Load一跃而起，泪目。 * 此时的情况是，解决问题的思路和方向没有错，方式上还需要改进。关键在于：控制并发任务，合理使用CPU。 * 如何在shell中控制并发进程数呢，我找到这样一个帖子 * http://blog.sciencenet.cn/blog-548663-750136.html   shell脚本中控制并发任务数的大体方式是：  初始化token池，形成一定token空间，又能在为空时阻塞想拿token的进程  生成一个数组，执行任务前先从数组中获得一个元素，能够获得就继续执行，否则阻塞。数组大小最好为CPU核心数。任务执行完成后将元素放回，以供别的进程使用。 生成一个阻塞访问的管道pipe，先向管道中写入若干行，任务执行前从管道中获取token，任务结束后放回。     最终脚本如下所示  我在理解这个脚本的时候感到吃力，比如exec、read等既熟悉又陌生的指令，毕竟没写过shell脚本 后来我发现，man bash和man sh是第一手消息资料  if -p $directory中，-p是什么意思，在man bash的CONDITIONAL EXPRESSIONS中 read -u999中，-u又是什么意思，在man bash的 SHELL BUILTIN COMMANDS的read指令中 exec 999&amp;lt;&amp;gt;$Pfifo中，man bash的REDIRECTION小节中      1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49  #!'>
+<title>linux shell控制并发进程数实践</title>
+
+<link rel='canonical' href='https://bg2bkk.github.io/p/linux-shell%E6%8E%A7%E5%88%B6%E5%B9%B6%E5%8F%91%E8%BF%9B%E7%A8%8B%E6%95%B0%E5%AE%9E%E8%B7%B5/'>
+
+<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='linux shell控制并发进程数实践'>
+<meta property='og:description' content='shell脚本多线程应用  同事将新上线APP的一部分log交给我，让我统计下这些log中供出现了哪些deviceid  采用awk就可以实现这部分匹配和统计功能，还是比较简单的 挑战在于，这批log文件非常多非常大，单进程工作处理起来非常的慢。因此我想到了多进程方式。 以往需要使用shell来实现多进程时，采用以下模板    1 2 3 4 5  for seq; do { task }&amp;amp; done   * 当任务较为简单，并发数不多时，这招很管用。然而现在log文件有好几K个，grep处理文件非常耗CPU，上述模板将会按文件数启动进程，系统的CPU Load一跃而起，泪目。 * 此时的情况是，解决问题的思路和方向没有错，方式上还需要改进。关键在于：控制并发任务，合理使用CPU。 * 如何在shell中控制并发进程数呢，我找到这样一个帖子 * http://blog.sciencenet.cn/blog-548663-750136.html   shell脚本中控制并发任务数的大体方式是：  初始化token池，形成一定token空间，又能在为空时阻塞想拿token的进程  生成一个数组，执行任务前先从数组中获得一个元素，能够获得就继续执行，否则阻塞。数组大小最好为CPU核心数。任务执行完成后将元素放回，以供别的进程使用。 生成一个阻塞访问的管道pipe，先向管道中写入若干行，任务执行前从管道中获取token，任务结束后放回。     最终脚本如下所示  我在理解这个脚本的时候感到吃力，比如exec、read等既熟悉又陌生的指令，毕竟没写过shell脚本 后来我发现，man bash和man sh是第一手消息资料  if -p $directory中，-p是什么意思，在man bash的CONDITIONAL EXPRESSIONS中 read -u999中，-u又是什么意思，在man bash的 SHELL BUILTIN COMMANDS的read指令中 exec 999&amp;lt;&amp;gt;$Pfifo中，man bash的REDIRECTION小节中      1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49  #!'>
+<meta property='og:url' content='https://bg2bkk.github.io/p/linux-shell%E6%8E%A7%E5%88%B6%E5%B9%B6%E5%8F%91%E8%BF%9B%E7%A8%8B%E6%95%B0%E5%AE%9E%E8%B7%B5/'>
+<meta property='og:site_name' content='Bg2bkk Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-02-19T10:54:28&#43;08:00'/><meta property='article:modified_time' content='2016-02-19T10:54:28&#43;08:00'/>
+<meta name="twitter:title" content="linux shell控制并发进程数实践">
+<meta name="twitter:description" content="shell脚本多线程应用  同事将新上线APP的一部分log交给我，让我统计下这些log中供出现了哪些deviceid  采用awk就可以实现这部分匹配和统计功能，还是比较简单的 挑战在于，这批log文件非常多非常大，单进程工作处理起来非常的慢。因此我想到了多进程方式。 以往需要使用shell来实现多进程时，采用以下模板    1 2 3 4 5  for seq; do { task }&amp;amp; done   * 当任务较为简单，并发数不多时，这招很管用。然而现在log文件有好几K个，grep处理文件非常耗CPU，上述模板将会按文件数启动进程，系统的CPU Load一跃而起，泪目。 * 此时的情况是，解决问题的思路和方向没有错，方式上还需要改进。关键在于：控制并发任务，合理使用CPU。 * 如何在shell中控制并发进程数呢，我找到这样一个帖子 * http://blog.sciencenet.cn/blog-548663-750136.html   shell脚本中控制并发任务数的大体方式是：  初始化token池，形成一定token空间，又能在为空时阻塞想拿token的进程  生成一个数组，执行任务前先从数组中获得一个元素，能够获得就继续执行，否则阻塞。数组大小最好为CPU核心数。任务执行完成后将元素放回，以供别的进程使用。 生成一个阻塞访问的管道pipe，先向管道中写入若干行，任务执行前从管道中获取token，任务结束后放回。     最终脚本如下所示  我在理解这个脚本的时候感到吃力，比如exec、read等既熟悉又陌生的指令，毕竟没写过shell脚本 后来我发现，man bash和man sh是第一手消息资料  if -p $directory中，-p是什么意思，在man bash的CONDITIONAL EXPRESSIONS中 read -u999中，-u又是什么意思，在man bash的 SHELL BUILTIN COMMANDS的read指令中 exec 999&amp;lt;&amp;gt;$Pfifo中，man bash的REDIRECTION小节中      1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49  #!">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu9dfb7228514195dbb950046570d90a5c_100216_300x0_resize_q75_box.jpg" width="300"
+                            height="221" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/linux-shell%E6%8E%A7%E5%88%B6%E5%B9%B6%E5%8F%91%E8%BF%9B%E7%A8%8B%E6%95%B0%E5%AE%9E%E8%B7%B5/">linux shell控制并发进程数实践</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Feb 19, 2016</time>
+            </div>
+        
+
+    
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    2 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h1 id="shell脚本多线程应用">shell脚本多线程应用</h1>
+<ul>
+<li>同事将新上线APP的一部分log交给我，让我统计下这些log中供出现了哪些deviceid
+<ul>
+<li>采用awk就可以实现这部分匹配和统计功能，还是比较简单的</li>
+<li>挑战在于，这批log文件非常多非常大，单进程工作处理起来非常的慢。因此我想到了多进程方式。</li>
+<li>以往需要使用shell来实现多进程时，采用以下模板</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="k">for</span> seq<span class="p">;</span> <span class="k">do</span>
+    <span class="o">{</span>
+        task
+    <span class="o">}</span><span class="p">&amp;</span>
+<span class="k">done</span>
+</code></pre></td></tr></table>
+</div>
+</div><pre><code>* 当任务较为简单，并发数不多时，这招很管用。然而现在log文件有好几K个，grep处理文件非常耗CPU，上述模板将会按文件数启动进程，系统的CPU Load一跃而起，泪目。
+* 此时的情况是，解决问题的思路和方向没有错，方式上还需要改进。关键在于：控制并发任务，合理使用CPU。
+* 如何在shell中控制并发进程数呢，我找到这样一个帖子
+* http://blog.sciencenet.cn/blog-548663-750136.html
+</code></pre>
+<ul>
+<li>shell脚本中控制并发任务数的大体方式是：
+<ul>
+<li>初始化token池，形成一定token空间，又能在为空时阻塞想拿token的进程
+<ul>
+<li>生成一个数组，执行任务前先从数组中获得一个元素，能够获得就继续执行，否则阻塞。数组大小最好为CPU核心数。任务执行完成后将元素放回，以供别的进程使用。</li>
+<li>生成一个阻塞访问的管道pipe，先向管道中写入若干行，任务执行前从管道中获取token，任务结束后放回。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>最终脚本如下所示
+<ul>
+<li>我在理解这个脚本的时候感到吃力，比如exec、read等既熟悉又陌生的指令，毕竟没写过shell脚本</li>
+<li>后来我发现，man bash和man sh是第一手消息资料
+<ul>
+<li>if -p $directory中，-p是什么意思，在man bash的CONDITIONAL EXPRESSIONS中</li>
+<li>read -u999中，-u又是什么意思，在man bash的 SHELL BUILTIN COMMANDS的read指令中</li>
+<li>exec 999&lt;&gt;$Pfifo中，man bash的REDIRECTION小节中</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/sh
+</span><span class="cp"></span>
+<span class="nv">awk</span><span class="o">=</span>/usr/bin/awk
+<span class="nv">uniq</span><span class="o">=</span>/usr/bin/uniq
+
+<span class="nv">Nproc</span><span class="o">=</span><span class="m">24</span>
+
+<span class="c1">#$$是进程pid</span>
+<span class="nv">Pfifo</span><span class="o">=</span><span class="s2">&#34;/tmp/</span><span class="nv">$$</span><span class="s2">.fifo&#34;</span>
+mkfifo <span class="nv">$Pfifo</span>
+
+<span class="c1">#以999为文件描述符打开管道,&lt;&gt;表示可读可写</span>
+<span class="nb">exec</span> 999&lt;&gt;<span class="nv">$Pfifo</span>
+rm -f <span class="nv">$Pfifo</span>
+
+<span class="c1">#向管道中写入Nproc行,作为令牌</span>
+<span class="k">for</span><span class="o">((</span><span class="nv">i</span><span class="o">=</span>1<span class="p">;</span> i&lt;<span class="o">=</span><span class="nv">$Nproc</span><span class="p">;</span> i++<span class="o">))</span><span class="p">;</span> <span class="k">do</span>
+    <span class="nb">echo</span>
+<span class="k">done</span> &gt;<span class="p">&amp;</span><span class="m">999</span>
+
+<span class="nb">echo</span> <span class="s1">&#39;&#39;</span> &gt; out
+<span class="nb">echo</span> <span class="s1">&#39;&#39;</span> &gt; ooo
+<span class="nv">filenames</span><span class="o">=</span><span class="sb">`</span>ls *.log<span class="sb">`</span>
+<span class="k">for</span> filename in <span class="nv">$filenames</span><span class="p">;</span> <span class="k">do</span>
+<span class="c1">#从管道中取出1行作为token，如果管道为空，read将会阻塞</span>
+<span class="c1">#man bash可以知道-u是从fd中读取一行</span>
+    <span class="nb">read</span> -u999
+
+    <span class="o">{</span>
+    <span class="c1">#所要执行的任务</span>
+        <span class="sb">`</span><span class="nv">$awk</span> -F<span class="s1">&#39;,&#39;</span> <span class="s1">&#39;/did/ {for(i=1;i&lt;=NF;i++) if($i ~ /did/) print $i i}&#39;</span> <span class="nv">$filename</span> <span class="p">|</span> <span class="nv">$awk</span> -F<span class="s1">&#39;:&#39;</span> <span class="s1">&#39;{print $2}&#39;</span> <span class="p">|</span> <span class="nv">$awk</span> -F<span class="s1">&#39;&#34;&#39;</span> <span class="s1">&#39;{print $2}&#39;</span>  <span class="p">|</span> <span class="nv">$uniq</span> <span class="p">|</span> <span class="nv">$awk</span> <span class="s1">&#39;{count[$1]++}END{for(name in count)print name &gt;&gt; &#34;out&#34;}&#39;</span><span class="sb">`</span> <span class="o">&amp;&amp;</span> <span class="o">{</span>
+            <span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$filename</span><span class="s2"> done&#34;</span>
+        <span class="o">}</span> <span class="o">||</span> <span class="o">{</span>
+            <span class="nb">echo</span> <span class="s2">&#34;</span><span class="nv">$filename</span><span class="s2"> error&#34;</span>
+        <span class="o">}</span>
+        sleep <span class="m">1</span>
+    <span class="c1">#归还token</span>
+        <span class="nb">echo</span> &gt;<span class="p">&amp;</span><span class="m">999</span>
+    <span class="o">}</span><span class="p">&amp;</span>
+
+<span class="k">done</span>
+
+<span class="c1">#等待所有子进程结束</span>
+<span class="nb">wait</span> 
+
+<span class="c1">#关闭管道</span>
+<span class="nb">exec</span> 999&gt;<span class="p">&amp;</span>-
+
+<span class="nb">echo</span> <span class="sb">`</span><span class="nv">$awk</span> <span class="s1">&#39;{count[$0]++}END{for(name in count)print name}&#39;</span> out &gt; ooo<span class="p">;</span> awk <span class="s1">&#39;END{print NR}&#39;</span> ooo<span class="sb">`</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>单进程方式处理这些log需要3个小时，而控制并发进程数的话只需要10分钟不到。
+<ul>
+<li>可见大部分计算资源都浪费在CPU切换上了。</li>
+</ul>
+</li>
+</ul>
+<h1 id="参考链接">参考链接</h1>
+<h2 id="linux-shell-和-lsof-等工具使用的一些tips">linux shell 和 lsof 等工具使用的一些tips</h2>
+<p><a class="link" href="http://www.cnblogs.com/chengmo/archive/2010/10/20/1855805.html"  target="_blank" rel="noopener"
+    >linux shell数据输入输出的重定向分析</a>   <br>
+<a class="link" href="http://linuxtools-rst.readthedocs.org/zh_CN/latest/tool/lsof.html"  target="_blank" rel="noopener"
+    >lsof 一切皆文件</a></p>
+<h2 id="文件描述符与进程间通信">文件描述符与进程间通信</h2>
+<p><a class="link" href="http://adelphos.blog.51cto.com/2363901/1598570"  target="_blank" rel="noopener"
+    >IO重定向和文件描述符</a>     <br>
+<a class="link" href="http://www.cnblogs.com/GODYCA/archive/2013/01/05/2845618.html"  target="_blank" rel="noopener"
+    >文件描述符与进程间通信的关联</a></p>
+<h2 id="linux-shell-cocurrency并发控制">linux shell cocurrency并发控制</h2>
+<p><a class="link" href="http://blog.sciencenet.cn/blog-548663-750136.html"  target="_blank" rel="noopener"
+    >Bash脚本实现批量作业并行化</a><br>
+<a class="link" href="https://pebblesinthesand.wordpress.com/2008/05/22/a-srcipt-for-running-processes-in-parallel-in-bash/"  target="_blank" rel="noopener"
+    >A script for running processes in parallel in Bash</a></p>
+<h2 id="awksed">awk&amp;sed</h2>
+<p><a class="link" href="http://kodango.com/sed-and-awk-notes-part-1"  target="_blank" rel="noopener"
+    >sed&amp;awk入门 一</a>    <br>
+<a class="link" href="http://kodango.com/sed-and-awk-notes-part-2"  target="_blank" rel="noopener"
+    >sed&amp;awk入门 二</a>     <br>
+<a class="link" href="http://www.cnblogs.com/dong008259/archive/2011/12/06/2277287.html"  target="_blank" rel="noopener"
+    >awk用法汇总</a></p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2022 Bg2bkk Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

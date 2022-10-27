@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='HTTP   HTTP/0.9
+  HTTP/1.0
+ 引入POST方法，允许client发送表单 引入Header头部，能够返回错误码、以及文字或图片等其他格式 头部的Connection: keep-alive可以保持长连接    HTTP/1.1
+ 增加HOST字段，然后GET 后面只需要跟相对路径即可，由HOST字段分辨访问主机的哪个域；之前是不能有多个域的，因为多个域指向同一IP会造成混淆 引入Range头，可以只下载一部分内容 默认长链接 keepalive    HTTP/2:
+ 革命性的更新，压缩头部，stream和frame等机制    HTTP request 请求
+ 请求行 eg. GET www.cnblogs.com HTTP/1.1 HTTP头部 eg. Content-Type: text/html; charset=utf-8 内容	只在post请求存在    HTTP respond 响应
+ 状态行 eg. HTTP/1.1 200 OK HTTP头部  响应头 response header 通用头 general header eg. Date ETAG Connection: Keep-Alive      1  通用头即可以包含在HTTP请求中，也可以包含在HTTP响应中。通用头的作用是描述HTTP协议本身。比如描述HTTP是否持久连接的Connection头，HTTP发送日期的Date头，描述HTTP所在TCP连接时间的Keep-Alive头，用于缓存控制的Cache-Control头等。   	* 实体头 entity header eg.'>
+<title>HTTP协议学习过程</title>
+
+<link rel='canonical' href='https://bg2bkk.github.io/p/http%E5%8D%8F%E8%AE%AE%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B/'>
+
+<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='HTTP协议学习过程'>
+<meta property='og:description' content='HTTP   HTTP/0.9
+  HTTP/1.0
+ 引入POST方法，允许client发送表单 引入Header头部，能够返回错误码、以及文字或图片等其他格式 头部的Connection: keep-alive可以保持长连接    HTTP/1.1
+ 增加HOST字段，然后GET 后面只需要跟相对路径即可，由HOST字段分辨访问主机的哪个域；之前是不能有多个域的，因为多个域指向同一IP会造成混淆 引入Range头，可以只下载一部分内容 默认长链接 keepalive    HTTP/2:
+ 革命性的更新，压缩头部，stream和frame等机制    HTTP request 请求
+ 请求行 eg. GET www.cnblogs.com HTTP/1.1 HTTP头部 eg. Content-Type: text/html; charset=utf-8 内容	只在post请求存在    HTTP respond 响应
+ 状态行 eg. HTTP/1.1 200 OK HTTP头部  响应头 response header 通用头 general header eg. Date ETAG Connection: Keep-Alive      1  通用头即可以包含在HTTP请求中，也可以包含在HTTP响应中。通用头的作用是描述HTTP协议本身。比如描述HTTP是否持久连接的Connection头，HTTP发送日期的Date头，描述HTTP所在TCP连接时间的Keep-Alive头，用于缓存控制的Cache-Control头等。   	* 实体头 entity header eg.'>
+<meta property='og:url' content='https://bg2bkk.github.io/p/http%E5%8D%8F%E8%AE%AE%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B/'>
+<meta property='og:site_name' content='Bg2bkk Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-05-18T20:26:09&#43;08:00'/><meta property='article:modified_time' content='2016-05-18T20:26:09&#43;08:00'/>
+<meta name="twitter:title" content="HTTP协议学习过程">
+<meta name="twitter:description" content="HTTP   HTTP/0.9
+  HTTP/1.0
+ 引入POST方法，允许client发送表单 引入Header头部，能够返回错误码、以及文字或图片等其他格式 头部的Connection: keep-alive可以保持长连接    HTTP/1.1
+ 增加HOST字段，然后GET 后面只需要跟相对路径即可，由HOST字段分辨访问主机的哪个域；之前是不能有多个域的，因为多个域指向同一IP会造成混淆 引入Range头，可以只下载一部分内容 默认长链接 keepalive    HTTP/2:
+ 革命性的更新，压缩头部，stream和frame等机制    HTTP request 请求
+ 请求行 eg. GET www.cnblogs.com HTTP/1.1 HTTP头部 eg. Content-Type: text/html; charset=utf-8 内容	只在post请求存在    HTTP respond 响应
+ 状态行 eg. HTTP/1.1 200 OK HTTP头部  响应头 response header 通用头 general header eg. Date ETAG Connection: Keep-Alive      1  通用头即可以包含在HTTP请求中，也可以包含在HTTP响应中。通用头的作用是描述HTTP协议本身。比如描述HTTP是否持久连接的Connection头，HTTP发送日期的Date头，描述HTTP所在TCP连接时间的Keep-Alive头，用于缓存控制的Cache-Control头等。   	* 实体头 entity header eg.">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu9dfb7228514195dbb950046570d90a5c_100216_300x0_resize_q75_box.jpg" width="300"
+                            height="221" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/http%E5%8D%8F%E8%AE%AE%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B/">HTTP协议学习过程</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">May 18, 2016</time>
+            </div>
+        
+
+    
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="http">HTTP</h2>
+<ul>
+<li>
+<p>HTTP/0.9</p>
+</li>
+<li>
+<p>HTTP/1.0</p>
+<ul>
+<li>引入POST方法，允许client发送表单</li>
+<li>引入Header头部，能够返回错误码、以及文字或图片等其他格式</li>
+<li>头部的Connection: keep-alive可以保持长连接</li>
+</ul>
+</li>
+<li>
+<p>HTTP/1.1</p>
+<ul>
+<li>增加HOST字段，然后GET 后面只需要跟相对路径即可，由HOST字段分辨访问主机的哪个域；之前是不能有多个域的，因为多个域指向同一IP会造成混淆</li>
+<li>引入Range头，可以只下载一部分内容</li>
+<li>默认长链接 keepalive</li>
+</ul>
+</li>
+<li>
+<p>HTTP/2:</p>
+<ul>
+<li>革命性的更新，压缩头部，stream和frame等机制</li>
+</ul>
+</li>
+<li>
+<p>HTTP request 请求</p>
+<ul>
+<li>请求行 eg. GET <a class="link" href="http://www.cnblogs.com"  target="_blank" rel="noopener"
+    >www.cnblogs.com</a> HTTP/1.1</li>
+<li>HTTP头部 eg. Content-Type: text/html; charset=utf-8</li>
+<li>内容	只在post请求存在</li>
+</ul>
+</li>
+<li>
+<p>HTTP respond 响应</p>
+<ul>
+<li>状态行 eg. HTTP/1.1 200 OK</li>
+<li>HTTP头部
+<ul>
+<li>响应头 response header</li>
+<li>通用头 general header eg. Date  ETAG Connection: Keep-Alive</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">通用头即可以包含在HTTP请求中，也可以包含在HTTP响应中。通用头的作用是描述HTTP协议本身。比如描述HTTP是否持久连接的Connection头，HTTP发送日期的Date头，描述HTTP所在TCP连接时间的Keep-Alive头，用于缓存控制的Cache-Control头等。
+</code></pre></td></tr></table>
+</div>
+</div><pre><code>	* 实体头 entity header eg. Content-Type: Content-Length
+</code></pre>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">实体头是那些描述HTTP信息的头。既可以出现在HTTP POST方法的请求中，也可以出现在HTTP响应中。比如图5和图6中的Content-Type和Content-length都是描述实体的类型和大小的头都属于实体头。其它还有用于描述实体的Content-Language,Content-MD5,Content-Encoding以及控制实体缓存的Expires和Last-Modifies头等。
+</code></pre></td></tr></table>
+</div>
+</div><pre><code>* 响应数据
+
+* 浏览器靠响应头部的Content-Type来确定如何处理收到的信息，类型由IANA分配，包括[8大类媒体类型](http://www.iana.org/assignments/media-types/media-types.xhtml)
+</code></pre>
+<ul>
+<li>HTTP头部
+<ul>
+<li>请求头 request header</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">请求头是那些由客户端发往服务端以便帮助服务端更好的满足客户端请求的头。请求头只能出现在HTTP请求中。比如告诉服务器只接收某种响应内容的Accept头，发送Cookies的Cookie头，显示请求主机域的HOST头，用于缓存的If-Match，If-Match-Since,If-None-Match头，用于只取HTTP响应信息中部分信息的Range头，用于附属HTML相关请求引用的Referer头等。
+</code></pre></td></tr></table>
+</div>
+</div><pre><code>* 响应头 response header
+</code></pre>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">HTTP响应头是那些描述HTTP响应本身的头，这里面并不包含描述HTTP响应中第三部分也就是HTTP信息的头（这部分由实体头负责）。比如说定时刷新的Refresh头，当遇到503错误时自动重试的Retry-After头，显示服务器信息的Server头，设置COOKIE的Set-Cookie头，告诉客户端可以部分请求的Accept-Ranges头等。
+</code></pre></td></tr></table>
+</div>
+</div><p><a class="link" href="http://www.linux178.com/web/httprequest.html"  target="_blank" rel="noopener"
+    >一次http请求的过程</a>
+<a class="link" href="https://www.byvoid.com/blog/http-keep-alive-header"  target="_blank" rel="noopener"
+    >http请求头部keepalive</a>
+<a class="link" href="https://imququ.com/post/transfer-encoding-header-in-http.html"  target="_blank" rel="noopener"
+    >content-encoding transfer-encoding content-length transfer-length</a>
+<a class="link" href="https://tools.ietf.org/html/rfc7233"  target="_blank" rel="noopener"
+    >Range字段</a></p>
+<ul>
+<li>HTTP的幂等性
+<ul>
+<li><a class="link" href="http://www.cnblogs.com/weidagang2046/archive/2011/06/04/idempotence.html"  target="_blank" rel="noopener"
+    >幂等性</a>
+<ul>
+<li>比较 POST GET PUT DELETE等方法，指出各自的幂等性</li>
+</ul>
+</li>
+<li><a class="link" href="http://www.cnblogs.com/zhengyun_ustc/archive/2012/11/22/topic6.html"  target="_blank" rel="noopener"
+    >电商中的幂等性</a></li>
+</ul>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2022 Bg2bkk Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

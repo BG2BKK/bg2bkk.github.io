@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='目录  前言 基于openssl自建证书  CentOS Ubuntu   nginx的支持HTTP/2的patch nghttp2安装，配置，使用  nghttpd作为http2 server nghttp作为http2 client nghttpx作为proxy，转向nginx后端 h2load作为压测工具    前言  在研究HTTP/2协议时，常常和https协议混在一起，而二者之间的关系是怎样的呢？ 现有的http2 server中，nginx基于1.9.*有HTTP/2协议的patch，还有nghttp2 server，已经有人运行在个人博客做前端。  只说实践过程，作为记录。
+关于涉及到的概念等，需要在别的文档中写。
+基于openssl自建证书 在线上配置HTTPS时，需要从权威CA申请证书，在nginx中配置证书crt和私钥key。
+ listen 8443 ssl; ssl_certificate /usr/lib/ssl/nginx.crt; ssl_certificate_key /usr/lib/ssl/nginx.key;  而在线下调试时，如果需要配置https，则需要自建和签发证书。 基于openssl自建证书
+在CentOS系统上自建证书 1.自建CA，颁发证书
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50  CA首先需要自建证书，作为颁发证书所用的根证书。CA的openssl配置文件/etc/pki/tls/openssl.'>
+<title>HTTP2的实践过程</title>
+
+<link rel='canonical' href='https://bg2bkk.github.io/p/http2%E7%9A%84%E5%AE%9E%E8%B7%B5%E8%BF%87%E7%A8%8B/'>
+
+<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='HTTP2的实践过程'>
+<meta property='og:description' content='目录  前言 基于openssl自建证书  CentOS Ubuntu   nginx的支持HTTP/2的patch nghttp2安装，配置，使用  nghttpd作为http2 server nghttp作为http2 client nghttpx作为proxy，转向nginx后端 h2load作为压测工具    前言  在研究HTTP/2协议时，常常和https协议混在一起，而二者之间的关系是怎样的呢？ 现有的http2 server中，nginx基于1.9.*有HTTP/2协议的patch，还有nghttp2 server，已经有人运行在个人博客做前端。  只说实践过程，作为记录。
+关于涉及到的概念等，需要在别的文档中写。
+基于openssl自建证书 在线上配置HTTPS时，需要从权威CA申请证书，在nginx中配置证书crt和私钥key。
+ listen 8443 ssl; ssl_certificate /usr/lib/ssl/nginx.crt; ssl_certificate_key /usr/lib/ssl/nginx.key;  而在线下调试时，如果需要配置https，则需要自建和签发证书。 基于openssl自建证书
+在CentOS系统上自建证书 1.自建CA，颁发证书
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50  CA首先需要自建证书，作为颁发证书所用的根证书。CA的openssl配置文件/etc/pki/tls/openssl.'>
+<meta property='og:url' content='https://bg2bkk.github.io/p/http2%E7%9A%84%E5%AE%9E%E8%B7%B5%E8%BF%87%E7%A8%8B/'>
+<meta property='og:site_name' content='Bg2bkk Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-03-12T16:17:52&#43;08:00'/><meta property='article:modified_time' content='2016-03-12T16:17:52&#43;08:00'/>
+<meta name="twitter:title" content="HTTP2的实践过程">
+<meta name="twitter:description" content="目录  前言 基于openssl自建证书  CentOS Ubuntu   nginx的支持HTTP/2的patch nghttp2安装，配置，使用  nghttpd作为http2 server nghttp作为http2 client nghttpx作为proxy，转向nginx后端 h2load作为压测工具    前言  在研究HTTP/2协议时，常常和https协议混在一起，而二者之间的关系是怎样的呢？ 现有的http2 server中，nginx基于1.9.*有HTTP/2协议的patch，还有nghttp2 server，已经有人运行在个人博客做前端。  只说实践过程，作为记录。
+关于涉及到的概念等，需要在别的文档中写。
+基于openssl自建证书 在线上配置HTTPS时，需要从权威CA申请证书，在nginx中配置证书crt和私钥key。
+ listen 8443 ssl; ssl_certificate /usr/lib/ssl/nginx.crt; ssl_certificate_key /usr/lib/ssl/nginx.key;  而在线下调试时，如果需要配置https，则需要自建和签发证书。 基于openssl自建证书
+在CentOS系统上自建证书 1.自建CA，颁发证书
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50  CA首先需要自建证书，作为颁发证书所用的根证书。CA的openssl配置文件/etc/pki/tls/openssl.">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu9dfb7228514195dbb950046570d90a5c_100216_300x0_resize_q75_box.jpg" width="300"
+                            height="221" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/http2%E7%9A%84%E5%AE%9E%E8%B7%B5%E8%BF%87%E7%A8%8B/">HTTP2的实践过程</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Mar 12, 2016</time>
+            </div>
+        
+
+    
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    7 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="目录">目录</h2>
+<ul>
+<li>前言</li>
+<li>基于openssl自建证书
+<ul>
+<li>CentOS</li>
+<li>Ubuntu</li>
+</ul>
+</li>
+<li>nginx的支持HTTP/2的patch</li>
+<li>nghttp2安装，配置，使用
+<ul>
+<li>nghttpd作为http2 server</li>
+<li>nghttp作为http2 client</li>
+<li>nghttpx作为proxy，转向nginx后端</li>
+<li>h2load作为压测工具</li>
+</ul>
+</li>
+</ul>
+<h2 id="前言">前言</h2>
+<ul>
+<li>在研究HTTP/2协议时，常常和https协议混在一起，而二者之间的关系是怎样的呢？</li>
+<li>现有的http2 server中，nginx基于1.9.*有HTTP/2协议的patch，还有nghttp2 server，已经有人运行在个人博客做前端。</li>
+</ul>
+<p>只说实践过程，作为记录。</p>
+<p>关于涉及到的概念等，需要在别的文档中写。</p>
+<h2 id="基于openssl自建证书">基于openssl自建证书</h2>
+<p>在线上配置HTTPS时，需要从权威CA申请证书，在nginx中配置证书crt和私钥key。</p>
+<pre><code>    listen 8443 ssl;
+    ssl_certificate  /usr/lib/ssl/nginx.crt;
+    ssl_certificate_key /usr/lib/ssl/nginx.key;
+</code></pre>
+<p>而在线下调试时，如果需要配置https，则需要自建和签发证书。
+<a class="link" href="http://segmentfault.com/a/1190000002569859"  target="_blank" rel="noopener"
+    >基于openssl自建证书</a></p>
+<h3 id="在centos系统上自建证书">在CentOS系统上自建证书</h3>
+<p>1.自建CA，颁发证书</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">CA首先需要自建证书，作为颁发证书所用的根证书。CA的openssl配置文件/etc/pki/tls/openssl.cnf：
+
+<span class="c1">####################################################################</span>
+<span class="o">[</span> ca <span class="o">]</span>
+<span class="nv">default_ca</span>	<span class="o">=</span> CA_default		<span class="c1"># The default ca section</span>
+
+<span class="c1">####################################################################</span>
+<span class="o">[</span> CA_default <span class="o">]</span>
+
+<span class="nv">dir</span>		<span class="o">=</span> /etc/pki/CA		<span class="c1"># Where everything is kept</span>
+<span class="nv">certs</span>		<span class="o">=</span> <span class="nv">$dir</span>/certs		<span class="c1"># Where the issued certs are kept</span>
+<span class="nv">crl_dir</span>		<span class="o">=</span> <span class="nv">$dir</span>/crl		<span class="c1"># Where the issued crl are kept</span>
+<span class="nv">database</span>	<span class="o">=</span> <span class="nv">$dir</span>/index.txt	<span class="c1"># database index file.</span>
+<span class="c1">#unique_subject	= no			# Set to &#39;no&#39; to allow creation of</span>
+					<span class="c1"># several ctificates with same subject.</span>
+<span class="nv">new_certs_dir</span>	<span class="o">=</span> <span class="nv">$dir</span>/newcerts		<span class="c1"># default place for new certs.</span>
+
+<span class="nv">certificate</span>	<span class="o">=</span> <span class="nv">$dir</span>/cacert.pem 	<span class="c1"># The CA certificate</span>
+<span class="nv">serial</span>		<span class="o">=</span> <span class="nv">$dir</span>/serial 		<span class="c1"># The current serial number</span>
+<span class="nv">crlnumber</span>	<span class="o">=</span> <span class="nv">$dir</span>/crlnumber	<span class="c1"># the current crl number</span>
+					<span class="c1"># must be commented out to leave a V1 CRL</span>
+<span class="nv">crl</span>		<span class="o">=</span> <span class="nv">$dir</span>/crl.pem 		<span class="c1"># The current CRL</span>
+<span class="nv">private_key</span>	<span class="o">=</span> <span class="nv">$dir</span>/private/cakey.pem# The private key
+<span class="nv">RANDFILE</span>	<span class="o">=</span> <span class="nv">$dir</span>/private/.rand	<span class="c1"># private random number file</span>
+
+<span class="nv">x509_extensions</span>	<span class="o">=</span> usr_cert		<span class="c1"># The extentions to add to the cert</span>
+
+<span class="c1"># Comment out the following two lines for the &#34;traditional&#34;</span>
+<span class="c1"># (and highly broken) format.</span>
+<span class="nv">name_opt</span> 	<span class="o">=</span> ca_default		<span class="c1"># Subject Name options</span>
+<span class="nv">cert_opt</span> 	<span class="o">=</span> ca_default		<span class="c1"># Certificate field options</span>
+
+
+
+<span class="nv">default_days</span>	<span class="o">=</span> 365			<span class="c1"># how long to certify for</span>
+<span class="nv">default_crl_days</span><span class="o">=</span> 30			<span class="c1"># how long before next CRL</span>
+<span class="nv">default_md</span>	<span class="o">=</span> default		<span class="c1"># use public key default MD</span>
+<span class="nv">preserve</span>	<span class="o">=</span> no			<span class="c1"># keep passed DN ordering</span>
+
+<span class="nv">policy</span>		<span class="o">=</span> policy_match
+
+<span class="c1"># For the CA policy</span>
+<span class="o">[</span> policy_match <span class="o">]</span>
+<span class="nv">countryName</span>		<span class="o">=</span> match
+<span class="nv">stateOrProvinceName</span>	<span class="o">=</span> match
+<span class="nv">organizationName</span>	<span class="o">=</span> match
+<span class="nv">organizationalUnitName</span>	<span class="o">=</span> optional
+<span class="nv">commonName</span>		<span class="o">=</span> supplied
+<span class="nv">emailAddress</span>		<span class="o">=</span> optional
+...
+</code></pre></td></tr></table>
+</div>
+</div><p>其中我们可以看到根地址在/etc/pki/CA下，且指明了CA证书certificate是该目录下的cacert.pem，私钥在private/cakey.pem中，CA需要匹配countryName、stateOrProvinceName和organizationName，且commonName需要提供，这点比较重要。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">在/etc/pki/CA下创建初始文件
+
+$ touch serial index.txt
+$ <span class="nb">echo</span> <span class="m">01</span> &gt; serial
+
+</code></pre></td></tr></table>
+</div>
+</div><p>2.生成根密钥</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ <span class="nb">cd</span> /etc/pki/CA
+$ openssl genrsa -out private/cakey.pem <span class="m">2048</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>3.生成根证书</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">使用req指令，通过私钥，生成自签证书
+$ openssl req -new -x509 -key private/cakey.pem -out cacert.pem
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter <span class="s1">&#39;.&#39;</span>, the field will be left blank.
+-----
+Country Name <span class="o">(</span><span class="m">2</span> letter code<span class="o">)</span> <span class="o">[</span>XX<span class="o">]</span>:CN
+State or Province Name <span class="o">(</span>full name<span class="o">)</span> <span class="o">[]</span>:BeiJing
+Locality Name <span class="o">(</span>eg, city<span class="o">)</span> <span class="o">[</span>Default City<span class="o">]</span>:
+Organization Name <span class="o">(</span>eg, company<span class="o">)</span> <span class="o">[</span>Default Company Ltd<span class="o">]</span>:
+Organizational Unit Name <span class="o">(</span>eg, section<span class="o">)</span> <span class="o">[]</span>:
+Common Name <span class="o">(</span>eg, your name or your server<span class="err">&#39;</span>s hostname<span class="o">)</span> <span class="o">[]</span>:root
+Email Address <span class="o">[]</span>:
+</code></pre></td></tr></table>
+</div>
+</div><p>4.为nginx server生成密钥</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ mkdir /data/zhendong/nginx_ssl
+$ openssl genrsa -out nginx.key <span class="m">2048</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>5.为nginx生成 证书签署请求</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ openssl req -new -key nginx.key -out nginx.csr
+You are about to be asked to enter information that will be incorporated
+into your certificate request.
+What you are about to enter is what is called a Distinguished Name or a DN.
+There are quite a few fields but you can leave some blank
+For some fields there will be a default value,
+If you enter <span class="s1">&#39;.&#39;</span>, the field will be left blank.
+-----
+Country Name <span class="o">(</span><span class="m">2</span> letter code<span class="o">)</span> <span class="o">[</span>XX<span class="o">]</span>:CN
+State or Province Name <span class="o">(</span>full name<span class="o">)</span> <span class="o">[]</span>:BeiJing
+Locality Name <span class="o">(</span>eg, city<span class="o">)</span> <span class="o">[</span>Default City<span class="o">]</span>:
+Organization Name <span class="o">(</span>eg, company<span class="o">)</span> <span class="o">[</span>Default Company Ltd<span class="o">]</span>:
+Organizational Unit Name <span class="o">(</span>eg, section<span class="o">)</span> <span class="o">[]</span>:
+Common Name <span class="o">(</span>eg, your name or your server<span class="s1">&#39;s hostname) []:localhost
+</span><span class="s1">Email Address []:
+</span><span class="s1">
+</span><span class="s1">Please enter the following &#39;</span>extra<span class="err">&#39;</span> attributes
+to be sent with your certificate request
+A challenge password <span class="o">[]</span>:
+An optional company name <span class="o">[]</span>:
+
+Common Name填成nginx server的server_name用来访问。
+在openssl.cnf中需要match的项目，一定要一样。
+</code></pre></td></tr></table>
+</div>
+</div><p>6.向CA请求证书</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ openssl ca -in nginx.csr -out nginx.crt
+
+如果失败，可以尝试以下命令
+
+$ openssl x509 -req -in nginx.csr -CA /etc/pki/CA/cacert.pem -CAkey /etc/pki/CA/private/cakey.pem -CAcreateserial -out nginx.crt
+</code></pre></td></tr></table>
+</div>
+</div><p>7.配置nginx</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">listen <span class="m">8443</span> ssl <span class="p">;</span>
+ssl_certificate  /data1/zhendong/nginx_ssl/nginx.crt<span class="p">;</span>
+ssl_certificate_key /data1/zhendong/nginx_ssl/nginx.key<span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>8.通过curl访问</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ curl --cacert /etc/pki/CA/cacert.pem https://localhost:8443/
+this is abtesting server
+
+$ curl --cacert /etc/pki/CA/cacert.pem https://127.0.0.1:8443/
+curl: <span class="o">(</span>51<span class="o">)</span> SSL: certificate subject name <span class="s1">&#39;localhost&#39;</span> does not match target host name <span class="s1">&#39;127.0.0.1&#39;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>###在Ubuntu系统上自建证书</p>
+<p>Ubuntu系统与CentOS的不同之处在于软件包管理不同，当克服这部分不同后，就可以执行与CentOS系统一样的操作。</p>
+<p>首先Ubuntu的openssl目录在**/usr/lib/ssl**下，而实际上这是一个软链接。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">huang@ThinkPad-X220:/usr/lib/ssl$ ll /usr/lib/ssl/ total <span class="m">52</span>
+drwxr-xr-x   <span class="m">3</span> root root  <span class="m">4096</span>  8月 <span class="m">27</span> 12:18 ./
+drwxr-xr-x <span class="m">238</span> root root <span class="m">40960</span>  8月 <span class="m">26</span> 11:18 ../
+lrwxrwxrwx   <span class="m">1</span> root root    <span class="m">14</span>  2月  <span class="m">4</span>  <span class="m">2015</span> certs -&gt; /etc/ssl/certs/
+drwxr-xr-x   <span class="m">2</span> root root  <span class="m">4096</span>  7月  <span class="m">8</span> 14:34 misc/
+lrwxrwxrwx   <span class="m">1</span> root root    <span class="m">20</span>  6月 <span class="m">11</span> 23:35 openssl.cnf -&gt; /etc/ssl/openssl.cnf
+lrwxrwxrwx   <span class="m">1</span> root root    <span class="m">16</span>  2月  <span class="m">4</span>  <span class="m">2015</span> private -&gt; /etc/ssl/private/
+</code></pre></td></tr></table>
+</div>
+</div><p>不管怎样，我们的工作将在**/usr/lib/ssl**进行。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">/usr/lib/ssl/openssl.cnf内容如下：
+<span class="c1">####################################################################</span>
+<span class="o">[</span> ca <span class="o">]</span>
+<span class="nv">default_ca</span>	<span class="o">=</span> CA_default		<span class="c1"># The default ca section</span>
+
+<span class="c1">####################################################################</span>
+<span class="o">[</span> CA_default <span class="o">]</span>
+
+<span class="nv">dir</span>		<span class="o">=</span> ./demoCA		<span class="c1"># Where everything is kept</span>
+<span class="nv">certs</span>		<span class="o">=</span> <span class="nv">$dir</span>/certs		<span class="c1"># Where the issued certs are kept</span>
+<span class="nv">crl_dir</span>		<span class="o">=</span> <span class="nv">$dir</span>/crl		<span class="c1"># Where the issued crl are kept</span>
+<span class="nv">database</span>	<span class="o">=</span> <span class="nv">$dir</span>/index.txt	<span class="c1"># database index file.</span>
+<span class="c1">#unique_subject	= no			# Set to &#39;no&#39; to allow creation of</span>
+					<span class="c1"># several ctificates with same subject.</span>
+<span class="nv">new_certs_dir</span>	<span class="o">=</span> <span class="nv">$dir</span>/newcerts		<span class="c1"># default place for new certs.</span>
+
+<span class="nv">certificate</span>	<span class="o">=</span> <span class="nv">$dir</span>/cacert.pem 	<span class="c1"># The CA certificate</span>
+<span class="nv">serial</span>		<span class="o">=</span> <span class="nv">$dir</span>/serial 		<span class="c1"># The current serial number</span>
+<span class="nv">crlnumber</span>	<span class="o">=</span> <span class="nv">$dir</span>/crlnumber	<span class="c1"># the current crl number</span>
+					<span class="c1"># must be commented out to leave a V1 CRL</span>
+<span class="nv">crl</span>		<span class="o">=</span> <span class="nv">$dir</span>/crl.pem 		<span class="c1"># The current CRL</span>
+<span class="nv">private_key</span>	<span class="o">=</span> <span class="nv">$dir</span>/private/cakey.pem# The private key
+<span class="nv">RANDFILE</span>	<span class="o">=</span> <span class="nv">$dir</span>/private/.rand	<span class="c1"># private random number file</span>
+
+<span class="nv">x509_extensions</span>	<span class="o">=</span> usr_cert		<span class="c1"># The extentions to add to the cert</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>从配置文件中看到，我们需要在**/usr/lib/ssl<strong>下建立</strong>demoCA**目录以及其他。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ <span class="nb">cd</span> /usr/lib/ssl
+$ mkdir demoCA
+$ mkdir demoCA/newcerts
+$ mkdir demoCA/private
+</code></pre></td></tr></table>
+</div>
+</div><p>余下的操作将与在CentOS系统上没有区别。最后执行情况为：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ curl --cacert /usr/lib/ssl/demoCA/cacert.pem https://localhost:8443
+this is abtesting server
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="nginx的支持http2的patch">nginx的支持HTTP/2的patch</h2>
+<blockquote>
+<p>nginx目前已正式支持HTTP/2，包括tengine-2.1.2+ 和 openresty</p>
+</blockquote>
+<p>nginx在8月份的时候从1.9.3版本推出了支持HTTP/2的<a class="link" href="http://nginx.org/patches/http2/"  target="_blank" rel="noopener"
+    >patch</a>，使用时与标准nginx并无区别。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ <span class="nb">cd</span> nginx-1.9.4/
+$ patch -p1 &lt; patch.http2-v3_1.9.4.txt  
+$ ./configure --with-http_v2_module --with-http_ssl_module
+$ make
+$ make install
+</code></pre></td></tr></table>
+</div>
+</div><p>支持http2的nginx关键配置为</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">	listen <span class="m">8443</span> http2<span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>只需要在listen后加http2就可以了。目前curl在基于nghttp2提供的HTTP/2库后，可以支持访问http2的server，但是目前没有配置成功，所以对支持http2的nginx进行访问的工作，将在介绍完nghttp2后一并记录。</p>
+<h2 id="nghttp2安装配置使用">nghttp2安装，配置，使用</h2>
+<p><a class="link" href="https://github.com/tatsuhiro-t/nghttp2"  target="_blank" rel="noopener"
+    >nghttp2</a>是由tatsuhiro开发的，之前的spdylay也是他开发的，一直走在http2.0的前列。nghttp2包括了HTTP/2.0的库，基于这个库tatsu实现了HTTP/2.0的server、client和压测工具h2load。</p>
+<p>由于nghttp2所依赖的库太新了，目前只在Ubuntu系统成功安装。安装过程：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ autoreconf -i
+$ automake
+$ autoconf
+$ ./configure
+$ make
+</code></pre></td></tr></table>
+</div>
+</div><p>其中**./configure**的结果非常重要</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">    Version:        1.2.2-DEV shared 14:8:0
+    Host type:      x86_64-unknown-linux-gnu
+    Install prefix: /usr/local
+    C compiler:     gcc
+    CFLAGS:         -g -O2
+    WARNCFLAGS:     
+    LDFLAGS:        
+    LIBS:           
+    CPPFLAGS:       
+    C preprocessor: gcc -E
+    C++ compiler:   g++
+    CXXFLAGS:       -g -O2 -std<span class="o">=</span>c++11
+    CXXCPP:         g++ -E
+    Library types:  <span class="nv">Shared</span><span class="o">=</span>yes, <span class="nv">Static</span><span class="o">=</span>yes
+    Python:
+      Python:         /usr/bin/python
+      PYTHON_VERSION: 2.7
+      pyexecdir:      <span class="si">${</span><span class="nv">exec_prefix</span><span class="si">}</span>/lib/python2.7/dist-packages
+      Python-dev:     yes
+      PYTHON_CPPFLAGS:-I/usr/include/python2.7
+      PYTHON_LDFLAGS: -L/usr/lib -lpython2.7
+      Cython:         cython
+    Test:
+      CUnit:          yes
+      Failmalloc:     yes
+    Libs:
+      OpenSSL:        yes
+      Libxml2:        yes
+      Libev:          yes
+      Libevent<span class="o">(</span>SSL<span class="o">)</span>:  yes
+      Spdylay:        yes
+      Jansson:        yes
+      Jemalloc:       yes
+      Zlib:           yes
+      Boost CPPFLAGS: 
+      Boost LDFLAGS:  
+      Boost::ASIO:    
+      Boost::System:  
+      Boost::Thread:  
+    Features:
+      Applications:   yes
+      HPACK tools:    yes
+      Libnghttp2_asio:no
+      Examples:       yes
+      Python bindings:yes
+      Threading:      yes
+      Third-party:    yes
+</code></pre></td></tr></table>
+</div>
+</div><p>编译帮助文档</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">make html
+</code></pre></td></tr></table>
+</div>
+</div><h3 id="nghttpd作为http2-server">nghttpd作为http2 server</h3>
+<p>http2-no-tls</p>
+<pre><code>nghttpd -v 8080   -n 24 --no-tls -d ~/workspace/Nginx_ABTesting/utils/html/ 
+</code></pre>
+<p>http2-with-tls</p>
+<pre><code>nghttpd -v 8080 -n 24 /usr/lib/ssl/nginx.key /usr/lib/ssl/nginx.crt -d ~/workspace/Nginx_ABTesting/utils/html/  
+</code></pre>
+<p>关于nghttpd的选项，其实可以与nginx配置做到一一对照的。目前对nghttpd的源码及实现了解的比较少，因其日本人的过于C++代码的风格实在晦涩难懂，所以很少做调优。</p>
+<h3 id="nghttp作为http2-client">nghttp作为http2 client</h3>
+<p>http2-client-no-tls</p>
+<pre><code>nghttp http://127.0.0.1:8080
+</code></pre>
+<p>http2-client-with-tls</p>
+<pre><code>nghttp --cert /usr/lib/ssl/demoCA/cacert.pem https://127.0.0.1:8080
+
+nghttp https://127.0.0.1:8080
+</code></pre>
+<p>经过使用，nghttp也可以对nginx发出http2请求并成功返回。</p>
+<p>通过strace和阅读源码，nghttp（包括压测工具h2load）作为client时，会读取系统的证书/usr/lib/ssl/demoCA/cacert.pem，因此可以不用指定。</p>
+<h3 id="nghttpx作为proxy转向nginx后端">nghttpx作为proxy，转向nginx后端</h3>
+<p>client ——&gt; http2-proxy-no-tls ——&gt; http1.1 upstream(nginx):</p>
+<pre><code># nghttpx -f127.0.0.1,8080 -b127.0.0.1,8022 --frontend-no-tls
+
+# curl 127.0.0.1:8022
+this is beta3 server
+
+# nghttp http://127.0.0.1:8080
+this is beta3 server
+</code></pre>
+<p>client ——&gt; http2-proxy-with-tls ——&gt; http1.1 upstream(nginx):</p>
+<pre><code># nghttpx -f127.0.0.1,8080 -b127.0.0.1,8022 /usr/lib/ssl/nginx.key /usr/lib/ssl/nginx.crt
+
+# nghttp https://127.0.0.1:8080
+this is beta3 server
+</code></pre>
+<p>采用nginx-http2作为proxy，使用方法与nginx-http1.1没有区别。</p>
+<h3 id="h2load作为压测工具">h2load作为压测工具</h3>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ h2load -n100 -c10 -t4  https://127.0.0.1:8080
+starting benchmark...
+spawning thread <span class="c1">#0: 3 concurrent clients, 25 total requests</span>
+spawning thread <span class="c1">#1: 3 concurrent clients, 25 total requests</span>
+spawning thread <span class="c1">#2: 2 concurrent clients, 25 total requests</span>
+spawning thread <span class="c1">#3: 2 concurrent clients, 25 total requests</span>
+Protocol: TLSv1.2
+Cipher: ECDHE-RSA-AES128-GCM-SHA256
+progress: 8% <span class="k">done</span>
+progress: 16% <span class="k">done</span>
+progress: 24% <span class="k">done</span>
+progress: 32% <span class="k">done</span>
+progress: 40% <span class="k">done</span>
+progress: 48% <span class="k">done</span>
+progress: 56% <span class="k">done</span>
+progress: 64% <span class="k">done</span>
+progress: 72% <span class="k">done</span>
+progress: 80% <span class="k">done</span>
+progress: 88% <span class="k">done</span>
+progress: 96% <span class="k">done</span>
+
+finished in 67.29ms, <span class="m">1486</span> req/s, 111.02KB/s
+requests: <span class="m">100</span> total, <span class="m">100</span> started, <span class="m">100</span> <span class="k">done</span>, <span class="m">100</span> succeeded, <span class="m">0</span> failed, <span class="m">0</span> errored
+status codes: <span class="m">100</span> 2xx, <span class="m">0</span> 3xx, <span class="m">0</span> 4xx, <span class="m">0</span> 5xx
+traffic: <span class="m">7650</span> bytes total, <span class="m">3450</span> bytes headers, <span class="m">2100</span> bytes data
+                     min         max         mean         sd        +/- sd
+<span class="nb">time</span> <span class="k">for</span> request:      343us      8.76ms      1.40ms      1.49ms    91.00%
+</code></pre></td></tr></table>
+</div>
+</div><p>h2load的使用与wrk没有区别，参数都是一样的。</p>
+<p>根据不同配置，我们有以下几种场景：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">server/proxy			https
+
+nginx-http/1.1			with-tls
+nginx-http/2			no-tls
+nghttpd
+</code></pre></td></tr></table>
+</div>
+</div><p>相结合，压测场景比较多。幸运的是，不论server是nginx还是nghttpd，其参数和调优都可以指定，比如线程数；不论wrk还是h2load，参数也可以指定，使用起来区别不大。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2022 Bg2bkk Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

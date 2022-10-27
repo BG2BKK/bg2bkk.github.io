@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40  // struct file 结构体 include/linux/fs.h  struct file { union { struct llist_node	fu_llist; struct rcu_head fu_rcuhead; } f_u; struct path	f_path; struct inode	*f_inode;	/* cached value */ const struct file_operations	*f_op; /* * Protects f_ep_links, f_flags.'>
+<title>struct_file_socket_tcp_sock</title>
+
+<link rel='canonical' href='https://bg2bkk.github.io/p/struct_file_socket_tcp_sock/'>
+
+<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='struct_file_socket_tcp_sock'>
+<meta property='og:description' content='1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40  // struct file 结构体 include/linux/fs.h  struct file { union { struct llist_node	fu_llist; struct rcu_head fu_rcuhead; } f_u; struct path	f_path; struct inode	*f_inode;	/* cached value */ const struct file_operations	*f_op; /* * Protects f_ep_links, f_flags.'>
+<meta property='og:url' content='https://bg2bkk.github.io/p/struct_file_socket_tcp_sock/'>
+<meta property='og:site_name' content='Bg2bkk Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-10-23T19:33:48&#43;08:00'/><meta property='article:modified_time' content='2016-10-23T19:33:48&#43;08:00'/>
+<meta name="twitter:title" content="struct_file_socket_tcp_sock">
+<meta name="twitter:description" content="1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40  // struct file 结构体 include/linux/fs.h  struct file { union { struct llist_node	fu_llist; struct rcu_head fu_rcuhead; } f_u; struct path	f_path; struct inode	*f_inode;	/* cached value */ const struct file_operations	*f_op; /* * Protects f_ep_links, f_flags.">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu9dfb7228514195dbb950046570d90a5c_100216_300x0_resize_q75_box.jpg" width="300"
+                            height="221" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/struct_file_socket_tcp_sock/">struct_file_socket_tcp_sock</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Oct 23, 2016</time>
+            </div>
+        
+
+    
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    14 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="c1">// struct file 结构体 include/linux/fs.h
+</span><span class="c1"></span>
+<span class="k">struct</span> <span class="nc">file</span> <span class="p">{</span>
+	<span class="k">union</span> <span class="p">{</span>
+		<span class="k">struct</span> <span class="nc">llist_node</span>	<span class="n">fu_llist</span><span class="p">;</span>
+		<span class="k">struct</span> <span class="nc">rcu_head</span> 	<span class="n">fu_rcuhead</span><span class="p">;</span>
+	<span class="p">}</span> <span class="n">f_u</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="nc">path</span>		<span class="n">f_path</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="nc">inode</span>		<span class="o">*</span><span class="n">f_inode</span><span class="p">;</span>	<span class="cm">/* cached value */</span>
+	<span class="k">const</span> <span class="k">struct</span> <span class="nc">file_operations</span>	<span class="o">*</span><span class="n">f_op</span><span class="p">;</span>
+
+	<span class="cm">/*
+</span><span class="cm">	 * Protects f_ep_links, f_flags.
+</span><span class="cm">	 * Must not be taken from IRQ context.
+</span><span class="cm">	 */</span>
+	<span class="n">spinlock_t</span>		<span class="n">f_lock</span><span class="p">;</span>
+	<span class="n">atomic_long_t</span>		<span class="n">f_count</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">int</span> 		<span class="n">f_flags</span><span class="p">;</span>
+	<span class="n">fmode_t</span>			<span class="n">f_mode</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="nc">mutex</span>		<span class="n">f_pos_lock</span><span class="p">;</span>
+	<span class="n">loff_t</span>			<span class="n">f_pos</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="nc">fown_struct</span>	<span class="n">f_owner</span><span class="p">;</span>
+	<span class="k">const</span> <span class="k">struct</span> <span class="nc">cred</span>	<span class="o">*</span><span class="n">f_cred</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="nc">file_ra_state</span>	<span class="n">f_ra</span><span class="p">;</span>
+
+	<span class="n">u64</span>			<span class="n">f_version</span><span class="p">;</span>
+<span class="cp">#ifdef CONFIG_SECURITY
+</span><span class="cp"></span>	<span class="kt">void</span>			<span class="o">*</span><span class="n">f_security</span><span class="p">;</span>
+<span class="cp">#endif
+</span><span class="cp"></span>	<span class="cm">/* needed for tty driver, and maybe others */</span>
+	<span class="kt">void</span>			<span class="o">*</span><span class="n">private_data</span><span class="p">;</span>
+
+<span class="cp">#ifdef CONFIG_EPOLL
+</span><span class="cp"></span>	<span class="cm">/* Used by fs/eventpoll.c to link all the hooks to this file */</span>
+	<span class="k">struct</span> <span class="nc">list_head</span>	<span class="n">f_ep_links</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="nc">list_head</span>	<span class="n">f_tfile_llink</span><span class="p">;</span>
+<span class="cp">#endif </span><span class="cm">/* #ifdef CONFIG_EPOLL */</span><span class="cp">
+</span><span class="cp"></span>	<span class="k">struct</span> <span class="nc">address_space</span>	<span class="o">*</span><span class="n">f_mapping</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">__attribute__</span><span class="p">((</span><span class="n">aligned</span><span class="p">(</span><span class="mi">4</span><span class="p">)));</span>	<span class="cm">/* lest something weird decides that 2 is OK */</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span><span class="lnt">140
+</span><span class="lnt">141
+</span><span class="lnt">142
+</span><span class="lnt">143
+</span><span class="lnt">144
+</span><span class="lnt">145
+</span><span class="lnt">146
+</span><span class="lnt">147
+</span><span class="lnt">148
+</span><span class="lnt">149
+</span><span class="lnt">150
+</span><span class="lnt">151
+</span><span class="lnt">152
+</span><span class="lnt">153
+</span><span class="lnt">154
+</span><span class="lnt">155
+</span><span class="lnt">156
+</span><span class="lnt">157
+</span><span class="lnt">158
+</span><span class="lnt">159
+</span><span class="lnt">160
+</span><span class="lnt">161
+</span><span class="lnt">162
+</span><span class="lnt">163
+</span><span class="lnt">164
+</span><span class="lnt">165
+</span><span class="lnt">166
+</span><span class="lnt">167
+</span><span class="lnt">168
+</span><span class="lnt">169
+</span><span class="lnt">170
+</span><span class="lnt">171
+</span><span class="lnt">172
+</span><span class="lnt">173
+</span><span class="lnt">174
+</span><span class="lnt">175
+</span><span class="lnt">176
+</span><span class="lnt">177
+</span><span class="lnt">178
+</span><span class="lnt">179
+</span><span class="lnt">180
+</span><span class="lnt">181
+</span><span class="lnt">182
+</span><span class="lnt">183
+</span><span class="lnt">184
+</span><span class="lnt">185
+</span><span class="lnt">186
+</span><span class="lnt">187
+</span><span class="lnt">188
+</span><span class="lnt">189
+</span><span class="lnt">190
+</span><span class="lnt">191
+</span><span class="lnt">192
+</span><span class="lnt">193
+</span><span class="lnt">194
+</span><span class="lnt">195
+</span><span class="lnt">196
+</span><span class="lnt">197
+</span><span class="lnt">198
+</span><span class="lnt">199
+</span><span class="lnt">200
+</span><span class="lnt">201
+</span><span class="lnt">202
+</span><span class="lnt">203
+</span><span class="lnt">204
+</span><span class="lnt">205
+</span><span class="lnt">206
+</span><span class="lnt">207
+</span><span class="lnt">208
+</span><span class="lnt">209
+</span><span class="lnt">210
+</span><span class="lnt">211
+</span><span class="lnt">212
+</span><span class="lnt">213
+</span><span class="lnt">214
+</span><span class="lnt">215
+</span><span class="lnt">216
+</span><span class="lnt">217
+</span><span class="lnt">218
+</span><span class="lnt">219
+</span><span class="lnt">220
+</span><span class="lnt">221
+</span><span class="lnt">222
+</span><span class="lnt">223
+</span><span class="lnt">224
+</span><span class="lnt">225
+</span><span class="lnt">226
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="c1">// tcp_sock结构体 include/linux/tcp.h
+</span><span class="c1">// 代表一条TCP连接
+</span><span class="c1"></span>
+<span class="k">struct</span> <span class="nc">tcp_sock</span> <span class="p">{</span>
+	<span class="cm">/* inet_connection_sock has to be the first member of tcp_sock */</span>
+	<span class="k">struct</span> <span class="nc">inet_connection_sock</span>	<span class="n">inet_conn</span><span class="p">;</span>
+	<span class="n">u16</span>	<span class="n">tcp_header_len</span><span class="p">;</span>	<span class="cm">/* Bytes of tcp header to send		*/</span>
+	<span class="n">u16</span>	<span class="n">gso_segs</span><span class="p">;</span>	<span class="cm">/* Max number of segs per GSO packet	*/</span>
+
+<span class="cm">/*
+</span><span class="cm"> *	Header prediction flags
+</span><span class="cm"> *	0x5?10 &lt;&lt; 16 + snd_wnd in net byte order
+</span><span class="cm"> */</span>
+	<span class="n">__be32</span>	<span class="n">pred_flags</span><span class="p">;</span>
+
+<span class="cm">/*
+</span><span class="cm"> *	RFC793 variables by their proper names. This means you can
+</span><span class="cm"> *	read the code and the spec side by side (and laugh ...)
+</span><span class="cm"> *	See RFC793 and RFC1122. The RFC writes these in capitals.
+</span><span class="cm"> */</span>
+	<span class="n">u64</span>	<span class="n">bytes_received</span><span class="p">;</span>	<span class="cm">/* RFC4898 tcpEStatsAppHCThruOctetsReceived
+</span><span class="cm">				 * sum(delta(rcv_nxt)), or how many bytes
+</span><span class="cm">				 * were acked.
+</span><span class="cm">				 */</span>
+	<span class="n">u32</span>	<span class="n">segs_in</span><span class="p">;</span>	<span class="cm">/* RFC4898 tcpEStatsPerfSegsIn
+</span><span class="cm">				 * total number of segments in.
+</span><span class="cm">				 */</span>
+	<span class="n">u32</span>	<span class="n">data_segs_in</span><span class="p">;</span>	<span class="cm">/* RFC4898 tcpEStatsPerfDataSegsIn
+</span><span class="cm">				 * total number of data segments in.
+</span><span class="cm">				 */</span>
+ 	<span class="n">u32</span>	<span class="n">rcv_nxt</span><span class="p">;</span>	<span class="cm">/* What we want to receive next 	*/</span>
+	<span class="n">u32</span>	<span class="n">copied_seq</span><span class="p">;</span>	<span class="cm">/* Head of yet unread data		*/</span>
+	<span class="n">u32</span>	<span class="n">rcv_wup</span><span class="p">;</span>	<span class="cm">/* rcv_nxt on last window update sent	*/</span>
+ 	<span class="n">u32</span>	<span class="n">snd_nxt</span><span class="p">;</span>	<span class="cm">/* Next sequence we send		*/</span>
+	<span class="n">u32</span>	<span class="n">segs_out</span><span class="p">;</span>	<span class="cm">/* RFC4898 tcpEStatsPerfSegsOut
+</span><span class="cm">				 * The total number of segments sent.
+</span><span class="cm">				 */</span>
+	<span class="n">u32</span>	<span class="n">data_segs_out</span><span class="p">;</span>	<span class="cm">/* RFC4898 tcpEStatsPerfDataSegsOut
+</span><span class="cm">				 * total number of data segments sent.
+</span><span class="cm">				 */</span>
+	<span class="n">u64</span>	<span class="n">bytes_acked</span><span class="p">;</span>	<span class="cm">/* RFC4898 tcpEStatsAppHCThruOctetsAcked
+</span><span class="cm">				 * sum(delta(snd_una)), or how many bytes
+</span><span class="cm">				 * were acked.
+</span><span class="cm">				 */</span>
+	<span class="k">struct</span> <span class="nc">u64_stats_sync</span> <span class="n">syncp</span><span class="p">;</span> <span class="cm">/* protects 64bit vars (cf tcp_get_info()) */</span>
+
+ 	<span class="n">u32</span>	<span class="n">snd_una</span><span class="p">;</span>	<span class="cm">/* First byte we want an ack for	*/</span>
+ 	<span class="n">u32</span>	<span class="n">snd_sml</span><span class="p">;</span>	<span class="cm">/* Last byte of the most recently transmitted small packet */</span>
+	<span class="n">u32</span>	<span class="n">rcv_tstamp</span><span class="p">;</span>	<span class="cm">/* timestamp of last received ACK (for keepalives) */</span>
+	<span class="n">u32</span>	<span class="n">lsndtime</span><span class="p">;</span>	<span class="cm">/* timestamp of last sent data packet (for restart window) */</span>
+	<span class="n">u32</span>	<span class="n">last_oow_ack_time</span><span class="p">;</span>  <span class="cm">/* timestamp of last out-of-window ACK */</span>
+
+	<span class="n">u32</span>	<span class="n">tsoffset</span><span class="p">;</span>	<span class="cm">/* timestamp offset */</span>
+
+	<span class="k">struct</span> <span class="nc">list_head</span> <span class="n">tsq_node</span><span class="p">;</span> <span class="cm">/* anchor in tsq_tasklet.head list */</span>
+	<span class="kt">unsigned</span> <span class="kt">long</span>	<span class="n">tsq_flags</span><span class="p">;</span>
+
+	<span class="cm">/* Data for direct copy to user */</span>
+	<span class="k">struct</span> <span class="p">{</span>
+		<span class="k">struct</span> <span class="nc">sk_buff_head</span>	<span class="n">prequeue</span><span class="p">;</span>
+		<span class="k">struct</span> <span class="nc">task_struct</span>	<span class="o">*</span><span class="n">task</span><span class="p">;</span>
+		<span class="k">struct</span> <span class="nc">msghdr</span>		<span class="o">*</span><span class="n">msg</span><span class="p">;</span>
+		<span class="kt">int</span>			<span class="n">memory</span><span class="p">;</span>
+		<span class="kt">int</span>			<span class="n">len</span><span class="p">;</span>
+	<span class="p">}</span> <span class="n">ucopy</span><span class="p">;</span>
+
+	<span class="n">u32</span>	<span class="n">snd_wl1</span><span class="p">;</span>	<span class="cm">/* Sequence for window update		*/</span>
+	<span class="n">u32</span>	<span class="n">snd_wnd</span><span class="p">;</span>	<span class="cm">/* The window we expect to receive	*/</span>
+	<span class="n">u32</span>	<span class="n">max_window</span><span class="p">;</span>	<span class="cm">/* Maximal window ever seen from peer	*/</span>
+	<span class="n">u32</span>	<span class="n">mss_cache</span><span class="p">;</span>	<span class="cm">/* Cached effective mss, not including SACKS */</span>
+
+	<span class="n">u32</span>	<span class="n">window_clamp</span><span class="p">;</span>	<span class="cm">/* Maximal window to advertise		*/</span>
+	<span class="n">u32</span>	<span class="n">rcv_ssthresh</span><span class="p">;</span>	<span class="cm">/* Current window clamp			*/</span>
+
+	<span class="cm">/* Information of the most recently (s)acked skb */</span>
+	<span class="k">struct</span> <span class="nc">tcp_rack</span> <span class="p">{</span>
+		<span class="k">struct</span> <span class="nc">skb_mstamp</span> <span class="n">mstamp</span><span class="p">;</span> <span class="cm">/* (Re)sent time of the skb */</span>
+		<span class="n">u8</span> <span class="n">advanced</span><span class="p">;</span> <span class="cm">/* mstamp advanced since last lost marking */</span>
+		<span class="n">u8</span> <span class="n">reord</span><span class="p">;</span>    <span class="cm">/* reordering detected */</span>
+	<span class="p">}</span> <span class="n">rack</span><span class="p">;</span>
+	<span class="n">u16</span>	<span class="n">advmss</span><span class="p">;</span>		<span class="cm">/* Advertised MSS			*/</span>
+	<span class="n">u8</span>	<span class="n">unused</span><span class="p">;</span>
+	<span class="n">u8</span>	<span class="nl">nonagle</span>     <span class="p">:</span> <span class="mi">4</span><span class="p">,</span><span class="cm">/* Disable Nagle algorithm?             */</span>
+		<span class="nl">thin_lto</span>    <span class="p">:</span> <span class="mi">1</span><span class="p">,</span><span class="cm">/* Use linear timeouts for thin streams */</span>
+		<span class="nl">thin_dupack</span> <span class="p">:</span> <span class="mi">1</span><span class="p">,</span><span class="cm">/* Fast retransmit on first dupack      */</span>
+		<span class="nl">repair</span>      <span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+		<span class="nl">frto</span>        <span class="p">:</span> <span class="mi">1</span><span class="p">;</span><span class="cm">/* F-RTO (RFC5682) activated in CA_Loss */</span>
+	<span class="n">u8</span>	<span class="n">repair_queue</span><span class="p">;</span>
+	<span class="n">u8</span>	<span class="nl">do_early_retrans</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="cm">/* Enable RFC5827 early-retransmit  */</span>
+		<span class="nl">syn_data</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>	<span class="cm">/* SYN includes data */</span>
+		<span class="nl">syn_fastopen</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>	<span class="cm">/* SYN includes Fast Open option */</span>
+		<span class="nl">syn_fastopen_exp</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="cm">/* SYN includes Fast Open exp. option */</span>
+		<span class="nl">syn_data_acked</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="cm">/* data in SYN is acked by SYN-ACK */</span>
+		<span class="nl">save_syn</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>	<span class="cm">/* Save headers of SYN packet */</span>
+		<span class="nl">is_cwnd_limited</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span><span class="cm">/* forward progress limited by snd_cwnd? */</span>
+	<span class="n">u32</span>	<span class="n">tlp_high_seq</span><span class="p">;</span>	<span class="cm">/* snd_nxt at the time of TLP retransmit. */</span>
+
+<span class="cm">/* RTT measurement */</span>
+	<span class="n">u32</span>	<span class="n">srtt_us</span><span class="p">;</span>	<span class="cm">/* smoothed round trip time &lt;&lt; 3 in usecs */</span>
+	<span class="n">u32</span>	<span class="n">mdev_us</span><span class="p">;</span>	<span class="cm">/* medium deviation			*/</span>
+	<span class="n">u32</span>	<span class="n">mdev_max_us</span><span class="p">;</span>	<span class="cm">/* maximal mdev for the last rtt period	*/</span>
+	<span class="n">u32</span>	<span class="n">rttvar_us</span><span class="p">;</span>	<span class="cm">/* smoothed mdev_max			*/</span>
+	<span class="n">u32</span>	<span class="n">rtt_seq</span><span class="p">;</span>	<span class="cm">/* sequence number to update rttvar	*/</span>
+	<span class="k">struct</span> <span class="nc">rtt_meas</span> <span class="p">{</span>
+		<span class="n">u32</span> <span class="n">rtt</span><span class="p">,</span> <span class="n">ts</span><span class="p">;</span>	<span class="cm">/* RTT in usec and sampling time in jiffies. */</span>
+	<span class="p">}</span> <span class="n">rtt_min</span><span class="p">[</span><span class="mi">3</span><span class="p">];</span>
+
+	<span class="n">u32</span>	<span class="n">packets_out</span><span class="p">;</span>	<span class="cm">/* Packets which are &#34;in flight&#34;	*/</span>
+	<span class="n">u32</span>	<span class="n">retrans_out</span><span class="p">;</span>	<span class="cm">/* Retransmitted packets out		*/</span>
+	<span class="n">u32</span>	<span class="n">max_packets_out</span><span class="p">;</span>  <span class="cm">/* max packets_out in last window */</span>
+	<span class="n">u32</span>	<span class="n">max_packets_seq</span><span class="p">;</span>  <span class="cm">/* right edge of max_packets_out flight */</span>
+
+	<span class="n">u16</span>	<span class="n">urg_data</span><span class="p">;</span>	<span class="cm">/* Saved octet of OOB data and control flags */</span>
+	<span class="n">u8</span>	<span class="n">ecn_flags</span><span class="p">;</span>	<span class="cm">/* ECN status bits.			*/</span>
+	<span class="n">u8</span>	<span class="n">keepalive_probes</span><span class="p">;</span> <span class="cm">/* num of allowed keep alive probes	*/</span>
+	<span class="n">u32</span>	<span class="n">reordering</span><span class="p">;</span>	<span class="cm">/* Packet reordering metric.		*/</span>
+	<span class="n">u32</span>	<span class="n">snd_up</span><span class="p">;</span>		<span class="cm">/* Urgent pointer		*/</span>
+
+<span class="cm">/*
+</span><span class="cm"> *      Options received (usually on last packet, some only on SYN packets).
+</span><span class="cm"> */</span>
+	<span class="k">struct</span> <span class="nc">tcp_options_received</span> <span class="n">rx_opt</span><span class="p">;</span>
+
+<span class="cm">/*
+</span><span class="cm"> *	Slow start and congestion control (see also Nagle, and Karn &amp; Partridge)
+</span><span class="cm"> */</span>
+ 	<span class="n">u32</span>	<span class="n">snd_ssthresh</span><span class="p">;</span>	<span class="cm">/* Slow start size threshold		*/</span>
+ 	<span class="n">u32</span>	<span class="n">snd_cwnd</span><span class="p">;</span>	<span class="cm">/* Sending congestion window		*/</span>
+	<span class="n">u32</span>	<span class="n">snd_cwnd_cnt</span><span class="p">;</span>	<span class="cm">/* Linear increase counter		*/</span>
+	<span class="n">u32</span>	<span class="n">snd_cwnd_clamp</span><span class="p">;</span> <span class="cm">/* Do not allow snd_cwnd to grow above this */</span>
+	<span class="n">u32</span>	<span class="n">snd_cwnd_used</span><span class="p">;</span>
+	<span class="n">u32</span>	<span class="n">snd_cwnd_stamp</span><span class="p">;</span>
+	<span class="n">u32</span>	<span class="n">prior_cwnd</span><span class="p">;</span>	<span class="cm">/* Congestion window at start of Recovery. */</span>
+	<span class="n">u32</span>	<span class="n">prr_delivered</span><span class="p">;</span>	<span class="cm">/* Number of newly delivered packets to
+</span><span class="cm">				 * receiver in Recovery. */</span>
+	<span class="n">u32</span>	<span class="n">prr_out</span><span class="p">;</span>	<span class="cm">/* Total number of pkts sent during Recovery. */</span>
+	<span class="n">u32</span>	<span class="n">delivered</span><span class="p">;</span>	<span class="cm">/* Total data packets delivered incl. rexmits */</span>
+
+ 	<span class="n">u32</span>	<span class="n">rcv_wnd</span><span class="p">;</span>	<span class="cm">/* Current receiver window		*/</span>
+	<span class="n">u32</span>	<span class="n">write_seq</span><span class="p">;</span>	<span class="cm">/* Tail(+1) of data held in tcp send buffer */</span>
+	<span class="n">u32</span>	<span class="n">notsent_lowat</span><span class="p">;</span>	<span class="cm">/* TCP_NOTSENT_LOWAT */</span>
+	<span class="n">u32</span>	<span class="n">pushed_seq</span><span class="p">;</span>	<span class="cm">/* Last pushed seq, required to talk to windows */</span>
+	<span class="n">u32</span>	<span class="n">lost_out</span><span class="p">;</span>	<span class="cm">/* Lost packets			*/</span>
+	<span class="n">u32</span>	<span class="n">sacked_out</span><span class="p">;</span>	<span class="cm">/* SACK&#39;d packets			*/</span>
+	<span class="n">u32</span>	<span class="n">fackets_out</span><span class="p">;</span>	<span class="cm">/* FACK&#39;d packets			*/</span>
+
+	<span class="cm">/* from STCP, retrans queue hinting */</span>
+	<span class="k">struct</span> <span class="nc">sk_buff</span><span class="o">*</span> <span class="n">lost_skb_hint</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">retransmit_skb_hint</span><span class="p">;</span>
+
+	<span class="cm">/* OOO segments go in this list. Note that socket lock must be held,
+</span><span class="cm">	 * as we do not use sk_buff_head lock.
+</span><span class="cm">	 */</span>
+	<span class="k">struct</span> <span class="nc">sk_buff_head</span>	<span class="n">out_of_order_queue</span><span class="p">;</span>
+
+	<span class="cm">/* SACKs data, these 2 need to be together (see tcp_options_write) */</span>
+	<span class="k">struct</span> <span class="nc">tcp_sack_block</span> <span class="n">duplicate_sack</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span> <span class="cm">/* D-SACK block */</span>
+	<span class="k">struct</span> <span class="nc">tcp_sack_block</span> <span class="n">selective_acks</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span> <span class="cm">/* The SACKS themselves*/</span>
+
+	<span class="k">struct</span> <span class="nc">tcp_sack_block</span> <span class="n">recv_sack_cache</span><span class="p">[</span><span class="mi">4</span><span class="p">];</span>
+
+	<span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">highest_sack</span><span class="p">;</span>   <span class="cm">/* skb just after the highest
+</span><span class="cm">					 * skb with SACKed bit set
+</span><span class="cm">					 * (validity guaranteed only if
+</span><span class="cm">					 * sacked_out &gt; 0)
+</span><span class="cm">					 */</span>
+
+	<span class="kt">int</span>     <span class="n">lost_cnt_hint</span><span class="p">;</span>
+	<span class="n">u32</span>     <span class="n">retransmit_high</span><span class="p">;</span>	<span class="cm">/* L-bits may be on up to this seqno */</span>
+
+	<span class="n">u32</span>	<span class="n">prior_ssthresh</span><span class="p">;</span> <span class="cm">/* ssthresh saved at recovery start	*/</span>
+	<span class="n">u32</span>	<span class="n">high_seq</span><span class="p">;</span>	<span class="cm">/* snd_nxt at onset of congestion	*/</span>
+
+	<span class="n">u32</span>	<span class="n">retrans_stamp</span><span class="p">;</span>	<span class="cm">/* Timestamp of the last retransmit,
+</span><span class="cm">				 * also used in SYN-SENT to remember stamp of
+</span><span class="cm">				 * the first SYN. */</span>
+	<span class="n">u32</span>	<span class="n">undo_marker</span><span class="p">;</span>	<span class="cm">/* snd_una upon a new recovery episode. */</span>
+	<span class="kt">int</span>	<span class="n">undo_retrans</span><span class="p">;</span>	<span class="cm">/* number of undoable retransmissions. */</span>
+	<span class="n">u32</span>	<span class="n">total_retrans</span><span class="p">;</span>	<span class="cm">/* Total retransmits for entire connection */</span>
+
+	<span class="n">u32</span>	<span class="n">urg_seq</span><span class="p">;</span>	<span class="cm">/* Seq of received urgent pointer */</span>
+	<span class="kt">unsigned</span> <span class="kt">int</span>		<span class="n">keepalive_time</span><span class="p">;</span>	  <span class="cm">/* time before keep alive takes place */</span>
+	<span class="kt">unsigned</span> <span class="kt">int</span>		<span class="n">keepalive_intvl</span><span class="p">;</span>  <span class="cm">/* time interval between keep alive probes */</span>
+
+	<span class="kt">int</span>			<span class="n">linger2</span><span class="p">;</span>
+
+<span class="cm">/* Receiver side RTT estimation */</span>
+	<span class="k">struct</span> <span class="p">{</span>
+		<span class="n">u32</span>	<span class="n">rtt</span><span class="p">;</span>
+		<span class="n">u32</span>	<span class="n">seq</span><span class="p">;</span>
+		<span class="n">u32</span>	<span class="n">time</span><span class="p">;</span>
+	<span class="p">}</span> <span class="n">rcv_rtt_est</span><span class="p">;</span>
+
+<span class="cm">/* Receiver queue space */</span>
+	<span class="k">struct</span> <span class="p">{</span>
+		<span class="kt">int</span>	<span class="n">space</span><span class="p">;</span>
+		<span class="n">u32</span>	<span class="n">seq</span><span class="p">;</span>
+		<span class="n">u32</span>	<span class="n">time</span><span class="p">;</span>
+	<span class="p">}</span> <span class="n">rcvq_space</span><span class="p">;</span>
+
+<span class="cm">/* TCP-specific MTU probe information. */</span>
+	<span class="k">struct</span> <span class="p">{</span>
+		<span class="n">u32</span>		  <span class="n">probe_seq_start</span><span class="p">;</span>
+		<span class="n">u32</span>		  <span class="n">probe_seq_end</span><span class="p">;</span>
+	<span class="p">}</span> <span class="n">mtu_probe</span><span class="p">;</span>
+	<span class="n">u32</span>	<span class="n">mtu_info</span><span class="p">;</span> <span class="cm">/* We received an ICMP_FRAG_NEEDED / ICMPV6_PKT_TOOBIG
+</span><span class="cm">			   * while socket was owned by user.
+</span><span class="cm">			   */</span>
+
+<span class="cp">#ifdef CONFIG_TCP_MD5SIG
+</span><span class="cp"></span><span class="cm">/* TCP AF-Specific parts; only used by MD5 Signature support so far */</span>
+	<span class="k">const</span> <span class="k">struct</span> <span class="nc">tcp_sock_af_ops</span>	<span class="o">*</span><span class="n">af_specific</span><span class="p">;</span>
+
+<span class="cm">/* TCP MD5 Signature Option information */</span>
+	<span class="k">struct</span> <span class="nc">tcp_md5sig_info</span>	<span class="n">__rcu</span> <span class="o">*</span><span class="n">md5sig_info</span><span class="p">;</span>
+<span class="cp">#endif
+</span><span class="cp"></span>
+<span class="cm">/* TCP fastopen related information */</span>
+	<span class="k">struct</span> <span class="nc">tcp_fastopen_request</span> <span class="o">*</span><span class="n">fastopen_req</span><span class="p">;</span>
+	<span class="cm">/* fastopen_rsk points to request_sock that resulted in this big
+</span><span class="cm">	 * socket. Used to retransmit SYNACKs etc.
+</span><span class="cm">	 */</span>
+	<span class="k">struct</span> <span class="nc">request_sock</span> <span class="o">*</span><span class="n">fastopen_rsk</span><span class="p">;</span>
+	<span class="n">u32</span>	<span class="o">*</span><span class="n">saved_syn</span><span class="p">;</span>
+<span class="p">};</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span><span class="lnt">140
+</span><span class="lnt">141
+</span><span class="lnt">142
+</span><span class="lnt">143
+</span><span class="lnt">144
+</span><span class="lnt">145
+</span><span class="lnt">146
+</span><span class="lnt">147
+</span><span class="lnt">148
+</span><span class="lnt">149
+</span><span class="lnt">150
+</span><span class="lnt">151
+</span><span class="lnt">152
+</span><span class="lnt">153
+</span><span class="lnt">154
+</span><span class="lnt">155
+</span><span class="lnt">156
+</span><span class="lnt">157
+</span><span class="lnt">158
+</span><span class="lnt">159
+</span><span class="lnt">160
+</span><span class="lnt">161
+</span><span class="lnt">162
+</span><span class="lnt">163
+</span><span class="lnt">164
+</span><span class="lnt">165
+</span><span class="lnt">166
+</span><span class="lnt">167
+</span><span class="lnt">168
+</span><span class="lnt">169
+</span><span class="lnt">170
+</span><span class="lnt">171
+</span><span class="lnt">172
+</span><span class="lnt">173
+</span><span class="lnt">174
+</span><span class="lnt">175
+</span><span class="lnt">176
+</span><span class="lnt">177
+</span><span class="lnt">178
+</span><span class="lnt">179
+</span><span class="lnt">180
+</span><span class="lnt">181
+</span><span class="lnt">182
+</span><span class="lnt">183
+</span><span class="lnt">184
+</span><span class="lnt">185
+</span><span class="lnt">186
+</span><span class="lnt">187
+</span><span class="lnt">188
+</span><span class="lnt">189
+</span><span class="lnt">190
+</span><span class="lnt">191
+</span><span class="lnt">192
+</span><span class="lnt">193
+</span><span class="lnt">194
+</span><span class="lnt">195
+</span><span class="lnt">196
+</span><span class="lnt">197
+</span><span class="lnt">198
+</span><span class="lnt">199
+</span><span class="lnt">200
+</span><span class="lnt">201
+</span><span class="lnt">202
+</span><span class="lnt">203
+</span><span class="lnt">204
+</span><span class="lnt">205
+</span><span class="lnt">206
+</span><span class="lnt">207
+</span><span class="lnt">208
+</span><span class="lnt">209
+</span><span class="lnt">210
+</span><span class="lnt">211
+</span><span class="lnt">212
+</span><span class="lnt">213
+</span><span class="lnt">214
+</span><span class="lnt">215
+</span><span class="lnt">216
+</span><span class="lnt">217
+</span><span class="lnt">218
+</span><span class="lnt">219
+</span><span class="lnt">220
+</span><span class="lnt">221
+</span><span class="lnt">222
+</span><span class="lnt">223
+</span><span class="lnt">224
+</span><span class="lnt">225
+</span><span class="lnt">226
+</span><span class="lnt">227
+</span><span class="lnt">228
+</span><span class="lnt">229
+</span><span class="lnt">230
+</span><span class="lnt">231
+</span><span class="lnt">232
+</span><span class="lnt">233
+</span><span class="lnt">234
+</span><span class="lnt">235
+</span><span class="lnt">236
+</span><span class="lnt">237
+</span><span class="lnt">238
+</span><span class="lnt">239
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="c1">// sk_buff 结构体 include/linux/skbuff.h
+</span><span class="c1">// 表示一个socket报文
+</span><span class="c1"></span>
+<span class="cm">/** 
+</span><span class="cm"> *	struct sk_buff - socket buffer
+</span><span class="cm"> *	@next: Next buffer in list
+</span><span class="cm"> *	@prev: Previous buffer in list
+</span><span class="cm"> *	@tstamp: Time we arrived/left
+</span><span class="cm"> *	@rbnode: RB tree node, alternative to next/prev for netem/tcp
+</span><span class="cm"> *	@sk: Socket we are owned by
+</span><span class="cm"> *	@dev: Device we arrived on/are leaving by
+</span><span class="cm"> *	@cb: Control buffer. Free for use by every layer. Put private vars here
+</span><span class="cm"> *	@_skb_refdst: destination entry (with norefcount bit)
+</span><span class="cm"> *	@sp: the security path, used for xfrm
+</span><span class="cm"> *	@len: Length of actual data
+</span><span class="cm"> *	@data_len: Data length
+</span><span class="cm"> *	@mac_len: Length of link layer header
+</span><span class="cm"> *	@hdr_len: writable header length of cloned skb
+</span><span class="cm"> *	@csum: Checksum (must include start/offset pair)
+</span><span class="cm"> *	@csum_start: Offset from skb-&gt;head where checksumming should start
+</span><span class="cm"> *	@csum_offset: Offset from csum_start where checksum should be stored
+</span><span class="cm"> *	@priority: Packet queueing priority
+</span><span class="cm"> *	@ignore_df: allow local fragmentation
+</span><span class="cm"> *	@cloned: Head may be cloned (check refcnt to be sure)
+</span><span class="cm"> *	@ip_summed: Driver fed us an IP checksum
+</span><span class="cm"> *	@nohdr: Payload reference only, must not modify header
+</span><span class="cm"> *	@nfctinfo: Relationship of this skb to the connection
+</span><span class="cm"> *	@pkt_type: Packet class
+</span><span class="cm"> *	@fclone: skbuff clone status
+</span><span class="cm"> *	@ipvs_property: skbuff is owned by ipvs
+</span><span class="cm"> *	@peeked: this packet has been seen already, so stats have been
+</span><span class="cm"> *		done for it, don&#39;t do them again
+</span><span class="cm"> *	@nf_trace: netfilter packet trace flag
+</span><span class="cm"> *	@protocol: Packet protocol from driver
+</span><span class="cm"> *	@destructor: Destruct function
+</span><span class="cm"> *	@nfct: Associated connection, if any
+</span><span class="cm"> *	@nf_bridge: Saved data about a bridged frame - see br_netfilter.c
+</span><span class="cm"> *	@skb_iif: ifindex of device we arrived on
+</span><span class="cm"> *	@tc_index: Traffic control index
+</span><span class="cm"> *	@tc_verd: traffic control verdict
+</span><span class="cm"> *	@hash: the packet hash
+</span><span class="cm"> *	@queue_mapping: Queue mapping for multiqueue devices
+</span><span class="cm"> *	@xmit_more: More SKBs are pending for this queue
+</span><span class="cm"> *	@ndisc_nodetype: router type (from link layer)
+</span><span class="cm"> *	@ooo_okay: allow the mapping of a socket to a queue to be changed
+</span><span class="cm"> *	@l4_hash: indicate hash is a canonical 4-tuple hash over transport
+</span><span class="cm"> *		ports.
+</span><span class="cm"> *	@sw_hash: indicates hash was computed in software stack
+</span><span class="cm"> *	@wifi_acked_valid: wifi_acked was set
+</span><span class="cm"> *	@wifi_acked: whether frame was acked on wifi or not
+</span><span class="cm"> *	@no_fcs:  Request NIC to treat last 4 bytes as Ethernet FCS
+</span><span class="cm">  *	@napi_id: id of the NAPI struct this skb came from
+</span><span class="cm"> *	@secmark: security marking
+</span><span class="cm"> *	@offload_fwd_mark: fwding offload mark
+</span><span class="cm"> *	@mark: Generic packet mark
+</span><span class="cm"> *	@vlan_proto: vlan encapsulation protocol
+</span><span class="cm"> *	@vlan_tci: vlan tag control information
+</span><span class="cm"> *	@inner_protocol: Protocol (encapsulation)
+</span><span class="cm"> *	@inner_transport_header: Inner transport layer header (encapsulation)
+</span><span class="cm"> *	@inner_network_header: Network layer header (encapsulation)
+</span><span class="cm"> *	@inner_mac_header: Link layer header (encapsulation)
+</span><span class="cm"> *	@transport_header: Transport layer header
+</span><span class="cm"> *	@network_header: Network layer header
+</span><span class="cm"> *	@mac_header: Link layer header
+</span><span class="cm"> *	@tail: Tail pointer
+</span><span class="cm"> *	@end: End pointer
+</span><span class="cm"> *	@head: Head of buffer
+</span><span class="cm"> *	@data: Data head pointer
+</span><span class="cm"> *	@truesize: Buffer size
+</span><span class="cm"> *	@users: User count - see {datagram,tcp}.c
+</span><span class="cm"> */</span>
+
+<span class="k">struct</span> <span class="nc">sk_buff</span> <span class="p">{</span>
+	<span class="k">union</span> <span class="p">{</span>
+		<span class="k">struct</span> <span class="p">{</span>
+			<span class="cm">/* These two members must be first. */</span>
+			<span class="k">struct</span> <span class="nc">sk_buff</span>		<span class="o">*</span><span class="n">next</span><span class="p">;</span>
+			<span class="k">struct</span> <span class="nc">sk_buff</span>		<span class="o">*</span><span class="n">prev</span><span class="p">;</span>
+
+			<span class="k">union</span> <span class="p">{</span>
+				<span class="n">ktime_t</span>		<span class="n">tstamp</span><span class="p">;</span>
+				<span class="k">struct</span> <span class="nc">skb_mstamp</span> <span class="n">skb_mstamp</span><span class="p">;</span>
+			<span class="p">};</span>
+		<span class="p">};</span>
+		<span class="k">struct</span> <span class="nc">rb_node</span>	<span class="n">rbnode</span><span class="p">;</span> <span class="cm">/* used in netem &amp; tcp stack */</span>
+	<span class="p">};</span>
+	<span class="k">struct</span> <span class="nc">sock</span>		<span class="o">*</span><span class="n">sk</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="nc">net_device</span>	<span class="o">*</span><span class="n">dev</span><span class="p">;</span>
+
+	<span class="cm">/*
+</span><span class="cm">	 * This is the control buffer. It is free to use for every
+</span><span class="cm">	 * layer. Please put your private variables there. If you
+</span><span class="cm">	 * want to keep them across layers you have to do a skb_clone()
+</span><span class="cm">	 * first. This is owned by whoever has the skb queued ATM.
+</span><span class="cm">	 */</span>
+	<span class="kt">char</span>			<span class="n">cb</span><span class="p">[</span><span class="mi">48</span><span class="p">]</span> <span class="n">__aligned</span><span class="p">(</span><span class="mi">8</span><span class="p">);</span>
+
+	<span class="kt">unsigned</span> <span class="kt">long</span>		<span class="n">_skb_refdst</span><span class="p">;</span>
+	<span class="kt">void</span>			<span class="p">(</span><span class="o">*</span><span class="n">destructor</span><span class="p">)(</span><span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">skb</span><span class="p">);</span>
+<span class="cp">#ifdef CONFIG_XFRM
+</span><span class="cp"></span>	<span class="k">struct</span>	<span class="nc">sec_path</span>	<span class="o">*</span><span class="n">sp</span><span class="p">;</span>
+<span class="cp">#endif
+</span><span class="cp">#if defined(CONFIG_NF_CONNTRACK) || defined(CONFIG_NF_CONNTRACK_MODULE)
+</span><span class="cp"></span>	<span class="k">struct</span> <span class="nc">nf_conntrack</span>	<span class="o">*</span><span class="n">nfct</span><span class="p">;</span>
+<span class="cp">#endif
+</span><span class="cp">#if IS_ENABLED(CONFIG_BRIDGE_NETFILTER)
+</span><span class="cp"></span>	<span class="k">struct</span> <span class="nc">nf_bridge_info</span>	<span class="o">*</span><span class="n">nf_bridge</span><span class="p">;</span>
+<span class="cp">#endif
+</span><span class="cp"></span>	<span class="kt">unsigned</span> <span class="kt">int</span>		<span class="n">len</span><span class="p">,</span>
+				<span class="n">data_len</span><span class="p">;</span>
+	<span class="n">__u16</span>			<span class="n">mac_len</span><span class="p">,</span>
+				<span class="n">hdr_len</span><span class="p">;</span>
+
+	<span class="cm">/* Following fields are _not_ copied in __copy_skb_header()
+</span><span class="cm">	 * Note that queue_mapping is here mostly to fill a hole.
+</span><span class="cm">	 */</span>
+	<span class="n">kmemcheck_bitfield_begin</span><span class="p">(</span><span class="n">flags1</span><span class="p">);</span>
+	<span class="n">__u16</span>			<span class="n">queue_mapping</span><span class="p">;</span>
+	<span class="n">__u8</span>			<span class="nl">cloned</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+				<span class="nl">nohdr</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+				<span class="nl">fclone</span><span class="p">:</span><span class="mi">2</span><span class="p">,</span>
+				<span class="nl">peeked</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+				<span class="nl">head_frag</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span>
+				<span class="nl">xmit_more</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+	<span class="cm">/* one bit hole */</span>
+	<span class="n">kmemcheck_bitfield_end</span><span class="p">(</span><span class="n">flags1</span><span class="p">);</span>
+
+	<span class="cm">/* fields enclosed in headers_start/headers_end are copied
+</span><span class="cm">	 * using a single memcpy() in __copy_skb_header()
+</span><span class="cm">	 */</span>
+	<span class="cm">/* private: */</span>
+	<span class="n">__u32</span>			<span class="n">headers_start</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+	<span class="cm">/* public: */</span>
+
+<span class="cm">/* if you move pkt_type around you also must adapt those constants */</span>
+<span class="cp">#ifdef __BIG_ENDIAN_BITFIELD
+</span><span class="cp">#define PKT_TYPE_MAX	(7 &lt;&lt; 5)
+</span><span class="cp">#else
+</span><span class="cp">#define PKT_TYPE_MAX	7
+</span><span class="cp">#endif
+</span><span class="cp">#define PKT_TYPE_OFFSET()	offsetof(struct sk_buff, __pkt_type_offset)
+</span><span class="cp"></span>
+	<span class="n">__u8</span>			<span class="n">__pkt_type_offset</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+	<span class="n">__u8</span>			<span class="nl">pkt_type</span><span class="p">:</span><span class="mi">3</span><span class="p">;</span>
+	<span class="n">__u8</span>			<span class="nl">pfmemalloc</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+	<span class="n">__u8</span>			<span class="nl">ignore_df</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+	<span class="n">__u8</span>			<span class="nl">nfctinfo</span><span class="p">:</span><span class="mi">3</span><span class="p">;</span>
+
+	<span class="n">__u8</span>			<span class="nl">nf_trace</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+	<span class="n">__u8</span>			<span class="nl">ip_summed</span><span class="p">:</span><span class="mi">2</span><span class="p">;</span>
+	<span class="n">__u8</span>			<span class="nl">ooo_okay</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+	<span class="n">__u8</span>			<span class="nl">l4_hash</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+	<span class="n">__u8</span>			<span class="nl">sw_hash</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+	<span class="n">__u8</span>			<span class="nl">wifi_acked_valid</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+	<span class="n">__u8</span>			<span class="nl">wifi_acked</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+
+	<span class="n">__u8</span>			<span class="nl">no_fcs</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+	<span class="cm">/* Indicates the inner headers are valid in the skbuff. */</span>
+	<span class="n">__u8</span>			<span class="nl">encapsulation</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+	<span class="n">__u8</span>			<span class="nl">encap_hdr_csum</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+	<span class="n">__u8</span>			<span class="nl">csum_valid</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+	<span class="n">__u8</span>			<span class="nl">csum_complete_sw</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+	<span class="n">__u8</span>			<span class="nl">csum_level</span><span class="p">:</span><span class="mi">2</span><span class="p">;</span>
+	<span class="n">__u8</span>			<span class="nl">csum_bad</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+
+<span class="cp">#ifdef CONFIG_IPV6_NDISC_NODETYPE
+</span><span class="cp"></span>	<span class="n">__u8</span>			<span class="nl">ndisc_nodetype</span><span class="p">:</span><span class="mi">2</span><span class="p">;</span>
+<span class="cp">#endif
+</span><span class="cp"></span>	<span class="n">__u8</span>			<span class="nl">ipvs_property</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+	<span class="n">__u8</span>			<span class="nl">inner_protocol_type</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+	<span class="n">__u8</span>			<span class="nl">remcsum_offload</span><span class="p">:</span><span class="mi">1</span><span class="p">;</span>
+	<span class="cm">/* 3 or 5 bit hole */</span>
+
+<span class="cp">#ifdef CONFIG_NET_SCHED
+</span><span class="cp"></span>	<span class="n">__u16</span>			<span class="n">tc_index</span><span class="p">;</span>	<span class="cm">/* traffic control index */</span>
+<span class="cp">#ifdef CONFIG_NET_CLS_ACT
+</span><span class="cp"></span>	<span class="n">__u16</span>			<span class="n">tc_verd</span><span class="p">;</span>	<span class="cm">/* traffic control verdict */</span>
+<span class="cp">#endif
+</span><span class="cp">#endif
+</span><span class="cp"></span>
+	<span class="k">union</span> <span class="p">{</span>
+		<span class="n">__wsum</span>		<span class="n">csum</span><span class="p">;</span>
+		<span class="k">struct</span> <span class="p">{</span>
+			<span class="n">__u16</span>	<span class="n">csum_start</span><span class="p">;</span>
+			<span class="n">__u16</span>	<span class="n">csum_offset</span><span class="p">;</span>
+		<span class="p">};</span>
+	<span class="p">};</span>
+	<span class="n">__u32</span>			<span class="n">priority</span><span class="p">;</span>
+	<span class="kt">int</span>			<span class="n">skb_iif</span><span class="p">;</span>
+	<span class="n">__u32</span>			<span class="n">hash</span><span class="p">;</span>
+	<span class="n">__be16</span>			<span class="n">vlan_proto</span><span class="p">;</span>
+	<span class="n">__u16</span>			<span class="n">vlan_tci</span><span class="p">;</span>
+<span class="cp">#if defined(CONFIG_NET_RX_BUSY_POLL) || defined(CONFIG_XPS)
+</span><span class="cp"></span>	<span class="k">union</span> <span class="p">{</span>
+		<span class="kt">unsigned</span> <span class="kt">int</span>	<span class="n">napi_id</span><span class="p">;</span>
+		<span class="kt">unsigned</span> <span class="kt">int</span>	<span class="n">sender_cpu</span><span class="p">;</span>
+	<span class="p">};</span>
+<span class="cp">#endif
+</span><span class="cp"></span>	<span class="k">union</span> <span class="p">{</span>
+<span class="cp">#ifdef CONFIG_NETWORK_SECMARK
+</span><span class="cp"></span>		<span class="n">__u32</span>		<span class="n">secmark</span><span class="p">;</span>
+<span class="cp">#endif
+</span><span class="cp">#ifdef CONFIG_NET_SWITCHDEV
+</span><span class="cp"></span>		<span class="n">__u32</span>		<span class="n">offload_fwd_mark</span><span class="p">;</span>
+<span class="cp">#endif
+</span><span class="cp"></span>	<span class="p">};</span>
+
+	<span class="k">union</span> <span class="p">{</span>
+		<span class="n">__u32</span>		<span class="n">mark</span><span class="p">;</span>
+		<span class="n">__u32</span>		<span class="n">reserved_tailroom</span><span class="p">;</span>
+	<span class="p">};</span>
+
+	<span class="k">union</span> <span class="p">{</span>
+		<span class="n">__be16</span>		<span class="n">inner_protocol</span><span class="p">;</span>
+		<span class="n">__u8</span>		<span class="n">inner_ipproto</span><span class="p">;</span>
+	<span class="p">};</span>
+
+	<span class="n">__u16</span>			<span class="n">inner_transport_header</span><span class="p">;</span>
+	<span class="n">__u16</span>			<span class="n">inner_network_header</span><span class="p">;</span>
+	<span class="n">__u16</span>			<span class="n">inner_mac_header</span><span class="p">;</span>
+
+	<span class="n">__be16</span>			<span class="n">protocol</span><span class="p">;</span>
+	<span class="n">__u16</span>			<span class="n">transport_header</span><span class="p">;</span>
+	<span class="n">__u16</span>			<span class="n">network_header</span><span class="p">;</span>
+	<span class="n">__u16</span>			<span class="n">mac_header</span><span class="p">;</span>
+
+	<span class="cm">/* private: */</span>
+	<span class="n">__u32</span>			<span class="n">headers_end</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+	<span class="cm">/* public: */</span>
+
+	<span class="cm">/* These elements must be at the end, see alloc_skb() for details.  */</span>
+	<span class="n">sk_buff_data_t</span>		<span class="n">tail</span><span class="p">;</span>
+	<span class="n">sk_buff_data_t</span>		<span class="n">end</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">char</span>		<span class="o">*</span><span class="n">head</span><span class="p">,</span>
+				<span class="o">*</span><span class="n">data</span><span class="p">;</span>
+	<span class="kt">unsigned</span> <span class="kt">int</span>		<span class="n">truesize</span><span class="p">;</span>
+	<span class="n">atomic_t</span>		<span class="n">users</span><span class="p">;</span>
+<span class="p">};</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="c1">// socket 结构体, include/linux/net.h
+</span><span class="c1"></span>
+<span class="cm">/**
+</span><span class="cm"> *  struct socket - general BSD socket
+</span><span class="cm"> *  @state: socket state (%SS_CONNECTED, etc)
+</span><span class="cm"> *  @type: socket type (%SOCK_STREAM, etc)
+</span><span class="cm"> *  @flags: socket flags (%SOCK_NOSPACE, etc)
+</span><span class="cm"> *  @ops: protocol specific socket operations
+</span><span class="cm"> *  @file: File back pointer for gc
+</span><span class="cm"> *  @sk: internal networking protocol agnostic socket representation
+</span><span class="cm"> *  @wq: wait queue for several uses
+</span><span class="cm"> */</span>
+<span class="k">struct</span> <span class="nc">socket</span> <span class="p">{</span>
+	<span class="n">socket_state</span>		<span class="n">state</span><span class="p">;</span>
+
+	<span class="n">kmemcheck_bitfield_begin</span><span class="p">(</span><span class="n">type</span><span class="p">);</span>
+	<span class="kt">short</span>			<span class="n">type</span><span class="p">;</span>
+	<span class="n">kmemcheck_bitfield_end</span><span class="p">(</span><span class="n">type</span><span class="p">);</span>
+
+	<span class="kt">unsigned</span> <span class="kt">long</span>		<span class="n">flags</span><span class="p">;</span>
+
+	<span class="k">struct</span> <span class="nc">socket_wq</span> <span class="n">__rcu</span>	<span class="o">*</span><span class="n">wq</span><span class="p">;</span>
+
+	<span class="k">struct</span> <span class="nc">file</span>		<span class="o">*</span><span class="n">file</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="nc">sock</span>		<span class="o">*</span><span class="n">sk</span><span class="p">;</span>
+	<span class="k">const</span> <span class="k">struct</span> <span class="nc">proto_ops</span>	<span class="o">*</span><span class="n">ops</span><span class="p">;</span>
+<span class="p">};</span>
+
+</code></pre></td></tr></table>
+</div>
+</div>
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2022 Bg2bkk Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='在我尝试从kernel中深入了解TCP IP协议栈时，遇到了难题。 我选择的是linux-2.4.20 kernel，理由如下： 1. 首先是&amp;lt;TCP/IP Architecture, Design, And Implementation In Linux&amp;gt;一书采用的是该版本，会有按图索骥的效果。 2. 第二个理由，正如书中所说的，TCP/IP协议栈在2.4内核中就已经基本成型，而根据我实际对比，2.4.20内核与4.4.1内核在TCP/IP实现的框架上大体是相同的，区别是2.6 kernel以后完全将VFS中的各组件namespace化，另外是一些高版本内核引入的措施（比如对比net/socket.c中sock_create函数）。 3. 第三个理由是，linux-2.4 kernel的代码还没有开始爆炸，适合初学者入门，也适合我这样学力不足的人。 采用linux-2.4 kernel的不足之处在于，版本较老，想亲自动手实验，需要做一些兼容性的准备。  我搜到了这样一篇帖子， 收益颇深。解决了我的疑问，用我最能接受的方式，先从kernel启动的函数说起，然后调用到我能看到的net/socket.c中的函数；然后又通过修改kernel源码添加标记，打印运行log来标志函数执行；然后通过讲解module_init注册的静态模块是如何加进内核可执行文件里的，然后编译出linux.map文件，进一步确定函数执行顺序。这个方式让我非常容易接受，也很感慨写博客的人功力之深，通篇干货没有废话；更感慨的是，这个帖子写于2001左右，当时进行kernel修改还是比较容易的事情，现在的kernel代码越来越庞大，初学者为此望而却步，很难入手；新人难以入门的问题，近年来也多有讨论。
+那我就先把原作者的文章翻译过来，再继续下一步工作吧。
+先说结论  kernel启动时，第一个与network有关的函数是sock_init()，用来向kernel注册sock文件系统并挂载，以及加载其他模块，比如netfilter loopback设备随后被初始化，因为该设备比较简单。drivers/net/loopback.c dummy 和 Ethernet 设备随后被初始化 TCP/IP协议栈是在inet_init()中初始化的 Unix Domain Socket是在af_unix_init()中初始化的。1~5步按时间顺序排列。  Linux Kernel 2.4的入口函数 1.经过基本硬件设置后，启动代码(定义在head.S中)调用 /init/main.c 的 start_kernel()函数
+1 2 3 4  #arch/i386/kernel/head.S ... call SYMBOL_NAME(start_kernel) ...   2.sock_init()调用过程，向系统注册sock文件系统并挂载
+sock_init()将向系统注册sock文件系统 do_initcalls()中循环调用所有MODULE_INIT()的模块，包括系统中的inet_init和af_unix_init，至于如何关联起来的，稍后会有介绍。  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41  asmlinkage void __init start_kernel(void) { .'>
+<title>tcp ip协议栈在linux内核启动中的顺序</title>
+
+<link rel='canonical' href='https://bg2bkk.github.io/p/tcp-ip%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%9C%A8linux%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8%E4%B8%AD%E7%9A%84%E9%A1%BA%E5%BA%8F/'>
+
+<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='tcp ip协议栈在linux内核启动中的顺序'>
+<meta property='og:description' content='在我尝试从kernel中深入了解TCP IP协议栈时，遇到了难题。 我选择的是linux-2.4.20 kernel，理由如下： 1. 首先是&amp;lt;TCP/IP Architecture, Design, And Implementation In Linux&amp;gt;一书采用的是该版本，会有按图索骥的效果。 2. 第二个理由，正如书中所说的，TCP/IP协议栈在2.4内核中就已经基本成型，而根据我实际对比，2.4.20内核与4.4.1内核在TCP/IP实现的框架上大体是相同的，区别是2.6 kernel以后完全将VFS中的各组件namespace化，另外是一些高版本内核引入的措施（比如对比net/socket.c中sock_create函数）。 3. 第三个理由是，linux-2.4 kernel的代码还没有开始爆炸，适合初学者入门，也适合我这样学力不足的人。 采用linux-2.4 kernel的不足之处在于，版本较老，想亲自动手实验，需要做一些兼容性的准备。  我搜到了这样一篇帖子， 收益颇深。解决了我的疑问，用我最能接受的方式，先从kernel启动的函数说起，然后调用到我能看到的net/socket.c中的函数；然后又通过修改kernel源码添加标记，打印运行log来标志函数执行；然后通过讲解module_init注册的静态模块是如何加进内核可执行文件里的，然后编译出linux.map文件，进一步确定函数执行顺序。这个方式让我非常容易接受，也很感慨写博客的人功力之深，通篇干货没有废话；更感慨的是，这个帖子写于2001左右，当时进行kernel修改还是比较容易的事情，现在的kernel代码越来越庞大，初学者为此望而却步，很难入手；新人难以入门的问题，近年来也多有讨论。
+那我就先把原作者的文章翻译过来，再继续下一步工作吧。
+先说结论  kernel启动时，第一个与network有关的函数是sock_init()，用来向kernel注册sock文件系统并挂载，以及加载其他模块，比如netfilter loopback设备随后被初始化，因为该设备比较简单。drivers/net/loopback.c dummy 和 Ethernet 设备随后被初始化 TCP/IP协议栈是在inet_init()中初始化的 Unix Domain Socket是在af_unix_init()中初始化的。1~5步按时间顺序排列。  Linux Kernel 2.4的入口函数 1.经过基本硬件设置后，启动代码(定义在head.S中)调用 /init/main.c 的 start_kernel()函数
+1 2 3 4  #arch/i386/kernel/head.S ... call SYMBOL_NAME(start_kernel) ...   2.sock_init()调用过程，向系统注册sock文件系统并挂载
+sock_init()将向系统注册sock文件系统 do_initcalls()中循环调用所有MODULE_INIT()的模块，包括系统中的inet_init和af_unix_init，至于如何关联起来的，稍后会有介绍。  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41  asmlinkage void __init start_kernel(void) { .'>
+<meta property='og:url' content='https://bg2bkk.github.io/p/tcp-ip%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%9C%A8linux%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8%E4%B8%AD%E7%9A%84%E9%A1%BA%E5%BA%8F/'>
+<meta property='og:site_name' content='Bg2bkk Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-02-24T23:13:13&#43;08:00'/><meta property='article:modified_time' content='2016-02-24T23:13:13&#43;08:00'/>
+<meta name="twitter:title" content="tcp ip协议栈在linux内核启动中的顺序">
+<meta name="twitter:description" content="在我尝试从kernel中深入了解TCP IP协议栈时，遇到了难题。 我选择的是linux-2.4.20 kernel，理由如下： 1. 首先是&amp;lt;TCP/IP Architecture, Design, And Implementation In Linux&amp;gt;一书采用的是该版本，会有按图索骥的效果。 2. 第二个理由，正如书中所说的，TCP/IP协议栈在2.4内核中就已经基本成型，而根据我实际对比，2.4.20内核与4.4.1内核在TCP/IP实现的框架上大体是相同的，区别是2.6 kernel以后完全将VFS中的各组件namespace化，另外是一些高版本内核引入的措施（比如对比net/socket.c中sock_create函数）。 3. 第三个理由是，linux-2.4 kernel的代码还没有开始爆炸，适合初学者入门，也适合我这样学力不足的人。 采用linux-2.4 kernel的不足之处在于，版本较老，想亲自动手实验，需要做一些兼容性的准备。  我搜到了这样一篇帖子， 收益颇深。解决了我的疑问，用我最能接受的方式，先从kernel启动的函数说起，然后调用到我能看到的net/socket.c中的函数；然后又通过修改kernel源码添加标记，打印运行log来标志函数执行；然后通过讲解module_init注册的静态模块是如何加进内核可执行文件里的，然后编译出linux.map文件，进一步确定函数执行顺序。这个方式让我非常容易接受，也很感慨写博客的人功力之深，通篇干货没有废话；更感慨的是，这个帖子写于2001左右，当时进行kernel修改还是比较容易的事情，现在的kernel代码越来越庞大，初学者为此望而却步，很难入手；新人难以入门的问题，近年来也多有讨论。
+那我就先把原作者的文章翻译过来，再继续下一步工作吧。
+先说结论  kernel启动时，第一个与network有关的函数是sock_init()，用来向kernel注册sock文件系统并挂载，以及加载其他模块，比如netfilter loopback设备随后被初始化，因为该设备比较简单。drivers/net/loopback.c dummy 和 Ethernet 设备随后被初始化 TCP/IP协议栈是在inet_init()中初始化的 Unix Domain Socket是在af_unix_init()中初始化的。1~5步按时间顺序排列。  Linux Kernel 2.4的入口函数 1.经过基本硬件设置后，启动代码(定义在head.S中)调用 /init/main.c 的 start_kernel()函数
+1 2 3 4  #arch/i386/kernel/head.S ... call SYMBOL_NAME(start_kernel) ...   2.sock_init()调用过程，向系统注册sock文件系统并挂载
+sock_init()将向系统注册sock文件系统 do_initcalls()中循环调用所有MODULE_INIT()的模块，包括系统中的inet_init和af_unix_init，至于如何关联起来的，稍后会有介绍。  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41  asmlinkage void __init start_kernel(void) { .">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu9dfb7228514195dbb950046570d90a5c_100216_300x0_resize_q75_box.jpg" width="300"
+                            height="221" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/tcp-ip%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%9C%A8linux%E5%86%85%E6%A0%B8%E5%90%AF%E5%8A%A8%E4%B8%AD%E7%9A%84%E9%A1%BA%E5%BA%8F/">tcp ip协议栈在linux内核启动中的顺序</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Feb 24, 2016</time>
+            </div>
+        
+
+    
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    11 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <pre><code>在我尝试从kernel中深入了解TCP IP协议栈时，遇到了难题。
+
+我选择的是linux-2.4.20 kernel，理由如下：
+
+1. 首先是&lt;TCP/IP Architecture, Design, And Implementation In Linux&gt;一书采用的是该版本，会有按图索骥的效果。
+2. 第二个理由，正如书中所说的，TCP/IP协议栈在2.4内核中就已经基本成型，而根据我实际对比，2.4.20内核与4.4.1内核在TCP/IP实现的框架上大体是相同的，区别是2.6 kernel以后完全将VFS中的各组件namespace化，另外是一些高版本内核引入的措施（比如对比net/socket.c中sock_create函数）。
+3. 第三个理由是，linux-2.4 kernel的代码还没有开始爆炸，适合初学者入门，也适合我这样学力不足的人。
+
+采用linux-2.4 kernel的不足之处在于，版本较老，想亲自动手实验，需要做一些兼容性的准备。
+</code></pre>
+<p>我搜到了<a class="link" href="http://www.skyfree.org/linux/kernel_network/startup.html"  target="_blank" rel="noopener"
+    >这样一篇帖子</a>， 收益颇深。解决了我的疑问，用我最能接受的方式，先从kernel启动的函数说起，然后调用到我能看到的net/socket.c中的函数；然后又通过修改kernel源码添加标记，打印运行log来标志函数执行；然后通过讲解module_init注册的静态模块是如何加进内核可执行文件里的，然后编译出linux.map文件，进一步确定函数执行顺序。这个方式让我非常容易接受，也很感慨写博客的人功力之深，通篇干货没有废话；更感慨的是，这个帖子写于2001左右，当时进行kernel修改还是比较容易的事情，现在的kernel代码越来越庞大，初学者为此望而却步，很难入手；新人难以入门的问题，近年来也多有讨论。</p>
+<p>那我就先把原作者的文章翻译过来，再继续下一步工作吧。</p>
+<h2 id="先说结论">先说结论</h2>
+<ol>
+<li>kernel启动时，第一个与network有关的函数是sock_init()，用来向kernel注册sock文件系统并挂载，以及加载其他模块，比如netfilter</li>
+<li>loopback设备随后被初始化，因为该设备比较简单。<em><strong>drivers/net/loopback.c</strong></em></li>
+<li>dummy 和 Ethernet 设备随后被初始化</li>
+<li>TCP/IP协议栈是在inet_init()中初始化的</li>
+<li>Unix Domain Socket是在af_unix_init()中初始化的。1~5步按时间顺序排列。</li>
+</ol>
+<h2 id="linux-kernel-24的入口函数">Linux Kernel 2.4的入口函数</h2>
+<p>1.经过基本硬件设置后，启动代码(定义在head.S中)调用 /init/main.c 的 start_kernel()函数</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1">#arch/i386/kernel/head.S</span>
+...
+    call SYMBOL_NAME<span class="o">(</span>start_kernel<span class="o">)</span>
+...
+</code></pre></td></tr></table>
+</div>
+</div><p>2.sock_init()调用过程，向系统注册sock文件系统并挂载</p>
+<pre><code>sock_init()将向系统注册sock文件系统
+do_initcalls()中循环调用所有MODULE_INIT()的模块，包括系统中的inet_init和af_unix_init，至于如何关联起来的，稍后会有介绍。
+</code></pre>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-c" data-lang="c"><span class="n">asmlinkage</span> <span class="kt">void</span> <span class="n">__init</span> <span class="nf">start_kernel</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="p">...</span>
+        <span class="n">printk</span><span class="p">(</span><span class="n">linux_banner</span><span class="p">);</span>	<span class="c1">// &#34;linux_banner&#34; is defined in init/version.c (W.N.).
+</span><span class="c1"></span><span class="p">...</span>
+<span class="p">...</span>     <span class="c1">// Dozens of initialize routines
+</span><span class="c1"></span><span class="p">...</span>
+        <span class="n">kernel_thread</span><span class="p">(</span><span class="n">init</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">CLONE_FS</span> <span class="o">|</span> <span class="n">CLONE_FILES</span> <span class="o">|</span> <span class="n">CLONE_SIGNAL</span><span class="p">);</span>
+<span class="p">...</span>
+        <span class="n">cpu_idle</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="kt">int</span> <span class="nf">init</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span> <span class="n">unused</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="p">...</span>
+        <span class="n">do_basic_setup</span><span class="p">();</span>
+<span class="p">...</span>
+        <span class="n">execve</span><span class="p">(</span><span class="s">&#34;/sbin/init&#34;</span><span class="p">,</span><span class="n">argv_init</span><span class="p">,</span><span class="n">envp_init</span><span class="p">);</span>
+<span class="p">...</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="kt">void</span> <span class="n">__init</span> <span class="nf">do_basic_setup</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="p">...</span>
+        <span class="n">sock_init</span><span class="p">();</span>		<span class="c1">// net/socket.c (SEE BELOW)
+</span><span class="c1"></span><span class="p">...</span>
+        <span class="n">do_initcalls</span><span class="p">();</span>
+<span class="p">...</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="kt">void</span> <span class="n">__init</span> <span class="nf">do_initcalls</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+        <span class="n">initcall_t</span> <span class="o">*</span><span class="n">call</span><span class="p">;</span>
+
+        <span class="n">call</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">__initcall_start</span><span class="p">;</span>
+        <span class="k">do</span> <span class="p">{</span>
+                <span class="p">(</span><span class="o">*</span><span class="n">call</span><span class="p">)();</span>
+                <span class="n">call</span><span class="o">++</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">call</span> <span class="o">&lt;</span> <span class="o">&amp;</span><span class="n">__initcall_end</span><span class="p">);</span>
+<span class="p">...</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>3.sock_init()的内容</p>
+<pre><code>欢迎信息printk()
+清空协议栈数组，此时系统中没有任何协议
+</code></pre>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="p">...</span>
+
+<span class="cm">/*
+</span><span class="cm"> *      The protocol list. Each protocol is registered in here.
+</span><span class="cm"> */</span>
+
+<span class="k">static</span> <span class="k">struct</span> <span class="nc">net_proto_family</span> <span class="o">*</span><span class="n">net_families</span><span class="p">[</span><span class="n">NPROTO</span><span class="p">];</span>	<span class="c1">// Current NPROTO is defined as 32
+</span><span class="c1"></span>																<span class="c1">// in &lt;linux/net.h&gt; (W.N.).
+</span><span class="c1"></span><span class="p">...</span>
+
+<span class="kt">void</span> <span class="n">__init</span> <span class="n">sock_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+        <span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+
+        <span class="n">printk</span><span class="p">(</span><span class="n">KERN_INFO</span> <span class="s">&#34;Linux NET4.0 for Linux 2.4</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+        <span class="n">printk</span><span class="p">(</span><span class="n">KERN_INFO</span> <span class="s">&#34;Based upon Swansea University Computer Society NET3.039</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+
+        <span class="cm">/*
+</span><span class="cm">         *      Initialize all address (protocol) families.
+</span><span class="cm">         */</span>
+
+        <span class="cp">#清空所有协议
+</span><span class="cp"></span>        <span class="k">for</span> <span class="p">(</span><span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">NPROTO</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+                <span class="n">net_families</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+<span class="p">...</span>
+        <span class="cm">/*
+</span><span class="cm">         *      Initialize the protocols module.
+</span><span class="cm">         */</span>
+
+        <span class="cp">#注册文件系统并挂载，sock_fs_type之前被初始化
+</span><span class="cp"></span>        <span class="n">register_filesystem</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sock_fs_type</span><span class="p">);</span>
+        <span class="n">sock_mnt</span> <span class="o">=</span> <span class="n">kern_mount</span><span class="p">(</span><span class="o">&amp;</span><span class="n">sock_fs_type</span><span class="p">);</span>
+
+        <span class="cm">/* The real protocol initialization is performed when
+</span><span class="cm">         *  do_initcalls is run.
+</span><span class="cm">         */</span>
+<span class="p">...</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>4.do_initcalls()中的调用函数</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="cp">#init/main.c
+</span><span class="cp"></span>
+<span class="k">static</span> <span class="kt">void</span> <span class="n">__init</span> <span class="nf">do_initcalls</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+        <span class="n">initcall_t</span> <span class="o">*</span><span class="n">call</span><span class="p">;</span>
+
+        <span class="n">call</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">__initcall_start</span><span class="p">;</span>
+        <span class="k">do</span> <span class="p">{</span>
+                <span class="cp">#添加打印语句，dmesg命令可以输出启动结果
+</span><span class="cp"></span>                <span class="n">printk</span><span class="p">(</span><span class="n">KERN_INFO</span> <span class="s">&#34;+++ do_initcall: %08X</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">call</span><span class="p">);</span>	<span class="c1">// Dump the entry address of initializer (W.N.).
+</span><span class="c1"></span>
+                <span class="p">(</span><span class="o">*</span><span class="n">call</span><span class="p">)();</span>
+                <span class="n">call</span><span class="o">++</span><span class="p">;</span>
+        <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">call</span> <span class="o">&lt;</span> <span class="o">&amp;</span><span class="n">__initcall_end</span><span class="p">);</span>
+
+        <span class="cm">/* Make sure there is no pending stuff from the initcall sequence */</span>
+        <span class="n">flush_scheduled_tasks</span><span class="p">();</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>同时也修改loopback_init函数</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="cp">#drivers/net/loopback.c
+</span><span class="cp"></span>
+<span class="kt">int</span> <span class="n">__init</span> <span class="nf">loopback_init</span><span class="p">(</span><span class="k">struct</span> <span class="nc">net_device</span> <span class="o">*</span><span class="n">dev</span><span class="p">)</span>
+<span class="p">{</span>
+        <span class="cp">#添加打印语句
+</span><span class="cp"></span>        <span class="n">printk</span><span class="p">(</span><span class="n">KERN_INFO</span> <span class="s">&#34;=== Executing loopback_init ===</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+
+        <span class="n">dev</span><span class="o">-&gt;</span><span class="n">mtu</span>                <span class="o">=</span> <span class="n">PAGE_SIZE</span> <span class="o">-</span> <span class="n">LOOPBACK_OVERHEAD</span><span class="p">;</span>
+        <span class="n">dev</span><span class="o">-&gt;</span><span class="n">hard_start_xmit</span>    <span class="o">=</span> <span class="n">loopback_xmit</span><span class="p">;</span>
+        <span class="n">dev</span><span class="o">-&gt;</span><span class="n">hard_header</span>        <span class="o">=</span> <span class="n">eth_header</span><span class="p">;</span>
+        <span class="n">dev</span><span class="o">-&gt;</span><span class="n">hard_header_cache</span>  <span class="o">=</span> <span class="n">eth_header_cache</span><span class="p">;</span>
+        <span class="n">dev</span><span class="o">-&gt;</span><span class="n">header_cache_update</span><span class="o">=</span> <span class="n">eth_header_cache_update</span><span class="p">;</span>
+        <span class="n">dev</span><span class="o">-&gt;</span><span class="n">hard_header_len</span>    <span class="o">=</span> <span class="n">ETH_HLEN</span><span class="p">;</span>             <span class="cm">/* 14                   */</span>
+        <span class="n">dev</span><span class="o">-&gt;</span><span class="n">addr_len</span>           <span class="o">=</span> <span class="n">ETH_ALEN</span><span class="p">;</span>             <span class="cm">/* 6                    */</span>
+<span class="p">...</span>
+<span class="p">};</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>重新编译内核，替换并重启，dmesg的输出结果为：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="n">Linux</span> <span class="n">version</span> <span class="mf">2.4.3</span> <span class="p">(</span><span class="n">root</span><span class="err">@</span><span class="n">mebius</span><span class="p">)</span> <span class="p">(</span><span class="n">gcc</span> <span class="n">version</span> <span class="mf">2.95.3</span> <span class="mi">20010315</span> <span class="p">(</span><span class="n">Debian</span> <span class="n">release</span><span class="p">))</span> <span class="err">#</span><span class="mi">9</span> <span class="n">Tue</span> <span class="n">Apr</span> <span class="mi">3</span> <span class="mi">17</span><span class="o">:</span><span class="mi">37</span><span class="o">:</span>
+<span class="mi">44</span> <span class="n">JST</span> <span class="mi">2001</span>
+<span class="n">BIOS</span><span class="o">-</span><span class="n">provided</span> <span class="n">physical</span> <span class="n">RAM</span> <span class="nl">map</span><span class="p">:</span>
+ <span class="n">BIOS</span><span class="o">-</span><span class="nl">e820</span><span class="p">:</span> <span class="mo">0000000000000000</span> <span class="o">-</span> <span class="mf">000000000009f</span><span class="mi">800</span> <span class="p">(</span><span class="n">usable</span><span class="p">)</span>
+ <span class="n">BIOS</span><span class="o">-</span><span class="nl">e820</span><span class="p">:</span> <span class="mf">000000000009f</span><span class="mi">800</span> <span class="o">-</span> <span class="mo">00000000000</span><span class="n">a0000</span> <span class="p">(</span><span class="n">reserved</span><span class="p">)</span>
+ <span class="n">BIOS</span><span class="o">-</span><span class="nl">e820</span><span class="p">:</span> <span class="mo">00000000000</span><span class="n">ebc00</span> <span class="o">-</span> <span class="mo">0000000000100000</span> <span class="p">(</span><span class="n">reserved</span><span class="p">)</span>
+ <span class="n">BIOS</span><span class="o">-</span><span class="nl">e820</span><span class="p">:</span> <span class="mo">0000000000100000</span> <span class="o">-</span> <span class="mf">0000000007ff</span><span class="mo">0000</span> <span class="p">(</span><span class="n">usable</span><span class="p">)</span>
+ <span class="n">BIOS</span><span class="o">-</span><span class="nl">e820</span><span class="p">:</span> <span class="mf">0000000007ff</span><span class="mo">0000</span> <span class="o">-</span> <span class="mf">0000000007ff</span><span class="n">fc00</span> <span class="p">(</span><span class="n">ACPI</span> <span class="n">data</span><span class="p">)</span>
+ <span class="n">BIOS</span><span class="o">-</span><span class="nl">e820</span><span class="p">:</span> <span class="mf">0000000007ff</span><span class="n">fc00</span> <span class="o">-</span> <span class="mo">000000000</span><span class="mi">8000000</span> <span class="p">(</span><span class="n">ACPI</span> <span class="n">NVS</span><span class="p">)</span>
+ <span class="n">BIOS</span><span class="o">-</span><span class="nl">e820</span><span class="p">:</span> <span class="mf">00000000ff</span><span class="n">f80000</span> <span class="o">-</span> <span class="mo">0000000100000000</span> <span class="p">(</span><span class="n">reserved</span><span class="p">)</span>
+<span class="n">On</span> <span class="n">node</span> <span class="mi">0</span> <span class="nl">totalpages</span><span class="p">:</span> <span class="mi">32752</span>
+<span class="n">zone</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">:</span> <span class="mi">4096</span> <span class="n">pages</span><span class="p">.</span>
+<span class="n">zone</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">:</span> <span class="mi">28656</span> <span class="n">pages</span><span class="p">.</span>
+<span class="n">zone</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">:</span> <span class="mi">0</span> <span class="n">pages</span><span class="p">.</span>
+<span class="n">Kernel</span> <span class="n">command</span> <span class="nl">line</span><span class="p">:</span> <span class="n">root</span><span class="o">=/</span><span class="n">dev</span><span class="o">/</span><span class="n">hda1</span> <span class="n">mem</span><span class="o">=</span><span class="mi">131008</span><span class="n">K</span>
+<span class="n">Initializing</span> <span class="n">CPU</span><span class="err">#</span><span class="mi">0</span>
+<span class="n">Detected</span> <span class="mf">333.350</span> <span class="n">MHz</span> <span class="n">processor</span><span class="p">.</span>
+<span class="nl">Console</span><span class="p">:</span> <span class="n">colour</span> <span class="n">VGA</span><span class="o">+</span> <span class="mi">80</span><span class="n">x25</span>
+<span class="n">Calibrating</span> <span class="n">delay</span> <span class="n">loop</span><span class="p">...</span> <span class="mf">665.19</span> <span class="n">BogoMIPS</span>
+<span class="nl">Memory</span><span class="p">:</span> <span class="mi">126564</span><span class="n">k</span><span class="o">/</span><span class="mi">131008</span><span class="n">k</span> <span class="n">available</span> <span class="p">(</span><span class="mi">1076</span><span class="n">k</span> <span class="n">kernel</span> <span class="n">code</span><span class="p">,</span> <span class="mi">4056</span><span class="n">k</span> <span class="n">reserved</span><span class="p">,</span> <span class="mi">387</span><span class="n">k</span> <span class="n">data</span><span class="p">,</span> <span class="mi">184</span><span class="n">k</span> <span class="n">init</span><span class="p">,</span> <span class="mi">0</span><span class="n">k</span> <span class="n">highm</span>
+<span class="n">em</span><span class="p">)</span>
+<span class="n">Dentry</span><span class="o">-</span><span class="n">cache</span> <span class="n">hash</span> <span class="n">table</span> <span class="nl">entries</span><span class="p">:</span> <span class="mi">16384</span> <span class="p">(</span><span class="nl">order</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">131072</span> <span class="n">bytes</span><span class="p">)</span>
+<span class="n">Buffer</span><span class="o">-</span><span class="n">cache</span> <span class="n">hash</span> <span class="n">table</span> <span class="nl">entries</span><span class="p">:</span> <span class="mi">4096</span> <span class="p">(</span><span class="nl">order</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">16384</span> <span class="n">bytes</span><span class="p">)</span>
+<span class="n">Page</span><span class="o">-</span><span class="n">cache</span> <span class="n">hash</span> <span class="n">table</span> <span class="nl">entries</span><span class="p">:</span> <span class="mi">32768</span> <span class="p">(</span><span class="nl">order</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">131072</span> <span class="n">bytes</span><span class="p">)</span>
+<span class="n">Inode</span><span class="o">-</span><span class="n">cache</span> <span class="n">hash</span> <span class="n">table</span> <span class="nl">entries</span><span class="p">:</span> <span class="mi">8192</span> <span class="p">(</span><span class="nl">order</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">65536</span> <span class="n">bytes</span><span class="p">)</span>
+<span class="nl">CPU</span><span class="p">:</span> <span class="n">Before</span> <span class="n">vendor</span> <span class="n">init</span><span class="p">,</span> <span class="nl">caps</span><span class="p">:</span> <span class="mf">0183f9ff</span> <span class="mo">00000000</span> <span class="mo">00000000</span><span class="p">,</span> <span class="n">vendor</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="nl">CPU</span><span class="p">:</span> <span class="n">L1</span> <span class="n">I</span> <span class="nl">cache</span><span class="p">:</span> <span class="mi">16</span><span class="n">K</span><span class="p">,</span> <span class="n">L1</span> <span class="n">D</span> <span class="nl">cache</span><span class="p">:</span> <span class="mi">16</span><span class="n">K</span>
+<span class="nl">CPU</span><span class="p">:</span> <span class="n">L2</span> <span class="nl">cache</span><span class="p">:</span> <span class="mi">256</span><span class="n">K</span>
+<span class="n">Intel</span> <span class="n">machine</span> <span class="n">check</span> <span class="n">architecture</span> <span class="n">supported</span><span class="p">.</span>
+<span class="n">Intel</span> <span class="n">machine</span> <span class="n">check</span> <span class="n">reporting</span> <span class="n">enabled</span> <span class="n">on</span> <span class="n">CPU</span><span class="err">#</span><span class="mf">0.</span>
+<span class="nl">CPU</span><span class="p">:</span> <span class="n">After</span> <span class="n">vendor</span> <span class="n">init</span><span class="p">,</span> <span class="nl">caps</span><span class="p">:</span> <span class="mf">0183f9ff</span> <span class="mo">00000000</span> <span class="mo">00000000</span> <span class="mo">00000000</span>
+<span class="nl">CPU</span><span class="p">:</span> <span class="n">After</span> <span class="n">generic</span><span class="p">,</span> <span class="nl">caps</span><span class="p">:</span> <span class="mf">0183f9ff</span> <span class="mo">00000000</span> <span class="mo">00000000</span> <span class="mo">00000000</span>
+<span class="nl">CPU</span><span class="p">:</span> <span class="n">Common</span> <span class="nl">caps</span><span class="p">:</span> <span class="mf">0183f9ff</span> <span class="mo">00000000</span> <span class="mo">00000000</span> <span class="mo">00000000</span>
+<span class="nl">CPU</span><span class="p">:</span> <span class="n">Intel</span> <span class="n">Mobile</span> <span class="n">Pentium</span> <span class="n">II</span> <span class="n">stepping</span> <span class="mi">0</span><span class="n">a</span>
+<span class="n">Enabling</span> <span class="n">fast</span> <span class="n">FPU</span> <span class="n">save</span> <span class="n">and</span> <span class="n">restore</span><span class="p">...</span> <span class="n">done</span><span class="p">.</span>
+<span class="n">Checking</span> <span class="err">&#39;</span><span class="n">hlt</span><span class="err">&#39;</span> <span class="n">instruction</span><span class="p">...</span> <span class="n">OK</span><span class="p">.</span>
+<span class="n">POSIX</span> <span class="n">conformance</span> <span class="n">testing</span> <span class="n">by</span> <span class="n">UNIFIX</span>
+<span class="nl">PCI</span><span class="p">:</span> <span class="n">PCI</span> <span class="n">BIOS</span> <span class="n">revision</span> <span class="mf">2.10</span> <span class="n">entry</span> <span class="n">at</span> <span class="mh">0xfd9be</span><span class="p">,</span> <span class="n">last</span> <span class="n">bus</span><span class="o">=</span><span class="mi">0</span>
+<span class="nl">PCI</span><span class="p">:</span> <span class="n">Using</span> <span class="n">configuration</span> <span class="n">type</span> <span class="mi">1</span>
+<span class="nl">PCI</span><span class="p">:</span> <span class="n">Probing</span> <span class="n">PCI</span> <span class="n">hardware</span>
+<span class="nl">PCI</span><span class="p">:</span> <span class="n">Using</span> <span class="n">IRQ</span> <span class="n">router</span> <span class="n">PIIX</span> <span class="p">[</span><span class="mi">8086</span><span class="o">/</span><span class="mi">7110</span><span class="p">]</span> <span class="n">at</span> <span class="mo">00</span><span class="o">:</span><span class="mf">07.0</span>
+  <span class="n">got</span> <span class="n">res</span><span class="p">[</span><span class="mi">10000000</span><span class="o">:</span><span class="mf">10000ff</span><span class="n">f</span><span class="p">]</span> <span class="k">for</span> <span class="n">resource</span> <span class="mi">0</span> <span class="n">of</span> <span class="n">Ricoh</span> <span class="n">Co</span> <span class="n">Ltd</span> <span class="n">RL5c475</span>
+<span class="n">Limiting</span> <span class="n">direct</span> <span class="n">PCI</span><span class="o">/</span><span class="n">PCI</span> <span class="n">transfers</span><span class="p">.</span>
+
+<span class="cp">#sock_init()的运行log
+</span><span class="cp"></span><span class="n">Linux</span> <span class="n">NET4</span><span class="mf">.0</span> <span class="k">for</span> <span class="n">Linux</span> <span class="mf">2.4</span>				<span class="c1">// Message from sock_init()
+</span><span class="c1"></span><span class="n">Based</span> <span class="n">upon</span> <span class="n">Swansea</span> <span class="n">University</span> <span class="n">Computer</span> <span class="n">Society</span> <span class="n">NET3</span><span class="mf">.039</span>
+<span class="cp">#sock_init()运行结束
+</span><span class="cp"></span>
+<span class="cp">#do_initcalls()中的每个initcall
+</span><span class="cp"></span><span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F4E8</span>				<span class="c1">// do_initcalls() START
+</span><span class="c1"></span><span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F4EC</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F4F0</span>				<span class="c1">// apm_init() in arch/i386/kernel/kernel.o
+</span><span class="c1"></span><span class="nl">apm</span><span class="p">:</span> <span class="n">BIOS</span> <span class="n">version</span> <span class="mf">1.2</span> <span class="n">Flags</span> <span class="mh">0x03</span> <span class="p">(</span><span class="n">Driver</span> <span class="n">version</span> <span class="mf">1.14</span><span class="p">)</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F4F4</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F4F8</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F4FC</span>				<span class="c1">// kswapd_init() in mm/mm.o
+</span><span class="c1"></span><span class="n">Starting</span> <span class="n">kswapd</span> <span class="n">v1</span><span class="mf">.8</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F500</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F504</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F508</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F50C</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F510</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F514</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F518</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F51C</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F520</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F524</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F528</span>				<span class="c1">// partition_setup() in fs/fs.o
+</span><span class="c1"></span><span class="nl">pty</span><span class="p">:</span> <span class="mi">256</span> <span class="n">Unix98</span> <span class="n">ptys</span> <span class="n">configured</span>
+<span class="nl">block</span><span class="p">:</span> <span class="n">queued</span> <span class="n">sectors</span> <span class="n">max</span><span class="o">/</span><span class="n">low</span> <span class="mi">84058</span><span class="n">kB</span><span class="o">/</span><span class="mi">28019</span><span class="n">kB</span><span class="p">,</span> <span class="mi">256</span> <span class="n">slots</span> <span class="n">per</span> <span class="n">queue</span>
+<span class="n">RAMDISK</span> <span class="n">driver</span> <span class="nl">initialized</span><span class="p">:</span> <span class="mi">16</span> <span class="n">RAM</span> <span class="n">disks</span> <span class="n">of</span> <span class="mi">8000</span><span class="n">K</span> <span class="n">size</span> <span class="mi">1024</span> <span class="n">blocksize</span>
+<span class="n">Uniform</span> <span class="n">Multi</span><span class="o">-</span><span class="n">Platform</span> <span class="n">E</span><span class="o">-</span><span class="n">IDE</span> <span class="n">driver</span> <span class="nl">Revision</span><span class="p">:</span> <span class="mf">6.31</span>
+<span class="nl">ide</span><span class="p">:</span> <span class="n">Assuming</span> <span class="mi">33</span><span class="n">MHz</span> <span class="n">system</span> <span class="n">bus</span> <span class="n">speed</span> <span class="k">for</span> <span class="n">PIO</span> <span class="n">modes</span><span class="p">;</span> <span class="k">override</span> <span class="n">with</span> <span class="n">idebus</span><span class="o">=</span><span class="n">xx</span>
+<span class="nl">PIIX4</span><span class="p">:</span> <span class="n">IDE</span> <span class="n">controller</span> <span class="n">on</span> <span class="n">PCI</span> <span class="n">bus</span> <span class="mo">00</span> <span class="n">dev</span> <span class="mi">39</span>
+<span class="nl">PIIX4</span><span class="p">:</span> <span class="n">chipset</span> <span class="n">revision</span> <span class="mi">1</span>
+<span class="nl">PIIX4</span><span class="p">:</span> <span class="n">not</span> <span class="mi">100</span><span class="o">%</span> <span class="n">native</span> <span class="nl">mode</span><span class="p">:</span> <span class="n">will</span> <span class="n">probe</span> <span class="n">irqs</span> <span class="n">later</span>
+    <span class="nl">ide0</span><span class="p">:</span> <span class="n">BM</span><span class="o">-</span><span class="n">DMA</span> <span class="n">at</span> <span class="mh">0xfc90</span><span class="o">-</span><span class="mh">0xfc97</span><span class="p">,</span> <span class="n">BIOS</span> <span class="nl">settings</span><span class="p">:</span> <span class="nl">hda</span><span class="p">:</span><span class="n">DMA</span><span class="p">,</span> <span class="nl">hdb</span><span class="p">:</span><span class="n">pio</span>
+    <span class="nl">ide1</span><span class="p">:</span> <span class="n">BM</span><span class="o">-</span><span class="n">DMA</span> <span class="n">at</span> <span class="mh">0xfc98</span><span class="o">-</span><span class="mh">0xfc9f</span><span class="p">,</span> <span class="n">BIOS</span> <span class="nl">settings</span><span class="p">:</span> <span class="nl">hdc</span><span class="p">:</span><span class="n">pio</span><span class="p">,</span> <span class="nl">hdd</span><span class="p">:</span><span class="n">pio</span>
+<span class="nl">hda</span><span class="p">:</span> <span class="n">TOSHIBA</span> <span class="n">MK8113MAT</span><span class="p">,</span> <span class="n">ATA</span> <span class="n">DISK</span> <span class="n">drive</span>
+<span class="n">ide0</span> <span class="n">at</span> <span class="mh">0x1f0</span><span class="o">-</span><span class="mh">0x1f7</span><span class="p">,</span><span class="mh">0x3f6</span> <span class="n">on</span> <span class="n">irq</span> <span class="mi">14</span>
+<span class="nl">hda</span><span class="p">:</span> <span class="mi">16006410</span> <span class="n">sectors</span> <span class="p">(</span><span class="mi">8195</span> <span class="n">MB</span><span class="p">),</span> <span class="n">CHS</span><span class="o">=</span><span class="mi">996</span><span class="o">/</span><span class="mi">255</span><span class="o">/</span><span class="mi">63</span><span class="p">,</span> <span class="n">UDMA</span><span class="p">(</span><span class="mi">33</span><span class="p">)</span>
+<span class="n">Partition</span> <span class="nl">check</span><span class="p">:</span>
+ <span class="nl">hda</span><span class="p">:</span> <span class="n">hda1</span> <span class="n">hda2</span> <span class="n">hda3</span> <span class="n">hda4</span> <span class="o">&lt;</span> <span class="n">hda5</span> <span class="n">hda6</span> <span class="n">hda7</span> <span class="n">hda8</span> <span class="n">hda9</span> <span class="n">hda10</span> <span class="o">&gt;</span>
+<span class="n">Floppy</span> <span class="n">drive</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">:</span> <span class="n">fd0</span> <span class="n">is</span> <span class="mf">1.44</span><span class="n">M</span>
+<span class="n">FDC</span> <span class="mi">0</span> <span class="n">is</span> <span class="n">a</span> <span class="n">National</span> <span class="n">Semiconductor</span> <span class="n">PC87306</span>
+
+<span class="cp">#在loopback_init()中添加printk函数的结果
+</span><span class="cp"></span><span class="o">===</span> <span class="n">Executing</span> <span class="n">loopback_init</span> <span class="o">===</span>			<span class="c1">// loopback initialization is here!
+</span><span class="c1"></span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F52C</span>				<span class="c1">// ext2_fs() in fs/fs.o
+</span><span class="c1"></span><span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F530</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F534</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F538</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F53C</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F540</span>
+<span class="nl">loop</span><span class="p">:</span> <span class="n">loaded</span> <span class="p">(</span><span class="n">max</span> <span class="mi">8</span> <span class="n">devices</span><span class="p">)</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F544</span>
+<span class="n">Serial</span> <span class="n">driver</span> <span class="n">version</span> <span class="mf">5.05</span> <span class="p">(</span><span class="mi">2000</span><span class="o">-</span><span class="mi">12</span><span class="o">-</span><span class="mi">13</span><span class="p">)</span> <span class="n">with</span> <span class="n">MANY_PORTS</span> <span class="n">SHARE_IRQ</span> <span class="n">SERIAL_PCI</span> <span class="n">enabled</span>
+<span class="n">ttyS00</span> <span class="n">at</span> <span class="mh">0x03f8</span> <span class="p">(</span><span class="n">irq</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="n">is</span> <span class="n">a</span> <span class="mi">16550</span><span class="n">A</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F548</span>				<span class="c1">// dummy_init_module() in drivers/net/net.o
+</span><span class="c1"></span><span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F54C</span>				<span class="c1">// rtl8139_init_module() in drivers/net/net.o
+</span><span class="c1"></span><span class="mi">8139</span><span class="n">too</span> <span class="n">Fast</span> <span class="n">Ethernet</span> <span class="n">driver</span> <span class="mf">0.9.15</span><span class="n">c</span> <span class="n">loaded</span>
+<span class="nl">PCI</span><span class="p">:</span> <span class="n">Found</span> <span class="n">IRQ</span> <span class="mi">9</span> <span class="k">for</span> <span class="n">device</span> <span class="mo">00</span><span class="o">:</span><span class="mf">03.0</span>
+<span class="nl">PCI</span><span class="p">:</span> <span class="n">The</span> <span class="n">same</span> <span class="n">IRQ</span> <span class="n">used</span> <span class="k">for</span> <span class="n">device</span> <span class="mo">00</span><span class="o">:</span><span class="mf">07.2</span>
+<span class="nl">eth0</span><span class="p">:</span> <span class="n">RealTek</span> <span class="n">RTL8139</span> <span class="n">Fast</span> <span class="n">Ethernet</span> <span class="n">at</span> <span class="mh">0xc8800c00</span><span class="p">,</span> <span class="mi">08</span><span class="o">:</span><span class="mo">00</span><span class="o">:</span><span class="mf">1f</span><span class="o">:</span><span class="mo">06</span><span class="o">:</span><span class="mi">79</span><span class="o">:</span><span class="mi">20</span><span class="p">,</span> <span class="n">IRQ</span> <span class="mi">9</span>
+<span class="nl">eth0</span><span class="p">:</span>  <span class="n">Identified</span> <span class="mi">8139</span> <span class="n">chip</span> <span class="n">type</span> <span class="err">&#39;</span><span class="n">RTL</span><span class="o">-</span><span class="mi">8139</span><span class="n">B</span><span class="err">&#39;</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F550</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F554</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F558</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F55C</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F560</span>
+
+<span class="cp">#inet_init()的initcall结果
+</span><span class="cp"></span><span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F564</span>				<span class="c1">// inet_init() in net/network.o
+</span><span class="c1"></span><span class="nl">NET4</span><span class="p">:</span> <span class="n">Linux</span> <span class="n">TCP</span><span class="o">/</span><span class="n">IP</span> <span class="mf">1.0</span> <span class="k">for</span> <span class="n">NET4</span><span class="mf">.0</span>
+<span class="n">IP</span> <span class="nl">Protocols</span><span class="p">:</span> <span class="n">ICMP</span><span class="p">,</span> <span class="n">UDP</span><span class="p">,</span> <span class="n">TCP</span>
+<span class="nl">IP</span><span class="p">:</span> <span class="n">routing</span> <span class="n">cache</span> <span class="n">hash</span> <span class="n">table</span> <span class="n">of</span> <span class="mi">512</span> <span class="n">buckets</span><span class="p">,</span> <span class="mi">4</span><span class="n">Kbytes</span>
+<span class="nl">TCP</span><span class="p">:</span> <span class="n">Hash</span> <span class="n">tables</span> <span class="n">configured</span> <span class="p">(</span><span class="n">established</span> <span class="mi">8192</span> <span class="n">bind</span> <span class="mi">8192</span><span class="p">)</span>
+
+<span class="cp">#af_unix_inet()的initcall结果
+</span><span class="cp"></span><span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F568</span>				<span class="c1">// af_unix_init() in net/network.o
+</span><span class="c1"></span><span class="nl">NET4</span><span class="p">:</span> <span class="n">Unix</span> <span class="n">domain</span> <span class="n">sockets</span> <span class="mf">1.0</span><span class="o">/</span><span class="n">SMP</span> <span class="k">for</span> <span class="n">Linux</span> <span class="n">NET4</span><span class="mf">.0</span><span class="p">.</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F56C</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F570</span>
+<span class="o">+++</span> <span class="nl">do_initcall</span><span class="p">:</span> <span class="n">C029F574</span>				<span class="c1">// atalk_init() in net/network.o
+</span><span class="c1"></span><span class="nl">NET4</span><span class="p">:</span> <span class="n">AppleTalk</span> <span class="mf">0.18</span><span class="n">a</span> <span class="k">for</span> <span class="n">Linux</span> <span class="n">NET4</span><span class="mf">.0</span>	<span class="c1">// do_initcalls() END
+</span><span class="c1"></span><span class="nl">fatfs</span><span class="p">:</span> <span class="n">bogus</span> <span class="n">cluster</span> <span class="n">size</span>
+<span class="nl">reiserfs</span><span class="p">:</span> <span class="n">checking</span> <span class="n">transaction</span> <span class="n">log</span> <span class="p">(</span><span class="n">device</span> <span class="mo">03</span><span class="o">:</span><span class="mo">01</span><span class="p">)</span> <span class="p">...</span>
+<span class="n">Using</span> <span class="n">r5</span> <span class="n">hash</span> <span class="n">to</span> <span class="n">sort</span> <span class="n">names</span>
+<span class="n">ReiserFS</span> <span class="n">version</span> <span class="mf">3.6.25</span>
+<span class="nl">VFS</span><span class="p">:</span> <span class="n">Mounted</span> <span class="n">root</span> <span class="p">(</span><span class="n">reiserfs</span> <span class="n">filesystem</span><span class="p">)</span> <span class="n">readonly</span><span class="p">.</span>
+<span class="n">Freeing</span> <span class="n">unused</span> <span class="n">kernel</span> <span class="nl">memory</span><span class="p">:</span> <span class="mi">184</span><span class="n">k</span> <span class="n">freed</span>
+<span class="n">Adding</span> <span class="nl">Swap</span><span class="p">:</span> <span class="mi">128516</span><span class="n">k</span> <span class="n">swap</span><span class="o">-</span><span class="n">space</span> <span class="p">(</span><span class="n">priority</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="nl">eth0</span><span class="p">:</span> <span class="n">Setting</span> <span class="n">half</span><span class="o">-</span><span class="n">duplex</span> <span class="n">based</span> <span class="n">on</span> <span class="k">auto</span><span class="o">-</span><span class="n">negotiated</span> <span class="n">partner</span> <span class="n">ability</span> <span class="mf">0000.</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>5.initcalls的实现机制</p>
+<p>首先我们可以看到每个module都有使用module_init宏。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="cp">#net/ipv4/af_inet.c
+</span><span class="cp"></span>
+<span class="k">static</span> <span class="kt">int</span> <span class="n">__init</span> <span class="nf">inet_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+<span class="p">...</span>
+        <span class="n">printk</span><span class="p">(</span><span class="n">KERN_INFO</span> <span class="s">&#34;NET4: Linux TCP/IP 1.0 for NET4.0</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+<span class="p">...</span>
+<span class="p">}</span>
+
+<span class="n">module_init</span><span class="p">(</span><span class="n">inet_init</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>__init宏和 module_init宏在 <em>include/linux/init.h</em> 中定义</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="cp">#ifndef MODULE
+</span><span class="cp">#ifndef __ASSEMBLY__
+</span><span class="cp"></span><span class="p">...</span>
+<span class="k">typedef</span> <span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">initcall_t</span><span class="p">)(</span><span class="kt">void</span><span class="p">);</span>
+<span class="p">...</span>
+<span class="k">extern</span> <span class="n">initcall_t</span> <span class="n">__initcall_start</span><span class="p">,</span> <span class="n">__initcall_end</span><span class="p">;</span>
+<span class="cp">#define __initcall(fn)                                                          \
+</span><span class="cp">        static initcall_t __initcall_##fn __init_call = fn
+</span><span class="cp"></span><span class="p">...</span>
+<span class="cp">#endif </span><span class="cm">/* __ASSEMBLY__ */</span><span class="cp">
+</span><span class="cp"></span>
+<span class="cm">/*
+</span><span class="cm"> * Mark functions and data as being only used at initialization
+</span><span class="cm"> * or exit time.
+</span><span class="cm"> */</span>
+<span class="cp">#define __init          __attribute__ ((__section__ (&#34;.text.init&#34;)))
+</span><span class="cp"></span><span class="p">...</span>
+<span class="cp">#define __init_call     __attribute__ ((unused,__section__ (&#34;.initcall.init&#34;)))
+</span><span class="cp"></span><span class="p">...</span>
+<span class="cm">/**
+</span><span class="cm"> * module_init() - driver initialization entry point
+</span><span class="cm"> * @x: function to be run at kernel boot time or module insertion
+</span><span class="cm"> *
+</span><span class="cm"> * module_init() will add the driver initialization routine in
+</span><span class="cm"> * the &#34;__initcall.int&#34; code segment if the driver is checked as
+</span><span class="cm"> * &#34;y&#34; or static, or else it will wrap the driver initialization
+</span><span class="cm"> * routine with init_module() which is used by insmod and
+</span><span class="cm"> * modprobe when the driver is used as a module.
+</span><span class="cm"> */</span>
+<span class="cp">#define module_init(x)  __initcall(x);
+</span><span class="cp"></span><span class="p">...</span>
+<span class="cp">#else </span><span class="c1">// MODULE
+</span><span class="c1"></span><span class="p">...</span>
+<span class="cp">#define __init
+</span><span class="cp"></span><span class="p">...</span>
+<span class="cp">#define __initcall(fn)
+</span><span class="cp"></span><span class="p">...</span>
+<span class="cp">#define module_init(x) \
+</span><span class="cp">        int init_module(void) __attribute__((alias(#x))); \
+</span><span class="cp">        extern inline __init_module_func_t __init_module_inline(void) \
+</span><span class="cp">        { return x; }
+</span><span class="cp"></span><span class="p">...</span>
+<span class="cp">#endif </span><span class="c1">// MODULE
+</span></code></pre></td></tr></table>
+</div>
+</div><pre><code>* init.h中的#define MODULE是在Makefile中的 -DMODULE 设置的，表示可以动态添加MODULE
+* 目前 CONFIG_INET (/arch/i386/defconfig) 不是 可选module （M），而是静态编译进内核的（y）。静态模块由init.h中的#ifndef MODULE块预处理，而可动态加载的模块（M）则会调用 #else //MODULE 后的初始化代码
+* 所以经过预编译后，inet_init()函数将由上述代码的#ifndef MODULE 预处理为
+</code></pre>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp">    <span class="cp">#include</span><span class="cpf">/linux/init.h</span><span class="cp">
+</span><span class="cp"></span>    <span class="k">static</span> <span class="kt">int</span> <span class="nf">__attribute__</span> <span class="p">((</span><span class="n">__section__</span> <span class="p">(</span><span class="s">&#34;.text.init&#34;</span><span class="p">)))</span> <span class="n">inet_init</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+    <span class="p">{</span>
+    <span class="p">...</span>
+            <span class="n">printk</span><span class="p">(</span><span class="n">KERN_INFO</span> <span class="s">&#34;NET4: Linux TCP/IP 1.0 for NET4.0</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+    <span class="p">...</span>
+    <span class="p">}</span>
+    
+    <span class="n">initcall_t</span> <span class="n">__initcall_inet_init</span>  <span class="nf">__attribute__</span> <span class="p">((</span><span class="n">unused</span><span class="p">,</span><span class="n">__section__</span> <span class="p">(</span><span class="s">&#34;.initcall.init&#34;</span><span class="p">)))</span> <span class="o">=</span> <span class="n">inet_init</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>这个扩展过程意味着：
+<ul>
+<li>inet_init()函数的代码段text code将编译进kernel可执行文件的***.text.init***段中，这种机制的目的是kernel启动，注册模块后能够释放所占用的内存</li>
+<li>预处理后的***__initcall_inet_init***作为inet_init()函数的入口，将被存储在kernel可执行文件的 <em><strong>.initcall.init</strong></em> 段中。
+<ul>
+<li>注意这个宏定义是static类型的，所以我们并不能确定这个宏定义的结果是否在kernel的全局符号表中。（只有全局变量才在符号表中）</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>为了能够一探究竟，<em><strong>移除该宏定义的static标志</strong></em>，然后***_<em>initcall</em>*** ***这些入口就是全局变量了，然后我们就能在内核编译后的符号表中看到这些入口函数。
+<ul>
+<li>注意如果这些入口函数不是static作用域后，会导致一些链接错误，原因是命名冲突，比如netfilter中有类似命名</li>
+</ul>
+</li>
+<li>Let&rsquo;s hack the kernel!!!</li>
+</ul>
+<p>5.如何从内部观察linux kernel</p>
+<pre><code>* linux kernel只是一个ELF可执行目标文件，和/bin/ls之类的可执行文件没有区别
+* 所以作为kernel ELF文件，vmlinux可以通过nm、objdump和readelf等工具观察
+* 默认情况下，linux kernel的顶层Makefile编译成功后将生成System.map文件，以方便调试，而这个文件不过是一个符号表。所以我向这个编译添加&quot;--cref -Map linux.map&quot;选项，可以生成一个包含更多信息的符号表
+</code></pre>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="cp">#Makefile
+</span><span class="cp">#添加 --cref -Map linux.map 选项
+</span><span class="cp"></span><span class="nl">vmlinux</span><span class="p">:</span> <span class="err">$</span><span class="p">(</span><span class="n">CONFIGURATION</span><span class="p">)</span> <span class="n">init</span><span class="o">/</span><span class="n">main</span><span class="p">.</span><span class="n">o</span> <span class="n">init</span><span class="o">/</span><span class="n">version</span><span class="p">.</span><span class="n">o</span> <span class="n">linuxsubdirs</span>
+        <span class="err">$</span><span class="p">(</span><span class="n">LD</span><span class="p">)</span> <span class="err">$</span><span class="p">(</span><span class="n">LINKFLAGS</span><span class="p">)</span> <span class="err">$</span><span class="p">(</span><span class="n">HEAD</span><span class="p">)</span> <span class="n">init</span><span class="o">/</span><span class="n">main</span><span class="p">.</span><span class="n">o</span> <span class="n">init</span><span class="o">/</span><span class="n">version</span><span class="p">.</span><span class="n">o</span> \
+                <span class="o">--</span><span class="n">start</span><span class="o">-</span><span class="n">group</span> \
+                <span class="err">$</span><span class="p">(</span><span class="n">CORE_FILES</span><span class="p">)</span> \
+                <span class="err">$</span><span class="p">(</span><span class="n">DRIVERS</span><span class="p">)</span> \
+                <span class="err">$</span><span class="p">(</span><span class="n">NETWORKS</span><span class="p">)</span> \
+                <span class="err">$</span><span class="p">(</span><span class="n">LIBS</span><span class="p">)</span> \
+                <span class="o">--</span><span class="n">end</span><span class="o">-</span><span class="n">group</span> \
+                <span class="o">--</span><span class="n">cref</span> <span class="o">-</span><span class="n">Map</span> <span class="n">linux</span><span class="p">.</span><span class="n">map</span> \
+                <span class="o">-</span><span class="n">o</span> <span class="n">vmlinux</span>
+        <span class="err">$</span><span class="p">(</span><span class="n">NM</span><span class="p">)</span> <span class="n">vmlinux</span> <span class="o">|</span> <span class="n">grep</span> <span class="o">-</span><span class="n">v</span> <span class="err">&#39;\</span><span class="p">(</span><span class="n">compiled</span><span class="err">\</span><span class="p">)</span><span class="err">\</span><span class="o">|</span><span class="err">\</span><span class="p">(</span><span class="err">\</span><span class="p">.</span><span class="n">o</span><span class="err">$$\</span><span class="p">)</span><span class="err">\</span><span class="o">|</span><span class="err">\</span><span class="p">(</span> <span class="p">[</span><span class="n">aUw</span><span class="p">]</span> <span class="err">\</span><span class="p">)</span><span class="err">\</span><span class="o">|</span><span class="err">\</span><span class="p">(</span><span class="err">\</span><span class="p">.</span><span class="err">\</span><span class="p">.</span><span class="n">ng</span><span class="err">$$\</span><span class="p">)</span><span class="err">\</span><span class="o">|</span><span class="err">\</span><span class="p">(</span><span class="n">LASH</span><span class="p">[</span><span class="n">RL</span><span class="p">]</span><span class="n">DI</span><span class="err">\</span><span class="p">)</span><span class="err">&#39;</span>
+ <span class="o">|</span> <span class="n">sort</span> <span class="o">&gt;</span> <span class="n">System</span><span class="p">.</span><span class="n">map</span>
+</code></pre></td></tr></table>
+</div>
+</div><pre><code>* make vmlinux编译kernle源码，生成vmlinux和linux.map，通过objdump -h vmlinux查看各段信息
+* 可以看到***.text.init***段和***.initcall.init***段
+</code></pre>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="cp">#objdump -h vmlinux
+</span><span class="cp"></span><span class="nl">vmlinux</span><span class="p">:</span>     <span class="n">file</span> <span class="n">format</span> <span class="n">elf32</span><span class="o">-</span><span class="n">i386</span>
+
+<span class="nl">Sections</span><span class="p">:</span>
+<span class="n">Idx</span> <span class="n">Name</span>          <span class="n">Size</span>      <span class="n">VMA</span>       <span class="n">LMA</span>       <span class="n">File</span> <span class="n">off</span>  <span class="n">Algn</span>
+  <span class="mi">0</span> <span class="p">.</span><span class="n">text</span>         <span class="mo">0010</span><span class="n">bf68</span>  <span class="n">c0100000</span>  <span class="n">c0100000</span>  <span class="mo">00001000</span>  <span class="mi">2</span><span class="o">**</span><span class="mi">4</span>
+                  <span class="n">CONTENTS</span><span class="p">,</span> <span class="n">ALLOC</span><span class="p">,</span> <span class="n">LOAD</span><span class="p">,</span> <span class="n">READONLY</span><span class="p">,</span> <span class="n">CODE</span>
+  <span class="mi">1</span> <span class="p">.</span><span class="n">text</span><span class="p">.</span><span class="n">lock</span>    <span class="mo">00001130</span>  <span class="n">c020bf68</span>  <span class="n">c020bf68</span>  <span class="mo">0010</span><span class="n">cf68</span>  <span class="mi">2</span><span class="o">**</span><span class="mi">2</span>
+                  <span class="n">CONTENTS</span><span class="p">,</span> <span class="n">ALLOC</span><span class="p">,</span> <span class="n">LOAD</span><span class="p">,</span> <span class="n">READONLY</span><span class="p">,</span> <span class="n">CODE</span>
+  <span class="mi">2</span> <span class="p">.</span><span class="n">rodata</span>       <span class="mo">0004407</span><span class="n">c</span>  <span class="n">c020d0a0</span>  <span class="n">c020d0a0</span>  <span class="mf">0010e0</span><span class="n">a0</span>  <span class="mi">2</span><span class="o">**</span><span class="mi">5</span>
+                  <span class="n">CONTENTS</span><span class="p">,</span> <span class="n">ALLOC</span><span class="p">,</span> <span class="n">LOAD</span><span class="p">,</span> <span class="n">READONLY</span><span class="p">,</span> <span class="n">DATA</span>
+  <span class="mi">3</span> <span class="p">.</span><span class="n">kstrtab</span>      <span class="mf">000062f</span><span class="n">e</span>  <span class="n">c0251120</span>  <span class="n">c0251120</span>  <span class="mo">00152120</span>  <span class="mi">2</span><span class="o">**</span><span class="mi">5</span>
+                  <span class="n">CONTENTS</span><span class="p">,</span> <span class="n">ALLOC</span><span class="p">,</span> <span class="n">LOAD</span><span class="p">,</span> <span class="n">READONLY</span><span class="p">,</span> <span class="n">DATA</span>
+  <span class="mi">4</span> <span class="n">__ex_table</span>    <span class="mo">0000141</span><span class="mi">8</span>  <span class="n">c0257420</span>  <span class="n">c0257420</span>  <span class="mo">0015</span><span class="mi">8420</span>  <span class="mi">2</span><span class="o">**</span><span class="mi">2</span>
+                  <span class="n">CONTENTS</span><span class="p">,</span> <span class="n">ALLOC</span><span class="p">,</span> <span class="n">LOAD</span><span class="p">,</span> <span class="n">READONLY</span><span class="p">,</span> <span class="n">DATA</span>
+  <span class="mi">5</span> <span class="n">__ksymtab</span>     <span class="mo">00001</span><span class="n">d68</span>  <span class="n">c0258838</span>  <span class="n">c0258838</span>  <span class="mo">0015</span><span class="mi">9838</span>  <span class="mi">2</span><span class="o">**</span><span class="mi">2</span>
+                  <span class="n">CONTENTS</span><span class="p">,</span> <span class="n">ALLOC</span><span class="p">,</span> <span class="n">LOAD</span><span class="p">,</span> <span class="n">READONLY</span><span class="p">,</span> <span class="n">DATA</span>
+  <span class="mi">6</span> <span class="p">.</span><span class="n">data</span>         <span class="mo">00013</span><span class="n">abc</span>  <span class="n">c025a5a0</span>  <span class="n">c025a5a0</span>  <span class="mo">0015</span><span class="n">b5a0</span>  <span class="mi">2</span><span class="o">**</span><span class="mi">5</span>
+                  <span class="n">CONTENTS</span><span class="p">,</span> <span class="n">ALLOC</span><span class="p">,</span> <span class="n">LOAD</span><span class="p">,</span> <span class="n">DATA</span>
+  <span class="mi">7</span> <span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">init_task</span> <span class="mo">00002000</span>  <span class="n">c0270000</span>  <span class="n">c0270000</span>  <span class="mo">00170000</span>  <span class="mi">2</span><span class="o">**</span><span class="mi">5</span>
+                  <span class="n">CONTENTS</span><span class="p">,</span> <span class="n">ALLOC</span><span class="p">,</span> <span class="n">LOAD</span><span class="p">,</span> <span class="n">DATA</span>
+  <span class="mi">8</span> <span class="p">.</span><span class="n">text</span><span class="p">.</span><span class="n">init</span>    <span class="mf">0000f</span><span class="mi">56</span><span class="n">c</span>  <span class="n">c0272000</span>  <span class="n">c0272000</span>  <span class="mo">00172000</span>  <span class="mi">2</span><span class="o">**</span><span class="mi">4</span>
+                  <span class="n">CONTENTS</span><span class="p">,</span> <span class="n">ALLOC</span><span class="p">,</span> <span class="n">LOAD</span><span class="p">,</span> <span class="n">READONLY</span><span class="p">,</span> <span class="n">CODE</span>
+  <span class="mi">9</span> <span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">init</span>    <span class="mo">0001</span><span class="n">de60</span>  <span class="n">c0281580</span>  <span class="n">c0281580</span>  <span class="mo">001</span><span class="mi">81580</span>  <span class="mi">2</span><span class="o">**</span><span class="mi">5</span>
+                  <span class="n">CONTENTS</span><span class="p">,</span> <span class="n">ALLOC</span><span class="p">,</span> <span class="n">LOAD</span><span class="p">,</span> <span class="n">DATA</span>
+ <span class="mi">10</span> <span class="p">.</span><span class="n">setup</span><span class="p">.</span><span class="n">init</span>   <span class="mo">0000010</span><span class="mi">8</span>  <span class="n">c029f3e0</span>  <span class="n">c029f3e0</span>  <span class="mf">0019f3e0</span>  <span class="mi">2</span><span class="o">**</span><span class="mi">2</span>
+                  <span class="n">CONTENTS</span><span class="p">,</span> <span class="n">ALLOC</span><span class="p">,</span> <span class="n">LOAD</span><span class="p">,</span> <span class="n">DATA</span>
+ <span class="mi">11</span> <span class="p">.</span><span class="n">initcall</span><span class="p">.</span><span class="n">init</span> <span class="mo">000000</span><span class="mi">90</span>  <span class="n">c029f4e8</span>  <span class="n">c029f4e8</span>  <span class="mf">0019f4e8</span>  <span class="mi">2</span><span class="o">**</span><span class="mi">2</span>
+                  <span class="n">CONTENTS</span><span class="p">,</span> <span class="n">ALLOC</span><span class="p">,</span> <span class="n">LOAD</span><span class="p">,</span> <span class="n">DATA</span>
+ <span class="mi">12</span> <span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">page_aligned</span> <span class="mo">00000</span><span class="mi">800</span>  <span class="n">c02a0000</span>  <span class="n">c02a0000</span>  <span class="mo">001</span><span class="n">a0000</span>  <span class="mi">2</span><span class="o">**</span><span class="mi">5</span>
+                  <span class="n">CONTENTS</span><span class="p">,</span> <span class="n">ALLOC</span><span class="p">,</span> <span class="n">LOAD</span><span class="p">,</span> <span class="n">DATA</span>
+ <span class="mi">13</span> <span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">cacheline_aligned</span> <span class="mf">00001f</span><span class="n">e0</span>  <span class="n">c02a0800</span>  <span class="n">c02a0800</span>  <span class="mo">001</span><span class="n">a0800</span>  <span class="mi">2</span><span class="o">**</span><span class="mi">5</span>
+                  <span class="n">CONTENTS</span><span class="p">,</span> <span class="n">ALLOC</span><span class="p">,</span> <span class="n">LOAD</span><span class="p">,</span> <span class="n">DATA</span>
+ <span class="mi">14</span> <span class="p">.</span><span class="n">bss</span>          <span class="mo">0002</span><span class="n">b3d8</span>  <span class="n">c02a27e0</span>  <span class="n">c02a27e0</span>  <span class="mo">001</span><span class="n">a27e0</span>  <span class="mi">2</span><span class="o">**</span><span class="mi">5</span>
+                  <span class="n">ALLOC</span>
+ <span class="mi">15</span> <span class="p">.</span><span class="n">comment</span>      <span class="mo">00003</span><span class="n">bc9</span>  <span class="mo">00000000</span>  <span class="mo">00000000</span>  <span class="mo">001</span><span class="n">a27e0</span>  <span class="mi">2</span><span class="o">**</span><span class="mi">0</span>
+                  <span class="n">CONTENTS</span><span class="p">,</span> <span class="n">READONLY</span>
+ <span class="mi">16</span> <span class="p">.</span><span class="n">note</span>         <span class="mo">00001</span><span class="n">a90</span>  <span class="mo">00000000</span>  <span class="mo">00000000</span>  <span class="mo">001</span><span class="n">a63a9</span>  <span class="mi">2</span><span class="o">**</span><span class="mi">0</span>
+                  <span class="n">CONTENTS</span><span class="p">,</span> <span class="n">READONLY</span>
+</code></pre></td></tr></table>
+</div>
+</div><pre><code>* 如下是linux.map的文件内容
+* __initcall_start 和 __initcall_end 定义了***.initcall.init***段的起始和结束，并出现在do_initcalls()函数中
+* 之前将__initcall()宏的static关键字去掉了，所以__initcall_***这些入口函数地址，比如__initcall_inet_init就全局可见了，我们可以在文件中看到内核启动过程
+* 内核开发者们总是喜欢用grep等工具来找某个函数在哪个文件中，而我们在linux.map中可以看到每个函数在哪个模块中，只需要less linux.map就可以了
+</code></pre>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp">     <span class="mh">0xc029f4e8</span>                <span class="n">__initcall_start</span><span class="o">=</span><span class="p">.</span>
+
+<span class="p">.</span><span class="n">initcall</span><span class="p">.</span><span class="n">init</span>  <span class="mh">0xc029f4e8</span>       <span class="mh">0x90</span>
+ <span class="o">*</span><span class="p">(.</span><span class="n">initcall</span><span class="p">.</span><span class="n">init</span><span class="p">)</span>
+ <span class="p">.</span><span class="n">initcall</span><span class="p">.</span><span class="n">init</span>
+                <span class="mh">0xc029f4e8</span>        <span class="mh">0xc</span> <span class="n">arch</span><span class="o">/</span><span class="n">i386</span><span class="o">/</span><span class="n">kernel</span><span class="o">/</span><span class="n">kernel</span><span class="p">.</span><span class="n">o</span>
+                <span class="mh">0xc029f4e8</span>                <span class="n">__initcall_dmi_scan_machine</span>
+                <span class="mh">0xc029f4ec</span>                <span class="n">__initcall_cpuid_init</span>
+                <span class="mh">0xc029f4f0</span>                <span class="n">__initcall_apm_init</span>
+ <span class="p">.</span><span class="n">initcall</span><span class="p">.</span><span class="n">init</span>
+                <span class="mh">0xc029f4f4</span>        <span class="mh">0x4</span> <span class="n">kernel</span><span class="o">/</span><span class="n">kernel</span><span class="p">.</span><span class="n">o</span>
+                <span class="mh">0xc029f4f4</span>                <span class="n">__initcall_uid_cache_init</span>
+ <span class="p">.</span><span class="n">initcall</span><span class="p">.</span><span class="n">init</span>
+                <span class="mh">0xc029f4f8</span>        <span class="mh">0xc</span> <span class="n">mm</span><span class="o">/</span><span class="n">mm</span><span class="p">.</span><span class="n">o</span>
+                <span class="mh">0xc029f4f8</span>                <span class="n">__initcall_kmem_cpucache_init</span>
+                <span class="mh">0xc029f4fc</span>                <span class="n">__initcall_kswapd_init</span>
+                <span class="mh">0xc029f500</span>                <span class="n">__initcall_init_shmem_fs</span>
+ <span class="p">.</span><span class="n">initcall</span><span class="p">.</span><span class="n">init</span>
+                <span class="mh">0xc029f504</span>       <span class="mh">0x3c</span> <span class="n">fs</span><span class="o">/</span><span class="n">fs</span><span class="p">.</span><span class="n">o</span>
+                <span class="mh">0xc029f504</span>                <span class="n">__initcall_bdflush_init</span>
+                <span class="mh">0xc029f508</span>                <span class="n">__initcall_init_pipe_fs</span>
+                <span class="mh">0xc029f50c</span>                <span class="n">__initcall_fasync_init</span>
+                <span class="mh">0xc029f510</span>                <span class="n">__initcall_filelock_init</span>
+                <span class="mh">0xc029f514</span>                <span class="n">__initcall_dnotify_init</span>
+                <span class="mh">0xc029f518</span>                <span class="n">__initcall_init_misc_binfmt</span>
+                <span class="mh">0xc029f51c</span>                <span class="n">__initcall_init_script_binfmt</span>
+                <span class="mh">0xc029f520</span>                <span class="n">__initcall_init_elf_binfmt</span>
+                <span class="mh">0xc029f524</span>                <span class="n">__initcall_init_proc_fs</span>
+                <span class="mh">0xc029f528</span>                <span class="n">__initcall_partition_setup</span>
+                <span class="mh">0xc029f52c</span>                <span class="n">__initcall_init_ext2_fs</span>
+                <span class="mh">0xc029f530</span>                <span class="n">__initcall_init_fat_fs</span>
+                <span class="mh">0xc029f534</span>                <span class="n">__initcall_init_msdos_fs</span>
+                <span class="mh">0xc029f538</span>                <span class="n">__initcall_init_iso9660_fs</span>
+                <span class="mh">0xc029f53c</span>                <span class="n">__initcall_init_reiserfs_fs</span>
+ <span class="p">.</span><span class="n">initcall</span><span class="p">.</span><span class="n">init</span>
+                <span class="mh">0xc029f540</span>        <span class="mh">0x4</span> <span class="n">drivers</span><span class="o">/</span><span class="n">block</span><span class="o">/</span><span class="n">block</span><span class="p">.</span><span class="n">o</span>
+                <span class="mh">0xc029f540</span>                <span class="n">__initcall_loop_init</span>
+ <span class="p">.</span><span class="n">initcall</span><span class="p">.</span><span class="n">init</span>
+                <span class="mh">0xc029f544</span>        <span class="mh">0x4</span> <span class="n">drivers</span><span class="o">/</span><span class="kt">char</span><span class="o">/</span><span class="kt">char</span><span class="p">.</span><span class="n">o</span>
+                <span class="mh">0xc029f544</span>                <span class="n">__initcall_rs_init</span>
+ <span class="p">.</span><span class="n">initcall</span><span class="p">.</span><span class="n">init</span>
+                <span class="mh">0xc029f548</span>        <span class="mh">0x8</span> <span class="n">drivers</span><span class="o">/</span><span class="n">net</span><span class="o">/</span><span class="n">net</span><span class="p">.</span><span class="n">o</span>
+                <span class="mh">0xc029f548</span>                <span class="n">__initcall_dummy_init_module</span>
+                <span class="mh">0xc029f54c</span>                <span class="n">__initcall_rtl8139_init_module</span>
+ <span class="p">.</span><span class="n">initcall</span><span class="p">.</span><span class="n">init</span>
+                <span class="mh">0xc029f550</span>        <span class="mh">0x4</span> <span class="n">drivers</span><span class="o">/</span><span class="n">ide</span><span class="o">/</span><span class="n">idedriver</span><span class="p">.</span><span class="n">o</span>
+                <span class="mh">0xc029f550</span>                <span class="n">__initcall_ide_cdrom_init</span>
+ <span class="p">.</span><span class="n">initcall</span><span class="p">.</span><span class="n">init</span>
+                <span class="mh">0xc029f554</span>        <span class="mh">0x4</span> <span class="n">drivers</span><span class="o">/</span><span class="n">cdrom</span><span class="o">/</span><span class="n">driver</span><span class="p">.</span><span class="n">o</span>
+                <span class="mh">0xc029f554</span>                <span class="n">__initcall_cdrom_init</span>
+ <span class="p">.</span><span class="n">initcall</span><span class="p">.</span><span class="n">init</span>
+                <span class="mh">0xc029f558</span>        <span class="mh">0x4</span> <span class="n">drivers</span><span class="o">/</span><span class="n">pci</span><span class="o">/</span><span class="n">driver</span><span class="p">.</span><span class="n">o</span>
+                <span class="mh">0xc029f558</span>                <span class="n">__initcall_pci_proc_init</span>
+ <span class="p">.</span><span class="n">initcall</span><span class="p">.</span><span class="n">init</span>
+                <span class="mh">0xc029f55c</span>       <span class="mh">0x1c</span> <span class="n">net</span><span class="o">/</span><span class="n">network</span><span class="p">.</span><span class="n">o</span>
+                <span class="mh">0xc029f55c</span>                <span class="n">__initcall_p8022_init</span>
+                <span class="mh">0xc029f560</span>                <span class="n">__initcall_snap_init</span>
+                <span class="mh">0xc029f564</span>                <span class="n">__initcall_inet_init</span>
+                <span class="mh">0xc029f568</span>                <span class="n">__initcall_af_unix_init</span>
+                <span class="mh">0xc029f56c</span>                <span class="n">__initcall_netlink_proto_init</span>
+                <span class="mh">0xc029f570</span>                <span class="n">__initcall_packet_init</span>
+                <span class="mh">0xc029f574</span>                <span class="n">__initcall_atalk_init</span>
+                <span class="mh">0xc029f578</span>                <span class="n">__initcall_end</span><span class="o">=</span><span class="p">.</span>
+                <span class="mh">0xc02a0000</span>                <span class="p">.</span><span class="o">=</span><span class="n">ALIGN</span><span class="p">(</span><span class="mh">0x1000</span><span class="p">)</span>
+                <span class="mh">0xc029f578</span>                <span class="n">__init_end</span><span class="o">=</span><span class="p">.</span>
+                <span class="mh">0xc02a0000</span>                <span class="p">.</span><span class="o">=</span><span class="n">ALIGN</span><span class="p">(</span><span class="mh">0x1000</span><span class="p">)</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>linux.map中的信息可以帮助我们和dmesg的输出信息对照起来，可以看到内核中每个我们感兴趣的静态模块的加载顺序。<br>
+以上工作都是基于linux-2.4内核实现的，新版本内核该如何实现呢？</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2022 Bg2bkk Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

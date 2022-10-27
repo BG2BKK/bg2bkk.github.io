@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='C语言中的宏 在看代码的过程中我看到了 ## 和 # 两个符号，前一个我知道，后一个就不清楚了。在文档中我才知道C语言有这么多的宏，##表示连接符concat，而#EXP表示将代码中的表达式EXP转为字符串，这样写在错误日志中我们就知道是那句代码导致错误的了。
+C语言中的宏以及用法还有很多，上述文档总结的非常好，除了##和#外，还有&amp;hellip;、宏展开时多次求值问题都有讲解，值得一读一试。
+这篇文章也不错，他们都源自于gnu的官方文档
+OmniGraffle  OmniGraffle简书 UX基础 - OmniGraffle新手指南  markdown * [markdown边角料](http://blog.csdn.net/phunxm/article/details/49565427)  kernel  kernel工程导论  内存管理  http://blog.jobbole.com/103993/ http://blog.jobbole.com/88673/  前端开发   如何使textarea的大小随着其内容增加而变化呢？
+  解决方法
+ 1、http://audi.tw/Blog/Javascript/javascript.textarea.autogrow.asp 2、http://www.cnblogs.com/xmmcn/archive/2012/12/18/2822968.html 3、jquery 插件: https://bobscript.com/archives/419/    awk  http://blog.sina.com.cn/s/blog_4a033b090100xo2b.html http://blog.csdn.net/junjieguo/article/details/7525794  postgre  修改表结构，postgre_wiki 插入数据、postgre_wiki 清楚pg_xlog  python  python魔术方法  指南 入门    [http协议] http协议301和302的区别
+ http://www.cnblogs.com/caiyuanzai/archive/2012/04/24/2469013.html http://blog.csdn.net/qmhball/article/details/7838989  linux socket编程样例   http://alas.'>
+<title>effective tips in daily learning</title>
+
+<link rel='canonical' href='https://bg2bkk.github.io/p/effective-tips-in-daily-learning/'>
+
+<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='effective tips in daily learning'>
+<meta property='og:description' content='C语言中的宏 在看代码的过程中我看到了 ## 和 # 两个符号，前一个我知道，后一个就不清楚了。在文档中我才知道C语言有这么多的宏，##表示连接符concat，而#EXP表示将代码中的表达式EXP转为字符串，这样写在错误日志中我们就知道是那句代码导致错误的了。
+C语言中的宏以及用法还有很多，上述文档总结的非常好，除了##和#外，还有&amp;hellip;、宏展开时多次求值问题都有讲解，值得一读一试。
+这篇文章也不错，他们都源自于gnu的官方文档
+OmniGraffle  OmniGraffle简书 UX基础 - OmniGraffle新手指南  markdown * [markdown边角料](http://blog.csdn.net/phunxm/article/details/49565427)  kernel  kernel工程导论  内存管理  http://blog.jobbole.com/103993/ http://blog.jobbole.com/88673/  前端开发   如何使textarea的大小随着其内容增加而变化呢？
+  解决方法
+ 1、http://audi.tw/Blog/Javascript/javascript.textarea.autogrow.asp 2、http://www.cnblogs.com/xmmcn/archive/2012/12/18/2822968.html 3、jquery 插件: https://bobscript.com/archives/419/    awk  http://blog.sina.com.cn/s/blog_4a033b090100xo2b.html http://blog.csdn.net/junjieguo/article/details/7525794  postgre  修改表结构，postgre_wiki 插入数据、postgre_wiki 清楚pg_xlog  python  python魔术方法  指南 入门    [http协议] http协议301和302的区别
+ http://www.cnblogs.com/caiyuanzai/archive/2012/04/24/2469013.html http://blog.csdn.net/qmhball/article/details/7838989  linux socket编程样例   http://alas.'>
+<meta property='og:url' content='https://bg2bkk.github.io/p/effective-tips-in-daily-learning/'>
+<meta property='og:site_name' content='Bg2bkk Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-05-06T11:39:48&#43;08:00'/><meta property='article:modified_time' content='2016-05-06T11:39:48&#43;08:00'/>
+<meta name="twitter:title" content="effective tips in daily learning">
+<meta name="twitter:description" content="C语言中的宏 在看代码的过程中我看到了 ## 和 # 两个符号，前一个我知道，后一个就不清楚了。在文档中我才知道C语言有这么多的宏，##表示连接符concat，而#EXP表示将代码中的表达式EXP转为字符串，这样写在错误日志中我们就知道是那句代码导致错误的了。
+C语言中的宏以及用法还有很多，上述文档总结的非常好，除了##和#外，还有&amp;hellip;、宏展开时多次求值问题都有讲解，值得一读一试。
+这篇文章也不错，他们都源自于gnu的官方文档
+OmniGraffle  OmniGraffle简书 UX基础 - OmniGraffle新手指南  markdown * [markdown边角料](http://blog.csdn.net/phunxm/article/details/49565427)  kernel  kernel工程导论  内存管理  http://blog.jobbole.com/103993/ http://blog.jobbole.com/88673/  前端开发   如何使textarea的大小随着其内容增加而变化呢？
+  解决方法
+ 1、http://audi.tw/Blog/Javascript/javascript.textarea.autogrow.asp 2、http://www.cnblogs.com/xmmcn/archive/2012/12/18/2822968.html 3、jquery 插件: https://bobscript.com/archives/419/    awk  http://blog.sina.com.cn/s/blog_4a033b090100xo2b.html http://blog.csdn.net/junjieguo/article/details/7525794  postgre  修改表结构，postgre_wiki 插入数据、postgre_wiki 清楚pg_xlog  python  python魔术方法  指南 入门    [http协议] http协议301和302的区别
+ http://www.cnblogs.com/caiyuanzai/archive/2012/04/24/2469013.html http://blog.csdn.net/qmhball/article/details/7838989  linux socket编程样例   http://alas.">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu9dfb7228514195dbb950046570d90a5c_100216_300x0_resize_q75_box.jpg" width="300"
+                            height="221" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/effective-tips-in-daily-learning/">effective tips in daily learning</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">May 06, 2016</time>
+            </div>
+        
+
+    
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    3 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="c语言中的宏">C语言中的宏</h2>
+<p>在看代码的过程中我看到了 ## 和 # 两个符号，前一个我知道，后一个就不清楚了。在<a class="link" href="http://blog.csdn.net/dotphoenix/article/details/4345174"  target="_blank" rel="noopener"
+    >文档</a>中我才知道C语言有这么多的宏，##表示连接符concat，而#EXP表示将代码中的表达式EXP转为字符串，这样写在错误日志中我们就知道是那句代码导致错误的了。</p>
+<p>C语言中的宏以及用法还有很多，上述文档总结的非常好，除了##和#外，还有&hellip;、宏展开时多次求值问题都有讲解，值得一读一试。</p>
+<p><a class="link" href="http://hbprotoss.github.io/posts/cyu-yan-hong-de-te-shu-yong-fa-he-ji-ge-keng.html"  target="_blank" rel="noopener"
+    >这篇文章</a>也不错，他们都源自于<a class="link" href="http://gcc.gnu.org/onlinedocs/cpp/Macros.html"  target="_blank" rel="noopener"
+    >gnu的官方文档</a></p>
+<h2 id="omnigraffle">OmniGraffle</h2>
+<ul>
+<li><a class="link" href="http://www.jianshu.com/p/52f3ecbe8f2d"  target="_blank" rel="noopener"
+    >OmniGraffle简书</a></li>
+<li><a class="link" href="http://beforweb.com/node/202"  target="_blank" rel="noopener"
+    >UX基础 - OmniGraffle新手指南</a></li>
+</ul>
+<h2 id="markdown">markdown</h2>
+<pre><code>* [markdown边角料](http://blog.csdn.net/phunxm/article/details/49565427)
+</code></pre>
+<h2 id="kernel">kernel</h2>
+<ul>
+<li><a class="link" href="http://blog.csdn.net/column/details/linux-kernel-no-code.html"  target="_blank" rel="noopener"
+    >kernel工程导论</a></li>
+</ul>
+<h2 id="内存管理">内存管理</h2>
+<ul>
+<li><a class="link" href="http://blog.jobbole.com/103993/"  target="_blank" rel="noopener"
+    >http://blog.jobbole.com/103993/</a></li>
+<li><a class="link" href="http://blog.jobbole.com/88673/"  target="_blank" rel="noopener"
+    >http://blog.jobbole.com/88673/</a></li>
+</ul>
+<h2 id="前端开发">前端开发</h2>
+<ul>
+<li>
+<p>如何使textarea的大小随着其内容增加而变化呢？</p>
+</li>
+<li>
+<p>解决方法</p>
+<ul>
+<li>1、http://audi.tw/Blog/Javascript/javascript.textarea.autogrow.asp</li>
+<li>2、http://www.cnblogs.com/xmmcn/archive/2012/12/18/2822968.html</li>
+<li>3、jquery 插件: <a class="link" href="https://bobscript.com/archives/419/"  target="_blank" rel="noopener"
+    >https://bobscript.com/archives/419/</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="awk">awk</h2>
+<ul>
+<li><a class="link" href="http://blog.sina.com.cn/s/blog_4a033b090100xo2b.html"  target="_blank" rel="noopener"
+    >http://blog.sina.com.cn/s/blog_4a033b090100xo2b.html</a></li>
+<li><a class="link" href="http://blog.csdn.net/junjieguo/article/details/7525794"  target="_blank" rel="noopener"
+    >http://blog.csdn.net/junjieguo/article/details/7525794</a></li>
+</ul>
+<h2 id="postgre">postgre</h2>
+<ul>
+<li><a class="link" href="http://blog.51yip.com/pgsql/1528.html"  target="_blank" rel="noopener"
+    >修改表结构</a>，<a class="link" href="https://wiki.postgresql.org/wiki/ALTER_TABLE"  target="_blank" rel="noopener"
+    >postgre_wiki</a></li>
+<li><a class="link" href="http://www.ruanyifeng.com/blog/2013/12/getting_started_with_postgresql.html"  target="_blank" rel="noopener"
+    >插入数据</a>、<a class="link" href="https://wiki.postgresql.org/wiki/9.1%E7%AC%AC%E5%85%AD%E7%AB%A0"  target="_blank" rel="noopener"
+    >postgre_wiki</a></li>
+<li><a class="link" href="http://my.oschina.net/Kenyon/blog/101432"  target="_blank" rel="noopener"
+    >清楚pg_xlog</a></li>
+</ul>
+<h2 id="python">python</h2>
+<ul>
+<li>python魔术方法
+<ul>
+<li><a class="link" href="http://pycoders-weekly-chinese.readthedocs.io/en/latest/issue6/a-guide-to-pythons-magic-methods.html#id19"  target="_blank" rel="noopener"
+    >指南</a></li>
+<li><a class="link" href="http://blog.csdn.net/wklken/article/details/8126381"  target="_blank" rel="noopener"
+    >入门</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="http协议">[http协议]</h2>
+<p>http协议301和302的区别</p>
+<ul>
+<li><a class="link" href="http://www.cnblogs.com/caiyuanzai/archive/2012/04/24/2469013.html"  target="_blank" rel="noopener"
+    >http://www.cnblogs.com/caiyuanzai/archive/2012/04/24/2469013.html</a></li>
+<li><a class="link" href="http://blog.csdn.net/qmhball/article/details/7838989"  target="_blank" rel="noopener"
+    >http://blog.csdn.net/qmhball/article/details/7838989</a></li>
+</ul>
+<h2 id="linux-socket编程样例">linux socket编程样例</h2>
+<ul>
+<li>
+<p><a class="link" href="http://alas.matf.bg.ac.rs/manuals/lspe/snode=106.html"  target="_blank" rel="noopener"
+    >http://alas.matf.bg.ac.rs/manuals/lspe/snode=106.html</a></p>
+</li>
+<li>
+<p><a class="link" href="http://blog.csdn.net/win_lin/article/details/7760951"  target="_blank" rel="noopener"
+    >进程间传递fd</a></p>
+</li>
+</ul>
+<h2 id="linux-apue编程">linux apue编程</h2>
+<ul>
+<li>epoll是同步非阻塞的</li>
+</ul>
+<p>epoll、select等多路服用IO，将fd加入等待时间的队列中，每隔一段时间去轮询一次，因此是同步的；优点是能够在等待任务的时间里去做别的任务；缺点是任务完成的响应延迟增大，因为每隔一段时间去轮询他们，在时间间隔内任务可能已经完成而等待处理等待了一段时间了。</p>
+<p><a class="link" href="https://ring0.me/2014/11/sync-async-blocked/"  target="_blank" rel="noopener"
+    >参考链接</a></p>
+<p>同步/异步指的是被调用方的通知方式，被调用方完成后，主动通知调用方，还是等待调用方发现。前者是异步，后者是同步。从这里也可以看出，<a class="link" href="https://segmentfault.com/a/1190000003063859"  target="_blank" rel="noopener"
+    >异步IO通知调用方时，数据已经就绪</a>，对于网络IO来说，异步IO已经将数据从内核复制到用户空间了。</p>
+<p>阻塞/非阻塞是调用方的等待方式，是一直等待在做的事件完成，还是去做别的事情，等到在做的事件完成后再接着进行处理。前者是阻塞，后者是非阻塞</p>
+<p>因此epoll是同步和非阻塞的。</p>
+<h2 id="性能分析">性能分析</h2>
+<ul>
+<li><a class="link" href="https://sourceware.org/systemtap/examples/keyword-index.html#FUTEX"  target="_blank" rel="noopener"
+    >有用的systemtap脚本</a></li>
+</ul>
+<h2 id="分布式存储">分布式存储</h2>
+<ul>
+<li><a class="link" href="http://wuchong.me/blog/2014/08/07/distributed-storage-system-knowledge/"  target="_blank" rel="noopener"
+    >知识体系</a>
+<ul>
+<li><a class="link" href="http://taop.marchtea.com/03.02.html"  target="_blank" rel="noopener"
+    >B-Tree</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="分布式id生成">分布式ID生成</h2>
+<ul>
+<li><a class="link" href="http://mp.weixin.qq.com/s?__biz=MjM5ODYxMDA5OQ==&amp;mid=403837240&amp;idx=1&amp;sn=ae9f2bf0cc5b0f68f9a2213485313127&amp;scene=21#wechat_redirect"  target="_blank" rel="noopener"
+    >ID</a>
+<ul>
+<li>方案一： 常规数据库的auto increment服务
+<ul>
+<li>改进：可以将ID划均分给若干数据库，每个数据库自增的起点不一样，可以保证各库生成ID不同
+<ul>
+<li>缺点是非强一致性</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>方案二： 单点批量生成；ID生成服务每次从数据库预定一定容量的ID，然后派发；可以成倍降低数据库压力；
+<ul>
+<li>缺点：单点服务、可能造成空洞；</li>
+<li>改进：找备胎，一旦主ID服务挂掉，备胎立刻备上；通过vip+keepalived实现</li>
+</ul>
+</li>
+<li>方案三：uuid</li>
+<li>方案四：当前毫秒数；缺点是每个毫秒容量有限，也可能重复</li>
+<li>方案五：将64bit数字作为ID，分别包含字段：毫秒数、业务线、机房、机器、以及毫秒内序列号；根据业务来规划容量；毫秒数可以保证ID是趋势自增的</li>
+</ul>
+</li>
+<li><a class="link" href="http://www.cnblogs.com/heyuquan/archive/2013/08/16/global-guid-identity-maxId.html"  target="_blank" rel="noopener"
+    >ID</a></li>
+</ul>
+<h2 id="分布式锁">分布式锁</h2>
+<ul>
+<li><a class="link" href="http://www.cnblogs.com/zhengyun_ustc/archive/2012/11/17/topic2.html"  target="_blank" rel="noopener"
+    >http://www.cnblogs.com/zhengyun_ustc/archive/2012/11/17/topic2.html</a></li>
+<li><a class="link" href="http://www.jeffkit.info/2011/07/1000/"  target="_blank" rel="noopener"
+    >http://www.jeffkit.info/2011/07/1000/</a></li>
+</ul>
+<h2 id="一致性哈希-consistent-hashing">一致性哈希 consistent hashing</h2>
+<ul>
+<li><a class="link" href="http://www.codeproject.com/Articles/56138/Consistent-hashing"  target="_blank" rel="noopener"
+    >http://www.codeproject.com/Articles/56138/Consistent-hashing</a></li>
+<li><a class="link" href="http://blog.huanghao.me/?p=14"  target="_blank" rel="noopener"
+    >http://blog.huanghao.me/?p=14</a></li>
+<li><a class="link" href="http://blog.csdn.net/sparkliang/article/details/5279393"  target="_blank" rel="noopener"
+    >http://blog.csdn.net/sparkliang/article/details/5279393</a></li>
+</ul>
+<h2 id="2pc3pc和paxos算法">2PC、3PC和Paxos算法</h2>
+<ul>
+<li><a class="link" href="http://coolshell.cn/articles/10910.html"  target="_blank" rel="noopener"
+    >coolshell</a></li>
+</ul>
+<h2 id="并发编程">并发编程</h2>
+<ul>
+<li>
+<p><a class="link" href="http://hedengcheng.com/?p=725"  target="_blank" rel="noopener"
+    >volatile</a></p>
+</li>
+<li>
+<p><a class="link" href="http://blogread.cn/it/article/7282?f=wb"  target="_blank" rel="noopener"
+    >并发编程</a></p>
+</li>
+<li>
+<p><a class="link" href="http://www.infoq.com/cn/articles/producers-and-consumers-mode"  target="_blank" rel="noopener"
+    >聊聊并发</a></p>
+</li>
+</ul>
+<h2 id="nginx配置文件">nginx配置文件</h2>
+<ul>
+<li>
+<p>rewrite:</p>
+<ul>
+<li><a class="link" href="http://www.xiehaichao.com/articles/428.html"  target="_blank" rel="noopener"
+    >http://www.xiehaichao.com/articles/428.html</a></li>
+<li><a class="link" href="http://seanlook.com/2015/05/17/nginx-location-rewrite/"  target="_blank" rel="noopener"
+    >http://seanlook.com/2015/05/17/nginx-location-rewrite/</a></li>
+</ul>
+</li>
+<li>
+<p><a class="link" href="http://stackoverflow.com/questions/13621915/nginx-error-pages-one-location-rule-to-fit-them-all"  target="_blank" rel="noopener"
+    >nginx配置使用用户自定义错误页面</a></p>
+</li>
+</ul>
+<h2 id="lua的学习使用和源码精读">Lua的学习、使用和源码精读</h2>
+<h2 id="lua的元表">lua的元表</h2>
+<ul>
+<li>
+<p><a class="link" href="http://lua-users.org/wiki/MetamethodsTutorial"  target="_blank" rel="noopener"
+    >http://lua-users.org/wiki/MetamethodsTutorial</a></p>
+<ul>
+<li>元表用来扩展lua对象的功能，元表的含义在于生来就有，lua对象本身会带有这个表，所以称为元表</li>
+<li>metatable也是普通的lua table，包含一系列元方法metamethods，每个元方法有对应的events触发；比如<a class="link" href="http://lua-users.org/wiki/MetatableEvents"  target="_blank" rel="noopener"
+    >算术运算符、__index 等操作</a></li>
+<li>__index</li>
+</ul>
+</li>
+<li>
+<p><a class="link" href="http://lua-users.org/wiki/MetatableEvents"  target="_blank" rel="noopener"
+    >http://lua-users.org/wiki/MetatableEvents</a></p>
+<!-- raw HTML omitted -->
+<ul>
+<li>
+<p>控制类型继承；当访问myTable[key]，而table中没有key域时，如果元表有__index项：</p>
+<ul>
+<li>如果__index是函数，则调用该函数</li>
+<li>如果__index是table，返回这个table中key域的值；如果__index是table并且该table没有key域，但是该table有__index，则继续查找(calls fallback function or fallback table)</li>
+<li>使用rawget(myTable, key)可以跳过metatable</li>
+</ul>
+</li>
+<li>
+<p>__index是一个应用广泛并用处很大的元方法metamethod</p>
+<ul>
+<li>如果想获取table中的元素key，而key在table中没有找到，该方法可以定义为函数或者一个table，来寻找key。
+<ul>
+<li>如果__index是函数，该函数的第一个参数是没有找到key的这个table，第二个参数是key；</li>
+<li>如果__index是table，那么将在该table中寻找key，如果没有找到，可以继续从这个table的__index寻找，因此你可以通过__index进行一整个链条的查找。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>__metatable</p>
+<ul>
+<li>用于隐藏metatable，当调用getmetatable(myTable)时，如果该域不为空，则返回这个域的值，而不是metatable</li>
+</ul>
+</li>
+<li>
+<p><a class="link" href="http://lua-users.org/wiki/LuaClassesWithMetatable"  target="_blank" rel="noopener"
+    >sample code</a></p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="lua面向对象">Lua面向对象</h2>
+<ul>
+<li><a class="link" href="http://dabing1022.github.io/2014/03/18/multiple-inheritance-understand-lua/"  target="_blank" rel="noopener"
+    >http://dabing1022.github.io/2014/03/18/multiple-inheritance-understand-lua/</a></li>
+</ul>
+<h2 id="lua源码精读">Lua源码精读</h2>
+<ul>
+<li>Lua的全局和状态，以及初始化
+<ul>
+<li><a class="link" href="http://blog.csdn.net/maximuszhou/article/details/46277695"  target="_blank" rel="noopener"
+    >Lua的全局和状态</a>
+<ul>
+<li>在调用lua_newstate 初始化Lua虚拟机时，会创建一个全局状态和一个线程（或称为调用栈），这个全局状态在整个虚拟机中是唯一的，供其他线程共享。一个Lua虚拟机中可以包括多个线程，这些线程共享一个全局状态，线程之间也可以调用lua_xmove函数来交换数据。</li>
+</ul>
+</li>
+<li><a class="link" href="http://www.cnblogs.com/ringofthec/archive/2010/11/09/lua_State.html"  target="_blank" rel="noopener"
+    >LuaVM 初始化</a></li>
+<li><a class="link" href="https://yq.aliyun.com/articles/1756?spm=5176.100240.searchblog.8.YbMjAK"  target="_blank" rel="noopener"
+    >lua_State</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="lua与c的交互">Lua与C的交互</h2>
+<pre><code>* [深入理解Lua与C用于数据交互的栈](http://blog.csdn.net/maximuszhou/article/details/21331819)
+* 为啥要通过 栈 来通信呢？
+	* Lua是动态类型语言，在Lua语言中没有类型定义的语法，每个值都携带了它自身的类型信息，而C语言是静态类型语言
+	* Lua使用垃圾收集，可以自动管理内存，而C语言要求程序自己释放分配的内存，需应用程序自身管理内存
+* 压栈的影响
+	* C将值压入栈中后，Lua将会生成相应类型的结构，存储和管理这个值
+	* Lua不会持有指向VM外部的指针，指向的都是自己的结构和栈上的结构
+	* 比如压入字符串，Lua生成Lua_TTSTRING类型的对象，C可以随意释放这个字符串
+</code></pre>
+<ul>
+<li><a class="link" href="http://if-yu.info/lua-notes.html"  target="_blank" rel="noopener"
+    >http://if-yu.info/lua-notes.html</a></li>
+</ul>
+<h2 id="list和nil">list和nil</h2>
+<pre><code>* https://techsingular.org/2012/12/22/programming-in-lua%EF%BC%88%E5%9B%9B%EF%BC%89%EF%BC%8D-nil-%E5%92%8C-list/
+* nil不但不是无的意思，反而在list中起到占位和有的意思。
+</code></pre>
+<h2 id="lua的first-classhttpstechsingularorg20121222programming-in-luaefbc88e59b9befbc89efbc8d-nil-e5928c-list"><a class="link" href="https://techsingular.org/2012/12/22/programming-in-lua%EF%BC%88%E5%9B%9B%EF%BC%89%EF%BC%8D-nil-%E5%92%8C-list/"  target="_blank" rel="noopener"
+    >lua的first class</a></h2>
+<ul>
+<li>可以被赋值给变量；</li>
+<li>可以作为参数；</li>
+<li>可以作为返回值；</li>
+<li>可以作为数据结构的构成部分。( 注意 nil 并不完全符合这个要求，但是可以通过某个 field 的缺失来表示 nil。)</li>
+</ul>
+<h2 id="lua的gc">Lua的GC</h2>
+<pre><code>* lua的[gc](https://techsingular.org/2013/10/27/lua-%E7%9A%84%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6/)
+</code></pre>
+<h2 id="lua的table">lua的table</h2>
+<pre><code>* https://facepunch.com/showthread.php?t=1306348
+</code></pre>
+<blockquote>
+<p>I don&rsquo;t believe this is correct. It was my understanding that Lua tables are implemented as a two-part data structure whereby dense non-negative integer keys are stored as a simple array and are therefore indexed by a simple pointer addition and dereference, which is O(1). All other keys (non-integer, negative and sparse integer) are stored in a hashmap as a chained scatter table which stores key-values pairs as a flat array indexed by the hash of the key. Collisions are resolved by storing pointers to the next element with the same hash alongside this (essentially a linked list of colliding elements). At worst case, where all elements collide, the complexity of this implementation is O(n), however it is expected that on average the number of collisions per element is 1 and the maximum is 2; this means that the average complexity is O(1).</p>
+</blockquote>
+<blockquote>
+<p>The implementation of Lua tables is such that, even with a huge number of elements, lookup is as quick as possible.</p>
+</blockquote>
+<h2 id="lua函数使用">lua函数使用</h2>
+<ul>
+<li>
+<p>setmetatable</p>
+<ul>
+<li><a class="link" href="https://www.lua.org/manual/5.2/manual.html"  target="_blank" rel="noopener"
+    >https://www.lua.org/manual/5.2/manual.html</a></li>
+<li>setmetatable(table, metatable)
+<ul>
+<li>将metatable设置为table的元表，（在Lua中只能设置table的元表，其他类型的对象不行，除非使用C）。如果metatable为nil，则参数cable的元表被清除；如果该table的__metatable不为空，则抛出异常</li>
+</ul>
+</li>
+<li>该函数返回table</li>
+</ul>
+</li>
+<li>
+<p>collectgarbage(&ldquo;count&rdquo;)</p>
+<ul>
+<li>垃圾回收函数</li>
+</ul>
+</li>
+<li>
+<p><a class="link" href="http://www.lua.org/manual/5.2/manual.html#2.6"  target="_blank" rel="noopener"
+    >lua yield 和 resume</a></p>
+<ul>
+<li><a class="link" href="http://www.lua.org/manual/5.2/manual.html#pdf-coroutine.resume"  target="_blank" rel="noopener"
+    >http://www.lua.org/manual/5.2/manual.html#pdf-coroutine.resume</a></li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua"><span class="c1">-- http://my.oschina.net/wangxuanyihaha/blog/186401</span>
+
+<span class="kr">function</span> <span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+    <span class="n">print</span><span class="p">(</span><span class="s2">&#34;foo&#34;</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+    <span class="kr">return</span> <span class="n">coroutine.yield</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">a</span><span class="p">)</span>
+<span class="kr">end</span>
+
+<span class="n">co</span> <span class="o">=</span> <span class="n">coroutine.create</span><span class="p">(</span><span class="kr">function</span> <span class="p">(</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="p">)</span>
+    <span class="n">print</span><span class="p">(</span><span class="s2">&#34;co-body&#34;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+    <span class="kd">local</span> <span class="n">r</span> <span class="o">=</span> <span class="n">foo</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">print</span><span class="p">(</span><span class="s2">&#34;co-body&#34;</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+    <span class="kd">local</span> <span class="n">r</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">coroutine.yield</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span>
+    <span class="n">print</span><span class="p">(</span><span class="s2">&#34;co-body&#34;</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+    <span class="kr">return</span> <span class="n">b</span><span class="p">,</span> <span class="s2">&#34;end&#34;</span>
+<span class="kr">end</span><span class="p">)</span>
+
+<span class="n">print</span><span class="p">(</span><span class="s2">&#34;main&#34;</span><span class="p">,</span> <span class="n">coroutine.resume</span><span class="p">(</span><span class="n">co</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+<span class="n">print</span><span class="p">(</span><span class="s2">&#34;main&#34;</span><span class="p">,</span> <span class="n">coroutine.resume</span><span class="p">(</span><span class="n">co</span><span class="p">,</span> <span class="s2">&#34;m&#34;</span><span class="p">))</span>	<span class="c1">-- resume的参数 &#39;m&#39; 是在调用yield传入的，所以本次是在第5行 return m</span>
+<span class="n">print</span><span class="p">(</span><span class="s2">&#34;main&#34;</span><span class="p">,</span> <span class="n">coroutine.resume</span><span class="p">(</span><span class="n">co</span><span class="p">,</span> <span class="s2">&#34;x&#34;</span><span class="p">,</span> <span class="s2">&#34;y&#34;</span><span class="p">))</span>
+<span class="n">print</span><span class="p">(</span><span class="s2">&#34;main&#34;</span><span class="p">,</span> <span class="n">coroutine.resume</span><span class="p">(</span><span class="n">co</span><span class="p">,</span> <span class="s2">&#34;x&#34;</span><span class="p">,</span> <span class="s2">&#34;y&#34;</span><span class="p">))</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">co-body	1	<span class="m">10</span>
+foo	<span class="m">2</span>
+main	<span class="nb">true</span>	<span class="m">4</span>
+co-body	m
+main	<span class="nb">true</span>	11	-9
+co-body	x	y
+main	<span class="nb">true</span>	10	end
+main	<span class="nb">false</span>	cannot resume dead coroutine
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="lua编码的陷阱">lua编码的陷阱</h2>
+<pre><code>* [字符串拼接导致垃圾产生](http://tech.uc.cn/?p=1131)
+</code></pre>
+<h2 id="golang">golang</h2>
+<h3 id="golang的并发协程和channel">golang的并发、协程和channel</h3>
+<ul>
+<li><a class="link" href="http://ibillxia.github.io/blog/2014/03/16/go-concurrent-programming-first-try/"  target="_blank" rel="noopener"
+    >golang并发编程初探</a></li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua">	<span class="kr">for</span> <span class="n">i</span> <span class="p">:</span><span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
+		<span class="n">go</span> <span class="n">func</span><span class="p">()</span> <span class="p">{</span>
+			<span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">i</span>
+			<span class="n">chs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+		<span class="p">}()</span>
+	<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>类似于如上形式的for循环中启动go协程，在for循环结束时协程才会开执行，所以每个协程用到的i都是最大值10</p>
+<p>可以将i加入到协程的参数中，如下：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua">	<span class="kr">for</span> <span class="n">i</span> <span class="p">:</span><span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
+		
+		<span class="n">chs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">make</span><span class="p">(</span><span class="n">chan</span> <span class="n">int</span><span class="p">)</span>
+		<span class="n">go</span> <span class="n">func</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+			<span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">i</span>
+			<span class="n">chs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+		<span class="p">}(</span><span class="n">i</span><span class="p">)</span>
+	<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>可以用局部变量保存i值</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua">	<span class="kr">for</span> <span class="n">i</span> <span class="p">:</span><span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
+		<span class="n">i</span> <span class="p">:</span><span class="o">=</span> <span class="n">i</span>
+		<span class="n">chs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">make</span><span class="p">(</span><span class="n">chan</span> <span class="n">int</span><span class="p">)</span>
+		<span class="n">go</span> <span class="n">func</span><span class="p">()</span> <span class="p">{</span>
+			<span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">i</span>
+			<span class="n">chs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+		<span class="p">}()</span>
+	<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p><a class="link" href="http://my.oschina.net/goal/blog/196891"  target="_blank" rel="noopener"
+    >golang的底层数据结构</a></p>
+</li>
+<li>
+<p><a class="link" href="https://www.chenwang.net/2015/12/12/%E5%AE%8C%E6%95%B4%E7%9A%84golang-%E5%A4%9A%E5%8D%8F%E7%A8%8B%E4%BF%A1%E9%81%93-%E4%BB%BB%E5%8A%A1%E5%A4%84%E7%90%86%E7%A4%BA%E4%BE%8B/"  target="_blank" rel="noopener"
+    >golang多协程channel同步</a></p>
+<ul>
+<li>sync.WaitGroup</li>
+<li>defer</li>
+<li>recover</li>
+</ul>
+</li>
+<li>
+<p><a class="link" href="http://blog.csdn.net/gophers/article/details/40505683"  target="_blank" rel="noopener"
+    >golang闭包与协程使用</a></p>
+</li>
+</ul>
+<h3 id="golang设计模式">golang设计模式</h3>
+<pre><code>* [单例模式](http://marcio.io/2015/07/singleton-pattern-in-go/)
+* [golang map reduce](https://gist.github.com/mcastilho)
+</code></pre>
+<h3 id="golang接口">golang接口</h3>
+<pre><code>* https://github.com/astaxie/build-web-application-with-golang/blob/master/zh/02.6.md
+* http://xiaorui.cc/2016/03/11/%E5%85%B3%E4%BA%8Egolang-struct-interface%E7%9A%84%E7%90%86%E8%A7%A3%E4%BD%BF%E7%94%A8/
+* http://blog.csdn.net/zhangzhebjut/article/details/24974315
+</code></pre>
+<ul>
+<li>
+<p>UML图</p>
+<ul>
+<li>实现关系、泛化关系、关联关系、聚合关系 <a class="link" href="http://design-patterns.readthedocs.io/zh_CN/latest/read_uml.html"  target="_blank" rel="noopener"
+    >http://design-patterns.readthedocs.io/zh_CN/latest/read_uml.html</a></li>
+</ul>
+</li>
+<li>
+<p>设计模式</p>
+<ul>
+<li><a class="link" href="http://tengj.top/2016/04/04/sjms3abstractfactory/"  target="_blank" rel="noopener"
+    >http://tengj.top/2016/04/04/sjms3abstractfactory/</a></li>
+</ul>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2022 Bg2bkk Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='String to Integer (atoi)   https://leetcode.com/problems/string-to-integer-atoi/ 何海涛代码    1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108  // StringToInt.'>
+<title>leetcode解题过程中的思考</title>
+
+<link rel='canonical' href='https://bg2bkk.github.io/p/leetcode%E8%A7%A3%E9%A2%98%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E6%80%9D%E8%80%83/'>
+
+<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='leetcode解题过程中的思考'>
+<meta property='og:description' content='String to Integer (atoi)   https://leetcode.com/problems/string-to-integer-atoi/ 何海涛代码    1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108  // StringToInt.'>
+<meta property='og:url' content='https://bg2bkk.github.io/p/leetcode%E8%A7%A3%E9%A2%98%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E6%80%9D%E8%80%83/'>
+<meta property='og:site_name' content='Bg2bkk Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-05-11T11:36:47&#43;08:00'/><meta property='article:modified_time' content='2016-05-11T11:36:47&#43;08:00'/>
+<meta name="twitter:title" content="leetcode解题过程中的思考">
+<meta name="twitter:description" content="String to Integer (atoi)   https://leetcode.com/problems/string-to-integer-atoi/ 何海涛代码    1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108  // StringToInt.">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu9dfb7228514195dbb950046570d90a5c_100216_300x0_resize_q75_box.jpg" width="300"
+                            height="221" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/leetcode%E8%A7%A3%E9%A2%98%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E6%80%9D%E8%80%83/">leetcode解题过程中的思考</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">May 11, 2016</time>
+            </div>
+        
+
+    
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    4 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <ul>
+<li>
+<ol start="8">
+<li>String to Integer (atoi)</li>
+</ol>
+<ul>
+<li><a class="link" href="https://leetcode.com/problems/string-to-integer-atoi/"  target="_blank" rel="noopener"
+    >https://leetcode.com/problems/string-to-integer-atoi/</a></li>
+<li>何海涛代码</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="c1">// StringToInt.cpp : Defines the entry point for the console application.
+</span><span class="c1">//
+</span><span class="c1">// 《剑指Offer——名企面试官精讲典型编程题》代码
+</span><span class="c1">// 著作权所有者：何海涛
+</span><span class="c1"></span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span><span class="cp"></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="kt">long</span> <span class="kt">long</span> <span class="nf">StrToIntCore</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">str</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">minus</span><span class="p">);</span>
+<span class="k">enum</span> <span class="nc">Status</span> <span class="p">{</span><span class="n">kValid</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">kInvalid</span><span class="p">};</span>
+<span class="kt">int</span> <span class="n">g_nStatus</span> <span class="o">=</span> <span class="n">kValid</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">status</span> <span class="o">=</span> <span class="n">kValid</span><span class="p">;</span>
+<span class="kt">int</span> <span class="nf">StrToInt</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">str</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">g_nStatus</span> <span class="o">=</span> <span class="n">kInvalid</span><span class="p">;</span>
+    <span class="kt">long</span> <span class="kt">long</span> <span class="n">num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">str</span> <span class="o">!=</span> <span class="nb">NULL</span> <span class="o">&amp;&amp;</span> <span class="o">*</span><span class="n">str</span> <span class="o">!=</span> <span class="sc">&#39;\0&#39;</span><span class="p">)</span> 
+    <span class="p">{</span>
+        <span class="kt">bool</span> <span class="n">minus</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+        <span class="k">if</span><span class="p">(</span><span class="o">*</span><span class="n">str</span> <span class="o">==</span> <span class="sc">&#39;+&#39;</span><span class="p">)</span>
+            <span class="n">str</span> <span class="o">++</span><span class="p">;</span>
+        <span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="o">*</span><span class="n">str</span> <span class="o">==</span> <span class="sc">&#39;-&#39;</span><span class="p">)</span> 
+        <span class="p">{</span>
+            <span class="n">str</span> <span class="o">++</span><span class="p">;</span>
+            <span class="n">minus</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">if</span><span class="p">(</span><span class="o">*</span><span class="n">str</span> <span class="o">!=</span> <span class="sc">&#39;\0&#39;</span><span class="p">)</span> 
+        <span class="p">{</span>
+            <span class="n">num</span> <span class="o">=</span> <span class="n">StrToIntCore</span><span class="p">(</span><span class="n">str</span><span class="p">,</span> <span class="n">minus</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">num</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// 要求atoi，integer为32位整数，范围是  -2147483648(0x80000000) ~ 2147483647(0x7fffffff)
+</span><span class="c1">// 由于要判断是否溢出，所以采用long long类型来实现加减，范围是 -9223372036854775808 ~ 9223372036854775807
+</span><span class="c1">// 最后返回值时，采用(int)num来将long long强制转换为int，由于num范围就是int类型这么大，所以不会出错
+</span><span class="c1"></span>
+<span class="c1">// 判断是否溢出时 num &gt; 0x7fffffff 可以直接判断，毕竟num可以很大
+</span><span class="c1"></span>
+<span class="c1">// 判断输入str的有效性
+</span><span class="c1"></span>
+<span class="kt">long</span> <span class="kt">long</span> <span class="nf">StrToIntCore</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">digit</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">minus</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">long</span> <span class="kt">long</span> <span class="n">num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">while</span><span class="p">(</span><span class="o">*</span><span class="n">digit</span> <span class="o">!=</span> <span class="sc">&#39;\0&#39;</span><span class="p">)</span> 
+    <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="o">*</span><span class="n">digit</span> <span class="o">&gt;=</span> <span class="sc">&#39;0&#39;</span> <span class="o">&amp;&amp;</span> <span class="o">*</span><span class="n">digit</span> <span class="o">&lt;=</span> <span class="sc">&#39;9&#39;</span><span class="p">)</span> 
+        <span class="p">{</span>
+            <span class="kt">int</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">minus</span> <span class="o">?</span> <span class="o">-</span><span class="mi">1</span> <span class="o">:</span> <span class="mi">1</span><span class="p">;</span>
+            <span class="n">num</span> <span class="o">=</span> <span class="n">num</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">+</span> <span class="n">flag</span> <span class="o">*</span> <span class="p">(</span><span class="o">*</span><span class="n">digit</span> <span class="o">-</span> <span class="sc">&#39;0&#39;</span><span class="p">);</span>
+            <span class="k">if</span><span class="p">((</span><span class="o">!</span><span class="n">minus</span> <span class="o">&amp;&amp;</span> <span class="n">num</span> <span class="o">&gt;</span> <span class="mh">0x7FFFFFFF</span><span class="p">)</span> 
+                <span class="o">||</span> <span class="p">(</span><span class="n">minus</span> <span class="o">&amp;&amp;</span> <span class="n">num</span> <span class="o">&lt;</span> <span class="p">(</span><span class="kt">signed</span> <span class="kt">int</span><span class="p">)</span><span class="mh">0x80000000</span><span class="p">))</span>
+            <span class="p">{</span>
+                <span class="n">num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+                <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="n">digit</span><span class="o">++</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">else</span> 
+        <span class="p">{</span>
+            <span class="n">num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">if</span><span class="p">(</span><span class="o">*</span><span class="n">digit</span> <span class="o">==</span> <span class="sc">&#39;\0&#39;</span><span class="p">)</span> 
+    <span class="p">{</span>
+        <span class="n">g_nStatus</span> <span class="o">=</span> <span class="n">kValid</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">num</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// ====================测试代码====================
+</span><span class="c1"></span>
+<span class="kt">void</span> <span class="nf">Test</span><span class="p">(</span><span class="kt">char</span><span class="o">*</span> <span class="n">string</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="n">StrToInt</span><span class="p">(</span><span class="n">string</span><span class="p">);</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">g_nStatus</span> <span class="o">==</span> <span class="n">kInvalid</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&#34;the input %s is invalid.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">string</span><span class="p">);</span>
+    <span class="k">else</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&#34;number for %s is: %d.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">string</span><span class="p">,</span> <span class="n">result</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span> <span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+<span class="c1">//    Test(NULL);
+</span><span class="c1"></span>    <span class="n">Test</span><span class="p">(</span><span class="s">&#34;&#34;</span><span class="p">);</span>
+    <span class="n">Test</span><span class="p">(</span><span class="s">&#34;123&#34;</span><span class="p">);</span>
+    <span class="n">Test</span><span class="p">(</span><span class="s">&#34;+123&#34;</span><span class="p">);</span>
+    
+    <span class="n">Test</span><span class="p">(</span><span class="s">&#34;-123&#34;</span><span class="p">);</span>
+    <span class="n">Test</span><span class="p">(</span><span class="s">&#34;1a33&#34;</span><span class="p">);</span>
+    <span class="n">Test</span><span class="p">(</span><span class="s">&#34;+0&#34;</span><span class="p">);</span>
+    <span class="n">Test</span><span class="p">(</span><span class="s">&#34;-0&#34;</span><span class="p">);</span>
+    <span class="c1">//有效的最大正整数, 0x7FFFFFFF
+</span><span class="c1"></span>    <span class="n">Test</span><span class="p">(</span><span class="s">&#34;+2147483647&#34;</span><span class="p">);</span>    
+    <span class="n">Test</span><span class="p">(</span><span class="s">&#34;-2147483647&#34;</span><span class="p">);</span>
+    <span class="n">Test</span><span class="p">(</span><span class="s">&#34;+2147483648&#34;</span><span class="p">);</span>
+    <span class="c1">//有效的最小负整数, 0x80000000
+</span><span class="c1"></span>    <span class="n">Test</span><span class="p">(</span><span class="s">&#34;-2147483648&#34;</span><span class="p">);</span>    
+    <span class="n">Test</span><span class="p">(</span><span class="s">&#34;+2147483649&#34;</span><span class="p">);</span>
+    <span class="n">Test</span><span class="p">(</span><span class="s">&#34;-2147483649&#34;</span><span class="p">);</span>
+    <span class="n">Test</span><span class="p">(</span><span class="s">&#34;+&#34;</span><span class="p">);</span>
+    <span class="n">Test</span><span class="p">(</span><span class="s">&#34;-&#34;</span><span class="p">);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><pre><code>* 我的狗尾续貂之作
+</code></pre>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="kt">long</span> <span class="kt">long</span> <span class="nf">str2int</span><span class="p">(</span><span class="n">string</span> <span class="n">str</span><span class="p">){</span>
+	
+	<span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="n">str</span><span class="p">.</span><span class="n">c_str</span><span class="p">();</span>
+	<span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">s</span> <span class="o">||</span> <span class="o">*</span><span class="n">s</span> <span class="o">==</span> <span class="sc">&#39;\0&#39;</span><span class="p">){</span>
+		<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="p">}</span>
+
+	<span class="kt">bool</span> <span class="n">minus</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+	<span class="kt">long</span> <span class="kt">long</span> <span class="n">num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">if</span><span class="p">(</span><span class="o">*</span><span class="n">s</span> <span class="o">==</span> <span class="sc">&#39;+&#39;</span><span class="p">){</span>
+		<span class="n">minus</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+		<span class="n">s</span><span class="o">++</span><span class="p">;</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span> <span class="o">*</span><span class="n">s</span> <span class="o">==</span> <span class="sc">&#39;-&#39;</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">minus</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+		<span class="n">s</span><span class="o">++</span><span class="p">;</span>
+	<span class="p">}</span>
+
+	<span class="k">while</span><span class="p">(</span><span class="o">*</span><span class="n">s</span> <span class="o">==</span> <span class="sc">&#39;0&#39;</span><span class="p">)</span>
+		<span class="n">s</span><span class="o">++</span><span class="p">;</span>
+	<span class="k">while</span><span class="p">(</span><span class="o">*</span><span class="n">s</span> <span class="o">!=</span> <span class="sc">&#39;\0&#39;</span><span class="p">){</span>
+		<span class="k">if</span><span class="p">(</span> <span class="o">*</span><span class="n">s</span> <span class="o">&gt;=</span> <span class="sc">&#39;0&#39;</span> <span class="o">&amp;&amp;</span> <span class="o">*</span><span class="n">s</span> <span class="o">&lt;=</span> <span class="sc">&#39;9&#39;</span><span class="p">){</span>
+			<span class="kt">int</span> <span class="n">digit</span> <span class="o">=</span> <span class="o">*</span><span class="n">s</span> <span class="o">-</span> <span class="sc">&#39;0&#39;</span><span class="p">;</span>
+			<span class="kt">int</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">minus</span> <span class="o">?</span> <span class="o">-</span><span class="mi">1</span> <span class="o">:</span> <span class="mi">1</span><span class="p">;</span>
+			<span class="n">num</span> <span class="o">=</span> <span class="n">num</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">+</span> <span class="n">flag</span> <span class="o">*</span> <span class="n">digit</span><span class="p">;</span>
+
+			<span class="k">if</span><span class="p">(</span> <span class="p">(</span><span class="o">!</span><span class="n">minus</span> <span class="o">&amp;&amp;</span><span class="n">num</span> <span class="o">&gt;</span> <span class="mh">0x7fffffff</span><span class="p">)</span> 
+					<span class="o">||</span> <span class="p">(</span><span class="n">minus</span> <span class="o">&amp;&amp;</span> <span class="n">num</span> <span class="o">&lt;</span> <span class="p">(</span><span class="kt">signed</span> <span class="kt">int</span><span class="p">)</span><span class="mh">0x80000000</span><span class="p">)){</span>
+				<span class="n">num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+				<span class="n">status</span> <span class="o">=</span> <span class="n">kInvalid</span><span class="p">;</span>
+				<span class="k">break</span><span class="p">;</span>
+			<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+				<span class="n">s</span><span class="o">++</span><span class="p">;</span>
+			<span class="p">}</span>
+		<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+			<span class="n">status</span> <span class="o">=</span> <span class="n">kInvalid</span><span class="p">;</span>
+			<span class="n">num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+			<span class="k">break</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="k">if</span><span class="p">(</span><span class="o">*</span><span class="n">s</span> <span class="o">==</span> <span class="sc">&#39;\0&#39;</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">status</span> <span class="o">=</span> <span class="n">kValid</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">num</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="kt">void</span> <span class="nf">Test</span><span class="p">(</span><span class="n">string</span> <span class="n">str</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">long</span> <span class="kt">long</span> <span class="n">result</span> <span class="o">=</span> <span class="n">str2int</span><span class="p">(</span><span class="n">str</span><span class="p">);</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">result</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">status</span> <span class="o">==</span> <span class="n">kInvalid</span><span class="p">)</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&#34;the input %s is invalid.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">str</span><span class="p">.</span><span class="n">c_str</span><span class="p">());</span>
+    <span class="k">else</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">&#34;number for %s is: %d.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">str</span><span class="p">.</span><span class="n">c_str</span><span class="p">(),</span> <span class="n">result</span><span class="p">);</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><pre><code>* leetcode accept 代码
+</code></pre>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp">
+<span class="k">class</span> <span class="nc">Solution</span> <span class="p">{</span>
+	<span class="k">public</span><span class="o">:</span>
+		<span class="kt">int</span> <span class="n">myAtoi</span><span class="p">(</span><span class="n">string</span> <span class="n">str</span><span class="p">)</span> <span class="p">{</span>
+			<span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">s</span> <span class="o">=</span> <span class="n">str</span><span class="p">.</span><span class="n">c_str</span><span class="p">();</span>
+			<span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">s</span> <span class="o">||</span> <span class="o">*</span><span class="n">s</span> <span class="o">==</span> <span class="sc">&#39;\0&#39;</span><span class="p">){</span>
+				<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+			<span class="p">}</span>
+			<span class="k">while</span><span class="p">(</span><span class="o">*</span><span class="n">s</span> <span class="o">==</span> <span class="sc">&#39; &#39;</span><span class="p">)</span> <span class="n">s</span><span class="o">++</span><span class="p">;</span>
+			<span class="kt">bool</span> <span class="n">minus</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+			<span class="kt">long</span> <span class="kt">long</span> <span class="n">num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+			<span class="k">if</span><span class="p">(</span><span class="o">*</span><span class="n">s</span> <span class="o">==</span> <span class="sc">&#39;+&#39;</span><span class="p">){</span>
+				<span class="n">minus</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span>
+				<span class="n">s</span><span class="o">++</span><span class="p">;</span>
+			<span class="p">}</span> <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span> <span class="o">*</span><span class="n">s</span> <span class="o">==</span> <span class="sc">&#39;-&#39;</span><span class="p">)</span> <span class="p">{</span>
+				<span class="n">minus</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+				<span class="n">s</span><span class="o">++</span><span class="p">;</span>
+			<span class="p">}</span>
+			<span class="k">while</span><span class="p">(</span><span class="o">*</span><span class="n">s</span> <span class="o">!=</span> <span class="sc">&#39;\0&#39;</span><span class="p">){</span>
+				<span class="k">if</span><span class="p">(</span> <span class="o">*</span><span class="n">s</span> <span class="o">&gt;=</span> <span class="sc">&#39;0&#39;</span> <span class="o">&amp;&amp;</span> <span class="o">*</span><span class="n">s</span> <span class="o">&lt;=</span> <span class="sc">&#39;9&#39;</span><span class="p">){</span>
+					<span class="k">if</span><span class="p">(</span><span class="o">*</span><span class="n">s</span> <span class="o">==</span> <span class="sc">&#39;0&#39;</span> <span class="o">&amp;&amp;</span> <span class="n">num</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span> <span class="n">s</span><span class="o">++</span><span class="p">;</span> <span class="k">continue</span><span class="p">;}</span>
+					<span class="kt">int</span> <span class="n">digit</span> <span class="o">=</span> <span class="o">*</span><span class="n">s</span> <span class="o">-</span> <span class="sc">&#39;0&#39;</span><span class="p">;</span>
+					<span class="kt">int</span> <span class="n">flag</span> <span class="o">=</span> <span class="n">minus</span> <span class="o">?</span> <span class="o">-</span><span class="mi">1</span> <span class="o">:</span> <span class="mi">1</span><span class="p">;</span>
+					<span class="n">num</span> <span class="o">=</span> <span class="n">num</span> <span class="o">*</span> <span class="mi">10</span> <span class="o">+</span> <span class="n">flag</span> <span class="o">*</span> <span class="n">digit</span><span class="p">;</span>
+					<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">minus</span> <span class="o">&amp;&amp;</span><span class="n">num</span> <span class="o">&gt;</span> <span class="mh">0x7fffffff</span><span class="p">)</span> <span class="p">{</span>
+						<span class="k">return</span> <span class="n">INT_MAX</span><span class="p">;</span>
+					<span class="p">}</span> <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">minus</span> <span class="o">&amp;&amp;</span> <span class="n">num</span> <span class="o">&lt;</span> <span class="p">(</span><span class="kt">signed</span> <span class="kt">int</span><span class="p">)</span><span class="mh">0x80000000</span><span class="p">){</span>
+						<span class="k">return</span> <span class="n">INT_MIN</span><span class="p">;</span>
+					<span class="p">}</span>
+					<span class="n">s</span><span class="o">++</span><span class="p">;</span>
+				<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+					<span class="k">break</span><span class="p">;</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+			<span class="k">return</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">num</span><span class="p">;</span>
+		<span class="p">}</span>
+<span class="p">};</span>
+
+</code></pre></td></tr></table>
+</div>
+</div>
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2022 Bg2bkk Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
