@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='实时视频流解决方案 mjpg-streamer site: https://github.com/codewithpassion/mjpg-streamer/tree/master/mjpg-streamer link: http://www.cnblogs.com/hnrainll/archive/2011/06/08/2074909.html link: http://blog.163.com/chenhongswing@126/blog/static/1335924432011825104144612/  1 2 3 4 5 6 7 8 9  #提供一个可以直接使用的demo git clone https://github.com/codewithpassion/mjpg-streamer/tree/master/mjpg-streamer cd mjpg-streamer ./mjpg_streamer -i &amp;#34;input_uvc.so -d /dev/video0 -r 640x480 -y&amp;#34; -o &amp;#34;output_http.so -w ./www&amp;#34; 127.0.0.1:8080访问主页，可以获得stream、static以及通过vlc和mplayer播放   ffmpeg&#43;websocket播放 site: https://github.com/phoboslab/jsmpeg link: http://segmentfault.com/a/1190000000392586  1 2 3 4 5 6 7 8 9 10 11 12 13  #提供可以直接运行的demo git clone https://github.com/phoboslab/jsmpeg nodejs stream-server.js huang	监听随机端口 Listening for MPEG Stream on http://127.'>
+<title>livestream的几种初步解决方案</title>
+
+<link rel='canonical' href='https://bg2bkk.github.io/p/livestream%E7%9A%84%E5%87%A0%E7%A7%8D%E5%88%9D%E6%AD%A5%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/'>
+
+<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='livestream的几种初步解决方案'>
+<meta property='og:description' content='实时视频流解决方案 mjpg-streamer site: https://github.com/codewithpassion/mjpg-streamer/tree/master/mjpg-streamer link: http://www.cnblogs.com/hnrainll/archive/2011/06/08/2074909.html link: http://blog.163.com/chenhongswing@126/blog/static/1335924432011825104144612/  1 2 3 4 5 6 7 8 9  #提供一个可以直接使用的demo git clone https://github.com/codewithpassion/mjpg-streamer/tree/master/mjpg-streamer cd mjpg-streamer ./mjpg_streamer -i &amp;#34;input_uvc.so -d /dev/video0 -r 640x480 -y&amp;#34; -o &amp;#34;output_http.so -w ./www&amp;#34; 127.0.0.1:8080访问主页，可以获得stream、static以及通过vlc和mplayer播放   ffmpeg&#43;websocket播放 site: https://github.com/phoboslab/jsmpeg link: http://segmentfault.com/a/1190000000392586  1 2 3 4 5 6 7 8 9 10 11 12 13  #提供可以直接运行的demo git clone https://github.com/phoboslab/jsmpeg nodejs stream-server.js huang	监听随机端口 Listening for MPEG Stream on http://127.'>
+<meta property='og:url' content='https://bg2bkk.github.io/p/livestream%E7%9A%84%E5%87%A0%E7%A7%8D%E5%88%9D%E6%AD%A5%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/'>
+<meta property='og:site_name' content='Bg2bkk Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-02-18T20:57:19&#43;08:00'/><meta property='article:modified_time' content='2016-02-18T20:57:19&#43;08:00'/>
+<meta name="twitter:title" content="livestream的几种初步解决方案">
+<meta name="twitter:description" content="实时视频流解决方案 mjpg-streamer site: https://github.com/codewithpassion/mjpg-streamer/tree/master/mjpg-streamer link: http://www.cnblogs.com/hnrainll/archive/2011/06/08/2074909.html link: http://blog.163.com/chenhongswing@126/blog/static/1335924432011825104144612/  1 2 3 4 5 6 7 8 9  #提供一个可以直接使用的demo git clone https://github.com/codewithpassion/mjpg-streamer/tree/master/mjpg-streamer cd mjpg-streamer ./mjpg_streamer -i &amp;#34;input_uvc.so -d /dev/video0 -r 640x480 -y&amp;#34; -o &amp;#34;output_http.so -w ./www&amp;#34; 127.0.0.1:8080访问主页，可以获得stream、static以及通过vlc和mplayer播放   ffmpeg&#43;websocket播放 site: https://github.com/phoboslab/jsmpeg link: http://segmentfault.com/a/1190000000392586  1 2 3 4 5 6 7 8 9 10 11 12 13  #提供可以直接运行的demo git clone https://github.com/phoboslab/jsmpeg nodejs stream-server.js huang	监听随机端口 Listening for MPEG Stream on http://127.">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu9dfb7228514195dbb950046570d90a5c_100216_300x0_resize_q75_box.jpg" width="300"
+                            height="221" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/livestream%E7%9A%84%E5%87%A0%E7%A7%8D%E5%88%9D%E6%AD%A5%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/">livestream的几种初步解决方案</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Feb 18, 2016</time>
+            </div>
+        
+
+    
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    2 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h1 id="实时视频流解决方案">实时视频流解决方案</h1>
+<h2 id="mjpg-streamer">mjpg-streamer</h2>
+<pre><code>site: https://github.com/codewithpassion/mjpg-streamer/tree/master/mjpg-streamer
+
+    link: http://www.cnblogs.com/hnrainll/archive/2011/06/08/2074909.html
+    link: http://blog.163.com/chenhongswing@126/blog/static/1335924432011825104144612/
+</code></pre>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">    <span class="c1">#提供一个可以直接使用的demo</span>
+
+    git clone https://github.com/codewithpassion/mjpg-streamer/tree/master/mjpg-streamer
+
+    <span class="nb">cd</span> mjpg-streamer
+
+    ./mjpg_streamer -i <span class="s2">&#34;input_uvc.so -d /dev/video0 -r 640x480 -y&#34;</span> -o <span class="s2">&#34;output_http.so -w ./www&#34;</span>
+
+    127.0.0.1:8080访问主页，可以获得stream、static以及通过vlc和mplayer播放
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="ffmpegwebsocket播放">ffmpeg+websocket播放</h2>
+<pre><code>site: https://github.com/phoboslab/jsmpeg
+link: http://segmentfault.com/a/1190000000392586
+</code></pre>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">    <span class="c1">#提供可以直接运行的demo</span>
+
+    git clone https://github.com/phoboslab/jsmpeg
+
+    nodejs stream-server.js huang	监听随机端口
+        Listening <span class="k">for</span> MPEG Stream on http://127.0.0.1:8082/&lt;secret&gt;/&lt;width&gt;/&lt;height&gt;
+        Awaiting WebSocket connections on ws://127.0.0.1:8084/
+        Stream Connected: 127.0.0.1:52460 size: 640x480
+        New WebSocket Connection <span class="o">(</span><span class="m">1</span> total<span class="o">)</span>
+        Disconnected WebSocket <span class="o">(</span><span class="m">0</span> total<span class="o">)</span>
+
+    ffmpeg -s 640x480 -f video4linux2 -i /dev/video0 -f mpeg1video -b 800k -r <span class="m">30</span> http://localhost:8082/huang/640/480/		ffmpeg采集编码并发送视频流
+    google-chrome stream-example.html		使用websocket在线观看
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="vlc视频流输出和vlc视频流播放">vlc视频流输出和vlc视频流播放</h2>
+<pre><code>site: http://www.cnblogs.com/fx2008/p/4315416.html
+</code></pre>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">    a、关掉防火墙，至少将视频流端口开启
+    b、vlc --ttl <span class="m">12</span> -vvv --color -I telnet --telnet-password videolan --rtsp-host 0.0.0.0 --rtsp-port <span class="m">5554</span>
+    c、通过telnet启动vlc的vlm管理中，telnet 127.0.0.1 4212，密码是刚才的videolan
+    d、new Test vod enabled 新建一个vod，名字是Test
+    e、setup Test input /path/video.file    给Test输入视频
+    f、vlc rtsp://127.0.0.1:5554/Test 启动vlc观看视频流，这里还差声音
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="nginx的rtmp转播">nginx的rtmp转播</h2>
+<pre><code>site: http://itony.me/619.html
+site: https://github.com/arut/nginx-rtmp-module
+site: http://openresty.org
+site: http://blog.csdn.net/leixiaohua1020/article/details/12029543
+site: http://blog.csdn.net/leixiaohua1020/article/details/39803457
+site: http://blog.csdn.net/fireroll/article/details/18899285
+</code></pre>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">    a、安装openresty和rtmp模块
+    b、配置nginx，rtmp配置块与http配置块平级
+        rtmp <span class="o">{</span>
+            server <span class="o">{</span>
+                listen 1935<span class="p">;</span>
+                application live1 <span class="o">{</span>
+                    live on<span class="p">;</span>
+                    record off<span class="p">;</span>
+                <span class="o">}</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+    c、ffmpeg转发视频流  
+        ffmpeg -re -i xxx.mp4 -c copy -f flv   rtmp://localhost:1935/live1/room1
+        其中的live1是应用，room1是将来要打开的节点
+
+    d、在vlc中打开视频流： 
+        rtmp://localhost:1935/live1/room1
+
+    e、ffmpeg -f video4linux2 -i /dev/video0 -c:v libx264 -an -f flv rtmp://localhost:1935/live1/room1 试试摄像头
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="aliyunnginxrtmp在线转播">aliyun+nginx+rtmp在线转播</h2>
+<pre><code>site: http://blog.csdn.net/xdwyyan/article/details/43198985
+注意：在nginx中配置rtmp后，reload是不够的，需要kill掉重新启动nginx。
+通过sudo netstat -tlnp | grep 1935来观察nginx是否将端口打开
+</code></pre>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">    sudo ffmpeg -i /dev/video0 -acodec acc -strict experimental -ar <span class="m">44100</span> -ac <span class="m">2</span> -b:a 96k -r <span class="m">25</span> -b:v 500k -s 640*480 -f flv rtmp://101.200.124.174:1935/live1/room1
+    vlc rtmp://101.200.124.174:1935/live1/room1
+
+    ffmpeg -loglevel verbose -re -i xxx.mp4 -vcodec libx264 -vprofile baseline -acodec libmp3lame -ar <span class="m">44100</span> -ac <span class="m">1</span> -f flv rtmp://101.200.124.174:1935/hls/movie
+    vlc http://101.200.124.174/hls/movie.m3u8
+
+    <span class="c1">#v4l2读取摄像头，进行x264编码并将视频流发送至阿里云，进而进行hls播放</span>
+    ffmpeg -f video4linux2 -s 320x240 -i /dev/video0 -vcodec libx264 -f flv  rtmp://101.200.124.174:1935/hls/movie
+    vlc http://101.200.124.174/hls/movie.m3u8
+    手机浏览器打开也行
+
+    <span class="c1">#http config block</span>
+    rtmp <span class="o">{</span>
+        server <span class="o">{</span>
+            listen 1935<span class="p">;</span>
+            application live1 <span class="o">{</span>
+                live on<span class="p">;</span>
+                record off<span class="p">;</span>
+            <span class="o">}</span>
+            application hls<span class="o">{</span>
+                live on<span class="p">;</span>
+                hls on<span class="p">;</span>
+                hls_path /tmp/hls<span class="p">;</span>
+            <span class="o">}</span>
+    
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="c1">#server config block</span>
+    location /hls <span class="o">{</span>
+        types <span class="o">{</span>
+            application/vnd.apple.mpegurl m3u8<span class="p">;</span>
+            video/mp2t ts<span class="p">;</span>
+        <span class="o">}</span>
+        root /tmp<span class="p">;</span>
+        add_header Cache-Control no-cache<span class="p">;</span>
+    <span class="o">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="extra-info">Extra Info</h2>
+<pre><code>防火墙设置，配置1985端口可以被外网访问
+huang@vultr:~$ sudo iptables -A INPUT -m state --state NEW -m tcp -p tcp --dport 1985 -j ACCEPT
+</code></pre>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2022 Bg2bkk Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

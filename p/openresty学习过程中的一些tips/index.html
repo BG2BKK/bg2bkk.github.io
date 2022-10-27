@@ -1,0 +1,671 @@
+<!DOCTYPE html>
+<html lang="" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='openresty中如何写redis或者mysql的wraper  参考资料  ngx_lua获取post字段参数 在用户请求为POST方式时，如果想获取post中的各参数字段，比如post数据为 &amp;ldquo;uid=100&amp;amp;ip=10.13.112.53&amp;rdquo;，此时想获取该字段的话，可以调用ngx.req.get_post_args函数。按惯例返回table类型，post数据的各字段为table的key
+1 2 3 4 5  function get_uid() local args = ngx.req.get_post_args() local uid = args[&amp;#39;uid&amp;#39;] return uid end   关于HTTP的POST提交数据的方式，网上有很多讨论
+ 四种常见的POST提交数据方式  application/x-www-form-urlencoded multipart/form-data application/json text/xml   HTTP header头的一些字段  ngx_lua同样提供了读写HTTP请求中uri参数，读写HTTP请求中的HEADER头部，这些在ngx_lua开发中为我们提供了丰富的工具，非常好的功能。
+最后回到主题，当我读出uid字段后，有时候会发现报错&amp;quot;requesty body in temp file not supported&amp;quot;，原因在于nginx会将用户请求的body字段缓存起来，如果超出缓存大小，则将用户body数据写到文件中；而ngx.req.get_post_args()是不支持从文件中读取数据的。因此解决办法是：适当加大 nginx 的 client_body_buffer_size 配置, 当 client_body_buffer_size 配置为和 client_max_body_size 一样大时，nginx就不会把请求体缓冲到文件系统了（但也要仔细内存占用）。
+对于client_max_body_size来说，
+1 2 3 4 5  Syntax:	client_max_body_size size; Default:	client_max_body_size 1m; Context:	http, server, location Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field.'>
+<title>openresty学习过程中的一些tips</title>
+
+<link rel='canonical' href='https://bg2bkk.github.io/p/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/'>
+
+<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='openresty学习过程中的一些tips'>
+<meta property='og:description' content='openresty中如何写redis或者mysql的wraper  参考资料  ngx_lua获取post字段参数 在用户请求为POST方式时，如果想获取post中的各参数字段，比如post数据为 &amp;ldquo;uid=100&amp;amp;ip=10.13.112.53&amp;rdquo;，此时想获取该字段的话，可以调用ngx.req.get_post_args函数。按惯例返回table类型，post数据的各字段为table的key
+1 2 3 4 5  function get_uid() local args = ngx.req.get_post_args() local uid = args[&amp;#39;uid&amp;#39;] return uid end   关于HTTP的POST提交数据的方式，网上有很多讨论
+ 四种常见的POST提交数据方式  application/x-www-form-urlencoded multipart/form-data application/json text/xml   HTTP header头的一些字段  ngx_lua同样提供了读写HTTP请求中uri参数，读写HTTP请求中的HEADER头部，这些在ngx_lua开发中为我们提供了丰富的工具，非常好的功能。
+最后回到主题，当我读出uid字段后，有时候会发现报错&amp;quot;requesty body in temp file not supported&amp;quot;，原因在于nginx会将用户请求的body字段缓存起来，如果超出缓存大小，则将用户body数据写到文件中；而ngx.req.get_post_args()是不支持从文件中读取数据的。因此解决办法是：适当加大 nginx 的 client_body_buffer_size 配置, 当 client_body_buffer_size 配置为和 client_max_body_size 一样大时，nginx就不会把请求体缓冲到文件系统了（但也要仔细内存占用）。
+对于client_max_body_size来说，
+1 2 3 4 5  Syntax:	client_max_body_size size; Default:	client_max_body_size 1m; Context:	http, server, location Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field.'>
+<meta property='og:url' content='https://bg2bkk.github.io/p/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/'>
+<meta property='og:site_name' content='Bg2bkk Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-03-14T16:36:14&#43;08:00'/><meta property='article:modified_time' content='2016-03-14T16:36:14&#43;08:00'/>
+<meta name="twitter:title" content="openresty学习过程中的一些tips">
+<meta name="twitter:description" content="openresty中如何写redis或者mysql的wraper  参考资料  ngx_lua获取post字段参数 在用户请求为POST方式时，如果想获取post中的各参数字段，比如post数据为 &amp;ldquo;uid=100&amp;amp;ip=10.13.112.53&amp;rdquo;，此时想获取该字段的话，可以调用ngx.req.get_post_args函数。按惯例返回table类型，post数据的各字段为table的key
+1 2 3 4 5  function get_uid() local args = ngx.req.get_post_args() local uid = args[&amp;#39;uid&amp;#39;] return uid end   关于HTTP的POST提交数据的方式，网上有很多讨论
+ 四种常见的POST提交数据方式  application/x-www-form-urlencoded multipart/form-data application/json text/xml   HTTP header头的一些字段  ngx_lua同样提供了读写HTTP请求中uri参数，读写HTTP请求中的HEADER头部，这些在ngx_lua开发中为我们提供了丰富的工具，非常好的功能。
+最后回到主题，当我读出uid字段后，有时候会发现报错&amp;quot;requesty body in temp file not supported&amp;quot;，原因在于nginx会将用户请求的body字段缓存起来，如果超出缓存大小，则将用户body数据写到文件中；而ngx.req.get_post_args()是不支持从文件中读取数据的。因此解决办法是：适当加大 nginx 的 client_body_buffer_size 配置, 当 client_body_buffer_size 配置为和 client_max_body_size 一样大时，nginx就不会把请求体缓冲到文件系统了（但也要仔细内存占用）。
+对于client_max_body_size来说，
+1 2 3 4 5  Syntax:	client_max_body_size size; Default:	client_max_body_size 1m; Context:	http, server, location Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field.">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu9dfb7228514195dbb950046570d90a5c_100216_300x0_resize_q75_box.jpg" width="300"
+                            height="221" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/">openresty学习过程中的一些tips</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Mar 14, 2016</time>
+            </div>
+        
+
+    
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    3 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="openresty中如何写redis或者mysql的wraper">openresty中如何写redis或者mysql的wraper</h2>
+<ul>
+<li><a class="link" href="http://zivn.me/2013/08/05/Something-about-Openresty/"  target="_blank" rel="noopener"
+    >参考资料</a></li>
+</ul>
+<h2 id="ngx_lua获取post字段参数">ngx_lua获取post字段参数</h2>
+<p>在用户请求为POST方式时，如果想获取post中的各参数字段，比如post数据为 &ldquo;uid=100&amp;ip=10.13.112.53&rdquo;，此时想获取该字段的话，可以调用<a class="link" href="https://github.com/openresty/lua-nginx-module#ngxreqget_post_args"  target="_blank" rel="noopener"
+    >ngx.req.get_post_args</a>函数。按惯例返回table类型，post数据的各字段为table的key</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua"><span class="kr">function</span> <span class="nf">get_uid</span><span class="p">()</span>
+	<span class="kd">local</span> <span class="n">args</span> <span class="o">=</span> <span class="n">ngx.req</span><span class="p">.</span><span class="n">get_post_args</span><span class="p">()</span>
+	<span class="kd">local</span> <span class="n">uid</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;uid&#39;</span><span class="p">]</span>
+	<span class="kr">return</span> <span class="n">uid</span>
+<span class="kr">end</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>关于HTTP的POST提交数据的方式，网上有很多讨论</p>
+<ul>
+<li><a class="link" href="https://imququ.com/post/four-ways-to-post-data-in-http.html"  target="_blank" rel="noopener"
+    >四种常见的POST提交数据方式</a>
+<ul>
+<li>application/x-www-form-urlencoded</li>
+<li>multipart/form-data</li>
+<li>application/json</li>
+<li>text/xml</li>
+</ul>
+</li>
+<li>HTTP <a class="link" href="http://jaseywang.me/2012/03/03/http-headers-%E9%83%A8%E5%88%86%E5%AD%97%E6%AE%B5%E7%AC%94%E8%AE%B0/"  target="_blank" rel="noopener"
+    >header头的一些字段</a></li>
+</ul>
+<p>ngx_lua同样提供了读写HTTP请求中<a class="link" href="https://github.com/openresty/lua-nginx-module#ngxreqget_uri_args"  target="_blank" rel="noopener"
+    >uri参数</a>，读写HTTP请求中的<a class="link" href="https://github.com/openresty/lua-nginx-module#ngxreqget_uri_args"  target="_blank" rel="noopener"
+    >HEADER头部</a>，这些在ngx_lua开发中为我们提供了丰富的工具，非常好的功能。</p>
+<p>最后回到主题，当我读出uid字段后，有时候会发现报错&quot;requesty body in temp file not supported&quot;，原因在于nginx会将用户请求的body字段缓存起来，如果超出缓存大小，则将用户body数据写到文件中；而ngx.req.get_post_args()是不支持从文件中读取数据的。因此解决办法是：适当加大 <a class="link" href="http://wiki.nginx.org/HttpCoreModule#client_body_buffer_size"  target="_blank" rel="noopener"
+    >nginx 的 client_body_buffer_size 配置</a>, 当 client_body_buffer_size 配置为和 client_max_body_size 一样大时，nginx就不会把请求体缓冲到文件系统了（但也要仔细内存占用）。</p>
+<p>对于client_max_body_size来说，</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">Syntax:		client_max_body_size size<span class="p">;</span>
+Default:	client_max_body_size 1m<span class="p">;</span>
+Context:	http, server, location
+
+Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field. If the size in a request exceeds the configured value, the <span class="m">413</span> <span class="o">(</span>Request Entity Too Large<span class="o">)</span> error is returned to the client. Please be aware that browsers cannot correctly display this error. Setting size to <span class="m">0</span> disables checking of client request body size.
+</code></pre></td></tr></table>
+</div>
+</div><p>设置允许的client body最大值，对http server来说是种保护。</p>
+<p>对于client_body_buffer_size来说，</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">Syntax:		client_body_buffer_size size<span class="p">;</span>
+Default:	client_body_buffer_size 8k<span class="p">|</span>16k<span class="p">;</span>
+Context:	http, server, location
+
+Sets buffer size <span class="k">for</span> reading client request body. In <span class="k">case</span> the request body is larger than the buffer, the whole body or only its part is written to a temporary file. By default, buffer size is equal to two memory pages. This is 8K on x86, other 32-bit platforms, and x86-64. It is usually 16K on other 64-bit platforms.
+</code></pre></td></tr></table>
+</div>
+</div><p>如果client body size大于默认值，则nginx将会把body缓存在文件中。将client body buffer size设置为和client_max_body_size一样大，nginx将不会把它写进文件中。</p>
+<h2 id="ngx_lua中判断table为空">ngx_lua中判断table为空</h2>
+<ul>
+<li>lua的table中，有两类kv，一类是以数字为index，比如{&lsquo;abc&rsquo;, &lsquo;efg&rsquo;}中，{k=1, v=abc}, {k=2, v=efg}，另一类以自己kv存储，比如{[&lsquo;abc&rsquo;] = &lsquo;efg&rsquo;}，k为abc的元素，v为efg</li>
+<li>#table中，#标识符是返回以数字为index的key，从1开始算，连续的key的数量</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua"><span class="kd">local</span> <span class="n">t</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span>
+<span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span>
+<span class="n">t</span><span class="p">[</span><span class="mi">20</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;c&#39;</span>
+
+<span class="n">print</span><span class="p">(</span><span class="o">#</span><span class="n">t</span><span class="p">)</span>
+<span class="mi">2</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>因此#号不能获得table的真实大小，也不能用于判断table是否为空</li>
+<li>table.maxn(tab)，maxn返回table中以数字为key的元素中，数字最大的那个</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua"><span class="kd">local</span> <span class="n">t</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span>
+<span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span>
+<span class="n">t</span><span class="p">[</span><span class="mi">20</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;c&#39;</span>
+
+<span class="n">print</span><span class="p">(</span><span class="n">table.maxn</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+<span class="mi">20</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>next就是pairs遍历table时用来取下一个内容的函数，因此next(tab)可以用来判断table是否为空，如果next(tab)返回为nil的话，说明第一个元素不存在，所以该table为空</p>
+</li>
+<li>
+<p><a class="link" href="https://moonbingbing.gitbooks.io/openresty-best-practices/content/lua/not_nill.html"  target="_blank" rel="noopener"
+    >参考链接</a></p>
+</li>
+</ul>
+<h2 id="ngx_lua中的参数获得">ngx_lua中的参数获得</h2>
+<p>ngx_lua中获得req参数有如下几个方法：</p>
+<ul>
+<li>
+<p>ngx.var.arg_city 获取city参数</p>
+<ul>
+<li>host:port/uri?city=abc    <em><strong>ngx.var.arg_city = abc</strong></em></li>
+<li>host:port/uri?city=       <em><strong>ngx.var.arg_city = &lsquo;'</strong></em>, and its length is 0</li>
+<li>host:port/uri?city        <em><strong>ngx.var.arg_city = nil</strong></em>，cause it doesn&rsquo;t exist yet</li>
+</ul>
+</li>
+<li>
+<p>ngx.req.get_headers()[&lsquo;city&rsquo;]，获取http请求头中的city参数</p>
+<ul>
+<li>host:port/uri -H &lsquo;city:abc&rsquo;   <em><strong>结果为abc</strong></em></li>
+<li>host:port/uri -H &lsquo;city:&rsquo;      <em><strong>结果为nil</strong></em></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li>
+<p><a class="link" href="https://groups.google.com/forum/#!topic/openresty/fQvG_TvDAvU"  target="_blank" rel="noopener"
+    >thread</a></p>
+<ul>
+<li>虽然init_worker_by_lua阶段不能使用cosocket，不过可以先通过一个timer（定时时间为0让其立即调用）来发出对外的socket io操作，以实现一些初始化的目的。</li>
+<li>openresty的两个缓存中，ngx shared dict是跨worker共享的，是一个单纯的kv缓存；预计接下来会有patch能够支持lpush等redis操作；lua-resty-lrucache是每个worker的Lua VM空间内缓存，不能跨worker共享，优点是可以存储所有lua对象，比如table，而不需要序列化和反序列化</li>
+</ul>
+</li>
+<li>
+<p>worker 启动时，upstream 是空的，即 _M.data={}，所以这个时候是不能提供服务的。所以每次 reload config 都会导致一段时间内服务不可访问。</p>
+<ul>
+<li>在 init_worker_by_lua 执行 cosocket 相关的 API 是不允许的（后期可能会添加支持），但可以调用标准 SOCKET 完成初始化加载，例如借助 luasocket 完成数据源获取并初始化 _M 。</li>
+</ul>
+</li>
+<li>
+<p>不清楚 init_worker_by_lua 里是否可以进行文件操作？</p>
+<ul>
+<li>是可以的，这个确定。</li>
+</ul>
+</li>
+<li>
+<p>在ngx lua性能分析方面，agentzh提出一系列的工具，主要是nginx-systemtap-toolkit和stapxx两个工程。我们使用的脚本，<a class="link" href="https://groups.google.com/forum/#!topic/openresty/bOwgPymXQzg"  target="_blank" rel="noopener"
+    >说明文档</a></p>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">引用：
+	我们有一整套的基于 systemtap 的工具链可以用于在线或者离线的性能分析。 
+	你的 nginx 进程的 CPU 使用率如果很高的话，可以使用 C 级别的 on-CPU 时间火焰图工具对你最忙的 nginx worker 进程进行采样： 
+	    https://github.com/agentzh/nginx-systemtap-toolkit#sample-bt 
+	如果你的 nginx 进程的 CPU 很低，但请求延时很高，则有两种可能： 
+	1. 你的 nginx 阻塞在了某些阻塞的 IO 操作（比如文件 IO）或者系统的同步锁上，此时你可以使用 C 级别的 off-CPU 
+	时间火焰图工具对某个典型的 nginx worker 进程进行采样： 
+	   https://github.com/agentzh/nginx-systemtap-toolkit#sample-bt-off-cpu 
+	如果你发现 Lua 代码占用了大部分的 CPU 时间，则可以进一步使用 ngx-lua-exec-time 工具加以确认： 
+	    https://github.com/agentzh/stapxx#ngx-lua-exec-time 
+	进一步地，你可以使用 Lua 代码级别的 on-CPU 火焰图工具在 Lua 层面上分析 CPU 时间的分布。如果你使用的是 LuaJIT 
+	2.0.x，则可以使用下面这个工具进行采样： 
+	    https://github.com/agentzh/nginx-systemtap-toolkit#ngx-sample-lua-bt 
+	如果你使用的是 LuaJIT 2.1，则可以使用 lj-lua-stacks 工具进行采样： 
+	    https://github.com/agentzh/stapxx#lj-lua-stacks 
+	2. 你的 nginx 通过 ngx_lua 的 cosocket 或者 ngx_proxy 这样的 upstream 
+	模块和上游服务进行通信时，上游服务的延时过大。此时你可以分别使用 
+	ngx-lua-tcp-recv-time、ngx-lua-udp-recv-time 以及 ngx-single-req-latency 
+	工具进行分析： 
+	    https://github.com/agentzh/stapxx#ngx-lua-tcp-recv-time 
+	    https://github.com/agentzh/stapxx#ngx-lua-udp-recv-time 
+	    https://github.com/agentzh/stapxx#ngx-single-req-latency  
+
+
+
+    - 我们主要使用四个工具来生成火焰图以分析性能，sample-bt、sample-bt-off-cpu、ngx-sample-lua-bt 和 lj-lua-stacks。
+    - 实际使用中命令：
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">1、sudo ./sample-bt -p <span class="m">8736</span> -t <span class="m">20</span> -u -a <span class="s1">&#39;-DMAXSKIPPED=10000&#39;</span> &gt; a.bt
+2、sudo ./sample-bt-off-cpu -p <span class="m">8736</span> -t <span class="m">20</span> -u &gt; b.bt
+3、sudo ./ngx-sample-lua-bt --luajit20 -p <span class="m">44252</span> -t <span class="m">20</span> &gt; c.bt
+4、sudo ./samples/lj-lua-stacks.sxx --skip-badvars -x <span class="m">44250</span> -I tapset/ &gt; d.bt
+</code></pre></td></tr></table>
+</div>
+</div><pre><code>- 通过a.bt生成火焰图
+</code></pre>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">	../FlameGraph/stackcollapse-stap.pl a.bt <span class="p">|</span> ../FlameGraph/flamegraph.pl &gt; a.svg
+</code></pre></td></tr></table>
+</div>
+</div><pre><code>- 通过脚本ngx-lua-conn-pools来追踪ngx lua connection pool的工作情况。		
+</code></pre>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">    sudo ./ngx-lua-conn-pools  --luajit20 -p <span class="m">28261</span>
+</code></pre></td></tr></table>
+</div>
+</div>
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2022 Bg2bkk Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

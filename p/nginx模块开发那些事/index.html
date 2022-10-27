@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='参考链接
+  nginx为每个连接分配内存池
+ r-&amp;gt;pool是r的连接池，所有内存操作都在这里完成；请求结束后，该pool将会释放，因此没有内存泄露问题    nginx的异步通信
+ 回调函数是nginx实现异步操作的方式 以ngx读取POST请求的request body为例，每次epoll监听到socket有数据进来的时候，就非阻塞的调用recv接收数据并累计，直到数据大于等于Header头部中的&amp;quot;Content-Length&amp;quot;(HTTP请求的Header部分此时已经被处理)，然后调用模块的回调函数对所有POST数据进行处理。    nginx的sendfile、TCP_NODELAY和TCP_NOPUSH
+ 互联网早期，由于网络链路质量不好，在发送数据时，如果只是很小的数据包，TCP/IP协议栈将会等待200ms，收集更多数据包后一次发出，可以提高吞吐量，这个算法成为Nagle算法；随着通信技术进步，Nagle算法逐渐不合实际，在nginx中甚至需要TCP_NODELAY来禁用socket的Nagle算法，要求有数据包后立刻发出 TCP_NOPUSH显然是与TCP_NODELAY相冲突的，那为什么它存在呢？ 对于sendfile on这一配置而言，由于系统调用sendfile有着“零拷贝”的优势，在内核中从in_fd复制到out_fd，不足之处是in_fd只能是文件fd，因此sendfile只能用于发送文件到网络IO；当TCP_NOPUSH、TCP_NODELAY和sendfile配合起来，就很有意思了：在调用sendfile之前，将out_fd这一socket设置为TCP_NOPUSH的，sendfile将文件数据写到socket缓冲区，在sendfile完成后，去掉out_fd的TCP_NOPUSH选项，将文件数据一次发出，可以提高性能。    nginx的sendfile，还有读取用户请求的post数据等，灵活的操作内存缓冲区，代码质量很高，值得品味
+  参考链接
+ sendfile, tcp_nodelay和tcp_nopush是怎样对nginx产生影响的呢？ *  '>
+<title>nginx模块开发那些事</title>
+
+<link rel='canonical' href='https://bg2bkk.github.io/p/nginx%E6%A8%A1%E5%9D%97%E5%BC%80%E5%8F%91%E9%82%A3%E4%BA%9B%E4%BA%8B/'>
+
+<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='nginx模块开发那些事'>
+<meta property='og:description' content='参考链接
+  nginx为每个连接分配内存池
+ r-&amp;gt;pool是r的连接池，所有内存操作都在这里完成；请求结束后，该pool将会释放，因此没有内存泄露问题    nginx的异步通信
+ 回调函数是nginx实现异步操作的方式 以ngx读取POST请求的request body为例，每次epoll监听到socket有数据进来的时候，就非阻塞的调用recv接收数据并累计，直到数据大于等于Header头部中的&amp;quot;Content-Length&amp;quot;(HTTP请求的Header部分此时已经被处理)，然后调用模块的回调函数对所有POST数据进行处理。    nginx的sendfile、TCP_NODELAY和TCP_NOPUSH
+ 互联网早期，由于网络链路质量不好，在发送数据时，如果只是很小的数据包，TCP/IP协议栈将会等待200ms，收集更多数据包后一次发出，可以提高吞吐量，这个算法成为Nagle算法；随着通信技术进步，Nagle算法逐渐不合实际，在nginx中甚至需要TCP_NODELAY来禁用socket的Nagle算法，要求有数据包后立刻发出 TCP_NOPUSH显然是与TCP_NODELAY相冲突的，那为什么它存在呢？ 对于sendfile on这一配置而言，由于系统调用sendfile有着“零拷贝”的优势，在内核中从in_fd复制到out_fd，不足之处是in_fd只能是文件fd，因此sendfile只能用于发送文件到网络IO；当TCP_NOPUSH、TCP_NODELAY和sendfile配合起来，就很有意思了：在调用sendfile之前，将out_fd这一socket设置为TCP_NOPUSH的，sendfile将文件数据写到socket缓冲区，在sendfile完成后，去掉out_fd的TCP_NOPUSH选项，将文件数据一次发出，可以提高性能。    nginx的sendfile，还有读取用户请求的post数据等，灵活的操作内存缓冲区，代码质量很高，值得品味
+  参考链接
+ sendfile, tcp_nodelay和tcp_nopush是怎样对nginx产生影响的呢？ *  '>
+<meta property='og:url' content='https://bg2bkk.github.io/p/nginx%E6%A8%A1%E5%9D%97%E5%BC%80%E5%8F%91%E9%82%A3%E4%BA%9B%E4%BA%8B/'>
+<meta property='og:site_name' content='Bg2bkk Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-08-11T17:44:27&#43;08:00'/><meta property='article:modified_time' content='2016-08-11T17:44:27&#43;08:00'/>
+<meta name="twitter:title" content="nginx模块开发那些事">
+<meta name="twitter:description" content="参考链接
+  nginx为每个连接分配内存池
+ r-&amp;gt;pool是r的连接池，所有内存操作都在这里完成；请求结束后，该pool将会释放，因此没有内存泄露问题    nginx的异步通信
+ 回调函数是nginx实现异步操作的方式 以ngx读取POST请求的request body为例，每次epoll监听到socket有数据进来的时候，就非阻塞的调用recv接收数据并累计，直到数据大于等于Header头部中的&amp;quot;Content-Length&amp;quot;(HTTP请求的Header部分此时已经被处理)，然后调用模块的回调函数对所有POST数据进行处理。    nginx的sendfile、TCP_NODELAY和TCP_NOPUSH
+ 互联网早期，由于网络链路质量不好，在发送数据时，如果只是很小的数据包，TCP/IP协议栈将会等待200ms，收集更多数据包后一次发出，可以提高吞吐量，这个算法成为Nagle算法；随着通信技术进步，Nagle算法逐渐不合实际，在nginx中甚至需要TCP_NODELAY来禁用socket的Nagle算法，要求有数据包后立刻发出 TCP_NOPUSH显然是与TCP_NODELAY相冲突的，那为什么它存在呢？ 对于sendfile on这一配置而言，由于系统调用sendfile有着“零拷贝”的优势，在内核中从in_fd复制到out_fd，不足之处是in_fd只能是文件fd，因此sendfile只能用于发送文件到网络IO；当TCP_NOPUSH、TCP_NODELAY和sendfile配合起来，就很有意思了：在调用sendfile之前，将out_fd这一socket设置为TCP_NOPUSH的，sendfile将文件数据写到socket缓冲区，在sendfile完成后，去掉out_fd的TCP_NOPUSH选项，将文件数据一次发出，可以提高性能。    nginx的sendfile，还有读取用户请求的post数据等，灵活的操作内存缓冲区，代码质量很高，值得品味
+  参考链接
+ sendfile, tcp_nodelay和tcp_nopush是怎样对nginx产生影响的呢？ *  ">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu9dfb7228514195dbb950046570d90a5c_100216_300x0_resize_q75_box.jpg" width="300"
+                            height="221" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/nginx%E6%A8%A1%E5%9D%97%E5%BC%80%E5%8F%91%E9%82%A3%E4%BA%9B%E4%BA%8B/">nginx模块开发那些事</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Aug 11, 2016</time>
+            </div>
+        
+
+    
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p><a class="link" href="http://yanyiwu.com/work/2014/09/21/nginx-module-development-stuff.html"  target="_blank" rel="noopener"
+    >参考链接</a></p>
+<ul>
+<li>
+<p>nginx为每个连接分配内存池</p>
+<ul>
+<li>r-&gt;pool是r的连接池，所有内存操作都在这里完成；请求结束后，该pool将会释放，因此没有内存泄露问题</li>
+</ul>
+</li>
+<li>
+<p>nginx的异步通信</p>
+<ul>
+<li>回调函数是nginx实现异步操作的方式</li>
+<li>以ngx读取POST请求的request body为例，每次epoll监听到socket有数据进来的时候，就非阻塞的调用recv接收数据并累计，直到数据大于等于Header头部中的&quot;Content-Length&quot;(HTTP请求的Header部分此时已经被处理)，然后调用模块的回调函数对所有POST数据进行处理。</li>
+</ul>
+</li>
+<li>
+<p>nginx的sendfile、TCP_NODELAY和TCP_NOPUSH</p>
+<ul>
+<li>互联网早期，由于网络链路质量不好，在发送数据时，如果只是很小的数据包，TCP/IP协议栈将会等待200ms，收集更多数据包后一次发出，可以提高吞吐量，这个算法成为Nagle算法；随着通信技术进步，Nagle算法逐渐不合实际，在nginx中甚至需要TCP_NODELAY来禁用socket的Nagle算法，要求有数据包后立刻发出</li>
+<li>TCP_NOPUSH显然是与TCP_NODELAY相冲突的，那为什么它存在呢？</li>
+<li>对于sendfile on这一配置而言，由于系统调用sendfile有着“零拷贝”的优势，在内核中从in_fd复制到out_fd，不足之处是in_fd只能是文件fd，因此sendfile只能用于发送文件到网络IO；当TCP_NOPUSH、TCP_NODELAY和sendfile配合起来，就很有意思了：在调用sendfile之前，将out_fd这一socket设置为TCP_NOPUSH的，sendfile将文件数据写到socket缓冲区，在sendfile完成后，去掉out_fd的TCP_NOPUSH选项，将文件数据一次发出，可以提高性能。</li>
+</ul>
+</li>
+<li>
+<p>nginx的sendfile，还有读取用户请求的post数据等，灵活的操作内存缓冲区，代码质量很高，值得品味</p>
+</li>
+</ul>
+<p><a class="link" href="https://t37.net/nginx-optimization-understanding-sendfile-tcp_nodelay-and-tcp_nopush.html"  target="_blank" rel="noopener"
+    >参考链接</a></p>
+<ul>
+<li>sendfile, tcp_nodelay和tcp_nopush是怎样对nginx产生影响的呢？
+*</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2022 Bg2bkk Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

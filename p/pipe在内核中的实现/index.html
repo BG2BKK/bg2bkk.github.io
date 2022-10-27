@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='pipe在linux内核中的实现 在之前关于linux shell多线程并发数控制的博文中，我们使用了fifo作为token池，通过读写fifo实现token分发控制，进而实现了控制线程数的目的。 我对pipe这个*** *NIX ***系统中最常用的组件（|）产生了兴趣
+ fifo和pipe是什么关系？ fifo或者pipe的使用方法？ pipe在linux kernel中的实现是怎样的？ fifo或者pipe的容量有多大，可以配置吗？  先说结论吧
+ fifo和pipe的区别  pipe是匿名管道，没有名字，只能用于两个拥有pipe读写两端fd的进程通信； fifo在文件系统中有自己的名称，操作fifo与操作普通文件几无差别，可以用于两个没有关系的进程间通信   fifo和pipe在kernel层面上都实现在fs/pipe.c中，所以本质上二者是一个东西。 pipe作为linux文件系统的一部分，与epoll一样，都是在向kernel注册了自己的文件系统，可以使用VFS提供的通用接口，比如open、read和write等操作 pipe的容量不是无限大的，早期linux版本（kernel-2.4）中pipe容量只能是4KB大小，新版本可以在运行时根据需要扩大到64KB  本文主要基于linux-2.4.20内核中的pipe实现进行分析，理由是该版本的pipe实现与新版本kernel并没有太大差别，但是代码可读性要强很多，可以快速了解pipe的实际实现；从2.4.20内核中对pipe的架构有整体了解后，再阅读新版本(4.4.1)中的新feature，会比较顺遂。
+pipe在fs/pipe.c中一些函数 - new_inode() - register_filesystem() - get_empty_file - get_unused_fd() - do_pipe作为pipe系统调用函数，在/arch/i386/sys_i386.c中定义 - pipe的module_init在initcall中调用，但是pipe.c是编译在fs.o中的，他的module_init是如何调用进去的，需要进一步查找 - struct dentry在include/linux/dcache.h中定义  具体实现 * pipe文件系统初始化 * 注册pipefs * register_filesystems * pipe系统调用 * pipe调用do_pipe * do_pipe() * f1&amp;amp;f2 get_empty_filep分配filep数据结构 * inode = get_pipe_inode()从pipe文件系统获得inode * new_inode() * pipe_new()新建pipe * __get_free_pages(GFP_USER)为该pipe分配一页内存（4KB） * inode-&amp;gt;i_pipe = kmalloc(sizeof(struct pipe_inde_info), GFP_KERNEL)分配pipe信息结构 * i&amp;amp;j = get_unused_fd()获取两个fd * dentry = d_alloc()从pipefs分配dentry * d_add(dentry, inode)将inode插入到dentry中 * 将f1设置成O_RDONLY，将f2设置成O_WRONLY * 进程的files列表中，files[i] = f1, files[j] = f2 * 实现函数 * pipe * pipe_read * pipe_write   tips   pipe不允许使用seek'>
+<title>pipe在内核中的实现</title>
+
+<link rel='canonical' href='https://bg2bkk.github.io/p/pipe%E5%9C%A8%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/'>
+
+<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='pipe在内核中的实现'>
+<meta property='og:description' content='pipe在linux内核中的实现 在之前关于linux shell多线程并发数控制的博文中，我们使用了fifo作为token池，通过读写fifo实现token分发控制，进而实现了控制线程数的目的。 我对pipe这个*** *NIX ***系统中最常用的组件（|）产生了兴趣
+ fifo和pipe是什么关系？ fifo或者pipe的使用方法？ pipe在linux kernel中的实现是怎样的？ fifo或者pipe的容量有多大，可以配置吗？  先说结论吧
+ fifo和pipe的区别  pipe是匿名管道，没有名字，只能用于两个拥有pipe读写两端fd的进程通信； fifo在文件系统中有自己的名称，操作fifo与操作普通文件几无差别，可以用于两个没有关系的进程间通信   fifo和pipe在kernel层面上都实现在fs/pipe.c中，所以本质上二者是一个东西。 pipe作为linux文件系统的一部分，与epoll一样，都是在向kernel注册了自己的文件系统，可以使用VFS提供的通用接口，比如open、read和write等操作 pipe的容量不是无限大的，早期linux版本（kernel-2.4）中pipe容量只能是4KB大小，新版本可以在运行时根据需要扩大到64KB  本文主要基于linux-2.4.20内核中的pipe实现进行分析，理由是该版本的pipe实现与新版本kernel并没有太大差别，但是代码可读性要强很多，可以快速了解pipe的实际实现；从2.4.20内核中对pipe的架构有整体了解后，再阅读新版本(4.4.1)中的新feature，会比较顺遂。
+pipe在fs/pipe.c中一些函数 - new_inode() - register_filesystem() - get_empty_file - get_unused_fd() - do_pipe作为pipe系统调用函数，在/arch/i386/sys_i386.c中定义 - pipe的module_init在initcall中调用，但是pipe.c是编译在fs.o中的，他的module_init是如何调用进去的，需要进一步查找 - struct dentry在include/linux/dcache.h中定义  具体实现 * pipe文件系统初始化 * 注册pipefs * register_filesystems * pipe系统调用 * pipe调用do_pipe * do_pipe() * f1&amp;amp;f2 get_empty_filep分配filep数据结构 * inode = get_pipe_inode()从pipe文件系统获得inode * new_inode() * pipe_new()新建pipe * __get_free_pages(GFP_USER)为该pipe分配一页内存（4KB） * inode-&amp;gt;i_pipe = kmalloc(sizeof(struct pipe_inde_info), GFP_KERNEL)分配pipe信息结构 * i&amp;amp;j = get_unused_fd()获取两个fd * dentry = d_alloc()从pipefs分配dentry * d_add(dentry, inode)将inode插入到dentry中 * 将f1设置成O_RDONLY，将f2设置成O_WRONLY * 进程的files列表中，files[i] = f1, files[j] = f2 * 实现函数 * pipe * pipe_read * pipe_write   tips   pipe不允许使用seek'>
+<meta property='og:url' content='https://bg2bkk.github.io/p/pipe%E5%9C%A8%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/'>
+<meta property='og:site_name' content='Bg2bkk Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='linux kenrel' /><meta property='article:published_time' content='2016-02-27T09:49:41&#43;08:00'/><meta property='article:modified_time' content='2016-02-27T09:49:41&#43;08:00'/>
+<meta name="twitter:title" content="pipe在内核中的实现">
+<meta name="twitter:description" content="pipe在linux内核中的实现 在之前关于linux shell多线程并发数控制的博文中，我们使用了fifo作为token池，通过读写fifo实现token分发控制，进而实现了控制线程数的目的。 我对pipe这个*** *NIX ***系统中最常用的组件（|）产生了兴趣
+ fifo和pipe是什么关系？ fifo或者pipe的使用方法？ pipe在linux kernel中的实现是怎样的？ fifo或者pipe的容量有多大，可以配置吗？  先说结论吧
+ fifo和pipe的区别  pipe是匿名管道，没有名字，只能用于两个拥有pipe读写两端fd的进程通信； fifo在文件系统中有自己的名称，操作fifo与操作普通文件几无差别，可以用于两个没有关系的进程间通信   fifo和pipe在kernel层面上都实现在fs/pipe.c中，所以本质上二者是一个东西。 pipe作为linux文件系统的一部分，与epoll一样，都是在向kernel注册了自己的文件系统，可以使用VFS提供的通用接口，比如open、read和write等操作 pipe的容量不是无限大的，早期linux版本（kernel-2.4）中pipe容量只能是4KB大小，新版本可以在运行时根据需要扩大到64KB  本文主要基于linux-2.4.20内核中的pipe实现进行分析，理由是该版本的pipe实现与新版本kernel并没有太大差别，但是代码可读性要强很多，可以快速了解pipe的实际实现；从2.4.20内核中对pipe的架构有整体了解后，再阅读新版本(4.4.1)中的新feature，会比较顺遂。
+pipe在fs/pipe.c中一些函数 - new_inode() - register_filesystem() - get_empty_file - get_unused_fd() - do_pipe作为pipe系统调用函数，在/arch/i386/sys_i386.c中定义 - pipe的module_init在initcall中调用，但是pipe.c是编译在fs.o中的，他的module_init是如何调用进去的，需要进一步查找 - struct dentry在include/linux/dcache.h中定义  具体实现 * pipe文件系统初始化 * 注册pipefs * register_filesystems * pipe系统调用 * pipe调用do_pipe * do_pipe() * f1&amp;amp;f2 get_empty_filep分配filep数据结构 * inode = get_pipe_inode()从pipe文件系统获得inode * new_inode() * pipe_new()新建pipe * __get_free_pages(GFP_USER)为该pipe分配一页内存（4KB） * inode-&amp;gt;i_pipe = kmalloc(sizeof(struct pipe_inde_info), GFP_KERNEL)分配pipe信息结构 * i&amp;amp;j = get_unused_fd()获取两个fd * dentry = d_alloc()从pipefs分配dentry * d_add(dentry, inode)将inode插入到dentry中 * 将f1设置成O_RDONLY，将f2设置成O_WRONLY * 进程的files列表中，files[i] = f1, files[j] = f2 * 实现函数 * pipe * pipe_read * pipe_write   tips   pipe不允许使用seek">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu9dfb7228514195dbb950046570d90a5c_100216_300x0_resize_q75_box.jpg" width="300"
+                            height="221" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/source-code/" >
+                source code
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/pipe%E5%9C%A8%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/">pipe在内核中的实现</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Feb 27, 2016</time>
+            </div>
+        
+
+    
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    7 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="pipe在linux内核中的实现">pipe在linux内核中的实现</h2>
+<p>在之前关于linux shell多线程并发数控制的<a class="link" href="https://bg2bkk.github.io/post/shell%E5%A4%9A%E7%BA%BF%E7%A8%8B%E5%AE%9E%E8%B7%B5/"  target="_blank" rel="noopener"
+    >博文</a>中，我们使用了fifo作为token池，通过读写fifo实现token分发控制，进而实现了控制线程数的目的。
+我对pipe这个*** *NIX ***系统中最常用的组件（|）产生了兴趣</p>
+<ul>
+<li>fifo和pipe是什么关系？</li>
+<li>fifo或者pipe的使用方法？</li>
+<li>pipe在linux kernel中的实现是怎样的？</li>
+<li>fifo或者pipe的容量有多大，可以配置吗？</li>
+</ul>
+<p>先说结论吧</p>
+<ul>
+<li>fifo和pipe的区别
+<ul>
+<li>pipe是匿名管道，没有名字，只能用于两个拥有pipe读写两端fd的进程通信；</li>
+<li>fifo在文件系统中有自己的名称，操作fifo与操作普通文件几无差别，可以用于两个没有关系的进程间通信</li>
+</ul>
+</li>
+<li>fifo和pipe在kernel层面上都实现在fs/pipe.c中，所以本质上二者是一个东西。</li>
+<li>pipe作为linux文件系统的一部分，与epoll一样，都是在向kernel注册了自己的文件系统，可以使用VFS提供的通用接口，比如open、read和write等操作</li>
+<li>pipe的容量不是无限大的，早期linux版本（kernel-2.4）中pipe容量只能是4KB大小，新版本可以在运行时根据需要扩大到64KB</li>
+</ul>
+<p>本文主要基于linux-2.4.20内核中的pipe实现进行分析，理由是该版本的pipe实现与新版本kernel并没有太大差别，但是代码可读性要强很多，可以快速了解pipe的实际实现；从2.4.20内核中对pipe的架构有整体了解后，再阅读新版本(4.4.1)中的新feature，会比较顺遂。</p>
+<h3 id="pipe在fspipec中一些函数">pipe在fs/pipe.c中一些函数</h3>
+<pre><code>- new_inode()
+- register_filesystem()
+- get_empty_file
+- get_unused_fd()
+- do_pipe作为pipe系统调用函数，在/arch/i386/sys_i386.c中定义
+- pipe的module_init在initcall中调用，但是pipe.c是编译在fs.o中的，他的module_init是如何调用进去的，需要进一步查找
+- struct dentry在include/linux/dcache.h中定义
+</code></pre>
+<h3 id="具体实现">具体实现</h3>
+<pre><code>* pipe文件系统初始化
+    * 注册pipefs
+        * register_filesystems
+
+* pipe系统调用
+    * pipe调用do_pipe
+    * do_pipe()
+        * f1&amp;f2 get_empty_filep分配filep数据结构
+        * inode = get_pipe_inode()从pipe文件系统获得inode
+            * new_inode()
+            * pipe_new()新建pipe
+                * __get_free_pages(GFP_USER)为该pipe分配一页内存（4KB）
+                * inode-&gt;i_pipe = kmalloc(sizeof(struct pipe_inde_info), GFP_KERNEL)分配pipe信息结构
+        * i&amp;j = get_unused_fd()获取两个fd
+        * dentry = d_alloc()从pipefs分配dentry
+        * d_add(dentry, inode)将inode插入到dentry中
+        * 将f1设置成O_RDONLY，将f2设置成O_WRONLY
+        * 进程的files列表中，files[i] = f1, files[j] = f2
+
+* 实现函数
+    * pipe
+        * pipe_read
+        * pipe_write
+</code></pre>
+<ul>
+<li>tips
+<ul>
+<li>
+<p>pipe不允许使用seek</p>
+</li>
+<li>
+<p>低版本linux-2.4.20在pipe写的时候是固定大小，而高版本的是会按需分配直至64KB的。</p>
+</li>
+<li>
+<p>高版本kernel内核中sysctl的配置参数<em><strong>fs.pipe-max-size</strong></em> 可以设置固定的pipe大小。但是也不能超过64KB大小，即使配置数据大于这个数字，pipe大小也会限制在64KB。</p>
+</li>
+<li>
+<p><a class="link" href="http://unix.stackexchange.com/questions/11946/how-big-is-the-pipe-buffer"  target="_blank" rel="noopener"
+    >测试代码</a></p>
+</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/bash
+</span><span class="cp"></span><span class="nb">test</span> <span class="nv">$#</span> -ge <span class="m">1</span> <span class="o">||</span> <span class="o">{</span> <span class="nb">echo</span> <span class="s2">&#34;usage: </span><span class="nv">$0</span><span class="s2"> write-size [wait-time]&#34;</span><span class="p">;</span> <span class="nb">exit</span> 1<span class="p">;</span> <span class="o">}</span>
+<span class="nb">test</span> <span class="nv">$#</span> -ge <span class="m">2</span> <span class="o">||</span> <span class="nb">set</span> -- <span class="s2">&#34;</span><span class="nv">$@</span><span class="s2">&#34;</span> <span class="m">1</span>
+<span class="nv">bytes_written</span><span class="o">=</span><span class="k">$(</span>
+<span class="o">{</span>
+    <span class="nb">exec</span> 3&gt;<span class="p">&amp;</span><span class="m">1</span>
+    <span class="o">{</span>
+        perl -e <span class="s1">&#39;
+</span><span class="s1">            $size = $ARGV[0];
+</span><span class="s1">            $block = q(a) x $size;
+</span><span class="s1">            $num_written = 0;
+</span><span class="s1">            sub report { print STDERR $num_written * $size, qq(\n); }
+</span><span class="s1">            report; while (defined syswrite STDOUT, $block) {
+</span><span class="s1">                $num_written++; report;
+</span><span class="s1">            }
+</span><span class="s1">        &#39;</span> <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> 2&gt;<span class="p">&amp;</span><span class="m">3</span>
+    <span class="o">}</span> <span class="p">|</span> <span class="o">(</span>sleep <span class="s2">&#34;</span><span class="nv">$2</span><span class="s2">&#34;</span><span class="p">;</span> <span class="nb">exec</span> 0&lt;<span class="p">&amp;</span>-<span class="k">)</span><span class="p">;</span>
+<span class="o">}</span> <span class="p">|</span> tail -1
+<span class="o">)</span>
+<span class="nb">printf</span> <span class="s2">&#34;write size: %10d; bytes successfully before error: %d\n&#34;</span> <span class="se">\
+</span><span class="se"></span>    <span class="s2">&#34;</span><span class="nv">$1</span><span class="s2">&#34;</span> <span class="s2">&#34;</span><span class="nv">$bytes_written</span><span class="s2">&#34;</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><pre><code>* 测试结果
+</code></pre>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-fallback" data-lang="fallback">huang@ThinkPad-X220:~/workspace/cpp$ /bin/bash -c &#39;for p in {0..18}; do ./pipe.sh $((2 ** $p)) 0.5; done&#39;
+write size:          1; bytes successfully before error: 65536
+write size:          2; bytes successfully before error: 65536
+write size:          4; bytes successfully before error: 65536
+write size:          8; bytes successfully before error: 65536
+write size:         16; bytes successfully before error: 65536
+write size:         32; bytes successfully before error: 65536
+write size:         64; bytes successfully before error: 65536
+write size:        128; bytes successfully before error: 65536
+write size:        256; bytes successfully before error: 65536
+write size:        512; bytes successfully before error: 65536
+write size:       1024; bytes successfully before error: 65536
+write size:       2048; bytes successfully before error: 65536
+write size:       4096; bytes successfully before error: 65536
+write size:       8192; bytes successfully before error: 65536
+write size:      16384; bytes successfully before error: 65536
+write size:      32768; bytes successfully before error: 65536
+write size:      65536; bytes successfully before error: 65536
+write size:     131072; bytes successfully before error: 0
+write size:     262144; bytes successfully before error: 0
+
+</code></pre></td></tr></table>
+</div>
+</div><pre><code>* 内核中64KB大小的限制在哪里设置的？(TO DO)
+    * 只有在高版本的pipe实现中才有64KB大小，低版本都是4KB的。
+    * ulimit -a 的结果中，&quot;pipe size (512 bytes, -p) 8&quot;，表示一个pipe拥有8个512KB的buffer，总共是4KB
+    * 在include/linux/fs_pipe_i.h中，#define PIPE_DEF_BUFFERS   16, 这里是[按buffer的数量分配的](http://home.gna.org/pysfst/tests/pipe-limit.html)。
+    * 在fs/pipe.c中，pipe_write和pipe_read是在运行时按页大小分配的
+    * sysctl中fs.max_pipe_size的设置，fs.pipe-max-size = 1048576，又会起什么作用
+</code></pre>
+<ul>
+<li>函数分析
+<ul>
+<li>init_pipe_fs向文件系统注册pipe组件</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="k">static</span> <span class="kt">int</span> <span class="n">__init</span> <span class="nf">init_pipe_fs</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">err</span> <span class="o">=</span> <span class="n">register_filesystem</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pipe_fs_type</span><span class="p">);</span>
+	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">err</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">pipe_mnt</span> <span class="o">=</span> <span class="n">kern_mount</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pipe_fs_type</span><span class="p">);</span>
+		<span class="n">err</span> <span class="o">=</span> <span class="n">PTR_ERR</span><span class="p">(</span><span class="n">pipe_mnt</span><span class="p">);</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">IS_ERR</span><span class="p">(</span><span class="n">pipe_mnt</span><span class="p">))</span>
+			<span class="n">unregister_filesystem</span><span class="p">(</span><span class="o">&amp;</span><span class="n">pipe_fs_type</span><span class="p">);</span>
+		<span class="k">else</span>
+			<span class="n">err</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="n">err</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="k">static</span> <span class="nf">DECLARE_FSTYPE</span><span class="p">(</span><span class="n">pipe_fs_type</span><span class="p">,</span> <span class="s">&#34;pipefs&#34;</span><span class="p">,</span> <span class="n">pipefs_read_super</span><span class="p">,</span> <span class="n">FS_NOMOUNT</span><span class="p">);</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="cp">#define DECLARE_FSTYPE(var,type,read,flags) \
+</span><span class="cp">struct file_system_type var = { \
+</span><span class="cp">	name:		type, \
+</span><span class="cp">	read_super:	read, \
+</span><span class="cp">	fs_flags:	flags, \
+</span><span class="cp">	owner:		THIS_MODULE, \
+</span><span class="cp">}
+</span></code></pre></td></tr></table>
+</div>
+</div><pre><code>* pipe源码（2.4的实现中实在没什么可讲的，比较有价值的是pipe_write和pipe_read中处理缓冲队列源码可以参考）
+</code></pre>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">  1
+</span><span class="lnt">  2
+</span><span class="lnt">  3
+</span><span class="lnt">  4
+</span><span class="lnt">  5
+</span><span class="lnt">  6
+</span><span class="lnt">  7
+</span><span class="lnt">  8
+</span><span class="lnt">  9
+</span><span class="lnt"> 10
+</span><span class="lnt"> 11
+</span><span class="lnt"> 12
+</span><span class="lnt"> 13
+</span><span class="lnt"> 14
+</span><span class="lnt"> 15
+</span><span class="lnt"> 16
+</span><span class="lnt"> 17
+</span><span class="lnt"> 18
+</span><span class="lnt"> 19
+</span><span class="lnt"> 20
+</span><span class="lnt"> 21
+</span><span class="lnt"> 22
+</span><span class="lnt"> 23
+</span><span class="lnt"> 24
+</span><span class="lnt"> 25
+</span><span class="lnt"> 26
+</span><span class="lnt"> 27
+</span><span class="lnt"> 28
+</span><span class="lnt"> 29
+</span><span class="lnt"> 30
+</span><span class="lnt"> 31
+</span><span class="lnt"> 32
+</span><span class="lnt"> 33
+</span><span class="lnt"> 34
+</span><span class="lnt"> 35
+</span><span class="lnt"> 36
+</span><span class="lnt"> 37
+</span><span class="lnt"> 38
+</span><span class="lnt"> 39
+</span><span class="lnt"> 40
+</span><span class="lnt"> 41
+</span><span class="lnt"> 42
+</span><span class="lnt"> 43
+</span><span class="lnt"> 44
+</span><span class="lnt"> 45
+</span><span class="lnt"> 46
+</span><span class="lnt"> 47
+</span><span class="lnt"> 48
+</span><span class="lnt"> 49
+</span><span class="lnt"> 50
+</span><span class="lnt"> 51
+</span><span class="lnt"> 52
+</span><span class="lnt"> 53
+</span><span class="lnt"> 54
+</span><span class="lnt"> 55
+</span><span class="lnt"> 56
+</span><span class="lnt"> 57
+</span><span class="lnt"> 58
+</span><span class="lnt"> 59
+</span><span class="lnt"> 60
+</span><span class="lnt"> 61
+</span><span class="lnt"> 62
+</span><span class="lnt"> 63
+</span><span class="lnt"> 64
+</span><span class="lnt"> 65
+</span><span class="lnt"> 66
+</span><span class="lnt"> 67
+</span><span class="lnt"> 68
+</span><span class="lnt"> 69
+</span><span class="lnt"> 70
+</span><span class="lnt"> 71
+</span><span class="lnt"> 72
+</span><span class="lnt"> 73
+</span><span class="lnt"> 74
+</span><span class="lnt"> 75
+</span><span class="lnt"> 76
+</span><span class="lnt"> 77
+</span><span class="lnt"> 78
+</span><span class="lnt"> 79
+</span><span class="lnt"> 80
+</span><span class="lnt"> 81
+</span><span class="lnt"> 82
+</span><span class="lnt"> 83
+</span><span class="lnt"> 84
+</span><span class="lnt"> 85
+</span><span class="lnt"> 86
+</span><span class="lnt"> 87
+</span><span class="lnt"> 88
+</span><span class="lnt"> 89
+</span><span class="lnt"> 90
+</span><span class="lnt"> 91
+</span><span class="lnt"> 92
+</span><span class="lnt"> 93
+</span><span class="lnt"> 94
+</span><span class="lnt"> 95
+</span><span class="lnt"> 96
+</span><span class="lnt"> 97
+</span><span class="lnt"> 98
+</span><span class="lnt"> 99
+</span><span class="lnt">100
+</span><span class="lnt">101
+</span><span class="lnt">102
+</span><span class="lnt">103
+</span><span class="lnt">104
+</span><span class="lnt">105
+</span><span class="lnt">106
+</span><span class="lnt">107
+</span><span class="lnt">108
+</span><span class="lnt">109
+</span><span class="lnt">110
+</span><span class="lnt">111
+</span><span class="lnt">112
+</span><span class="lnt">113
+</span><span class="lnt">114
+</span><span class="lnt">115
+</span><span class="lnt">116
+</span><span class="lnt">117
+</span><span class="lnt">118
+</span><span class="lnt">119
+</span><span class="lnt">120
+</span><span class="lnt">121
+</span><span class="lnt">122
+</span><span class="lnt">123
+</span><span class="lnt">124
+</span><span class="lnt">125
+</span><span class="lnt">126
+</span><span class="lnt">127
+</span><span class="lnt">128
+</span><span class="lnt">129
+</span><span class="lnt">130
+</span><span class="lnt">131
+</span><span class="lnt">132
+</span><span class="lnt">133
+</span><span class="lnt">134
+</span><span class="lnt">135
+</span><span class="lnt">136
+</span><span class="lnt">137
+</span><span class="lnt">138
+</span><span class="lnt">139
+</span><span class="lnt">140
+</span><span class="lnt">141
+</span><span class="lnt">142
+</span><span class="lnt">143
+</span><span class="lnt">144
+</span><span class="lnt">145
+</span><span class="lnt">146
+</span><span class="lnt">147
+</span><span class="lnt">148
+</span><span class="lnt">149
+</span><span class="lnt">150
+</span><span class="lnt">151
+</span><span class="lnt">152
+</span><span class="lnt">153
+</span><span class="lnt">154
+</span><span class="lnt">155
+</span><span class="lnt">156
+</span><span class="lnt">157
+</span><span class="lnt">158
+</span><span class="lnt">159
+</span><span class="lnt">160
+</span><span class="lnt">161
+</span><span class="lnt">162
+</span><span class="lnt">163
+</span><span class="lnt">164
+</span><span class="lnt">165
+</span><span class="lnt">166
+</span><span class="lnt">167
+</span><span class="lnt">168
+</span><span class="lnt">169
+</span><span class="lnt">170
+</span><span class="lnt">171
+</span><span class="lnt">172
+</span><span class="lnt">173
+</span><span class="lnt">174
+</span><span class="lnt">175
+</span><span class="lnt">176
+</span><span class="lnt">177
+</span><span class="lnt">178
+</span><span class="lnt">179
+</span><span class="lnt">180
+</span><span class="lnt">181
+</span><span class="lnt">182
+</span><span class="lnt">183
+</span><span class="lnt">184
+</span><span class="lnt">185
+</span><span class="lnt">186
+</span><span class="lnt">187
+</span><span class="lnt">188
+</span><span class="lnt">189
+</span><span class="lnt">190
+</span><span class="lnt">191
+</span><span class="lnt">192
+</span><span class="lnt">193
+</span><span class="lnt">194
+</span><span class="lnt">195
+</span><span class="lnt">196
+</span><span class="lnt">197
+</span><span class="lnt">198
+</span><span class="lnt">199
+</span><span class="lnt">200
+</span><span class="lnt">201
+</span><span class="lnt">202
+</span><span class="lnt">203
+</span><span class="lnt">204
+</span><span class="lnt">205
+</span><span class="lnt">206
+</span><span class="lnt">207
+</span><span class="lnt">208
+</span><span class="lnt">209
+</span><span class="lnt">210
+</span><span class="lnt">211
+</span><span class="lnt">212
+</span><span class="lnt">213
+</span><span class="lnt">214
+</span><span class="lnt">215
+</span><span class="lnt">216
+</span><span class="lnt">217
+</span><span class="lnt">218
+</span><span class="lnt">219
+</span><span class="lnt">220
+</span><span class="lnt">221
+</span><span class="lnt">222
+</span><span class="lnt">223
+</span><span class="lnt">224
+</span><span class="lnt">225
+</span><span class="lnt">226
+</span><span class="lnt">227
+</span><span class="lnt">228
+</span><span class="lnt">229
+</span><span class="lnt">230
+</span><span class="lnt">231
+</span><span class="lnt">232
+</span><span class="lnt">233
+</span><span class="lnt">234
+</span><span class="lnt">235
+</span><span class="lnt">236
+</span><span class="lnt">237
+</span><span class="lnt">238
+</span><span class="lnt">239
+</span><span class="lnt">240
+</span><span class="lnt">241
+</span><span class="lnt">242
+</span><span class="lnt">243
+</span><span class="lnt">244
+</span><span class="lnt">245
+</span><span class="lnt">246
+</span><span class="lnt">247
+</span><span class="lnt">248
+</span><span class="lnt">249
+</span><span class="lnt">250
+</span><span class="lnt">251
+</span><span class="lnt">252
+</span><span class="lnt">253
+</span><span class="lnt">254
+</span><span class="lnt">255
+</span><span class="lnt">256
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="cm">/*
+</span><span class="cm"> * We use a start+len construction, which provides full use of the 
+</span><span class="cm"> * allocated memory.
+</span><span class="cm"> * -- Florian Coosmann (FGC)
+</span><span class="cm"> * 
+</span><span class="cm"> * Reads with count = 0 should always return 0.
+</span><span class="cm"> * -- Julian Bradfield 1999-06-07.
+</span><span class="cm"> */</span>
+
+<span class="cm">/* Drop the inode semaphore and wait for a pipe event, atomically */</span>
+<span class="kt">void</span> <span class="nf">pipe_wait</span><span class="p">(</span><span class="k">struct</span> <span class="nc">inode</span> <span class="o">*</span> <span class="n">inode</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="n">DECLARE_WAITQUEUE</span><span class="p">(</span><span class="n">wait</span><span class="p">,</span> <span class="n">current</span><span class="p">);</span>
+	<span class="n">current</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_INTERRUPTIBLE</span><span class="p">;</span>
+	<span class="n">add_wait_queue</span><span class="p">(</span><span class="n">PIPE_WAIT</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">wait</span><span class="p">);</span>
+	<span class="n">up</span><span class="p">(</span><span class="n">PIPE_SEM</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">));</span>
+	<span class="n">schedule</span><span class="p">();</span>
+	<span class="n">remove_wait_queue</span><span class="p">(</span><span class="n">PIPE_WAIT</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">),</span> <span class="o">&amp;</span><span class="n">wait</span><span class="p">);</span>
+	<span class="n">current</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">=</span> <span class="n">TASK_RUNNING</span><span class="p">;</span>
+	<span class="n">down</span><span class="p">(</span><span class="n">PIPE_SEM</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="n">ssize_t</span>
+<span class="nf">pipe_read</span><span class="p">(</span><span class="k">struct</span> <span class="nc">file</span> <span class="o">*</span><span class="n">filp</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">count</span><span class="p">,</span> <span class="n">loff_t</span> <span class="o">*</span><span class="n">ppos</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">struct</span> <span class="nc">inode</span> <span class="o">*</span><span class="n">inode</span> <span class="o">=</span> <span class="n">filp</span><span class="o">-&gt;</span><span class="n">f_dentry</span><span class="o">-&gt;</span><span class="n">d_inode</span><span class="p">;</span>
+	<span class="n">ssize_t</span> <span class="n">size</span><span class="p">,</span> <span class="n">read</span><span class="p">,</span> <span class="n">ret</span><span class="p">;</span>
+
+	<span class="cm">/* Seeks are not allowed on pipes.  */</span>
+	<span class="n">ret</span> <span class="o">=</span> <span class="o">-</span><span class="n">ESPIPE</span><span class="p">;</span>
+	<span class="n">read</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">ppos</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="n">filp</span><span class="o">-&gt;</span><span class="n">f_pos</span><span class="p">)</span>
+		<span class="k">goto</span> <span class="n">out_nolock</span><span class="p">;</span>
+
+	<span class="cm">/* Always return 0 on null read.  */</span>
+	<span class="n">ret</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+		<span class="k">goto</span> <span class="n">out_nolock</span><span class="p">;</span>
+
+	<span class="cm">/* Get the pipe semaphore */</span>
+	<span class="n">ret</span> <span class="o">=</span> <span class="o">-</span><span class="n">ERESTARTSYS</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">down_interruptible</span><span class="p">(</span><span class="n">PIPE_SEM</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">)))</span>
+		<span class="k">goto</span> <span class="n">out_nolock</span><span class="p">;</span>
+
+	<span class="k">if</span> <span class="p">(</span><span class="n">PIPE_EMPTY</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">))</span> <span class="p">{</span>
+<span class="nl">do_more_read</span><span class="p">:</span>
+		<span class="n">ret</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+		<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">PIPE_WRITERS</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">))</span>
+			<span class="k">goto</span> <span class="n">out</span><span class="p">;</span>
+
+		<span class="n">ret</span> <span class="o">=</span> <span class="o">-</span><span class="n">EAGAIN</span><span class="p">;</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">filp</span><span class="o">-&gt;</span><span class="n">f_flags</span> <span class="o">&amp;</span> <span class="n">O_NONBLOCK</span><span class="p">)</span>
+			<span class="k">goto</span> <span class="n">out</span><span class="p">;</span>
+
+		<span class="k">for</span> <span class="p">(;;)</span> <span class="p">{</span>
+			<span class="n">PIPE_WAITING_READERS</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">)</span><span class="o">++</span><span class="p">;</span>
+			<span class="n">pipe_wait</span><span class="p">(</span><span class="n">inode</span><span class="p">);</span>
+			<span class="n">PIPE_WAITING_READERS</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">)</span><span class="o">--</span><span class="p">;</span>
+			<span class="n">ret</span> <span class="o">=</span> <span class="o">-</span><span class="n">ERESTARTSYS</span><span class="p">;</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">signal_pending</span><span class="p">(</span><span class="n">current</span><span class="p">))</span>
+				<span class="k">goto</span> <span class="n">out</span><span class="p">;</span>
+			<span class="n">ret</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">PIPE_EMPTY</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">))</span>
+				<span class="k">break</span><span class="p">;</span>
+			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">PIPE_WRITERS</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">))</span>
+				<span class="k">goto</span> <span class="n">out</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="cm">/* Read what data is available.  */</span>
+	<span class="n">ret</span> <span class="o">=</span> <span class="o">-</span><span class="n">EFAULT</span><span class="p">;</span>
+	<span class="k">while</span> <span class="p">(</span><span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="p">(</span><span class="n">size</span> <span class="o">=</span> <span class="n">PIPE_LEN</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">)))</span> <span class="p">{</span>
+		<span class="kt">char</span> <span class="o">*</span><span class="n">pipebuf</span> <span class="o">=</span> <span class="n">PIPE_BASE</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">)</span> <span class="o">+</span> <span class="n">PIPE_START</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">);</span>
+		<span class="n">ssize_t</span> <span class="n">chars</span> <span class="o">=</span> <span class="n">PIPE_MAX_RCHUNK</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">);</span>
+
+		<span class="k">if</span> <span class="p">(</span><span class="n">chars</span> <span class="o">&gt;</span> <span class="n">count</span><span class="p">)</span>
+			<span class="n">chars</span> <span class="o">=</span> <span class="n">count</span><span class="p">;</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">chars</span> <span class="o">&gt;</span> <span class="n">size</span><span class="p">)</span>
+			<span class="n">chars</span> <span class="o">=</span> <span class="n">size</span><span class="p">;</span>
+
+		<span class="k">if</span> <span class="p">(</span><span class="n">copy_to_user</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">pipebuf</span><span class="p">,</span> <span class="n">chars</span><span class="p">))</span>
+			<span class="k">goto</span> <span class="n">out</span><span class="p">;</span>
+
+		<span class="n">read</span> <span class="o">+=</span> <span class="n">chars</span><span class="p">;</span>
+		<span class="n">PIPE_START</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">)</span> <span class="o">+=</span> <span class="n">chars</span><span class="p">;</span>
+		<span class="n">PIPE_START</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">)</span> <span class="o">&amp;=</span> <span class="p">(</span><span class="n">PIPE_SIZE</span> <span class="o">-</span> <span class="mi">1</span><span class="p">);</span>
+		<span class="n">PIPE_LEN</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">)</span> <span class="o">-=</span> <span class="n">chars</span><span class="p">;</span>
+		<span class="n">count</span> <span class="o">-=</span> <span class="n">chars</span><span class="p">;</span>
+		<span class="n">buf</span> <span class="o">+=</span> <span class="n">chars</span><span class="p">;</span>
+	<span class="p">}</span>
+
+	<span class="cm">/* Cache behaviour optimization */</span>
+	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">PIPE_LEN</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">))</span>
+		<span class="n">PIPE_START</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">)</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+	<span class="k">if</span> <span class="p">(</span><span class="n">count</span> <span class="o">&amp;&amp;</span> <span class="n">PIPE_WAITING_WRITERS</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="p">(</span><span class="n">filp</span><span class="o">-&gt;</span><span class="n">f_flags</span> <span class="o">&amp;</span> <span class="n">O_NONBLOCK</span><span class="p">))</span> <span class="p">{</span>
+		<span class="cm">/*
+</span><span class="cm">		 * We know that we are going to sleep: signal
+</span><span class="cm">		 * writers synchronously that there is more
+</span><span class="cm">		 * room.
+</span><span class="cm">		 */</span>
+		<span class="n">wake_up_interruptible_sync</span><span class="p">(</span><span class="n">PIPE_WAIT</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">));</span>
+		<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">PIPE_EMPTY</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">))</span>
+			<span class="n">BUG</span><span class="p">();</span>
+		<span class="k">goto</span> <span class="n">do_more_read</span><span class="p">;</span>
+	<span class="p">}</span>
+	<span class="cm">/* Signal writers asynchronously that there is more room.  */</span>
+	<span class="n">wake_up_interruptible</span><span class="p">(</span><span class="n">PIPE_WAIT</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">));</span>
+
+	<span class="n">ret</span> <span class="o">=</span> <span class="n">read</span><span class="p">;</span>
+<span class="nl">out</span><span class="p">:</span>
+	<span class="n">up</span><span class="p">(</span><span class="n">PIPE_SEM</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">));</span>
+<span class="nl">out_nolock</span><span class="p">:</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">read</span><span class="p">)</span>
+		<span class="n">ret</span> <span class="o">=</span> <span class="n">read</span><span class="p">;</span>
+
+	<span class="n">UPDATE_ATIME</span><span class="p">(</span><span class="n">inode</span><span class="p">);</span>
+	<span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">static</span> <span class="n">ssize_t</span>
+<span class="nf">pipe_write</span><span class="p">(</span><span class="k">struct</span> <span class="nc">file</span> <span class="o">*</span><span class="n">filp</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">buf</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">count</span><span class="p">,</span> <span class="n">loff_t</span> <span class="o">*</span><span class="n">ppos</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="k">struct</span> <span class="nc">inode</span> <span class="o">*</span><span class="n">inode</span> <span class="o">=</span> <span class="n">filp</span><span class="o">-&gt;</span><span class="n">f_dentry</span><span class="o">-&gt;</span><span class="n">d_inode</span><span class="p">;</span>
+	<span class="n">ssize_t</span> <span class="n">free</span><span class="p">,</span> <span class="n">written</span><span class="p">,</span> <span class="n">ret</span><span class="p">;</span>
+
+	<span class="cm">/* Seeks are not allowed on pipes.  */</span>
+	<span class="n">ret</span> <span class="o">=</span> <span class="o">-</span><span class="n">ESPIPE</span><span class="p">;</span>
+	<span class="n">written</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">ppos</span> <span class="o">!=</span> <span class="o">&amp;</span><span class="n">filp</span><span class="o">-&gt;</span><span class="n">f_pos</span><span class="p">)</span>
+		<span class="k">goto</span> <span class="n">out_nolock</span><span class="p">;</span>
+
+	<span class="cm">/* Null write succeeds.  */</span>
+	<span class="n">ret</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+		<span class="k">goto</span> <span class="n">out_nolock</span><span class="p">;</span>
+
+	<span class="n">ret</span> <span class="o">=</span> <span class="o">-</span><span class="n">ERESTARTSYS</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">down_interruptible</span><span class="p">(</span><span class="n">PIPE_SEM</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">)))</span>
+		<span class="k">goto</span> <span class="n">out_nolock</span><span class="p">;</span>
+
+	<span class="cm">/* No readers yields SIGPIPE.  */</span>
+	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">PIPE_READERS</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">))</span>
+		<span class="k">goto</span> <span class="n">sigpipe</span><span class="p">;</span>
+
+	<span class="cm">/* If count &lt;= PIPE_BUF, we have to make it atomic.  */</span>
+	<span class="n">free</span> <span class="o">=</span> <span class="p">(</span><span class="n">count</span> <span class="o">&lt;=</span> <span class="n">PIPE_BUF</span> <span class="o">?</span> <span class="nl">count</span> <span class="p">:</span> <span class="mi">1</span><span class="p">);</span>
+
+	<span class="cm">/* Wait, or check for, available space.  */</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">filp</span><span class="o">-&gt;</span><span class="n">f_flags</span> <span class="o">&amp;</span> <span class="n">O_NONBLOCK</span><span class="p">)</span> <span class="p">{</span>
+		<span class="n">ret</span> <span class="o">=</span> <span class="o">-</span><span class="n">EAGAIN</span><span class="p">;</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">PIPE_FREE</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">free</span><span class="p">)</span>
+			<span class="k">goto</span> <span class="n">out</span><span class="p">;</span>
+	<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+		<span class="k">while</span> <span class="p">(</span><span class="n">PIPE_FREE</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">free</span><span class="p">)</span> <span class="p">{</span>
+			<span class="n">PIPE_WAITING_WRITERS</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">)</span><span class="o">++</span><span class="p">;</span>
+			<span class="n">pipe_wait</span><span class="p">(</span><span class="n">inode</span><span class="p">);</span>
+			<span class="n">PIPE_WAITING_WRITERS</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">)</span><span class="o">--</span><span class="p">;</span>
+			<span class="n">ret</span> <span class="o">=</span> <span class="o">-</span><span class="n">ERESTARTSYS</span><span class="p">;</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">signal_pending</span><span class="p">(</span><span class="n">current</span><span class="p">))</span>
+				<span class="k">goto</span> <span class="n">out</span><span class="p">;</span>
+
+			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">PIPE_READERS</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">))</span>
+				<span class="k">goto</span> <span class="n">sigpipe</span><span class="p">;</span>
+		<span class="p">}</span>
+	<span class="p">}</span>
+
+	<span class="cm">/* Copy into available space.  */</span>
+	<span class="n">ret</span> <span class="o">=</span> <span class="o">-</span><span class="n">EFAULT</span><span class="p">;</span>
+	<span class="k">while</span> <span class="p">(</span><span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+		<span class="kt">int</span> <span class="n">space</span><span class="p">;</span>
+		<span class="kt">char</span> <span class="o">*</span><span class="n">pipebuf</span> <span class="o">=</span> <span class="n">PIPE_BASE</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">)</span> <span class="o">+</span> <span class="n">PIPE_END</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">);</span>
+		<span class="n">ssize_t</span> <span class="n">chars</span> <span class="o">=</span> <span class="n">PIPE_MAX_WCHUNK</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">);</span>
+
+		<span class="k">if</span> <span class="p">((</span><span class="n">space</span> <span class="o">=</span> <span class="n">PIPE_FREE</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">chars</span> <span class="o">&gt;</span> <span class="n">count</span><span class="p">)</span>
+				<span class="n">chars</span> <span class="o">=</span> <span class="n">count</span><span class="p">;</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">chars</span> <span class="o">&gt;</span> <span class="n">space</span><span class="p">)</span>
+				<span class="n">chars</span> <span class="o">=</span> <span class="n">space</span><span class="p">;</span>
+
+			<span class="k">if</span> <span class="p">(</span><span class="n">copy_from_user</span><span class="p">(</span><span class="n">pipebuf</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">chars</span><span class="p">))</span>
+				<span class="k">goto</span> <span class="n">out</span><span class="p">;</span>
+
+			<span class="n">written</span> <span class="o">+=</span> <span class="n">chars</span><span class="p">;</span>
+			<span class="n">PIPE_LEN</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">)</span> <span class="o">+=</span> <span class="n">chars</span><span class="p">;</span>
+			<span class="n">count</span> <span class="o">-=</span> <span class="n">chars</span><span class="p">;</span>
+			<span class="n">buf</span> <span class="o">+=</span> <span class="n">chars</span><span class="p">;</span>
+			<span class="n">space</span> <span class="o">=</span> <span class="n">PIPE_FREE</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">);</span>
+			<span class="k">continue</span><span class="p">;</span>
+		<span class="p">}</span>
+
+		<span class="n">ret</span> <span class="o">=</span> <span class="n">written</span><span class="p">;</span>
+		<span class="k">if</span> <span class="p">(</span><span class="n">filp</span><span class="o">-&gt;</span><span class="n">f_flags</span> <span class="o">&amp;</span> <span class="n">O_NONBLOCK</span><span class="p">)</span>
+			<span class="k">break</span><span class="p">;</span>
+
+		<span class="k">do</span> <span class="p">{</span>
+			<span class="cm">/*
+</span><span class="cm">			 * Synchronous wake-up: it knows that this process
+</span><span class="cm">			 * is going to give up this CPU, so it doesn&#39;t have
+</span><span class="cm">			 * to do idle reschedules.
+</span><span class="cm">			 */</span>
+			<span class="n">wake_up_interruptible_sync</span><span class="p">(</span><span class="n">PIPE_WAIT</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">));</span>
+			<span class="n">PIPE_WAITING_WRITERS</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">)</span><span class="o">++</span><span class="p">;</span>
+			<span class="n">pipe_wait</span><span class="p">(</span><span class="n">inode</span><span class="p">);</span>
+			<span class="n">PIPE_WAITING_WRITERS</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">)</span><span class="o">--</span><span class="p">;</span>
+			<span class="k">if</span> <span class="p">(</span><span class="n">signal_pending</span><span class="p">(</span><span class="n">current</span><span class="p">))</span>
+				<span class="k">goto</span> <span class="n">out</span><span class="p">;</span>
+			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">PIPE_READERS</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">))</span>
+				<span class="k">goto</span> <span class="n">sigpipe</span><span class="p">;</span>
+		<span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">PIPE_FREE</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">));</span>
+		<span class="n">ret</span> <span class="o">=</span> <span class="o">-</span><span class="n">EFAULT</span><span class="p">;</span>
+	<span class="p">}</span>
+
+	<span class="cm">/* Signal readers asynchronously that there is more data.  */</span>
+	<span class="n">wake_up_interruptible</span><span class="p">(</span><span class="n">PIPE_WAIT</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">));</span>
+
+	<span class="n">inode</span><span class="o">-&gt;</span><span class="n">i_ctime</span> <span class="o">=</span> <span class="n">inode</span><span class="o">-&gt;</span><span class="n">i_mtime</span> <span class="o">=</span> <span class="n">CURRENT_TIME</span><span class="p">;</span>
+	<span class="n">mark_inode_dirty</span><span class="p">(</span><span class="n">inode</span><span class="p">);</span>
+
+<span class="nl">out</span><span class="p">:</span>
+	<span class="n">up</span><span class="p">(</span><span class="n">PIPE_SEM</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">));</span>
+<span class="nl">out_nolock</span><span class="p">:</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">written</span><span class="p">)</span>
+		<span class="n">ret</span> <span class="o">=</span> <span class="n">written</span><span class="p">;</span>
+	<span class="k">return</span> <span class="n">ret</span><span class="p">;</span>
+
+<span class="nl">sigpipe</span><span class="p">:</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">written</span><span class="p">)</span>
+		<span class="k">goto</span> <span class="n">out</span><span class="p">;</span>
+	<span class="n">up</span><span class="p">(</span><span class="n">PIPE_SEM</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">));</span>
+	<span class="n">send_sig</span><span class="p">(</span><span class="n">SIGPIPE</span><span class="p">,</span> <span class="n">current</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+	<span class="k">return</span> <span class="o">-</span><span class="n">EPIPE</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+<span class="cm">/* No kernel lock held - fine */</span>
+<span class="k">static</span> <span class="kt">unsigned</span> <span class="kt">int</span>
+<span class="nf">pipe_poll</span><span class="p">(</span><span class="k">struct</span> <span class="nc">file</span> <span class="o">*</span><span class="n">filp</span><span class="p">,</span> <span class="n">poll_table</span> <span class="o">*</span><span class="n">wait</span><span class="p">)</span>
+<span class="p">{</span>
+	<span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">mask</span><span class="p">;</span>
+	<span class="k">struct</span> <span class="nc">inode</span> <span class="o">*</span><span class="n">inode</span> <span class="o">=</span> <span class="n">filp</span><span class="o">-&gt;</span><span class="n">f_dentry</span><span class="o">-&gt;</span><span class="n">d_inode</span><span class="p">;</span>
+
+	<span class="n">poll_wait</span><span class="p">(</span><span class="n">filp</span><span class="p">,</span> <span class="n">PIPE_WAIT</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">),</span> <span class="n">wait</span><span class="p">);</span>
+
+	<span class="cm">/* Reading only -- no need for acquiring the semaphore.  */</span>
+	<span class="n">mask</span> <span class="o">=</span> <span class="n">POLLIN</span> <span class="o">|</span> <span class="n">POLLRDNORM</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="n">PIPE_EMPTY</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">))</span>
+		<span class="n">mask</span> <span class="o">=</span> <span class="n">POLLOUT</span> <span class="o">|</span> <span class="n">POLLWRNORM</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">PIPE_WRITERS</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">filp</span><span class="o">-&gt;</span><span class="n">f_version</span> <span class="o">!=</span> <span class="n">PIPE_WCOUNTER</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">))</span>
+		<span class="n">mask</span> <span class="o">|=</span> <span class="n">POLLHUP</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">PIPE_READERS</span><span class="p">(</span><span class="o">*</span><span class="n">inode</span><span class="p">))</span>
+		<span class="n">mask</span> <span class="o">|=</span> <span class="n">POLLERR</span><span class="p">;</span>
+
+	<span class="k">return</span> <span class="n">mask</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></td></tr></table>
+</div>
+</div>
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/linux-kenrel/">linux kenrel</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2022 Bg2bkk Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

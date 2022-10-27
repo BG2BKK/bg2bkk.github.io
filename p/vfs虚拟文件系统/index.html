@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='虚拟文件系统  虚拟文件系统为用户空间程序提供了文件和文件系统的接口 通过VFS，程序可以通过标准的UNIX系统调用操作不同的文件系统和介质，包括各种软硬件设备 Linux等现代操作系统引入VFS作为抽象层，极大方便系统调用  Unix文件系统   UNIX系统使用了四种和文件系统相关的抽象概念: 文件、目录项、索引结点和挂载点。
+  将文件的相关信息和文件加以区分
+ 文件相关信息单独存储在索引结点中，又称为元数据，包括文件的控制权限、文件大小、属主和创建与访问时间等 文件相关信息和文件系统的相关信息密不可分，后者存储在***超级块(super block)***中，超级块是包含文件系统信息的数据结构。 文件按照索引结点存储在单独的块中，文件系统的控制信息存在超级块中    VFS中有四个主要对象类型
+ 超级块对象，代表一个具体的已安装的文件系统 索引结点对象，代表一个具体文件  inode才代表具体文件   目录项对象，代表一个目录项，是路径的组成部分  目录项不是目录，而是一个文件。不存在目录对象   文件对象，代表由进程打开的文件  每个进程都有自己的打开文件列表，文件对象是一个动态生成动态销毁的对象      超级块
+ 超级块对象 super block  用于存储特定文件系统的信息 通常放在磁盘的特定扇区中，所以被称为超级块对象 并非基于磁盘的文件系统，内核会现场创建，并保存在内存中   超级块操作  super_operations        索引结点
+ 索引结点对象 inode  索引结点对象包含了内核在操作文件或目录时的所有信息 索引结点对象都是在内存中创建的，不会写回硬盘的   索引结点操作  inode_operations      目录项'>
+<title>VFS虚拟文件系统</title>
+
+<link rel='canonical' href='https://bg2bkk.github.io/p/vfs%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/'>
+
+<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='VFS虚拟文件系统'>
+<meta property='og:description' content='虚拟文件系统  虚拟文件系统为用户空间程序提供了文件和文件系统的接口 通过VFS，程序可以通过标准的UNIX系统调用操作不同的文件系统和介质，包括各种软硬件设备 Linux等现代操作系统引入VFS作为抽象层，极大方便系统调用  Unix文件系统   UNIX系统使用了四种和文件系统相关的抽象概念: 文件、目录项、索引结点和挂载点。
+  将文件的相关信息和文件加以区分
+ 文件相关信息单独存储在索引结点中，又称为元数据，包括文件的控制权限、文件大小、属主和创建与访问时间等 文件相关信息和文件系统的相关信息密不可分，后者存储在***超级块(super block)***中，超级块是包含文件系统信息的数据结构。 文件按照索引结点存储在单独的块中，文件系统的控制信息存在超级块中    VFS中有四个主要对象类型
+ 超级块对象，代表一个具体的已安装的文件系统 索引结点对象，代表一个具体文件  inode才代表具体文件   目录项对象，代表一个目录项，是路径的组成部分  目录项不是目录，而是一个文件。不存在目录对象   文件对象，代表由进程打开的文件  每个进程都有自己的打开文件列表，文件对象是一个动态生成动态销毁的对象      超级块
+ 超级块对象 super block  用于存储特定文件系统的信息 通常放在磁盘的特定扇区中，所以被称为超级块对象 并非基于磁盘的文件系统，内核会现场创建，并保存在内存中   超级块操作  super_operations        索引结点
+ 索引结点对象 inode  索引结点对象包含了内核在操作文件或目录时的所有信息 索引结点对象都是在内存中创建的，不会写回硬盘的   索引结点操作  inode_operations      目录项'>
+<meta property='og:url' content='https://bg2bkk.github.io/p/vfs%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/'>
+<meta property='og:site_name' content='Bg2bkk Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='linux kenrel' /><meta property='article:published_time' content='2016-02-29T15:33:32&#43;08:00'/><meta property='article:modified_time' content='2016-02-29T15:33:32&#43;08:00'/>
+<meta name="twitter:title" content="VFS虚拟文件系统">
+<meta name="twitter:description" content="虚拟文件系统  虚拟文件系统为用户空间程序提供了文件和文件系统的接口 通过VFS，程序可以通过标准的UNIX系统调用操作不同的文件系统和介质，包括各种软硬件设备 Linux等现代操作系统引入VFS作为抽象层，极大方便系统调用  Unix文件系统   UNIX系统使用了四种和文件系统相关的抽象概念: 文件、目录项、索引结点和挂载点。
+  将文件的相关信息和文件加以区分
+ 文件相关信息单独存储在索引结点中，又称为元数据，包括文件的控制权限、文件大小、属主和创建与访问时间等 文件相关信息和文件系统的相关信息密不可分，后者存储在***超级块(super block)***中，超级块是包含文件系统信息的数据结构。 文件按照索引结点存储在单独的块中，文件系统的控制信息存在超级块中    VFS中有四个主要对象类型
+ 超级块对象，代表一个具体的已安装的文件系统 索引结点对象，代表一个具体文件  inode才代表具体文件   目录项对象，代表一个目录项，是路径的组成部分  目录项不是目录，而是一个文件。不存在目录对象   文件对象，代表由进程打开的文件  每个进程都有自己的打开文件列表，文件对象是一个动态生成动态销毁的对象      超级块
+ 超级块对象 super block  用于存储特定文件系统的信息 通常放在磁盘的特定扇区中，所以被称为超级块对象 并非基于磁盘的文件系统，内核会现场创建，并保存在内存中   超级块操作  super_operations        索引结点
+ 索引结点对象 inode  索引结点对象包含了内核在操作文件或目录时的所有信息 索引结点对象都是在内存中创建的，不会写回硬盘的   索引结点操作  inode_operations      目录项">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu9dfb7228514195dbb950046570d90a5c_100216_300x0_resize_q75_box.jpg" width="300"
+                            height="221" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/source-code/" >
+                source code
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/vfs%E8%99%9A%E6%8B%9F%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F/">VFS虚拟文件系统</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Feb 29, 2016</time>
+            </div>
+        
+
+    
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="虚拟文件系统">虚拟文件系统</h2>
+<ul>
+<li>虚拟文件系统为用户空间程序提供了文件和文件系统的接口</li>
+<li>通过VFS，程序可以通过标准的UNIX系统调用操作不同的文件系统和介质，包括各种软硬件设备</li>
+<li>Linux等现代操作系统引入VFS作为抽象层，极大方便系统调用</li>
+</ul>
+<h2 id="unix文件系统">Unix文件系统</h2>
+<ul>
+<li>
+<p>UNIX系统使用了四种和文件系统相关的抽象概念: 文件、目录项、索引结点和挂载点。</p>
+</li>
+<li>
+<p>将文件的相关信息和文件加以区分</p>
+<ul>
+<li><em><strong>文件相关信息</strong></em>单独存储在<em><strong>索引结点</strong></em>中，又称为元数据，包括文件的控制权限、文件大小、属主和创建与访问时间等</li>
+<li><em><strong>文件相关信息</strong></em>和<em><strong>文件系统</strong></em>的相关信息密不可分，后者存储在***超级块(super block)***中，超级块是包含文件系统信息的数据结构。</li>
+<li><em><strong>文件</strong></em>按照索引结点存储在单独的块中，文件系统的控制信息存在超级块中</li>
+</ul>
+</li>
+<li>
+<p>VFS中有四个主要对象类型</p>
+<ul>
+<li>超级块对象，代表一个具体的已安装的文件系统</li>
+<li>索引结点对象，代表一个具体文件
+<ul>
+<li>inode才代表具体文件</li>
+</ul>
+</li>
+<li>目录项对象，代表一个目录项，是路径的组成部分
+<ul>
+<li>目录项不是目录，而是一个文件。不存在目录对象</li>
+</ul>
+</li>
+<li>文件对象，代表由进程打开的文件
+<ul>
+<li>每个进程都有自己的打开文件列表，文件对象是一个动态生成动态销毁的对象</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>超级块</p>
+<ul>
+<li>超级块对象 super block
+<ul>
+<li>用于存储特定文件系统的信息</li>
+<li>通常放在磁盘的<a class="link" href="https://support.microsoft.com/zh-cn/kb/100108"  target="_blank" rel="noopener"
+    >特定扇区</a>中，所以被称为超级块对象</li>
+<li>并非基于磁盘的文件系统，内核会现场创建，并保存在内存中</li>
+</ul>
+</li>
+<li>超级块操作
+<ul>
+<li>super_operations</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<!-- raw HTML omitted -->
+<!-- raw HTML omitted -->
+<ul>
+<li>
+<p>索引结点</p>
+<ul>
+<li>索引结点对象 inode
+<ul>
+<li>索引结点对象包含了内核在操作文件或目录时的所有信息</li>
+<li>索引结点对象都是在内存中创建的，不会写回硬盘的</li>
+</ul>
+</li>
+<li>索引结点操作
+<ul>
+<li>inode_operations</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>目录项</p>
+<ul>
+<li>目录项对象
+<ul>
+<li>VFS把目录当做文件对待，解析目录时，将路径中的每个组成部分都是一个索引结点对象，比如&quot;/bin/ls&quot;中的‘/’、‘bin’和‘ls’。进行路径查找和解析是比较耗时的，为了方便操作，VFS引入了目录项dentry的概念，每个dentry都是路径的组成部分</li>
+<li>目录项对象都是根据字符串形式现场创建的，并没有保存在磁盘</li>
+</ul>
+</li>
+<li>目录项状态
+<ul>
+<li>被使用
+<ul>
+<li>被使用的dentry对应一个有效的inode，即dentry结构体中d_inode指向的inode</li>
+<li>该对象的引用计数d_count为正，至少有一个使用者，不能随意丢弃</li>
+</ul>
+</li>
+<li>未被使用
+<ul>
+<li>未被使用的dentry，其d_inode也指向一个inode，但是d_count为0</li>
+<li>此时该dentry仍然在缓存中，可能会再次使用。不会立刻被释放，但如果系统要回收内存的话，可以被释放回收</li>
+</ul>
+</li>
+<li>负状态
+<ul>
+<li>负状态的dentry没有对应的有效inode，原因可能是inode已被删除，或者路径不再正确</li>
+<li>此时将其缓存起来仍然有些用处，比如一个守护进程一直读一个不存在的文件，缓存dentry不至于让进程总是去搜索</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>目录项缓存
+<ul>
+<li>遍历路径名中所有元素并逐个解析成dentry，是非常费时费力的，所以内核引入目录项缓存dcache，将目录项对象都缓存起来</li>
+<li>目录项缓存包括
+<ul>
+<li>&ldquo;被使用的&quot;目录项链表
+<ul>
+<li>该链表通过inode中的i_dentry指针连接相关inode</li>
+<li>一个给定的inode可能有多个链接（软硬链接），所有就有可能有多个目录项对象，因此用一个链表链接</li>
+</ul>
+</li>
+<li>&ldquo;最近使用的&quot;双向链表
+<ul>
+<li>该链表包含所有 未被使用的 和 负状态的 dentry</li>
+<li>总是在表头添加元素，所以回收dentry时从最后开始回收</li>
+</ul>
+</li>
+<li>哈希表和相应的哈希函数
+<ul>
+<li>快速将给定路径解析为相关目录项对象</li>
+<li>哈希表由dentry_hashtable数组表示，每个元素都指向一个具有相同键值的目录项对象链表指针</li>
+<li>哈希函数d_hash()</li>
+<li>查找函数d_lookup()</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>目录项操作
+<ul>
+<li>dentry_operation</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>文件</p>
+<ul>
+<li>文件对象
+<ul>
+<li>表示进程已经打开的文件。文件对象是已打开的文件（物理文件）在内存中的表示</li>
+<li>多个进程可以打开同一个物理文件，所以一个物理文件会有多个文件对象</li>
+<li>文件对象指向目录项对象，目录项对象指向索引结点inode</li>
+<li>具体而言，是文件对象filep中的f_dentry指向目录项对象，目录项对象的d_inode指向索引结点inode</li>
+</ul>
+</li>
+<li>文件操作
+<ul>
+<li>file_operations</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>相关数据结构</p>
+<ul>
+<li>file_system_type
+<ul>
+<li>用于描述各种特定文件系统类型，用于支持不同文件系统</li>
+<li>struct file_system_type {}
+<ul>
+<li>get_sb()  从磁盘读取超级块，并在文件系统安装时在内存中组装超级块对象</li>
+</ul>
+</li>
+<li>每个文件系统只有一个</li>
+</ul>
+</li>
+<li>vfsmount
+<ul>
+<li>系统挂载时，将有一个vfsmount结构体在挂载点创建，代表文件系统的实例</li>
+<li>struct vfsmount {}
+<ul>
+<li>各种链表</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>和进程相关的数据结构</p>
+<ul>
+<li>
+<p>每个进程都有自己的一组打开爱的文件，比如根文件系统、当前工作目录、挂载点等</p>
+</li>
+<li>
+<p>struct files_struct {}</p>
+<ul>
+<li>该结构提由进程描述符中的files指向，一般都是current-&gt;files</li>
+</ul>
+</li>
+<li>
+<p>struct fs_struct {}</p>
+<ul>
+<li>包含文件系统和进程相关的信息，由fs域指向，一般是current-&gt;fs</li>
+</ul>
+</li>
+<li>
+<p>struct namespace {}</p>
+<ul>
+<li>使得每个进程在系统中能看到唯一的安装文件系统，mm-&gt;namespace</li>
+</ul>
+</li>
+<li>
+<p>每个进程都有指向自己的fs_struct和files_struct，多个进程可能指向同一个，比如通过带有CLONE_FILES和CLONE_FS标志创建的进程（其实是线程），所以这两个struct都有引用计数，以防出错</p>
+</li>
+<li>
+<p>而对于namespace来说，除非使用CLONE_NEWS标志创建进程，会创建新的namespace结构体，否则所有进程共享一个namespace</p>
+</li>
+</ul>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/linux-kenrel/">linux kenrel</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/p/pipe%E5%9C%A8%E5%86%85%E6%A0%B8%E4%B8%AD%E7%9A%84%E5%AE%9E%E7%8E%B0/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">pipe在内核中的实现</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2022 Bg2bkk Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

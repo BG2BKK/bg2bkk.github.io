@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='我们都知道实验新药的时候首先要在实验大鼠身上实行，有些时候我们发现，明明在大鼠身上具有良好功效的药品，在人身上的临床效果并不明显。我们此时可能会从鼠和人类的基因的区别、体质等方面找原因，这是受过基本科研训练的人会有的正常想法：控制变量法。其实我们可能忽略了一个点，那就是，实验大鼠从小生活在无菌环境下，而人并不是。实验大鼠在无菌环境下出生和长大，并不会遇到某些细菌，自然不会建立起免疫机制，可与之类比的大概是人类婴儿吧。科学家们通过对比实验大鼠和农场中生活的野鼠，确认野鼠体质与成年人类更为接近，因此在实验新药的时候会更倾向于使用农场大鼠。这个案例告诉我们，遇到问题时，我们一般会从受到过的训练中获取方法，快速反应去比对变量，但同时眼睛将固定于自己更想看到的部分，而没有跳出来看问题。在分析系统性能问题时，对某个瓶颈点百思不得其解时，这个时候是否可以把自己跳出来，多想想其他变量，甚至是其他更显得“弱智”的因素。
+有时候阅读一些技术文章时，会有这样一种感觉：这和理论不太一样啊。读林佩满的wireshark的书时，他分析过这样一个问题：某厂某个文件传输的产品在竞标时，发现大文件通过网络传输，从上海发往北京时很慢，需要很长时间才能将文件发送完成，而同时测试网速发现完全不是瓶颈，带宽利用率低到个位数；林在通过wireshark抓包时，发现有非常多的数据包被重传了多次，并且是毫无意义的重传；配管人员配置数据传送采用UDP方式，理论上讲不需要三次握手，且不需要发送确认的UDP传输更适合发送大文件，比如FTP协议就是基于UDP实现的，课本上都这么说。然而实际情况是，发送数据从上海到北京，会经过多多少少的中间结点，客户端发送较大的数据包，中途转发时，一些设备可能将大包拆成小包发送，对于UDP协议而言，如果最终小包里有一个包传输失败，那么需要将整个大包重传，而对于TCP协议而言，哪个小包没有收到，由于TCP头部的序号，客户端将只需要重传丢失的这个小包即可，避免了大量的无意义的重传；将传输方式改为TCP传输后，带宽利用率果然一下就上去了，这里我们的结论是远途传输大文件或大数据包时，TCP的性能由于UDP，这和课本上讲的很不一样。很多知识都不是一成不变的，会根据落地情况而调整、而改变，更有可能进化成不同形态。我想起前几天在火车上看到的一篇文章，城市里的灯光将会吸引虫子，趋光的虫子绕着灯泡一圈圈转，最后力竭饿死，这是个老知识了；而科学家经过实验，从城市和郊区抓取同样数量的飞虫，放在一个房间里观察，发现郊区的飞虫全部围绕着灯泡，而城市中的飞虫则有一小部分对灯光不感兴趣。科学家做出的结论是，城市中的飞虫有一部分进化出了不那么趋光的特性，基因得以保留。所以，我们看到，知识不是一成不变的，尽量做到不先入为主，从实际情况出发来分析问题。
+说到实际情况出发，与一个朋友聊epoll在实际使用中会遇到的一些问题，对于多进程（线程）程序而言，具有父子关系的两个进程共享一个epoll fd，A进程通过epoll_ctl将fd添加进epfd的监听fd列表中，如果有fd有事件发生，发生事件的fd有的是A添加的，有的是B添加的，如果此时唤醒的是B进程，B进程将该epfd监听的所有有事件发生的fd取出，进行处理时，遇到有些不是自己添加的fd时，这个fd对B进程而言是无效的，如果不做处理，去read或者write它，可能会导致core dump，当然，我还没有自己做实验验证，但是理论上讲，这是会发生的。
+在技术书之外，其实还有非常多的有趣的书，使人明事里、断情势，提升人的气质，这是一个大的范畴，我愿接下来一点点的分享我的读书感受。'>
+<title>为什么我喜欢读书</title>
+
+<link rel='canonical' href='https://bg2bkk.github.io/p/%E4%B8%BA%E4%BB%80%E4%B9%88%E6%88%91%E5%96%9C%E6%AC%A2%E8%AF%BB%E4%B9%A6/'>
+
+<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='为什么我喜欢读书'>
+<meta property='og:description' content='我们都知道实验新药的时候首先要在实验大鼠身上实行，有些时候我们发现，明明在大鼠身上具有良好功效的药品，在人身上的临床效果并不明显。我们此时可能会从鼠和人类的基因的区别、体质等方面找原因，这是受过基本科研训练的人会有的正常想法：控制变量法。其实我们可能忽略了一个点，那就是，实验大鼠从小生活在无菌环境下，而人并不是。实验大鼠在无菌环境下出生和长大，并不会遇到某些细菌，自然不会建立起免疫机制，可与之类比的大概是人类婴儿吧。科学家们通过对比实验大鼠和农场中生活的野鼠，确认野鼠体质与成年人类更为接近，因此在实验新药的时候会更倾向于使用农场大鼠。这个案例告诉我们，遇到问题时，我们一般会从受到过的训练中获取方法，快速反应去比对变量，但同时眼睛将固定于自己更想看到的部分，而没有跳出来看问题。在分析系统性能问题时，对某个瓶颈点百思不得其解时，这个时候是否可以把自己跳出来，多想想其他变量，甚至是其他更显得“弱智”的因素。
+有时候阅读一些技术文章时，会有这样一种感觉：这和理论不太一样啊。读林佩满的wireshark的书时，他分析过这样一个问题：某厂某个文件传输的产品在竞标时，发现大文件通过网络传输，从上海发往北京时很慢，需要很长时间才能将文件发送完成，而同时测试网速发现完全不是瓶颈，带宽利用率低到个位数；林在通过wireshark抓包时，发现有非常多的数据包被重传了多次，并且是毫无意义的重传；配管人员配置数据传送采用UDP方式，理论上讲不需要三次握手，且不需要发送确认的UDP传输更适合发送大文件，比如FTP协议就是基于UDP实现的，课本上都这么说。然而实际情况是，发送数据从上海到北京，会经过多多少少的中间结点，客户端发送较大的数据包，中途转发时，一些设备可能将大包拆成小包发送，对于UDP协议而言，如果最终小包里有一个包传输失败，那么需要将整个大包重传，而对于TCP协议而言，哪个小包没有收到，由于TCP头部的序号，客户端将只需要重传丢失的这个小包即可，避免了大量的无意义的重传；将传输方式改为TCP传输后，带宽利用率果然一下就上去了，这里我们的结论是远途传输大文件或大数据包时，TCP的性能由于UDP，这和课本上讲的很不一样。很多知识都不是一成不变的，会根据落地情况而调整、而改变，更有可能进化成不同形态。我想起前几天在火车上看到的一篇文章，城市里的灯光将会吸引虫子，趋光的虫子绕着灯泡一圈圈转，最后力竭饿死，这是个老知识了；而科学家经过实验，从城市和郊区抓取同样数量的飞虫，放在一个房间里观察，发现郊区的飞虫全部围绕着灯泡，而城市中的飞虫则有一小部分对灯光不感兴趣。科学家做出的结论是，城市中的飞虫有一部分进化出了不那么趋光的特性，基因得以保留。所以，我们看到，知识不是一成不变的，尽量做到不先入为主，从实际情况出发来分析问题。
+说到实际情况出发，与一个朋友聊epoll在实际使用中会遇到的一些问题，对于多进程（线程）程序而言，具有父子关系的两个进程共享一个epoll fd，A进程通过epoll_ctl将fd添加进epfd的监听fd列表中，如果有fd有事件发生，发生事件的fd有的是A添加的，有的是B添加的，如果此时唤醒的是B进程，B进程将该epfd监听的所有有事件发生的fd取出，进行处理时，遇到有些不是自己添加的fd时，这个fd对B进程而言是无效的，如果不做处理，去read或者write它，可能会导致core dump，当然，我还没有自己做实验验证，但是理论上讲，这是会发生的。
+在技术书之外，其实还有非常多的有趣的书，使人明事里、断情势，提升人的气质，这是一个大的范畴，我愿接下来一点点的分享我的读书感受。'>
+<meta property='og:url' content='https://bg2bkk.github.io/p/%E4%B8%BA%E4%BB%80%E4%B9%88%E6%88%91%E5%96%9C%E6%AC%A2%E8%AF%BB%E4%B9%A6/'>
+<meta property='og:site_name' content='Bg2bkk Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-09-18T19:43:59&#43;08:00'/><meta property='article:modified_time' content='2016-09-18T19:43:59&#43;08:00'/>
+<meta name="twitter:title" content="为什么我喜欢读书">
+<meta name="twitter:description" content="我们都知道实验新药的时候首先要在实验大鼠身上实行，有些时候我们发现，明明在大鼠身上具有良好功效的药品，在人身上的临床效果并不明显。我们此时可能会从鼠和人类的基因的区别、体质等方面找原因，这是受过基本科研训练的人会有的正常想法：控制变量法。其实我们可能忽略了一个点，那就是，实验大鼠从小生活在无菌环境下，而人并不是。实验大鼠在无菌环境下出生和长大，并不会遇到某些细菌，自然不会建立起免疫机制，可与之类比的大概是人类婴儿吧。科学家们通过对比实验大鼠和农场中生活的野鼠，确认野鼠体质与成年人类更为接近，因此在实验新药的时候会更倾向于使用农场大鼠。这个案例告诉我们，遇到问题时，我们一般会从受到过的训练中获取方法，快速反应去比对变量，但同时眼睛将固定于自己更想看到的部分，而没有跳出来看问题。在分析系统性能问题时，对某个瓶颈点百思不得其解时，这个时候是否可以把自己跳出来，多想想其他变量，甚至是其他更显得“弱智”的因素。
+有时候阅读一些技术文章时，会有这样一种感觉：这和理论不太一样啊。读林佩满的wireshark的书时，他分析过这样一个问题：某厂某个文件传输的产品在竞标时，发现大文件通过网络传输，从上海发往北京时很慢，需要很长时间才能将文件发送完成，而同时测试网速发现完全不是瓶颈，带宽利用率低到个位数；林在通过wireshark抓包时，发现有非常多的数据包被重传了多次，并且是毫无意义的重传；配管人员配置数据传送采用UDP方式，理论上讲不需要三次握手，且不需要发送确认的UDP传输更适合发送大文件，比如FTP协议就是基于UDP实现的，课本上都这么说。然而实际情况是，发送数据从上海到北京，会经过多多少少的中间结点，客户端发送较大的数据包，中途转发时，一些设备可能将大包拆成小包发送，对于UDP协议而言，如果最终小包里有一个包传输失败，那么需要将整个大包重传，而对于TCP协议而言，哪个小包没有收到，由于TCP头部的序号，客户端将只需要重传丢失的这个小包即可，避免了大量的无意义的重传；将传输方式改为TCP传输后，带宽利用率果然一下就上去了，这里我们的结论是远途传输大文件或大数据包时，TCP的性能由于UDP，这和课本上讲的很不一样。很多知识都不是一成不变的，会根据落地情况而调整、而改变，更有可能进化成不同形态。我想起前几天在火车上看到的一篇文章，城市里的灯光将会吸引虫子，趋光的虫子绕着灯泡一圈圈转，最后力竭饿死，这是个老知识了；而科学家经过实验，从城市和郊区抓取同样数量的飞虫，放在一个房间里观察，发现郊区的飞虫全部围绕着灯泡，而城市中的飞虫则有一小部分对灯光不感兴趣。科学家做出的结论是，城市中的飞虫有一部分进化出了不那么趋光的特性，基因得以保留。所以，我们看到，知识不是一成不变的，尽量做到不先入为主，从实际情况出发来分析问题。
+说到实际情况出发，与一个朋友聊epoll在实际使用中会遇到的一些问题，对于多进程（线程）程序而言，具有父子关系的两个进程共享一个epoll fd，A进程通过epoll_ctl将fd添加进epfd的监听fd列表中，如果有fd有事件发生，发生事件的fd有的是A添加的，有的是B添加的，如果此时唤醒的是B进程，B进程将该epfd监听的所有有事件发生的fd取出，进行处理时，遇到有些不是自己添加的fd时，这个fd对B进程而言是无效的，如果不做处理，去read或者write它，可能会导致core dump，当然，我还没有自己做实验验证，但是理论上讲，这是会发生的。
+在技术书之外，其实还有非常多的有趣的书，使人明事里、断情势，提升人的气质，这是一个大的范畴，我愿接下来一点点的分享我的读书感受。">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu9dfb7228514195dbb950046570d90a5c_100216_300x0_resize_q75_box.jpg" width="300"
+                            height="221" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/%E4%B8%BA%E4%BB%80%E4%B9%88%E6%88%91%E5%96%9C%E6%AC%A2%E8%AF%BB%E4%B9%A6/">为什么我喜欢读书</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Sep 18, 2016</time>
+            </div>
+        
+
+    
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <p>我们都知道实验新药的时候首先要在实验大鼠身上实行，有些时候我们发现，明明在大鼠身上具有良好功效的药品，在人身上的临床效果并不明显。我们此时可能会从鼠和人类的基因的区别、体质等方面找原因，这是受过基本科研训练的人会有的正常想法：控制变量法。其实我们可能忽略了一个点，那就是，实验大鼠从小生活在无菌环境下，而人并不是。实验大鼠在无菌环境下出生和长大，并不会遇到某些细菌，自然不会建立起免疫机制，可与之类比的大概是人类婴儿吧。科学家们通过对比实验大鼠和农场中生活的野鼠，确认野鼠体质与成年人类更为接近，因此在实验新药的时候会更倾向于使用农场大鼠。这个案例告诉我们，遇到问题时，我们一般会从受到过的训练中获取方法，快速反应去比对变量，但同时眼睛将固定于自己更想看到的部分，而没有跳出来看问题。在分析系统性能问题时，对某个瓶颈点百思不得其解时，这个时候是否可以把自己跳出来，多想想其他变量，甚至是其他更显得“弱智”的因素。</p>
+<p>有时候阅读一些技术文章时，会有这样一种感觉：这和理论不太一样啊。读林佩满的wireshark的书时，他分析过这样一个问题：某厂某个文件传输的产品在竞标时，发现大文件通过网络传输，从上海发往北京时很慢，需要很长时间才能将文件发送完成，而同时测试网速发现完全不是瓶颈，带宽利用率低到个位数；林在通过wireshark抓包时，发现有非常多的数据包被重传了多次，并且是毫无意义的重传；配管人员配置数据传送采用UDP方式，理论上讲不需要三次握手，且不需要发送确认的UDP传输更适合发送大文件，比如FTP协议就是基于UDP实现的，课本上都这么说。然而实际情况是，发送数据从上海到北京，会经过多多少少的中间结点，客户端发送较大的数据包，中途转发时，一些设备可能将大包拆成小包发送，对于UDP协议而言，如果最终小包里有一个包传输失败，那么需要将整个大包重传，而对于TCP协议而言，哪个小包没有收到，由于TCP头部的序号，客户端将只需要重传丢失的这个小包即可，避免了大量的无意义的重传；将传输方式改为TCP传输后，带宽利用率果然一下就上去了，这里我们的结论是远途传输大文件或大数据包时，TCP的性能由于UDP，这和课本上讲的很不一样。很多知识都不是一成不变的，会根据落地情况而调整、而改变，更有可能进化成不同形态。我想起前几天在火车上看到的一篇文章，城市里的灯光将会吸引虫子，趋光的虫子绕着灯泡一圈圈转，最后力竭饿死，这是个老知识了；而科学家经过实验，从城市和郊区抓取同样数量的飞虫，放在一个房间里观察，发现郊区的飞虫全部围绕着灯泡，而城市中的飞虫则有一小部分对灯光不感兴趣。科学家做出的结论是，城市中的飞虫有一部分进化出了不那么趋光的特性，基因得以保留。所以，我们看到，知识不是一成不变的，尽量做到不先入为主，从实际情况出发来分析问题。</p>
+<p>说到实际情况出发，与一个朋友聊epoll在实际使用中会遇到的一些问题，对于多进程（线程）程序而言，具有父子关系的两个进程共享一个epoll fd，A进程通过epoll_ctl将fd添加进epfd的监听fd列表中，如果有fd有事件发生，发生事件的fd有的是A添加的，有的是B添加的，如果此时唤醒的是B进程，B进程将该epfd监听的所有有事件发生的fd取出，进行处理时，遇到有些不是自己添加的fd时，这个fd对B进程而言是无效的，如果不做处理，去read或者write它，可能会导致core dump，当然，我还没有自己做实验验证，但是理论上讲，这是会发生的。</p>
+<p>在技术书之外，其实还有非常多的有趣的书，使人明事里、断情势，提升人的气质，这是一个大的范畴，我愿接下来一点点的分享我的读书感受。</p>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2022 Bg2bkk Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

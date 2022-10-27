@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='数据在CPU、内存、网络、文件系统和磁盘之间的传输  带宽 时延    lmbench与其他benchmark工具不一样的地方   IO(disk)
+ IOstone  侧重于压测内存子系统的速度   IObench  侧重于测量子系统：文件系统和磁盘的性能，这样会比较复杂且笨重   另一篇论文  看到很多IO性能测试历程，有不足：运行时间长、对于简单问题提出的解决方案太复杂   lmbench  lmdd  测试顺序IO和随机IO，运行速度快 Chen和Patterson通过不同大小的数据量测试系统IO性能，而我们更偏向于在单个请求中的CPU消耗，较少关注测试中系统整体性能        Berkeley Software Distribution&amp;rsquo;s miscrobench suite
+ BSD出品一个可扩展的benchmark，用于BSD系统的回归测试，包括质量和性能。 我们没有用它作为出发点(借鉴了观点)，原因是  缺乏某些测试，比如内存时延 有些测试太多，可能会使测试结果淹没在大量数据中 采用了BSD license      Ousterhout&amp;rsquo;s Operating System benchmark
+ 提出一些测试用例  测试系统调用延迟 上下文切换时间 文件系统性能等   我们借鉴其idea作为工作基础，并在此之上进行扩展 干的漂亮，待翻译。    网络测试'>
+<title>lmbench usenix</title>
+
+<link rel='canonical' href='https://bg2bkk.github.io/p/lmbench-usenix/'>
+
+<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='lmbench usenix'>
+<meta property='og:description' content='数据在CPU、内存、网络、文件系统和磁盘之间的传输  带宽 时延    lmbench与其他benchmark工具不一样的地方   IO(disk)
+ IOstone  侧重于压测内存子系统的速度   IObench  侧重于测量子系统：文件系统和磁盘的性能，这样会比较复杂且笨重   另一篇论文  看到很多IO性能测试历程，有不足：运行时间长、对于简单问题提出的解决方案太复杂   lmbench  lmdd  测试顺序IO和随机IO，运行速度快 Chen和Patterson通过不同大小的数据量测试系统IO性能，而我们更偏向于在单个请求中的CPU消耗，较少关注测试中系统整体性能        Berkeley Software Distribution&amp;rsquo;s miscrobench suite
+ BSD出品一个可扩展的benchmark，用于BSD系统的回归测试，包括质量和性能。 我们没有用它作为出发点(借鉴了观点)，原因是  缺乏某些测试，比如内存时延 有些测试太多，可能会使测试结果淹没在大量数据中 采用了BSD license      Ousterhout&amp;rsquo;s Operating System benchmark
+ 提出一些测试用例  测试系统调用延迟 上下文切换时间 文件系统性能等   我们借鉴其idea作为工作基础，并在此之上进行扩展 干的漂亮，待翻译。    网络测试'>
+<meta property='og:url' content='https://bg2bkk.github.io/p/lmbench-usenix/'>
+<meta property='og:site_name' content='Bg2bkk Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-10-26T10:34:31&#43;08:00'/><meta property='article:modified_time' content='2016-10-26T10:34:31&#43;08:00'/>
+<meta name="twitter:title" content="lmbench usenix">
+<meta name="twitter:description" content="数据在CPU、内存、网络、文件系统和磁盘之间的传输  带宽 时延    lmbench与其他benchmark工具不一样的地方   IO(disk)
+ IOstone  侧重于压测内存子系统的速度   IObench  侧重于测量子系统：文件系统和磁盘的性能，这样会比较复杂且笨重   另一篇论文  看到很多IO性能测试历程，有不足：运行时间长、对于简单问题提出的解决方案太复杂   lmbench  lmdd  测试顺序IO和随机IO，运行速度快 Chen和Patterson通过不同大小的数据量测试系统IO性能，而我们更偏向于在单个请求中的CPU消耗，较少关注测试中系统整体性能        Berkeley Software Distribution&amp;rsquo;s miscrobench suite
+ BSD出品一个可扩展的benchmark，用于BSD系统的回归测试，包括质量和性能。 我们没有用它作为出发点(借鉴了观点)，原因是  缺乏某些测试，比如内存时延 有些测试太多，可能会使测试结果淹没在大量数据中 采用了BSD license      Ousterhout&amp;rsquo;s Operating System benchmark
+ 提出一些测试用例  测试系统调用延迟 上下文切换时间 文件系统性能等   我们借鉴其idea作为工作基础，并在此之上进行扩展 干的漂亮，待翻译。    网络测试">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu9dfb7228514195dbb950046570d90a5c_100216_300x0_resize_q75_box.jpg" width="300"
+                            height="221" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/lmbench-usenix/">lmbench usenix</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Oct 26, 2016</time>
+            </div>
+        
+
+    
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    1 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <ul>
+<li>数据在CPU、内存、网络、文件系统和磁盘之间的传输
+<ul>
+<li>带宽</li>
+<li>时延</li>
+</ul>
+</li>
+</ul>
+<h2 id="lmbench与其他benchmark工具不一样的地方">lmbench与其他benchmark工具不一样的地方</h2>
+<ul>
+<li>
+<p>IO(disk)</p>
+<ul>
+<li>IOstone
+<ul>
+<li>侧重于压测内存子系统的速度</li>
+</ul>
+</li>
+<li>IObench
+<ul>
+<li>侧重于测量子系统：文件系统和磁盘的性能，这样会比较复杂且笨重</li>
+</ul>
+</li>
+<li>另一篇论文
+<ul>
+<li>看到很多IO性能测试历程，有不足：运行时间长、对于简单问题提出的解决方案太复杂</li>
+</ul>
+</li>
+<li>lmbench
+<ul>
+<li>lmdd
+<ul>
+<li>测试顺序IO和随机IO，运行速度快</li>
+<li>Chen和Patterson通过不同大小的数据量测试系统IO性能，而我们更偏向于在单个请求中的CPU消耗，较少关注测试中系统整体性能</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Berkeley Software Distribution&rsquo;s miscrobench suite</p>
+<ul>
+<li>BSD出品一个可扩展的benchmark，用于BSD系统的回归测试，包括质量和性能。</li>
+<li>我们没有用它作为出发点(借鉴了观点)，原因是
+<ul>
+<li>缺乏某些测试，比如内存时延</li>
+<li>有些测试太多，可能会使测试结果淹没在大量数据中</li>
+<li>采用了BSD license</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Ousterhout&rsquo;s Operating System benchmark</p>
+<ul>
+<li>提出一些测试用例
+<ul>
+<li>测试系统调用延迟</li>
+<li>上下文切换时间</li>
+<li>文件系统性能等</li>
+</ul>
+</li>
+<li>我们借鉴其idea作为工作基础，并在此之上进行扩展</li>
+<li>干的漂亮，待翻译。</li>
+</ul>
+</li>
+<li>
+<p>网络测试</p>
+<ul>
+<li>netperf测试网络带宽和时延，lmbench涵盖一个更小，复杂度较低的benchmark，打到同样效果</li>
+<li>ttcp是应用广泛的benchmark，我们实现的版本在相同测试用例下，带宽差距小于2%，因此我们的测试用例是可信的</li>
+</ul>
+</li>
+<li>
+<p>McCalpin&rsquo;s Stream benchmark</p>
+</li>
+<li>
+<p>总之</p>
+<ul>
+<li>我们搞了一套自己的，因为我们想要一个简单、可移植的benchmakr，想准确全面的测量我们认为对今天计算机系统性能的关键点。</li>
+<li>也借鉴了其他benchmark的idea。</li>
+</ul>
+</li>
+</ul>
+<h2 id="benchmark注意事项">benchmark注意事项</h2>
+<ul>
+<li>
+<p>测试用例的大小问题</p>
+<ul>
+<li>比如做内存复制测试内存速度，如果太小，会被缓存，这样侧出来的数据将比数据在内存中快10倍多；然而如果过大的话，数据可能会被换页到磁盘，这样又会造成速度过慢，从而让benchmark过程显得漫长无结果。</li>
+<li>lmbench采用如下两个方式解决：
+<ul>
+<li>所有benchmakr使用循环的话都会被cache大小影响，所以循环同时增大数据量(2的倍数)直到到达最大值。这个结果可以打印出来，当benchmark不再符合cache长度的时候</li>
+<li>benchmark确定系统内存足够。用一个小测试程序分配尽可能多的内存，然后清空这些内存，然后每次越过一页内存，计算每次结果。如果每次应用都需要ms级别时间，说明该页已经不在内存中了。然后测试程序从小的开始，然后干活直到有充足内存或者到达内存限制。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>编译器的时间问题</p>
+<ul>
+<li>所有benchmark工具都是-O级别编译优化的；除了计算时钟速度和上下文切换时间时不能用优化，以产生正确结果。</li>
+<li>没有其他的优化选项，我们想从应用程序作者的角度观察性能问题。</li>
+</ul>
+</li>
+<li>
+<p>多处理器相关</p>
+<ul>
+<li>多处理器系统在做benchmark时和单处理器一样，没有区别。有些系统允许用户将程序绑定到某个CPU上，为了更好的重用cache。</li>
+<li>我们benchmark时不会将程序绑定，因为这种方式与多处理器调度机制相悖。某些情况下，这个决定会导致一些有意思的结果。</li>
+</ul>
+</li>
+<li>
+<p>计时相关</p>
+<ul>
+<li>时钟分辨率
+<ul>
+<li>benchmark软件计算用时是通过调用gettimeofday()获取系统时钟的，在一些系统中这个接口的分辨率是10ms，而大部分测试用例耗时10ms到千ms，所以这个接口太耗时了。为补偿这个定时器，benchmark软件一般通过多次运行来评估，一般来说就是在循环里执行，如果循环体非常快的话就用循环展开的方式多执行几遍，最后求平均。</li>
+</ul>
+</li>
+<li>缓存
+<ul>
+<li>如果benchmark软件期待数据在暂存缓存中，那么benchmark就多运行几次，只有最后一次记录结果就行。</li>
+<li>如果benchmakr不想测试cache性能，那就将数据大小设置的比cache大。比如，做bcopy测试时，采用复制8MB数据，这个值比当前计算机的二级缓存还大。</li>
+</ul>
+</li>
+<li>结果可变性
+<ul>
+<li>很多benchmark结果，比如context switch的性能测试，有一个趋势是，结果会有一定的跳动，可达30%之多。我们怀疑这是因为系统没有使用同一片物理内存，所以遇到了缓存冲突，换页等因素。所以我们多运行几次，选取最小的结果。</li>
+<li>用户做benchmark时，应该成为该系统的唯一用户。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>使用lmbench数据库</p>
+</li>
+<li>
+<p>Bandwidth</p>
+<ul>
+<li>Memory bandwidth</li>
+<li>IPC bandwidth</li>
+<li>Cached I/O bandwidth</li>
+</ul>
+</li>
+<li>
+<p>Latency measurements</p>
+<ul>
+<li>Memory read latency background</li>
+<li>Memory read latency</li>
+<li>Operating system entry</li>
+<li>Signal handling cost</li>
+<li>Process creation costs</li>
+<li>Context switching</li>
+<li>Interprocess communication latencies</li>
+<li>File system Latency</li>
+<li>Disk latency</li>
+</ul>
+</li>
+<li>
+<p>Memory bandwidth</p>
+<ul>
+<li>以前评测性能时首先看MFLOPS，但是现在CPU的浮点单元并不是瓶颈，反而将数据从内存中读出来计算是瓶颈</li>
+<li>所以现在主要看的是内存的复制、读、写，通过不同大小的数据关心大规模内存传输</li>
+</ul>
+</li>
+<li>
+<p>Cached I/O bandwidth</p>
+<ul>
+<li>重用已缓存在文件系统cache的数据可能是内存瓶颈，所以我们通过 read 和 mmap两个接口来评估这类带宽，目的并不是测试磁盘IO带宽，而是测量在这一过程的CPU负载情况。</li>
+<li>read接口将数据从内核文件系统缓存页中读到用户进程的内存里。传输时选择64KB作为块大小，可以将进入内核的开销降到最低。</li>
+<li>bcopy和read的区别在于文件和虚拟内存系统的开销，大部分系统中，bcopy都会针对硬件有所优化，所以性能好一点。</li>
+<li>read接口通过重读一个文件（一般8M大小，越过L2 缓存），以64KB为单位。每块buffer都会在用户进程中按integer相加。采用相加方式原因有两个：为了与mmap接口进行完全一致的对比，所以需要读到每一个数据；文件系统将数据写入内存的速度要比CPU读的快。我们想比较的是CPU将数据传输给应用程序的速度，而不是那种内存DMA的速度。</li>
+<li>mmap接口提供了一个不需要复制数据就可以读文件缓存的方式，我们通过所有内存内容相加的方式使数据强制经过CPU路径。</li>
+<li>案例比较</li>
+</ul>
+</li>
+<li>
+<p>Latency measurements</p>
+<ul>
+<li>时延是性能测试中经常被忽略的点，可能因为解决时延问题更难一点。lmbench的测试项中包括内存时延，操作系统入口开销，信号处理开销，进程创建开销，上下文切换的开销，ipc，文件系统和磁盘的时延</li>
+</ul>
+</li>
+<li>
+<p>Memory read latency background 读取内存产生时延的背景</p>
+<ul>
+<li>
+<p>从内存时延的角度我们可以理解和解释其他时延的产生原理，比如上下文切换的时延的产生，因为首先要保存当前进程状态，然后载入下一个进程。然而内存时延难以准确测量，并且经常被误解。</p>
+</li>
+<li>
+<p>读内存时延有诸多方面，内存芯片的时钟，处理器和内存的回路，从内存中首次加载数据，内存写回时延。</p>
+</li>
+<li>
+<p>Memory chip cycle latency</p>
+<ul>
+<li>内存芯片的时钟都是纳秒级的，比如1333MHz的内存；DRAM的工作方式需要60到100ns时间，让内存数据稳定读取，这个级别是读内存时内存芯片准备好数据所必须的。</li>
+</ul>
+</li>
+<li>
+<p>pin-to-pin lantency</p>
+<ul>
+<li>处理器和内存之间有总线，这个时间是处理器发出读操作后到达内存子系统的时延；尤其多插槽上的多根内存时，访问速度会更慢</li>
+</ul>
+</li>
+<li>
+<p>laod-in-vacuum latency</p>
+<ul>
+<li>系统总线空闲时，从内存读取数据到成功的时延，这个经常被认为是内存时延；考虑到有些cpu是非阻塞读取数据的，读数据时总线不停顿，所以感知到的时延要比实际时延小；然而压测时，由于大量读写，实际的时延又要比它大。</li>
+</ul>
+</li>
+<li></li>
+</ul>
+</li>
+<li>
+<p>内存延时有多种定义</p>
+<ul>
+<li>内存芯片的时钟
+<ul>
+<li>内存芯片本身的时钟，比如1333MHz内存芯片</li>
+<li>DRAM等待数据稳定</li>
+</ul>
+</li>
+<li>处理器发出的读信号到达内存芯片的时间
+<ul>
+<li>处理器发出读数据的地址，经过系统总线和内存子系统，到达内存</li>
+<li>内存往往分布在多根插槽，比单内存芯片时延要高</li>
+</ul>
+</li>
+<li>总线空闲时读取内存数据
+<ul>
+<li>处理器等待从内存中取数据的时间
+<ul>
+<li>这个时间通常是一种标称值，有些处理器取数据时并不等待和停顿，因此测量延时可能显得小于标称值</li>
+<li>而压测时，由于突发读取导致cache miss，导致实际延时又比这个值大</li>
+<li>因此采用这个值也不是那么合理</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>连续繁忙读内存数据
+<ul>
+<li>连续读内存时，每次load都会跟着一个load。</li>
+<li>连续读可能会导致时延高于空闲读，有些系统会有&quot;关键字优先&quot;的机制，读取某个字时不等待整个cache line填充就把该line中的要读取数据喂给CPU，然而此时cache依然处于busy状态；如果此时再有第二次load，会因为当前cache busy而停顿等待。在UltraSPARC中空闲读和连续读的差异可达35%.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="n">p</span> <span class="o">=</span> <span class="n">head</span><span class="p">;</span>
+<span class="k">while</span><span class="p">(</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">p_next</span><span class="p">)</span>
+	<span class="n">p</span> <span class="o">=</span> <span class="n">p</span><span class="o">-&gt;</span><span class="n">p_next</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>
+<p>back-to-back-load latency</p>
+<ul>
+<li>上述代码就三句汇编，loop、load和jmp</li>
+<li>300MHz的cpu可以在3个cycle中完成一次load，即10ns，然而实际上却执行了400ns，说明400ns都耗费在了停顿上，等待数据可用</li>
+<li>所以从内存load数据非常慢，发生cache miss的话会停顿住；尤其在超标量计算机中，一次执行多个指令，但是停顿在load上，很浪费</li>
+</ul>
+</li>
+<li>
+<p>cache预取</p>
+<ul>
+<li>stride小的话，预取数据具有较高的空间局部性，性能会高</li>
+<li>stride大一点会好，但是大太多的话：
+<ul>
+<li>填充cache往往是原子操作，后续指令只能等待cache操作完成</li>
+<li>cache只有一个操作入口，预取数据量太大的话可能包括很多用不着的数据，会妨碍其他正常的cache访问</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2022 Bg2bkk Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

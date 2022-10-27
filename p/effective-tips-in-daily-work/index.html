@@ -1,0 +1,2329 @@
+<!DOCTYPE html>
+<html lang="" dir="ltr">
+    <head><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='免密登录配置脚本 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20  #!/bin/bash passwd=&amp;#39;xxxxxxx&amp;#39; pub_key=`cat ~/.ssh/id_rsa.pub` for i in `cat $1`;do /usr/bin/expect &amp;lt;&amp;lt;-EOF set time 30 spawn ssh zhendong.hzd@$i &amp;#34;mkdir -p .ssh/;touch .ssh/authorized_keys;chmod 700 .ssh/authorized_keys;echo \&amp;#34;$pub_key\&amp;#34; &amp;gt;&amp;gt; .ssh/authorized_keys&amp;#34; expect { &amp;#34;*yes/no&amp;#34; { send &amp;#34;yes\r&amp;#34;; exp_continue } &amp;#34;*password:&amp;#34; { send &amp;#34;$passwd\r&amp;#34; } } interact expect eof EOF done   将待登录IP列表写入文件中，更改相应密码配置和用户名，然后执行'>
+<title>effective tips in daily work</title>
+
+<link rel='canonical' href='https://bg2bkk.github.io/p/effective-tips-in-daily-work/'>
+
+<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='effective tips in daily work'>
+<meta property='og:description' content='免密登录配置脚本 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20  #!/bin/bash passwd=&amp;#39;xxxxxxx&amp;#39; pub_key=`cat ~/.ssh/id_rsa.pub` for i in `cat $1`;do /usr/bin/expect &amp;lt;&amp;lt;-EOF set time 30 spawn ssh zhendong.hzd@$i &amp;#34;mkdir -p .ssh/;touch .ssh/authorized_keys;chmod 700 .ssh/authorized_keys;echo \&amp;#34;$pub_key\&amp;#34; &amp;gt;&amp;gt; .ssh/authorized_keys&amp;#34; expect { &amp;#34;*yes/no&amp;#34; { send &amp;#34;yes\r&amp;#34;; exp_continue } &amp;#34;*password:&amp;#34; { send &amp;#34;$passwd\r&amp;#34; } } interact expect eof EOF done   将待登录IP列表写入文件中，更改相应密码配置和用户名，然后执行'>
+<meta property='og:url' content='https://bg2bkk.github.io/p/effective-tips-in-daily-work/'>
+<meta property='og:site_name' content='Bg2bkk Site'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-07-24T16:36:33&#43;08:00'/><meta property='article:modified_time' content='2016-07-24T16:36:33&#43;08:00'/>
+<meta name="twitter:title" content="effective tips in daily work">
+<meta name="twitter:description" content="免密登录配置脚本 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20  #!/bin/bash passwd=&amp;#39;xxxxxxx&amp;#39; pub_key=`cat ~/.ssh/id_rsa.pub` for i in `cat $1`;do /usr/bin/expect &amp;lt;&amp;lt;-EOF set time 30 spawn ssh zhendong.hzd@$i &amp;#34;mkdir -p .ssh/;touch .ssh/authorized_keys;chmod 700 .ssh/authorized_keys;echo \&amp;#34;$pub_key\&amp;#34; &amp;gt;&amp;gt; .ssh/authorized_keys&amp;#34; expect { &amp;#34;*yes/no&amp;#34; { send &amp;#34;yes\r&amp;#34;; exp_continue } &amp;#34;*password:&amp;#34; { send &amp;#34;$passwd\r&amp;#34; } } interact expect eof EOF done   将待登录IP列表写入文件中，更改相应密码配置和用户名，然后执行">
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu9dfb7228514195dbb950046570d90a5c_100216_300x0_resize_q75_box.jpg" width="300"
+                            height="221" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
+            <h2 class="site-description"></h2>
+        </div>
+    </header><ol class="menu" id="main-menu">
+        
+        
+        
+
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+
+        <div class="menu-bottom-section">
+            
+            
+                <li id="dark-mode-toggle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                    <span>Dark Mode</span>
+                </li>
+            
+        </div>
+    </ol>
+</aside>
+
+    
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/p/effective-tips-in-daily-work/">effective tips in daily work</a>
+        </h2>
+    
+        
+    </div>
+
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Jul 24, 2016</time>
+            </div>
+        
+
+    
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    15 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="免密登录配置脚本">免密登录配置脚本</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">
+<span class="c1">#!/bin/bash</span>
+
+<span class="nv">passwd</span><span class="o">=</span><span class="s1">&#39;xxxxxxx&#39;</span>
+
+<span class="nv">pub_key</span><span class="o">=</span><span class="sb">`</span>cat ~/.ssh/id_rsa.pub<span class="sb">`</span>
+
+<span class="k">for</span> i in <span class="sb">`</span>cat <span class="nv">$1</span><span class="sb">`</span><span class="p">;</span><span class="k">do</span>
+/usr/bin/expect <span class="s">&lt;&lt;-EOF
+</span><span class="s">set time 30
+</span><span class="s">spawn ssh zhendong.hzd@$i &#34;mkdir -p .ssh/;touch .ssh/authorized_keys;chmod 700 .ssh/authorized_keys;echo \&#34;$pub_key\&#34; &gt;&gt; .ssh/authorized_keys&#34;
+</span><span class="s">expect {
+</span><span class="s">    &#34;*yes/no&#34; { send &#34;yes\r&#34;; exp_continue }
+</span><span class="s">    &#34;*password:&#34; { send &#34;$passwd\r&#34; }
+</span><span class="s">}
+</span><span class="s">interact
+</span><span class="s">expect eof
+</span><span class="s">EOF</span>
+<span class="k">done</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p>将待登录IP列表写入文件中，更改相应密码配置和用户名，然后执行</p>
+<h2 id="ubuntu命令行连接wifi">ubuntu命令行连接wifi</h2>
+<p><a class="link" href="https://i.cmgine.net/archives/11053.html"  target="_blank" rel="noopener"
+    >wifi设置</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"> cat /etc/network/interfaces
+
+ <span class="c1"># interfaces(5) file used by ifup(8) and ifdown(8)</span>
+ auto lo
+ iface lo inet loopback
+
+<span class="c1"># 添加如下，启动时自动启动wlp2s0网卡，dhcp模式，采用wpa_conf配置</span>
+ auto wlp2s0
+ iface wlp2s0 inet dhcp
+ wpa_conf /etc/wpa_supplicant/wpa_supplicant.conf
+</code></pre></td></tr></table>
+</div>
+</div><p>wpa_supplicant.conf内容</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nv">network</span><span class="o">={</span>
+    <span class="nv">ssid</span><span class="o">=</span><span class="s2">&#34;wills&#34;</span>
+    <span class="nv">psk</span><span class="o">=</span><span class="s2">&#34;1234567890&#34;</span>
+    <span class="nv">priority</span><span class="o">=</span><span class="m">1</span>
+<span class="o">}</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>连接wifi和密码，priority为优先级，数字越大级别越高</p>
+<h2 id="vim和shell的配置方式">vim和shell的配置方式</h2>
+<p>作为一个懒人，现在自然期待有一键脚本能够将我的shell和vim配置好。github上有很多repo帮助我们实现。</p>
+<p><a class="link" href="https://www.zhihu.com/question/19989337"  target="_blank" rel="noopener"
+    >知乎帮助一</a>
+<a class="link" href="https://www.zhihu.com/question/20151659"  target="_blank" rel="noopener"
+    >知乎帮助二</a>
+<a class="link" href="https://github.com/spf13/spf13-vim"  target="_blank" rel="noopener"
+    >vim一键配置</a>
+<a class="link" href="https://github.com/robbyrussell/oh-my-zsh"  target="_blank" rel="noopener"
+    >shell &amp;&amp; zsh</a>
+<a class="link" href="https://github.com/ma6174/vim"  target="_blank" rel="noopener"
+    >vim一键配置二</a></p>
+<h2 id="linux下进程的有效用户id和实际用户id">linux下进程的有效用户ID和实际用户ID</h2>
+<p>见<a class="link" href="http://www.cpplive.com/html/1352.html"  target="_blank" rel="noopener"
+    >博客</a>，getuid()</p>
+<h2 id="hexdump查看文件指定位置">hexdump查看文件指定位置</h2>
+<p><a class="link" href="http://crazyof.me/blog/archives/254.html"  target="_blank" rel="noopener"
+    >方法为</a>所示，</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">hexdump -s OFFSET -l LENGTH FILENAME
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="mac-os下virtual-box与虚拟机进行网络互通">mac os下virtual box与虚拟机进行网络互通</h2>
+<p>方法见<a class="link" href="https://dplord.com/2016/03/10/some-exploration-of-the-virtualbox-on-mac-os/"  target="_blank" rel="noopener"
+    >链接</a>，需要在virtual box添加host only网卡，并在虚拟机中添加网卡。</p>
+<h2 id="普通用户获取linux的root权限">普通用户获取linux的root权限</h2>
+<ul>
+<li>方法一：sudo sh -c &ldquo;su&rdquo;</li>
+<li>方法二：sudo strace su</li>
+</ul>
+<h2 id="改变默认登录的shell">改变默认登录的shell</h2>
+<p>使用不同linux发行版或者上不同机器时，发现shell不是我喜欢的bash，而是sh等，这个时候需要修改</p>
+<ul>
+<li>修改登录shell
+<ul>
+<li>方法一：chsh -s /bin/bash</li>
+<li>方法二：修改/etc/passwd中的shell设置</li>
+</ul>
+</li>
+</ul>
+<p><a class="link" href="http://blog.sina.com.cn/s/blog_56aa61930101773n.html"  target="_blank" rel="noopener"
+    >解决shell不显示路径的方法</a></p>
+<h2 id="sar在ubuntu中的配置">sar在ubuntu中的配置</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">sudo apt-get install sysstat
+
+sudo vim /etc/default/sysstat
+<span class="s2">&#34; change ENABLED=&#34;</span>false<span class="s2">&#34; to &#34;</span>true<span class="s2">&#34;
+</span><span class="s2">
+</span><span class="s2">sudo vim /etc/cron.d/sysstat
+</span><span class="s2">&#34;</span> change 
+<span class="s2">&#34; 5-55/10 * * * * root command -v debian-sa1 &gt; /dev/null &amp;&amp; debian-sa1 1 1
+</span><span class="s2">&#34;</span> to 
+<span class="s2">&#34; */2 * * * * root command -v debian-sa1 &gt; /dev/null &amp;&amp; debian-sa1 1 1
+</span><span class="s2">&#34;</span> change the collection interval from every <span class="m">10</span> minutes to every <span class="m">2</span> minutes.
+
+sudo /etc/init.d/sysstat restart
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="全世界最愚蠢的事情就是重复做相同的事情却期待有不同的结果发生">全世界最愚蠢的事情就是，重复做相同的事情，却期待有不同的结果发生</h2>
+<pre><code>Insanity: doing the same thing over and over again and expecting different results.
+</code></pre>
+<p>说实话，在写代码、调代码的时候，一但出现非预期结果，首先检查之前自己的编码和输入，确定后不应该再二次重试，毕竟相同条件下不可能产生不同结果，此时应该将思维跳脱出来，另辟蹊径为好。</p>
+<h2 id="ubuntu下解压zip文件出现乱码的解决办法">ubuntu下解压zip文件出现乱码的解决办法</h2>
+<p><a class="link" href="https://www.zhihu.com/question/20523036"  target="_blank" rel="noopener"
+    >参考链接</a></p>
+<p>由于zip格式中并没有指定编码格式，Windows下生成的zip文件中的编码是GBK/GB2312等，因此，导致这些zip文件在Linux下解压时出现乱码问题，因为Linux下的默认编码是UTF8。</p>
+<p>目前网上流传一种unzip -O cp936的方法，但一些unzip是没有-O这个选项的。</p>
+<p>亲测好用，不好用的看链接</p>
+<h2 id="redis设置和清除密码">redis设置和清除密码</h2>
+<p>正规项目终于要对redis设置密码了，<a class="link" href="http://blog.csdn.net/zyz511919766/article/details/42268219"  target="_blank" rel="noopener"
+    >如何加密码呢</a></p>
+<ul>
+<li>
+<p>配置文件中添加密码</p>
+<ul>
+<li>配置文件中的requirepass配置指令用于配置密码</li>
+<li>配置文件中的masterauth用于配置从机登陆主机的密码</li>
+</ul>
+</li>
+<li>
+<p>运行中添加密码</p>
+<ul>
+<li>config set requirepass PASSWORD</li>
+</ul>
+</li>
+<li>
+<p>运行中删除密码</p>
+<ul>
+<li>config set requirepass &quot;&quot;</li>
+</ul>
+</li>
+<li>
+<p>获取密码</p>
+<ul>
+<li>config get requirepass</li>
+</ul>
+</li>
+<li>
+<p>配置从机</p>
+<ul>
+<li>config set masterauth MASTER_PASSWORD</li>
+<li>config set requirepass SLAVE_AUTH</li>
+</ul>
+</li>
+</ul>
+<h2 id="epoll是同步非阻塞的">epoll是同步非阻塞的</h2>
+<p>epoll、select等多路服用IO，将fd加入等待时间的队列中，每隔一段时间去轮询一次，因此是同步的；优点是能够在等待任务的时间里去做别的任务；缺点是任务完成的响应延迟增大，因为每隔一段时间去轮询他们，在时间间隔内任务可能已经完成而等待处理等待了一段时间了。</p>
+<p><a class="link" href="https://ring0.me/2014/11/sync-async-blocked/"  target="_blank" rel="noopener"
+    >参考链接</a></p>
+<p>同步/异步指的是被调用方的通知方式，被调用方完成后，主动通知调用方，还是等待调用方发现。前者是异步，后者是同步。从这里也可以看出，<a class="link" href="https://segmentfault.com/a/1190000003063859"  target="_blank" rel="noopener"
+    >异步IO通知调用方时，数据已经就绪</a>，对于网络IO来说，异步IO已经将数据从内核复制到用户空间了。</p>
+<p>阻塞/非阻塞是调用方的等待方式，是一直等待在做的事件完成，还是去做别的事情，等到在做的事件完成后再接着进行处理。前者是阻塞，后者是非阻塞</p>
+<p>因此epoll是同步和非阻塞的。</p>
+<h2 id="sed合并相邻两行">sed合并相邻两行</h2>
+<p>从redis中取出一个键的所有内容时，比如hgetall，得到的结果并不是排序好的，类似于这样</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">11485<span class="o">)</span> <span class="s2">&#34;1470347460&#34;</span>
+11486<span class="o">)</span> <span class="s2">&#34;69&#34;</span>
+11487<span class="o">)</span> <span class="s2">&#34;1470262350&#34;</span>
+11488<span class="o">)</span> <span class="s2">&#34;34&#34;</span>
+11489<span class="o">)</span> <span class="s2">&#34;1470262170&#34;</span>
+11490<span class="o">)</span> <span class="s2">&#34;68&#34;</span>
+11491<span class="o">)</span> <span class="s2">&#34;1470242400&#34;</span>
+11492<span class="o">)</span> <span class="s2">&#34;21&#34;</span>
+11493<span class="o">)</span> <span class="s2">&#34;1470288030&#34;</span>
+11494<span class="o">)</span> <span class="s2">&#34;65&#34;</span>
+11495<span class="o">)</span> <span class="s2">&#34;1470303390&#34;</span>
+11496<span class="o">)</span> <span class="s2">&#34;54&#34;</span>
+11497<span class="o">)</span> <span class="s2">&#34;1470205320&#34;</span>
+11498<span class="o">)</span> <span class="s2">&#34;85&#34;</span>
+11499<span class="o">)</span> <span class="s2">&#34;1470318330&#34;</span>
+11500<span class="o">)</span> <span class="s2">&#34;92&#34;</span>
+11501<span class="o">)</span> <span class="s2">&#34;1470167040&#34;</span>
+11502<span class="o">)</span> <span class="s2">&#34;1&#34;</span>
+11503<span class="o">)</span> <span class="s2">&#34;1470281880&#34;</span>
+11504<span class="o">)</span> <span class="s2">&#34;14&#34;</span>
+11505<span class="o">)</span> <span class="s2">&#34;1470298140&#34;</span>
+11506<span class="o">)</span> <span class="s2">&#34;113&#34;</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p>该hash的key为unix时间戳，val为数值，如果想手动看分布的话，需要将相邻两行合并然后排序，在此我们<a class="link" href="http://blog.chinaunix.net/uid-9950859-id-98222.html"  target="_blank" rel="noopener"
+    >借助sed</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">sed <span class="s1">&#39;$!N;s/\n/\t/&#39;</span> filename 
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="redis分析实例中所有key和单个key的内存占用情况">redis分析实例中所有key和单个key的内存占用情况</h2>
+<p>采用<a class="link" href="https://github.com/sripathikrishnan/redis-rdb-tools"  target="_blank" rel="noopener"
+    >rdb工具</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">rdb -c memory /path/to/ab-dump.rdb &gt; memory.csv
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="sort进行多重排序">sort进行多重排序</h2>
+<p>sort和uniq在文本处理，尤其是日志处理中用的较多的工具，记得当年校招时候准备面试，用到这两个命令，惊为天人，非常shock。在日常工作中，用的也非常多。</p>
+<p>目前有这样的需求，拿到两列数据，第一列是ip，第二列是访问计数，想看一下分布，要求ip要按文本排序，访问计数按数值排序。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">221.179.175.109	<span class="m">97</span>
+221.179.175.164	<span class="m">101</span>
+221.179.175.46	<span class="m">8</span>
+221.179.175.164	<span class="m">102</span>
+221.179.175.178	<span class="m">78</span>
+221.179.175.46	<span class="m">9</span>
+221.179.175.109	<span class="m">98</span>
+221.179.175.178	<span class="m">79</span>
+120.239.141.197	<span class="m">96</span>
+221.179.175.70	<span class="m">114</span>
+218.202.7.121	<span class="m">70</span>
+221.179.175.178	<span class="m">80</span>
+218.202.7.121	<span class="m">71</span>
+221.179.175.134	<span class="m">83</span>
+120.239.141.197	<span class="m">97</span>
+221.179.175.46	<span class="m">10</span>
+221.179.175.178	<span class="m">81</span>
+221.179.175.47	<span class="m">24</span>
+120.239.141.197	<span class="m">98</span>
+221.179.175.70	<span class="m">115</span>
+221.179.175.70	<span class="m">116</span>
+120.239.141.197	<span class="m">99</span>
+221.179.175.134	<span class="m">84</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p><a class="link" href="http://blog.chinaunix.net/uid-25504049-id-3075909.html"  target="_blank" rel="noopener"
+    >解决方法</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">sort -t <span class="s1">&#39; &#39;</span> -k1,1 -k2n,2 data
+
+
+其中 -t <span class="s1">&#39; &#39;</span> 指定使用空格分列
+-k1,1  指定以第一列为关键字排序
+-k2n,2 指定以第二列为关键字做数据排序
+</code></pre></td></tr></table>
+</div>
+</div><p><a class="link" href="http://blog.csdn.net/dabingxiaozu/article/details/6213851"  target="_blank" rel="noopener"
+    >也可以</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">sort -k1 -k2n out
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="shell脚本批量处理文本">shell脚本批量处理文本</h2>
+<p>善用awk、grep、xargs、bash、sed等工具，可以提高生产力</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">grep <span class="s1">&#39;config.config&#39;</span> . -r <span class="p">|</span> awk -F<span class="s1">&#39;:&#39;</span> <span class="s1">&#39;{print $1}&#39;</span> <span class="p">|</span> grep <span class="s1">&#39;lua$&#39;</span> <span class="p">|</span> xargs sed <span class="s2">&#34;s/config.config&#39;)/config.config&#39;).ab/g&#34;</span> -i
+</code></pre></td></tr></table>
+</div>
+</div><p>shell循环</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="k">for</span> j in <span class="o">{</span>a..z<span class="o">}</span><span class="p">;</span> <span class="k">do</span> <span class="nb">echo</span> <span class="nv">$j</span><span class="p">;</span> <span class="k">done</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="redis批量删除key">redis批量删除key</h2>
+<p>手动清理redis中的key时，很想通过 <em><strong>del keys</strong></em>* 的方式实现批量删除，而redis却没有提供这样的选项，因此需要借助外部工具</p>
+<ul>
+<li>
+<p>1、sehll 命令行</p>
+<ul>
+<li>redis-cli keys ip:* | xargs redis-cli del</li>
+</ul>
+</li>
+<li>
+<p>2、lua脚本</p>
+<ul>
+<li>redis-cli eval &ldquo;redis.call(&lsquo;del&rsquo;, unpack(redis.call(&lsquo;keys&rsquo;,&lsquo;ip*')))&rdquo; 0</li>
+<li>这种方式受限于lua的unpack函数，一次删除的key不能太多</li>
+</ul>
+</li>
+<li>
+<p>3、借助客户端</p>
+<ul>
+<li><a class="link" href="http://www.redisfans.com/?p=71"  target="_blank" rel="noopener"
+    >php</a></li>
+<li><a class="link" href="http://blog.csdn.net/tuposky/article/details/45364107"  target="_blank" rel="noopener"
+    >jedis</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="unix获取时间戳">unix获取时间戳</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">date <span class="s1">&#39;+%s&#39;</span>
+
+<span class="nb">export</span> <span class="nv">timestamp</span><span class="o">=</span><span class="sb">`</span>date <span class="s1">&#39;+%s&#39;</span><span class="sb">`</span><span class="p">;</span> <span class="nb">echo</span> <span class="nv">$timestamp</span>
+
+<span class="c1"># 标准时间格式转unix时间戳</span>
+date -d <span class="s2">&#34;2011-03-02 15:00&#34;</span> +%s
+
+<span class="c1"># unix时间戳转为标准格式</span>
+date -d <span class="s1">&#39;1970-01-01 UTC 1299049200 seconds&#39;</span>
+
+<span class="c1"># 或者</span>
+
+date -d <span class="s2">&#34;@1279592730&#34;</span> 
+
+</code></pre></td></tr></table>
+</div>
+</div><p><a class="link" href="http://blog.csdn.net/hittata/article/details/7640974"  target="_blank" rel="noopener"
+    >链接</a>中提到了各种各样的格式，以后写shell脚本就不担心时间戳问题了</p>
+<h2 id="docker-设置代理下载镜像">docker 设置代理下载镜像</h2>
+<p><a class="link" href="http://stackoverflow.com/questions/23111631/cannot-download-docker-images-behind-a-proxy"  target="_blank" rel="noopener"
+    >在systemd中设置</a></p>
+<ol>
+<li>mkdir /etc/systemd/system/docker.service.d<!-- raw HTML omitted --></li>
+<li>touch /etc/systemd/system/docker.service.d/http-proxy.conf<!-- raw HTML omitted --></li>
+<li>在文件中添加：<!-- raw HTML omitted -->[Service]<!-- raw HTML omitted -->Environment=&ldquo;HTTP_PROXY=http://proxy.example.com:80/&quot;<!-- raw HTML omitted --></li>
+<li>重启daemon：<!-- raw HTML omitted -->sudo systemctl daemon-reload<!-- raw HTML omitted --></li>
+<li>查看设置状态：<!-- raw HTML omitted -->sudo systemctl show docker &ndash;property Environment<!-- raw HTML omitted --></li>
+<li>重启docker：<!-- raw HTML omitted -->sudo systemctl restart docker<!-- raw HTML omitted --></li>
+</ol>
+<p>tested on Ubuntu 16.04</p>
+<h2 id="用ps查看进程的执行时间">用ps查看进程的执行时间</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">ps -eo pid,tty,user,comm,stime,etime <span class="p">|</span> grep main
+</code></pre></td></tr></table>
+</div>
+</div><p>可以打印进程的开始时间和执行时间</p>
+<h2 id="vim下以16进制查看文本文件">vim下以16进制查看文本文件</h2>
+<p>vim的功能实在是太强大了，<a class="link" href="http://blog.sina.com.cn/s/blog_4c451e0e0100h4nl.html"  target="_blank" rel="noopener"
+    >可以以16进制查看文本信息</a>：</p>
+<pre><code>十六进制显示
+:%!xxd
+正常显示
+:%!xxd -r
+</code></pre>
+<h2 id="linux获取系统调度时间片长度">Linux获取系统调度时间片长度</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="cp">#define _GNU_SOURCE
+</span><span class="cp">#include</span> <span class="cpf">&lt;sched.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;assert.h&gt;</span><span class="cp">
+</span><span class="cp"></span>
+	<span class="kt">int</span>
+<span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span> <span class="o">*</span><span class="n">argv</span><span class="p">[])</span>
+<span class="p">{</span>
+	<span class="kt">int</span> <span class="n">ret</span><span class="p">,</span> <span class="n">i</span><span class="p">;</span>  
+	<span class="k">struct</span> <span class="nc">timespec</span> <span class="n">tp</span><span class="p">;</span>  
+	<span class="n">ret</span> <span class="o">=</span> <span class="n">sched_rr_get_interval</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">tp</span><span class="p">);</span>  
+	<span class="k">if</span><span class="p">(</span><span class="n">ret</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>  
+		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;sched_rr_get_interval error.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>  
+	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;The time is %ds:%ldns.</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="n">tp</span><span class="p">.</span><span class="n">tv_sec</span><span class="p">,</span> <span class="n">tp</span><span class="p">.</span><span class="n">tv_nsec</span><span class="p">);</span>  
+	<span class="k">return</span> <span class="mi">0</span><span class="p">;</span>  
+<span class="p">}</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ ./cpu_time_slice.o 
+The <span class="nb">time</span> is 0s:16000000ns.
+</code></pre></td></tr></table>
+</div>
+</div><p>可见Ubuntu-16.04 64bit的系统进程时间片是16ms</p>
+<h2 id="c语言中shortintlong内存占用">C语言中short、int、long内存占用</h2>
+<p>随着工作年限的增加，很多基本功反而落了下来，甚至开始怀疑short等类型的内存占用问题了呵呵。印象里一直记得int和long类型都是4字节大小啊</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span><span class="cp"></span>
+<span class="k">struct</span> <span class="nc">test</span><span class="p">{</span>
+	<span class="kt">char</span> <span class="o">*</span><span class="n">ch1</span><span class="p">;</span>
+	<span class="kt">int</span> <span class="n">i</span><span class="p">;</span>
+	<span class="kt">long</span> <span class="n">ch2</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">aa</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;Linux-64Bit-platform</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;	%lu</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="p">(</span><span class="kt">unsigned</span> <span class="kt">long</span><span class="p">)</span><span class="k">sizeof</span><span class="p">(</span><span class="n">aa</span><span class="p">));</span>
+	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;	sizeof short : %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">short</span><span class="p">));</span>
+	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;	sizeof int   : %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">int</span><span class="p">));</span>
+	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;	sizeof long  : %d</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="kt">long</span><span class="p">));</span>
+	
+<span class="p">}</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">
+Linux-64Bit-platform
+	<span class="m">24</span>
+	sizeof short : <span class="m">2</span>
+	sizeof int   : <span class="m">4</span>
+	sizeof long  : <span class="m">8</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">
+Linux-32Bit-platform
+	<span class="m">24</span>
+	sizeof short : <span class="m">2</span>
+	sizeof int   : <span class="m">4</span>
+	sizeof long  : <span class="m">4</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p>看来，long和int大小一样已经是32位机器的老黄历了，基础知识还是应该常用常新啊</p>
+<h2 id="文件操作的线程安全相关待续">文件操作的线程安全相关（待续）</h2>
+<p><a class="link" href="http://stackoverflow.com/questions/29981050/concurrent-writing-to-a-file"  target="_blank" rel="noopener"
+    >http://stackoverflow.com/questions/29981050/concurrent-writing-to-a-file</a></p>
+<h2 id="ubuntu关闭键盘和触摸板的方法">ubuntu关闭键盘和触摸板的方法</h2>
+<p>家里的猫就是喜欢趴在笔记本键盘上看你干活，我只能再买一个键盘，然后笔记本键盘留给猫大爷了。</p>
+<p>然而它还喜欢在键盘上跳舞，这样太影响输入了，只能想办法把笔记本键盘关掉。</p>
+<p>在ubuntu下，键盘鼠标触控板都属于xinput设备，可以通过以下命令查看：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">
+$ xinput  --list
+⎡ Virtual core pointer                    	<span class="nv">id</span><span class="o">=</span>2	<span class="o">[</span>master pointer  <span class="o">(</span>3<span class="o">)]</span>
+⎜   ↳ Virtual core XTEST pointer              	<span class="nv">id</span><span class="o">=</span>4	<span class="o">[</span>slave  pointer  <span class="o">(</span>2<span class="o">)]</span>
+⎜   ↳ SynPS/2 Synaptics TouchPad              	<span class="nv">id</span><span class="o">=</span>16	<span class="o">[</span>slave  pointer  <span class="o">(</span>2<span class="o">)]</span>
+⎜   ↳ Rapoo Rapoo Gaming Keyboard             	<span class="nv">id</span><span class="o">=</span>11	<span class="o">[</span>slave  pointer  <span class="o">(</span>2<span class="o">)]</span>
+⎜   ↳ RAPOO Rapoo 2.4G Wireless Device        	<span class="nv">id</span><span class="o">=</span>12	<span class="o">[</span>slave  pointer  <span class="o">(</span>2<span class="o">)]</span>
+⎜   ↳ Wacom ISDv4 E6 Pen stylus               	<span class="nv">id</span><span class="o">=</span>13	<span class="o">[</span>slave  pointer  <span class="o">(</span>2<span class="o">)]</span>
+⎜   ↳ Wacom ISDv4 E6 Finger touch             	<span class="nv">id</span><span class="o">=</span>14	<span class="o">[</span>slave  pointer  <span class="o">(</span>2<span class="o">)]</span>
+⎜   ↳ Wacom ISDv4 E6 Pen eraser               	<span class="nv">id</span><span class="o">=</span>18	<span class="o">[</span>slave  pointer  <span class="o">(</span>2<span class="o">)]</span>
+⎜   ↳ TPPS/2 IBM TrackPoint                   	<span class="nv">id</span><span class="o">=</span>19	<span class="o">[</span>slave  pointer  <span class="o">(</span>2<span class="o">)]</span>
+⎣ Virtual core keyboard                   	<span class="nv">id</span><span class="o">=</span>3	<span class="o">[</span>master keyboard <span class="o">(</span>2<span class="o">)]</span>
+    ↳ Virtual core XTEST keyboard             	<span class="nv">id</span><span class="o">=</span>5	<span class="o">[</span>slave  keyboard <span class="o">(</span>3<span class="o">)]</span>
+    ↳ Power Button                            	<span class="nv">id</span><span class="o">=</span>6	<span class="o">[</span>slave  keyboard <span class="o">(</span>3<span class="o">)]</span>
+    ↳ Video Bus                               	<span class="nv">id</span><span class="o">=</span>7	<span class="o">[</span>slave  keyboard <span class="o">(</span>3<span class="o">)]</span>
+    ↳ Sleep Button                            	<span class="nv">id</span><span class="o">=</span>8	<span class="o">[</span>slave  keyboard <span class="o">(</span>3<span class="o">)]</span>
+    ↳ Integrated Camera                       	<span class="nv">id</span><span class="o">=</span>9	<span class="o">[</span>slave  keyboard <span class="o">(</span>3<span class="o">)]</span>
+    ↳ Rapoo Rapoo Gaming Keyboard             	<span class="nv">id</span><span class="o">=</span>10	<span class="o">[</span>slave  keyboard <span class="o">(</span>3<span class="o">)]</span>
+    ↳ AT Translated Set <span class="m">2</span> keyboard            	<span class="nv">id</span><span class="o">=</span>15	<span class="o">[</span>slave  keyboard <span class="o">(</span>3<span class="o">)]</span>
+    ↳ ThinkPad Extra Buttons                  	<span class="nv">id</span><span class="o">=</span>17	<span class="o">[</span>slave  keyboard <span class="o">(</span>3<span class="o">)]</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>可以看到笔记本键盘是</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">    ↳ AT Translated Set <span class="m">2</span> keyboard            	<span class="nv">id</span><span class="o">=</span>15	<span class="o">[</span>slave  keyboard <span class="o">(</span>3<span class="o">)]</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>而触控板是</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">⎜   ↳ SynPS/2 Synaptics TouchPad              	<span class="nv">id</span><span class="o">=</span>16	<span class="o">[</span>slave  pointer  <span class="o">(</span>2<span class="o">)]</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>他们的id分别是 15和 16，所以采用以下命令关掉就可以</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">sudo sudo xinput set-prop <span class="m">15</span> <span class="s2">&#34;Device Enabled&#34;</span> <span class="m">0</span>
+sudo sudo xinput set-prop <span class="m">16</span> <span class="s2">&#34;Device Enabled&#34;</span> <span class="m">0</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>附送shell脚本</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/bash
+</span><span class="cp"></span>
+<span class="nv">keyboard</span><span class="o">=</span><span class="sb">`</span>xinput --list <span class="p">|</span> grep AT <span class="p">|</span> awk -F<span class="s1">&#39;=&#39;</span> <span class="s1">&#39;{print $2}&#39;</span> <span class="p">|</span> awk <span class="s1">&#39;{print $1}&#39;</span><span class="sb">`</span>
+<span class="nv">touchpad</span><span class="o">=</span><span class="sb">`</span>xinput --list <span class="p">|</span> grep Synaptics <span class="p">|</span> awk -F<span class="s1">&#39;=&#39;</span> <span class="s1">&#39;{print $2}&#39;</span> <span class="p">|</span> awk <span class="s1">&#39;{print $1}&#39;</span><span class="sb">`</span>
+
+<span class="k">function</span> doit<span class="o">()</span> <span class="o">{</span>
+	<span class="nb">echo</span> <span class="s1">&#39;关闭  笔记本键盘&#39;</span>
+	<span class="sb">`</span>sudo xinput set-prop <span class="nv">$keyboard</span> <span class="s2">&#34;Device Enabled&#34;</span> 0<span class="sb">`</span>			
+	<span class="nb">echo</span> <span class="s1">&#39;关闭  笔记本触摸板&#39;</span>
+	<span class="sb">`</span>sudo xinput set-prop <span class="nv">$touchpad</span> <span class="s2">&#34;Device Enabled&#34;</span> 0<span class="sb">`</span>
+<span class="o">}</span>
+
+doit 
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="小于1024的保留端口都有哪些">小于1024的保留端口都有哪些</h2>
+<p>我们会遇到如下情况：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ sudo tcpdump -i any port <span class="m">1080</span>
+tcpdump: verbose output suppressed, use -v or -vv <span class="k">for</span> full protocol decode
+listening on any, link-type LINUX_SLL <span class="o">(</span>Linux cooked<span class="o">)</span>, capture size <span class="m">262144</span> bytes
+15:08:42.421693 IP localhost.55092 &gt; localhost.socks: Flags <span class="o">[</span>.<span class="o">]</span>, ack 1960200857, win 342, options <span class="o">[</span>nop,nop,TS val <span class="m">4687328</span> ecr 4676064<span class="o">]</span>, length <span class="m">0</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>我想监听1080端口，tcpdump为什么不乖乖显示1080，而是出现个socks呢？（可以通过***-n***参数解决）为什么1080是socks，而不是别的呢？</p>
+<p>这是因为低于1024的保留端口大多有自己的名字，他们<a class="link" href="http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml"  target="_blank" rel="noopener"
+    >由IANA分配</a>，通常用于系统进程，而我们可以在***/etc/services***文件中找到：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1">#</span>
+<span class="c1"># From ``Assigned Numbers&#39;&#39;:</span>
+<span class="c1">#</span>
+<span class="c1">#&gt; The Registered Ports are not controlled by the IANA and on most systems</span>
+<span class="c1">#&gt; can be used by ordinary user processes or programs executed by ordinary</span>
+<span class="c1">#&gt; users.</span>
+<span class="c1">#</span>
+<span class="c1">#&gt; Ports are used in the TCP [45,106] to name the ends of logical</span>
+<span class="c1">#&gt; connections which carry long term conversations.  For the purpose of</span>
+<span class="c1">#&gt; providing services to unknown callers, a service contact port is</span>
+<span class="c1">#&gt; defined.  This list specifies the port used by the server process as its</span>
+<span class="c1">#&gt; contact port.  While the IANA can not control uses of these ports it</span>
+<span class="c1">#&gt; does register or list uses of these ports as a convienence to the</span>
+<span class="c1">#&gt; community.</span>
+<span class="c1">#</span>
+socks		1080/tcp			<span class="c1"># socks proxy server</span>
+socks		1080/udp
+proofd		1093/tcp
+proofd		1093/udp
+rootd		1094/tcp
+rootd		1094/udp
+openvpn		1194/tcp
+openvpn		1194/udp
+rmiregistry	1099/tcp			<span class="c1"># Java RMI Registry</span>
+rmiregistry	1099/udp
+kazaa		1214/tcp
+kazaa		1214/udp
+nessus		1241/tcp			<span class="c1"># Nessus vulnerability</span>
+nessus		1241/udp			<span class="c1">#  assessment scanner</span>
+lotusnote	1352/tcp	lotusnotes	<span class="c1"># Lotus Note</span>
+lotusnote	1352/udp	lotusnotes
+ms-sql-s	1433/tcp			<span class="c1"># Microsoft SQL Server</span>
+ms-sql-s	1433/udp
+ms-sql-m	1434/tcp			<span class="c1"># Microsoft SQL Monitor</span>
+ms-sql-m	1434/udp
+ingreslock	1524/tcp
+ingreslock	1524/udp
+prospero-np	1525/tcp			<span class="c1"># Prospero non-privileged</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="git修改默认分支名">git修改默认分支名</h2>
+<p>在develop分支改动太大了，导致merge 到master分支时非常被动，这个时候我想，干脆将develop分支作为分支好了。还好碰到<a class="link" href="http://stackoverflow.com/questions/1485578/change-a-git-remote-head-to-point-to-something-besides-master"  target="_blank" rel="noopener"
+    >stackoverflow的一个帖子</a></p>
+<ul>
+<li>git branch -m master oldmaster</li>
+<li>git branch -m develop master</li>
+<li>git push -f origin master</li>
+</ul>
+<p>另一个方法是从github的<a class="link" href="https://help.github.com/articles/setting-the-default-branch/"  target="_blank" rel="noopener"
+    >项目主页上更改</a></p>
+<h2 id="编译openssl-102g">编译openssl 1.0.2g</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">./config shared -fPIC zlib-dynamic <span class="o">&amp;&amp;</span> make depend -j   <span class="o">&amp;&amp;</span> make -j
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="编译nginxtengine-cpp模块">编译nginx/tengine: CPP模块</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">./configure --add-module<span class="o">=</span>../cpp_module  --with-ld-opt<span class="o">=</span><span class="s2">&#34;-lstdc++&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="curl--i-和--i的区别">curl -i 和 -I的区别</h2>
+<p>man page:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">	-i, --include
+		<span class="o">(</span>HTTP<span class="o">)</span> Include the HTTP-header in the output. The HTTP-header includes things like server-name, date of the document, HTTP-version and more...
+		
+	-I, --head
+		<span class="o">(</span>HTTP/FTP/FILE<span class="o">)</span> Fetch the HTTP-header only! HTTP-servers feature the <span class="nb">command</span> HEAD which this uses to get nothing but the header of a document. When used on an FTP or FILE file, curl displays the file size and last modification <span class="nb">time</span> only.
+</code></pre></td></tr></table>
+</div>
+</div><p>-i选项会打印出HTTP头部的一些信息，这个选项是curl软件的选项，这些信息本来就是存在的</p>
+<p>-I选项会发送HEAD请求，获取信息</p>
+<h2 id="linux系统如何将父子进程一起kill掉">linux系统如何将父子进程一起kill掉</h2>
+<p>对于普通进程而言，kill掉父进程将会连带着把子进程kill掉；而对于daemon等类型进程而言，kill掉父进程，子进程会被daemon接管，所以如果想父子一起kill掉的话，不能直接kill父进程。</p>
+<p>有<a class="link" href="http://blog.csdn.net/lalaguozhe/article/details/11142855"  target="_blank" rel="noopener"
+    >两种方法</a></p>
+<ul>
+<li>
+<p>kill &ndash; -PPID</p>
+<ul>
+<li>PPID前面有***-***号，可以将父子进程kill掉</li>
+</ul>
+</li>
+<li>
+<p>使用exec或者xargs来kill掉他们</p>
+</li>
+</ul>
+<h2 id="dns查询中域名是否可以有多个cname呢">dns查询中，域名是否可以有多个cname呢？</h2>
+<p>不可以
+* <a class="link" href="http://serverfault.com/questions/574072/can-we-have-multiple-cnames-for-a-single-name"  target="_blank" rel="noopener"
+    >http://serverfault.com/questions/574072/can-we-have-multiple-cnames-for-a-single-name</a></p>
+<h2 id="git代理访问">git代理访问</h2>
+<p>git config &ndash;global http.proxy 10.8.0.1:8118</p>
+<h2 id="ubuntu操作挂载格式化sd卡">ubuntu操作、挂载、格式化SD卡</h2>
+<p>玩树莓派等板子的时候，需要从host机器将os镜像烧进sd卡，然后启动。那么ubuntu如何操作呢？</p>
+<p>fdisk -l命令可以用来查看系统中的存储硬件</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">
+
+Disk /dev/sda: 111.8 GiB, <span class="m">120034123776</span> bytes, <span class="m">234441648</span> sectors
+Units: sectors of <span class="m">1</span> * <span class="nv">512</span> <span class="o">=</span> <span class="m">512</span> bytes
+Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: <span class="m">512</span> bytes / <span class="m">512</span> bytes
+I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span class="m">512</span> bytes / <span class="m">512</span> bytes
+Disklabel type: gpt
+Disk identifier: C27256BB-CE04-48C2-96F4-8F79FAE2AE87
+
+Device     Start       End   Sectors   Size Type
+/dev/sda1   <span class="m">2048</span> <span class="m">234440703</span> <span class="m">234438656</span> 111.8G Linux filesystem
+
+
+Disk /dev/sdb: 167.7 GiB, <span class="m">180045766656</span> bytes, <span class="m">351651888</span> sectors
+Units: sectors of <span class="m">1</span> * <span class="nv">512</span> <span class="o">=</span> <span class="m">512</span> bytes
+Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: <span class="m">512</span> bytes / <span class="m">512</span> bytes
+I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span class="m">512</span> bytes / <span class="m">512</span> bytes
+Disklabel type: dos
+Disk identifier: 0x42b438a2
+
+Device     Boot     Start       End   Sectors  Size Id Type
+/dev/sdb1  *         <span class="m">2048</span> <span class="m">105887743</span> <span class="m">105885696</span> 50.5G  <span class="m">7</span> HPFS/NTFS/exFAT
+/dev/sdb2       <span class="m">105887744</span> <span class="m">187807665</span>  <span class="m">81919922</span> 39.1G <span class="m">83</span> Linux
+/dev/sdb3       <span class="m">187807744</span> <span class="m">228767743</span>  <span class="m">40960000</span> 19.5G  <span class="m">7</span> HPFS/NTFS/exFAT
+/dev/sdb4       <span class="m">228769790</span> <span class="m">351649791</span> <span class="m">122880002</span> 58.6G  f W95 Ext<span class="err">&#39;</span>d <span class="o">(</span>LBA<span class="o">)</span>
+/dev/sdb5       <span class="m">228769792</span> <span class="m">351649791</span> <span class="m">122880000</span> 58.6G  <span class="m">7</span> HPFS/NTFS/exFAT
+
+
+Disk /dev/sdc: 14.9 GiB, <span class="m">16021192704</span> bytes, <span class="m">31291392</span> sectors
+Units: sectors of <span class="m">1</span> * <span class="nv">512</span> <span class="o">=</span> <span class="m">512</span> bytes
+Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: <span class="m">512</span> bytes / <span class="m">512</span> bytes
+I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span class="m">512</span> bytes / <span class="m">512</span> bytes
+Disklabel type: dos
+Disk identifier: 0x00000000
+
+Device     Boot Start      End  Sectors  Size Id Type
+/dev/sdc1        <span class="m">8192</span> <span class="m">31291391</span> <span class="m">31283200</span> 14.9G  c W95 FAT32 <span class="o">(</span>LBA<span class="o">)</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p>如果sd卡（tf卡）通过usb 读卡器接入电脑，则会显示为 /dev/sdc</p>
+<p>如果是标准sd卡（大卡），则会显示为 /dev/mmblck0</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">
+Disk /dev/mmcblk0: 14.9 GiB, <span class="m">16021192704</span> bytes, <span class="m">31291392</span> sectors
+Units: sectors of <span class="m">1</span> * <span class="nv">512</span> <span class="o">=</span> <span class="m">512</span> bytes
+Sector size <span class="o">(</span>logical/physical<span class="o">)</span>: <span class="m">512</span> bytes / <span class="m">512</span> bytes
+I/O size <span class="o">(</span>minimum/optimal<span class="o">)</span>: <span class="m">512</span> bytes / <span class="m">512</span> bytes
+Disklabel type: dos
+Disk identifier: 0x00000000
+
+Device         Boot Start      End  Sectors  Size Id Type
+/dev/mmcblk0p1       <span class="m">8192</span> <span class="m">31291391</span> <span class="m">31283200</span> 14.9G  c W95 FAT32 <span class="o">(</span>LBA<span class="o">)</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p>推荐使用USB读卡器，速度较为快一些。</p>
+<h2 id="lua库文件的加载路径">Lua库文件的加载路径</h2>
+<p>Lua 提供一个名为 <a class="link" href="http://www.lua.org/manual/5.1/manual.html#pdf-require"  target="_blank" rel="noopener"
+    >require</a> 的函数来加载模块，使用也很简单，它只有一个参数，这个参数就是要指定加载的模块名，<a class="link" href="http://dhq.me/lua-learning-notes-package-and-module"  target="_blank" rel="noopener"
+    >例如</a>：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua"><span class="n">require</span><span class="p">(</span><span class="s2">&#34;&lt;模块名&gt;&#34;</span><span class="p">)</span>
+<span class="c1">-- 或者是</span>
+<span class="c1">-- require &#34;&lt;模块名&gt;&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>然后会返回一个由模块常量或函数组成的 table，并且还会定义一个包含该 table 的全局变量。</p>
+<p>或者给加载的模块定义一个别名变量，方便调用：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua"><span class="kd">local</span> <span class="n">m</span> <span class="o">=</span> <span class="n">require</span><span class="p">(</span><span class="s2">&#34;module&#34;</span><span class="p">)</span>
+<span class="n">print</span><span class="p">(</span><span class="n">m.constant</span><span class="p">)</span>
+<span class="n">m.func3</span><span class="p">()</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>对于自定义的模块，模块文件不是放在哪个文件目录都行，函数 require 有它自己的文件路径加载策略，它会尝试从 Lua 文件或 C 程序库中加载模块。</p>
+<p>require 用于搜索 Lua 文件的路径是存放在全局变量 package.path 中，当 Lua 启动后，会以环境变量 LUA_PATH 的值来初始这个环境变量。如果没有找到该环境变量，则使用一个编译时定义的默认路径来初始化。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">
+Lua 5.1.5  Copyright <span class="o">(</span>C<span class="o">)</span> 1994-2012 Lua.org, PUC-Rio
+&gt;  print<span class="o">(</span>package.path<span class="o">)</span>
+~/lua/?.lua<span class="p">;</span>/usr/local/share/lua/5.1/?.lua<span class="p">;</span>/home/huang/workspace/luactor/?.lua<span class="p">;</span>./?.lua<span class="p">;</span>/usr/local/share/lua/5.1/?.lua<span class="p">;</span>/usr/local/share/lua/5.1/?/init.lua<span class="p">;</span>/usr/local/lib/lua/5.1/?.lua<span class="p">;</span>/usr/local/lib/lua/5.1/?/init.lua<span class="p">;</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p>如果没有 LUA_PATH 这个环境变量，也可以自定义设置</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">huang@ThinkPad-X220:~/workspace/luapkg/luasocket-2.0.2$ <span class="nb">export</span> <span class="nv">LUA_PATH</span><span class="o">=</span><span class="s2">&#34;4;;&#34;</span>
+huang@ThinkPad-X220:~/workspace/luapkg/luasocket-2.0.2$ lua
+Lua 5.1.5  Copyright <span class="o">(</span>C<span class="o">)</span> 1994-2012 Lua.org, PUC-Rio
+&gt;  print<span class="o">(</span>package.path<span class="o">)</span>
+4<span class="p">;</span>./?.lua<span class="p">;</span>/usr/local/share/lua/5.1/?.lua<span class="p">;</span>/usr/local/share/lua/5.1/?/init.lua<span class="p">;</span>/usr/local/lib/lua/5.1/?.lua<span class="p">;</span>/usr/local/lib/lua/5.1/?/init.lua<span class="p">;</span>
+&gt; 
+</code></pre></td></tr></table>
+</div>
+</div><p>可以看到，随便加的环境变量&quot;4;&ldquo;写在了package.path中。</p>
+<p>而为什么4需要两个&rsquo;；&lsquo;号呢：文件路径以 &ldquo;;&rdquo; 号分隔，最后的 2 个 &ldquo;;;&rdquo; 表示新加的路径后面加上原来的默认路径。</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">huang@ThinkPad-X220:~/workspace/luapkg/luasocket-2.0.2$ <span class="nb">export</span> <span class="nv">LUA_PATH</span><span class="o">=</span><span class="s2">&#34;4;&#34;</span>
+huang@ThinkPad-X220:~/workspace/luapkg/luasocket-2.0.2$ lua
+Lua 5.1.5  Copyright <span class="o">(</span>C<span class="o">)</span> 1994-2012 Lua.org, PUC-Rio
+&gt; print<span class="o">(</span>package.path<span class="o">)</span>
+4<span class="p">;</span>
+&gt; 
+</code></pre></td></tr></table>
+</div>
+</div><p>可见如果只有一个；号，将只采用这个分号。</p>
+<p>如果找过目标文件，则会调用 package.loadfile 来加载模块。否则，就会去找 C 程序库。搜索的文件路径是从全局变量 package.cpath 获取，而这个变量则是通过环境变量 LUA_CPATH 来初始。搜索的策略跟上面的一样，只不过现在换成搜索的是 so 或 dll 类型的文件。如果找得到，那么 require 就会通过 package.loadlib 来加载它。</p>
+<p>我们也可以在lua代码中<a class="link" href="https://github.com/rtsisyk/luafun"  target="_blank" rel="noopener"
+    >动态修改package.path变量</a>，</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">package.path <span class="o">=</span> <span class="s2">&#34;../?.lua;&#34;</span>..package.path
+require <span class="s2">&#34;fun&#34;</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p>这点对于我们自己的lua project的设置来说无疑是很方便的。
+<a class="link" href="http://www.runoob.com/lua/lua-modules-packages.html"  target="_blank" rel="noopener"
+    >参考链接</a></p>
+<h2 id="cpp调用c函数">cpp调用c函数</h2>
+<p>由于CPP在链接时与C不太一样，因此在调用C函数时，<a class="link" href="http://www.cnblogs.com/skynet/archive/2010/07/10/1774964.html"  target="_blank" rel="noopener"
+    >需要做一定处理。</a></p>
+<p>将C函数的声明房子 <em><strong>#ifdef __cplusplus</strong></em> 块中</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1">#ifdef __cplusplus</span>
+extern <span class="s2">&#34;C&#34;</span> <span class="o">{</span>
+<span class="c1">#endif</span>
+ 
+/*.
+ * c functions declarations
+..*/
+
+<span class="c1">#ifdef __cplusplus</span>
+<span class="o">}</span>
+<span class="c1">#endif</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="多少人在猜你机器的密码呢">多少人在猜你机器的密码呢</h2>
+<p>VPS在公网就是个待宰的肥肉，都想去登陆，那<a class="link" href="https://plus.google.com/&#43;AlbertSu2015/posts/Uu1vbeJY1Hw"  target="_blank" rel="noopener"
+    >都谁猜我的IP了呢？</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">sudo grep <span class="s2">&#34;Failed password for root&#34;</span> /var/log/auth.log <span class="p">|</span> awk <span class="s1">&#39;{print $11}&#39;</span> <span class="p">|</span> sort <span class="p">|</span> uniq -c <span class="p">|</span> sort -nr <span class="p">|</span> more
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="grep的简单使用与-或-非">grep的简单使用，与 或 非</h2>
+<ul>
+<li>或操作</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">grep -E <span class="s1">&#39;123|abc&#39;</span> filename  // 找出文件（filename）中包含123或者包含abc的行
+egrep <span class="s1">&#39;123|abc&#39;</span> filename    // 用egrep同样可以实现
+awk <span class="s1">&#39;/123|abc/&#39;</span> filename   // awk 的实现方式
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>与操作</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">grep pattern1 files <span class="p">|</span> grep pattern2 ：显示既匹配 pattern1 又匹配 pattern2 的行。
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>其他操作</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">
+grep -i pattern files ：不区分大小写地搜索。默认情况区分大小写，
+grep -l pattern files ：只列出匹配的文件名，
+grep -L pattern files ：列出不匹配的文件名，
+grep -w pattern files ：只匹配整个单词，而不是字符串的一部分（如匹配‘magic’，而不是‘magical’），
+grep -v pattern files ：不匹配pattern
+grep -C number pattern files ：匹配的上下文分别显示<span class="o">[</span>number<span class="o">]</span>行，
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="iptables的简单使用">iptables的简单使用</h2>
+<p>其实并不想写iptables相关的内容，因为用的不熟，但是一些常用的命令还是记一下吧</p>
+<p><a class="link" href="https://linux.cn/article-1586-1.html"  target="_blank" rel="noopener"
+    >iptables的详细解释</a></p>
+<pre><code>Linux系统中,防火墙(Firewall),网址转换(NAT),数据包(package)记录,流量统计,这些功能是由Netfilter子系统所提供的，而iptables是控制Netfilter的工具。iptables将许多复杂的规则组织成成容易控制的方式，以便管理员可以进行分组测试，或关闭、启动某组规则。
+</code></pre>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">https://blog.phpgao.com/vps_iptables.html
+http://www.tabyouto.com/bandwagon-vps-for-shadowsocks-was-hacked.html
+http://my.oschina.net/yqc/blog/82111?fromerr<span class="o">=</span>VxVIazGW
+http://www.vpser.net/security/linux-iptables.html
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># 列出所有规则</span>
+iptables -L -n
+
+<span class="c1"># 更新iptables规则，规则写在/etc/iptables.rules</span>
+iptables-restore &lt; /etc/iptables.rules
+
+<span class="c1"># 保存iptables规则，规则写在/etc/iptables.rules</span>
+iptables-save &gt; /etc/iptables.rules
+
+</code></pre></td></tr></table>
+</div>
+</div><p>需要注意的是Debian/Ubuntu上iptables是不会保存规则的。</p>
+<p>需要按如下步骤进行，让网卡关闭是保存iptables规则，启动时加载iptables规则：</p>
+<p>创建/etc/network/if-post-down.d/iptables 文件，添加如下内容：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/bash
+</span><span class="cp"></span>iptables-save &gt; /etc/iptables.rules
+</code></pre></td></tr></table>
+</div>
+</div><p>执行：chmod +x /etc/network/if-post-down.d/iptables 添加执行权限。</p>
+<p>创建/etc/network/if-pre-up.d/iptables 文件，添加如下内容：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="cp">#!/bin/bash
+</span><span class="cp"></span>iptables-restore &lt; /etc/iptables.rules
+</code></pre></td></tr></table>
+</div>
+</div><p>执行：chmod +x /etc/network/if-pre-up.d/iptables 添加执行权限。</p>
+<p>iptables的一些常用规则：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1">#允许ping</span>
+iptables -A INPUT -p icmp -m icmp --icmp-type <span class="m">8</span> -j ACCEPT
+</code></pre></td></tr></table>
+</div>
+</div><p>如果想清空的话，先执行</p>
+<pre><code>/sbin/iptables -P INPUT ACCEPT
+</code></pre>
+<p>然后执行</p>
+<pre><code>/sbin/iptables -F
+</code></pre>
+<h2 id="vps简单的ssh登陆设置">VPS简单的ssh登陆设置</h2>
+<p>初次使用VPS，不懂得安全的重要性，直到扣款时候才心疼，这个时候，弱口令，密码登陆什么的，还是都放弃吧，只用ssh登陆，并且换一个自己的端口。<a class="link" href="https://imququ.com/post/bandwagon-vps-and-basicly-usage.html"  target="_blank" rel="noopener"
+    >参考链接</a></p>
+<p>简单来说，任何一台主机想登陆VPS的主机都需要有本身的ssh公钥私钥</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">cd</span> ~/.ssh/
+ssh-keygen -t rsa -C <span class="s2">&#34;username@gmail.com&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>然后复制~/.ssh/id_rsa.pub中的内容，就是本机的公钥。</p>
+<p>将公钥添加到VPS服务器的/home/username/.ssh/authorized_keys中，本机就能以username用户名登陆VPS了</p>
+<p>然后在/etc/ssh/sshd_config中禁用禁用 VPS 的密码登录和 root 帐号登录，将以下两项改为no</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">PasswordAuthentication no
+PermitRootLogin no
+
+Port <span class="m">11111</span>
+
+</code></pre></td></tr></table>
+</div>
+</div><p>随后重启SSH服务</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">sudo service ssh restart
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="vim删除空行">vim删除空行</h2>
+<ul>
+<li>从网页上copy下代码后，发现很多情况下有不想要的空行，非常影响阅读，通过<a class="link" href="http://bbs.chinaunix.net/thread-510754-1-1.html"  target="_blank" rel="noopener"
+    >vim的正则</a>可以解决
+<ul>
+<li>Delete all blank lines (^ is start of line; \s* is zero or more whitespace characters; $ is end of line)</li>
+<li>删除所有空白行(^是行的开始，\s*是零个或者多个空白字符；$是行尾)</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">:g/^<span class="se">\s</span>*$/d
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="ubuntu通过命令设置系统时间">ubuntu通过命令设置系统时间</h2>
+<p>在嵌入式开发中，在pcduino或者rpi板子上安装好linux后，系统时间是UTC时间1970年，对于有些软件来说可能影响安装，所以需要命令行修改date</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">sudo date -s <span class="s2">&#34;13 DEC 2015 20:43&#34;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="ubuntu终端下中文设置">ubuntu终端下中文设置</h2>
+<p>在安装完ubuntu系统后，我们发现中文支持的不好，主要体现在locale的错误，<a class="link" href="http://www.linuxidc.com/Linux/2015-08/122501.htm"  target="_blank" rel="noopener"
+    >解决方法：</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">perl: warning: Setting locale failed.
+perl: warning: Please check that your locale settings:
+	<span class="nv">LANGUAGE</span> <span class="o">=</span> <span class="o">(</span><span class="nb">unset</span><span class="o">)</span>,
+	<span class="nv">LC_ALL</span> <span class="o">=</span> <span class="o">(</span><span class="nb">unset</span><span class="o">)</span>,
+	<span class="nv">LC_PAPER</span> <span class="o">=</span> <span class="s2">&#34;zh_CN.UTF-8&#34;</span>,
+	<span class="nv">LC_ADDRESS</span> <span class="o">=</span> <span class="s2">&#34;zh_CN.UTF-8&#34;</span>,
+	<span class="nv">LC_MONETARY</span> <span class="o">=</span> <span class="s2">&#34;zh_CN.UTF-8&#34;</span>,
+	<span class="nv">LC_NUMERIC</span> <span class="o">=</span> <span class="s2">&#34;zh_CN.UTF-8&#34;</span>,
+	<span class="nv">LC_TELEPHONE</span> <span class="o">=</span> <span class="s2">&#34;zh_CN.UTF-8&#34;</span>,
+	<span class="nv">LC_IDENTIFICATION</span> <span class="o">=</span> <span class="s2">&#34;zh_CN.UTF-8&#34;</span>,
+	<span class="nv">LC_MEASUREMENT</span> <span class="o">=</span> <span class="s2">&#34;zh_CN.UTF-8&#34;</span>,
+	<span class="nv">LC_TIME</span> <span class="o">=</span> <span class="s2">&#34;zh_CN.UTF-8&#34;</span>,
+	<span class="nv">LC_NAME</span> <span class="o">=</span> <span class="s2">&#34;zh_CN.UTF-8&#34;</span>,
+	<span class="nv">LANG</span> <span class="o">=</span> <span class="s2">&#34;en_US.UTF-8&#34;</span>
+    are supported and installed on your system.
+perl: warning: Falling back to the standard locale <span class="o">(</span><span class="s2">&#34;C&#34;</span><span class="o">)</span>.
+
+</code></pre></td></tr></table>
+</div>
+</div><p>这是因为中文包没有安装好的缘故，如下命令就可以解决：</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">添加简体中文支持
+sudo apt-get -y install language-pack-zh-hans language-pack-zh-hans-base
+
+添加繁体中文支持
+sudo apt-get -y install language-pack-zh-hant language-pack-zh-hant-base
+
+</code></pre></td></tr></table>
+</div>
+</div><p>如果还不行，先观察下locale的配置</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">huang@localhost:~$ locale
+locale: Cannot <span class="nb">set</span> LC_CTYPE to default locale: No such file or directory
+locale: Cannot <span class="nb">set</span> LC_MESSAGES to default locale: No such file or directory
+locale: Cannot <span class="nb">set</span> LC_ALL to default locale: No such file or directory
+<span class="nv">LANG</span><span class="o">=</span>en_US.UTF-8
+<span class="nv">LANGUAGE</span><span class="o">=</span>
+<span class="nv">LC_CTYPE</span><span class="o">=</span><span class="s2">&#34;en_US.UTF-8&#34;</span>
+<span class="nv">LC_NUMERIC</span><span class="o">=</span>zh_CN.UTF-8
+<span class="nv">LC_TIME</span><span class="o">=</span>zh_CN.UTF-8
+<span class="nv">LC_COLLATE</span><span class="o">=</span><span class="s2">&#34;en_US.UTF-8&#34;</span>
+<span class="nv">LC_MONETARY</span><span class="o">=</span>zh_CN.UTF-8
+<span class="nv">LC_MESSAGES</span><span class="o">=</span><span class="s2">&#34;en_US.UTF-8&#34;</span>
+<span class="nv">LC_PAPER</span><span class="o">=</span>zh_CN.UTF-8
+<span class="nv">LC_NAME</span><span class="o">=</span>zh_CN.UTF-8
+<span class="nv">LC_ADDRESS</span><span class="o">=</span>zh_CN.UTF-8
+<span class="nv">LC_TELEPHONE</span><span class="o">=</span>zh_CN.UTF-8
+<span class="nv">LC_MEASUREMENT</span><span class="o">=</span>zh_CN.UTF-8
+<span class="nv">LC_IDENTIFICATION</span><span class="o">=</span>zh_CN.UTF-8
+<span class="nv">LC_ALL</span><span class="o">=</span>
+</code></pre></td></tr></table>
+</div>
+</div><p>再重新配置下语言包</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">huang@localhost:~$  sudo locale-gen <span class="s2">&#34;en_US.UTF-8&#34;</span>
+Generating locales...
+  en_US.UTF-8... <span class="k">done</span>
+Generation complete.
+huang@localhost:~$ sudo  pip install shadowsocks^C
+huang@localhost:~$  sudo locale-gen <span class="s2">&#34;zh_CN.UTF-8&#34;</span>
+Generating locales...
+  zh_CN.UTF-8... <span class="k">done</span>
+Generation complete.
+huang@localhost:~$ sudo dpkg-reconfigure locales
+Generating locales...
+  en_US.UTF-8... <span class="k">done</span>
+  zh_CN.UTF-8... up-to-date
+  zh_HK.UTF-8... <span class="k">done</span>
+  zh_SG.UTF-8... <span class="k">done</span>
+  zh_TW.UTF-8... <span class="k">done</span>
+Generation complete.
+</code></pre></td></tr></table>
+</div>
+</div><p>一般就都能解决</p>
+<h2 id="linux终端下的颜色设置输出">Linux终端下的颜色设置输出</h2>
+<p>Linux终端下，如果有一个彩色的终端，可以明显提升人的阅读兴趣，通过printf的简单设置即可<a class="link" href="http://www.w2bc.com/Article/39141"  target="_blank" rel="noopener"
+    >实现彩色输出</a></p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="se">\0</span>33<span class="o">[</span>显示方式<span class="p">;</span>前景色<span class="p">;</span>背景色m
+
+    显示方式、前景色、背景色至少一个存在即可。
+    格式：<span class="se">\0</span>33<span class="o">[</span>显示方式<span class="p">;</span>前景色<span class="p">;</span>背景色m
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">前景色  背景色  颜色
+<span class="m">30</span>  <span class="m">40</span>  黑色
+<span class="m">31</span>  <span class="m">41</span>  红色
+<span class="m">32</span>  <span class="m">42</span>  绿色
+<span class="m">33</span>  <span class="m">43</span>  黃色
+<span class="m">34</span>  <span class="m">44</span>  蓝色
+<span class="m">35</span>  <span class="m">45</span>  紫红色
+<span class="m">36</span>  <span class="m">46</span>  青蓝色
+<span class="m">37</span>  <span class="m">47</span>  白色
+
+
+显示方式    意义
+<span class="m">0</span>   终端默认设置
+<span class="m">1</span>   高亮显示
+<span class="m">4</span>   使用下划线
+<span class="m">5</span>   闪烁
+<span class="m">7</span>   反白显示
+<span class="m">8</span>   不可见
+
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="se">\0</span>33<span class="o">[</span>1<span class="p">;</span>31<span class="p">;</span>40m    &lt;!--1-高亮显示 31-前景色红色  40-背景色黑色--&gt;
+<span class="se">\0</span>33<span class="o">[</span>0m          &lt;!--采用终端默认设置，即取消颜色设置--&gt;
+
+printf<span class="o">(</span><span class="s2">&#34;\033[1;31;40m&#34;</span><span class="o">)</span><span class="p">;</span>
+printf<span class="o">(</span><span class="s2">&#34;\033[0m&#34;</span><span class="o">)</span><span class="p">;</span>
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="tsar监控系统负载和nginx运行情况">tsar监控系统负载和nginx运行情况</h2>
+<p><a class="link" href="https://github.com/alibaba/tsar"  target="_blank" rel="noopener"
+    >tsar</a>是阿里巴巴发布的一款能够实时监控系统状态的命令行工具，并且支持第三方模块扩展，其中比较注明的是nginx模块。使用tsar时，可以将系统负载和nginx运行情况同步同时打出，可以用来定位系统瓶颈，所以广受好评。</p>
+<p><em><strong>tsar -li1</strong></em> 是其最经典的用法，可以将一般我们感兴趣的监控项每秒更新一次并输出</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">Time              ---cpu-- ---mem-- ---tcp-- -----traffic---- --sda---  ---load- 
+Time                util     util   retran    bytin  bytout     util     load1   
+25/03/16-19:03:30   0.08    10.22     0.00     1.4K    1.2K     0.00     0.33  
+25/03/16-19:03:31   0.08    10.21     0.00   424.00  468.00     0.00     0.33   
+</code></pre></td></tr></table>
+</div>
+</div><p>如果想使能nginx模块，需要对其进行配置</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">1. mkdir /etc/tsar/conf.d
+2. touch /etc/tsar/conf.d/nginx.conf
+
+3. 写入如下内容并保存
+mod_nginx on
+
+<span class="c1">####add it to tsar default output</span>
+output_stdio_mod mod_nginx
+
+<span class="c1">####add it to center db</span>
+<span class="c1">#output_db_mod mod_nginx</span>
+
+<span class="c1">####add it to nagios send</span>
+<span class="c1">####set nagios threshold for alert</span>
+<span class="c1">#output_nagios_mod mod_nginx</span>
+
+<span class="c1">#threshold nginx.value1;N;N;N;N;</span>
+<span class="c1">#threshold nginx.value2;N;N;N;N;</span>
+<span class="c1">#threshold nginx.value3;N;N;N;N;</span>
+
+表示使能nginx模块，并使用stdio输出
+
+4. tsar -li1
+
+Time              ---cpu-- ---mem-- ---tcp-- -----traffic---- --sda---  ---load- ------------------nginx----------------- 
+Time                util     util   retran    bytin  bytout     util     load1      qps      rt  sslqps  spdyps  sslhst   
+25/03/16-19:06:19   0.08    11.40     7.14   302.00  546.00     0.00     0.02     1.00    0.00    0.00    0.00    0.00   
+
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="wrk在centos系统上的编译方法">wrk在CentOS系统上的编译方法</h2>
+<p><a class="link" href="https://github.com/wg/wrk"  target="_blank" rel="noopener"
+    >wrk</a>作为一款可以内嵌lua脚本的，支持多线程的压测工具，受到了广泛欢迎。在高版本CentOS 7上，直接在wrk目录下执行make，可以首先编译deps/luajit，得到deps/luajit/libluajit.a，然而在低版本上，CentOS 6.5系统中，会报一些莫名奇妙的错误。</p>
+<p>解决方法是，查看wrk的Makefile，发现wrk依赖于luajit，那么首先进入deps/luajit编译它，并且是静态编译</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="nb">cd</span> wrk
+<span class="nb">cd</span> deps/luajit
+make -j24 <span class="nv">BUILDMODE</span><span class="o">=</span>static
+
+<span class="nb">cd</span> ../..
+make -j24
+
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="rpmbuild环境的快速初始化">rpmbuild环境的快速初始化</h2>
+<p>需要将代码打包为CentOS的RPM包时，可以先自己在本地新建一个环境</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">1. mkdir -p ~/rpmbuild/<span class="o">{</span>SOURCES,BUILD,BUILDROOT,RPMS,SRPMS,SPECS<span class="o">}</span>
+2. 将代打包的代码压缩包 software.tar.gz 放入SOURCES文件夹
+3. 将 software.spec 放入SPECS文件夹
+4. rpmbuild -ba path/to/software.spec 即可
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="git记住密码不用每次都输密码才登入">git记住密码，不用每次都输密码才登入</h2>
+<p>git有两种方式，一种是ssh方式，配置公钥私钥，对于新手而言还是比较麻烦的；另一种是http方式，这里有一个办法可以让git记住密码，避免每次都需要输入密码</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">1. touch ~/.git-credentials
+2. 将  https://<span class="o">{</span>username<span class="o">}</span>:<span class="o">{</span>password<span class="o">}</span>@github.com  写入该文件
+3. git config --global credential.helper store  就可以使得git记住密码了
+4. 此时查看 ~/.gitconfig，发现多了一项
+    
+    <span class="o">[</span>credential<span class="o">]</span> 
+    <span class="nv">helper</span> <span class="o">=</span> store 
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="centos系统上某些软件比如gccpython等版本过低的解决方案">centos系统上某些软件，比如gcc、python等版本过低的解决方案</h2>
+<p>在CentOS Server上，经常会遇到某些软件依赖版本过低的问题，比如CentOS 6.5的python是2.7版本的，gcc是4.2版本的，那么我们如何获得一个干净的、与原版本无冲突的运行环境呢。CentOS系提供了一个叫SCL的工具，可以帮我们实现目的</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ sudo wget http://people.centos.org/tru/devtools-1.1/devtools-1.1.repo -P /etc/yum.repos.d
+$ sudo sh -c <span class="s1">&#39;echo &#34;enabled=1&#34; &gt;&gt; /etc/yum.repos.d/devtools-1.1.repo&#39;</span>
+$ sudo yum install devtoolset-1.1
+$ scl <span class="nb">enable</span> devtoolset-1.1 bash
+$ gcc --version
+<span class="c1"># 通过devtoolset工具可以暂时提高gcc版本，而不更改之前服务器的配置，这个很有效果，高版本的gcc会智能保留symbol。</span>
+</code></pre></td></tr></table>
+</div>
+</div><div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># CentOS 6.5</span>
+sudo yum install centos-release-SCL
+sudo yum install python27
+scl <span class="nb">enable</span> python27 bash
+python --version
+</code></pre></td></tr></table>
+</div>
+</div><h2 id="ubuntu系统上某些软件比如gcc等版本过高的解决方案">ubuntu系统上某些软件，比如gcc等版本过高的解决方案</h2>
+<p>与CentOS相反，debian系发行版的软件版本都很高，Ubuntu 16.04的gcc 版本已经到了5.2，然而编译一些早期linux内核的话，需要gcc-4.7左右的版本，这时候我们怎么办呢，有两个方法：</p>
+<ul>
+<li>通过apt安装低版本gcc
+<ul>
+<li>sudo apt-get install gcc-4.7</li>
+<li>在编译linux 内核时， make CC=gcc-4.7 即可</li>
+</ul>
+</li>
+<li>update-alternatives可以帮忙更改符号链接，指向不同版本的gcc
+<ul>
+<li><a class="link" href="http://www.metsky.com/archives/607.html"  target="_blank" rel="noopener"
+    >参考链接1</a></li>
+<li><a class="link" href="http://blog.csdn.net/zyxlinux888/article/details/6708775"  target="_blank" rel="noopener"
+    >参考链接2</a> <a class="link" href="http://blog.csdn.net/zyxlinux888/article/details/6709036"  target="_blank" rel="noopener"
+    >附赠</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="python的matplotlib库实现绘制图标">python的matplotlib库实现绘制图标</h2>
+<ul>
+<li>sudo apt-get install python-matplotlib</li>
+</ul>
+<p><a class="link" href="http://matplotlib.org/index.html"  target="_blank" rel="noopener"
+    >参考链接</a>
+<a class="link" href="http://matplotlib.org/examples/index.html"  target="_blank" rel="noopener"
+    >example</a></p>
+<h2 id="python使用requests库发送http请求">python使用requests库发送http请求</h2>
+<p><a class="link" href="http://cn.python-requests.org/zh_CN/latest/user/quickstart.html#json"  target="_blank" rel="noopener"
+    >参考链接</a></p>
+<h2 id="python解析命令行参数argparse">python解析命令行参数：argparse</h2>
+<p><a class="link" href="http://blog.xiayf.cn/2013/03/30/argparse/"  target="_blank" rel="noopener"
+    >参考链接</a></p>
+<h2 id="git比较两次commit的差异">git比较两次commit的差异</h2>
+<p>通过比较两次commit的代码差异，能够快速理解此次commit的目的，理解作者意图</p>
+<ul>
+<li>git log
+<ul>
+<li>查看commit历史</li>
+</ul>
+</li>
+</ul>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">commit 2279c3f4a8a42e696a0f34e6e9b6289487da92c1
+Author: bg2bkk &lt;bg2bkk@gmail.com&gt;
+Date:   Sun Mar <span class="m">13</span> 09:12:26 <span class="m">2016</span> +0800
+
+    add SO_REUSEADDR和SO_REUSEPORT.md
+
+commit 2b9d85f8427c5ca9e4f9c128c22acd280eb94405
+Author: bg2bkk &lt;bg2bkk@gmail.com&gt;
+Date:   Sat Mar <span class="m">12</span> 01:16:00 <span class="m">2016</span> +0800
+
+    add 采用二级指针实现单链表操作 单链表翻转 删除单链表结点
+</code></pre></td></tr></table>
+</div>
+</div><ul>
+<li>git diff commit 2279c3f4a8a42e696a0f34e6e9b6289487da92c1 2b9d85f8427c5ca9e4f9c128c22acd280eb94405</li>
+</ul>
+<h2 id="git返回强制返回某次提交">git返回强制返回某次提交</h2>
+<ul>
+<li>git log</li>
+<li>git reset 5f4769a98985b5acfea45462df27830e51a75145 &ndash;hard
+<ul>
+<li>可见commit号很重要</li>
+</ul>
+</li>
+</ul>
+<h2 id="iptables允许端口被外网访问">iptables允许端口被外网访问</h2>
+<p>防火墙设置，配置1985端口可以被外网访问</p>
+<ul>
+<li>sudo iptables -A INPUT -m state &ndash;state NEW -m tcp -p tcp &ndash;dport 1985 -j ACCEPT</li>
+</ul>
+<h2 id="tcpdump过滤指定标志的packet">tcpdump过滤指定标志的packet</h2>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># tcp包里有个flags字段表示包的类型，tcpdump可以根据该字段抓取相应类型的包：</span>
+<span class="c1"># tcp[13] 就是 TCP flags (URG,ACK,PSH,RST,SYN,FIN)</span>
+<span class="c1"># Unskilled 32</span>
+<span class="c1"># Attackers 16</span>
+<span class="c1"># Pester     8</span>
+<span class="c1"># Real       4</span>
+<span class="c1"># Security   2</span>
+<span class="c1"># Folks      1</span>
+
+<span class="c1">#抓取fin包：</span>
+tcpdump -ni any port <span class="m">9001</span> and <span class="s1">&#39;tcp[13] &amp; 1 != 0 &#39;</span> -s0  -w fin.cap -vvv
+<span class="c1">#抓取syn+fin包：</span>
+tcpdump -ni any port <span class="m">9001</span> and <span class="s1">&#39;tcp[13] &amp; 3 != 0 &#39;</span> -s0  -w syn_fin.cap -vvv
+<span class="c1">#抓取rst包：</span>
+tcpdump -ni any port <span class="m">9001</span> and <span class="s1">&#39;tcp[13] &amp; 4 != 0 &#39;</span> -s0  -w rst.cap -vvv
+</code></pre></td></tr></table>
+</div>
+</div><p><a class="link" href="http://babyhe.blog.51cto.com/1104064/1395489"  target="_blank" rel="noopener"
+    >参考链接</a></p>
+<h2 id="查看进程的内存占用情况">查看进程的内存占用情况</h2>
+<p>用Ternary Search Tree代替Trie Tree后，我想知道我的进程内存占用有多大区别。</p>
+<ul>
+<li>
+<p>ps -e -o &lsquo;pid,comm,args,pcpu,rsz,vsz,stime,user,uid&rsquo; | grep MyDict</p>
+<ul>
+<li>rsz是实际占用内存，单位是KB</li>
+</ul>
+</li>
+<li>
+<p>pmap -d pid</p>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2022 Bg2bkk Site
+    </section>
+    
+    <section class="powerby">
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>
