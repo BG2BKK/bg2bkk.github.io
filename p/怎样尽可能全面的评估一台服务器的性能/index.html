@@ -1,35 +1,39 @@
 <!DOCTYPE html>
-<html lang="" dir="ltr">
+<html lang="en" dir="ltr">
     <head><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='给你一台服务器，怎样能够全面评估它的性能？需要测试哪些指标？请写出每个指标的具体测试原理和测试代码。假设这台服务器完全处于线下。
 这个问题看似平常，但是细细审题的话，发现还是不一样的。我们过多关注线上机器的性能，但是如果单独拿出来一台服务器，它的性能怎样呢？
 评估和压榨一台服务器性能的话，找到评估的指标，然后进行压测加观察的方式，得到性能参数。
- 观察哪些指标，意义何在？ 如何观察这些指标，测试原理，观测工具/统计代码 如何进行压测，实现测试场景，压测工具/压测代码  bench可以分类为macro bench和micro bench;对于macro bench，很多时候我们得到的是一个整体而粗略的结果，通过top我们可以看到系统负载，这些对于我们定位线上问题，分析应用程序的性能热点很有帮助，然而这并不能精确衡量一台Linux Server的性能；应用程序多种多样，线上系统目的各不相同，所以macro bench一般用于case by case的性能分析，用于解决应用的性能瓶颈；而micro bench可以定量的分析一台机器&#43;操作系统的性能，采用相同的测试基准，通过无干扰的大量重复基本操作，比如从L1 Cache读取单个字节，耗时一个CPU时钟，在大量重复中得到较为宏观的结果，再排除loop损耗、取运行时间的损耗，可以用于基本衡量一台server的运行效率。
-1 2 3 4 5 6 7  ./bin/x86_64-linux-gnu/enough 结果为n=322229, u=5172，执行322229次 TEN( p = *p )， TEN(T)表示循环展开执行10次任务T，可使loop开销对单次执行结果的影响降低1/10； 总共用时5172000ns，单次平均0.623ns；CPU主频1999.830MHz，折合一个cycle 0.500ns，数据基本可信。   提升性能主要是把CPU喂饱，所有的性能都是从CPU的角度来衡量；内存读写快慢，单纯比较数据从内存的一个位置移动到另一个位置，这是设备厂商用来做广告用的，不是计算机系统来评估性能的；把数据从内存读到CPU，然后写到另一个地址，数据流经过CPU即是经过了计算机系统，测量这段时间才是有意义的。以数据流动为基础，其他的bench，比如pipe的性能，需要排除数据流动的时间，排除loop等时间，才是单纯pipe的带宽性能；比如context switch速度，在做bench时，需要用pipe来驱动切换进程，这里需要排除掉数据流动的时间，pipe通信的时间，其余开销时间，才是context switch的时间。
+观察哪些指标，意义何在？ 如何观察这些指标，测试原理，观测工具/统计代码 如何进行压测，实现测试场景，压测工具/压测代码 bench可以分类为macro bench和micro bench;对于macro bench，很多时候我们得到的是一个整体而粗略的结果，通过top我们可以看到系统负载，这些对于我们定位线上问题，分析应用程序的性能热点很有帮助，然而这并不能精确衡量一台Linux Server的性能；应用程序多种多样，线上系统目的各不相同，所以macro bench一般用于case by case的性能分析，用于解决应用的性能瓶颈；而micro bench可以定量的分析一台机器&#43;操作系统的性能，采用相同的测试基准，通过无干扰的大量重复基本操作，比如从L1 Cache读取单个字节，耗时一个CPU时钟，在大量重复中得到较为宏观的结果，再排除loop损耗、取运行时间的损耗，可以用于基本衡量一台server的运行效率。
+1 2 3 4 5 6 7 ./bin/x86_64-linux-gnu/enough 结果为n=322229, u=5172，执行322229次 TEN( p = *p )， TEN(T)表示循环展开执行10次任务T，可使loop开销对单次执行结果的影响降低1/10； 总共用时5172000ns，单次平均0.623ns；CPU主频1999.830MHz，折合一个cycle 0.500ns，数据基本可信。 提升性能主要是把CPU喂饱，所有的性能都是从CPU的角度来衡量；内存读写快慢，单纯比较数据从内存的一个位置移动到另一个位置，这是设备厂商用来做广告用的，不是计算机系统来评估性能的；把数据从内存读到CPU，然后写到另一个地址，数据流经过CPU即是经过了计算机系统，测量这段时间才是有意义的。以数据流动为基础，其他的bench，比如pipe的性能，需要排除数据流动的时间，排除loop等时间，才是单纯pipe的带宽性能；比如context switch速度，在做bench时，需要用pipe来驱动切换进程，这里需要排除掉数据流动的时间，pipe通信的时间，其余开销时间，才是context switch的时间。
 性能评估主要对CPU、memory、disk IO和network IO四个指标，从带宽和时延两个角度评估。
 所谓带宽，不仅仅是硬件上的读写速度，而是数据从源头到达CPU，然后CPU将其送往目的地的速度，考验的是传输能力；所谓时延，更多的评估传输的效率，读取一定量的数据，数据可以在多长时间内从内存读取到CPU。
 所谓时延，其实也是另一种意义的速度，比如context switch，并没有吞吐量这个概念，但是通过将多个进程切换N次，得到总体时间，平均后可以获得单次切换用时，用以评估context switch的latency。
 测试前的准备 很多很重要的选项，比如设计测试场景，从逻辑上说通一个测试中都包含哪些时间开销，如何测量
-  测量数据块大小
- 测量从内存经过CPU拷贝到另一块内存时，如果数据量过小，比如32KB，可能这个数据只在最次L2 Cache中流动，那么测量结果将会比真实数据大；如果数据量过大，又有可能被从内存换到磁盘上 为此的应对方法是，在循环中逐渐增大一倍数据量，列出不同数据量大小的测试数据，我们其实可以分辨出哪些是L1 Cache，哪些是Cache已经失效，因为他们之间的速度差异是巨大的；另外，当我们每次跨过一页访问该页内存，如果访问时间需要好几个us，那么说明这个内存页不在内存中    测量时间
- 不论用多么精确的时钟，由于benchmark时单次任务执行时间都非常短，因此用多次loop中求整体运行时间，取平均后能够得到误差较小的结果。 lmbench的时间机制写的很精妙，比如针对不同的任务，在每次bench的时候，都会预估执行当前任务执行比如500000us，需要执行多少次，这就是需要loop的次数；比较精妙，能够照顾到即使是相同计算机，在负载不一样的时候，对不同任务有一定的适应能力，在运行足够时间后使得系统表现稳定，得到稳定的结果；使用lmbench对相同任务做bench的时候，每次执行结果的误差都不大，低于2%，这个结果我想还是很稳定的。    考虑多进程，以及编译器可能导致的问题'>
+测量数据块大小
+测量从内存经过CPU拷贝到另一块内存时，如果数据量过小，比如32KB，可能这个数据只在最次L2 Cache中流动，那么测量结果将会比真实数据大；如果数据量过大，又有可能被从内存换到磁盘上 为此的应对方法是，在循环中逐渐增大一倍数据量，列出不同数据量大小的测试数据，我们其实可以分辨出哪些是L1 Cache，哪些是Cache已经失效，因为他们之间的速度差异是巨大的；另外，当我们每次跨过一页访问该页内存，如果访问时间需要好几个us，那么说明这个内存页不在内存中 测量时间
+不论用多么精确的时钟，由于benchmark时单次任务执行时间都非常短，因此用多次loop中求整体运行时间，取平均后能够得到误差较小的结果。 lmbench的时间机制写的很精妙，比如针对不同的任务，在每次bench的时候，都会预估执行当前任务执行比如500000us，需要执行多少次，这就是需要loop的次数；比较精妙，能够照顾到即使是相同计算机，在负载不一样的时候，对不同任务有一定的适应能力，在运行足够时间后使得系统表现稳定，得到稳定的结果；使用lmbench对相同任务做bench的时候，每次执行结果的误差都不大，低于2%，这个结果我想还是很稳定的。 考虑多进程，以及编译器可能导致的问题
+测试时运行的benchmark也都比较小，其实可以视为和单处理器没有区别；或者我们可以将进程绑定到某个CPU上。 用gcc编译benchmark，优化级别为 -O，可以避免优化过度；注意一些load指令，如果load结果没有被用到的话，可能会被优化掉 带宽性能测试 Memory: 数据从内存到CPU的带宽
+rd 单次读取512Byte数据，即128个int整数，并做相加操作以防止编译器优化；循环展开，而非在for中挨个相加 use_int(sum)等指令也是防止编译器优化的 每次读取512Byte，直到读完，算是一次读取完成 如果rd的数据块太小，比如32MB，很快被读完，这时需要调整连续循环读取iterations次，然后求平均；iterations的取值取决于根据系统负载情况，实时计算需要执行的次数。 我的CPU是至强E5-2620，包含632KB的8路组相连数据L1缓存，6256KB的8路组相连L2,15MB的20路共享L3cache 根据读取的数据块大小，我们可以逻辑上推断该数据处于哪级缓存；本机的L1/L2/L3分别为192kb/1536kb/15360kb， 数据块16KB，带宽34999.46MB/s 数据块32KB，带宽19191.28MB/s 数据块320KB，带宽10669.'>
 <title>怎样尽可能全面的评估一台服务器的性能</title>
 
 <link rel='canonical' href='https://bg2bkk.github.io/p/%E6%80%8E%E6%A0%B7%E5%B0%BD%E5%8F%AF%E8%83%BD%E5%85%A8%E9%9D%A2%E7%9A%84%E8%AF%84%E4%BC%B0%E4%B8%80%E5%8F%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E6%80%A7%E8%83%BD/'>
 
-<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='怎样尽可能全面的评估一台服务器的性能'>
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='怎样尽可能全面的评估一台服务器的性能'>
 <meta property='og:description' content='给你一台服务器，怎样能够全面评估它的性能？需要测试哪些指标？请写出每个指标的具体测试原理和测试代码。假设这台服务器完全处于线下。
 这个问题看似平常，但是细细审题的话，发现还是不一样的。我们过多关注线上机器的性能，但是如果单独拿出来一台服务器，它的性能怎样呢？
 评估和压榨一台服务器性能的话，找到评估的指标，然后进行压测加观察的方式，得到性能参数。
- 观察哪些指标，意义何在？ 如何观察这些指标，测试原理，观测工具/统计代码 如何进行压测，实现测试场景，压测工具/压测代码  bench可以分类为macro bench和micro bench;对于macro bench，很多时候我们得到的是一个整体而粗略的结果，通过top我们可以看到系统负载，这些对于我们定位线上问题，分析应用程序的性能热点很有帮助，然而这并不能精确衡量一台Linux Server的性能；应用程序多种多样，线上系统目的各不相同，所以macro bench一般用于case by case的性能分析，用于解决应用的性能瓶颈；而micro bench可以定量的分析一台机器&#43;操作系统的性能，采用相同的测试基准，通过无干扰的大量重复基本操作，比如从L1 Cache读取单个字节，耗时一个CPU时钟，在大量重复中得到较为宏观的结果，再排除loop损耗、取运行时间的损耗，可以用于基本衡量一台server的运行效率。
-1 2 3 4 5 6 7  ./bin/x86_64-linux-gnu/enough 结果为n=322229, u=5172，执行322229次 TEN( p = *p )， TEN(T)表示循环展开执行10次任务T，可使loop开销对单次执行结果的影响降低1/10； 总共用时5172000ns，单次平均0.623ns；CPU主频1999.830MHz，折合一个cycle 0.500ns，数据基本可信。   提升性能主要是把CPU喂饱，所有的性能都是从CPU的角度来衡量；内存读写快慢，单纯比较数据从内存的一个位置移动到另一个位置，这是设备厂商用来做广告用的，不是计算机系统来评估性能的；把数据从内存读到CPU，然后写到另一个地址，数据流经过CPU即是经过了计算机系统，测量这段时间才是有意义的。以数据流动为基础，其他的bench，比如pipe的性能，需要排除数据流动的时间，排除loop等时间，才是单纯pipe的带宽性能；比如context switch速度，在做bench时，需要用pipe来驱动切换进程，这里需要排除掉数据流动的时间，pipe通信的时间，其余开销时间，才是context switch的时间。
+观察哪些指标，意义何在？ 如何观察这些指标，测试原理，观测工具/统计代码 如何进行压测，实现测试场景，压测工具/压测代码 bench可以分类为macro bench和micro bench;对于macro bench，很多时候我们得到的是一个整体而粗略的结果，通过top我们可以看到系统负载，这些对于我们定位线上问题，分析应用程序的性能热点很有帮助，然而这并不能精确衡量一台Linux Server的性能；应用程序多种多样，线上系统目的各不相同，所以macro bench一般用于case by case的性能分析，用于解决应用的性能瓶颈；而micro bench可以定量的分析一台机器&#43;操作系统的性能，采用相同的测试基准，通过无干扰的大量重复基本操作，比如从L1 Cache读取单个字节，耗时一个CPU时钟，在大量重复中得到较为宏观的结果，再排除loop损耗、取运行时间的损耗，可以用于基本衡量一台server的运行效率。
+1 2 3 4 5 6 7 ./bin/x86_64-linux-gnu/enough 结果为n=322229, u=5172，执行322229次 TEN( p = *p )， TEN(T)表示循环展开执行10次任务T，可使loop开销对单次执行结果的影响降低1/10； 总共用时5172000ns，单次平均0.623ns；CPU主频1999.830MHz，折合一个cycle 0.500ns，数据基本可信。 提升性能主要是把CPU喂饱，所有的性能都是从CPU的角度来衡量；内存读写快慢，单纯比较数据从内存的一个位置移动到另一个位置，这是设备厂商用来做广告用的，不是计算机系统来评估性能的；把数据从内存读到CPU，然后写到另一个地址，数据流经过CPU即是经过了计算机系统，测量这段时间才是有意义的。以数据流动为基础，其他的bench，比如pipe的性能，需要排除数据流动的时间，排除loop等时间，才是单纯pipe的带宽性能；比如context switch速度，在做bench时，需要用pipe来驱动切换进程，这里需要排除掉数据流动的时间，pipe通信的时间，其余开销时间，才是context switch的时间。
 性能评估主要对CPU、memory、disk IO和network IO四个指标，从带宽和时延两个角度评估。
 所谓带宽，不仅仅是硬件上的读写速度，而是数据从源头到达CPU，然后CPU将其送往目的地的速度，考验的是传输能力；所谓时延，更多的评估传输的效率，读取一定量的数据，数据可以在多长时间内从内存读取到CPU。
 所谓时延，其实也是另一种意义的速度，比如context switch，并没有吞吐量这个概念，但是通过将多个进程切换N次，得到总体时间，平均后可以获得单次切换用时，用以评估context switch的latency。
 测试前的准备 很多很重要的选项，比如设计测试场景，从逻辑上说通一个测试中都包含哪些时间开销，如何测量
-  测量数据块大小
- 测量从内存经过CPU拷贝到另一块内存时，如果数据量过小，比如32KB，可能这个数据只在最次L2 Cache中流动，那么测量结果将会比真实数据大；如果数据量过大，又有可能被从内存换到磁盘上 为此的应对方法是，在循环中逐渐增大一倍数据量，列出不同数据量大小的测试数据，我们其实可以分辨出哪些是L1 Cache，哪些是Cache已经失效，因为他们之间的速度差异是巨大的；另外，当我们每次跨过一页访问该页内存，如果访问时间需要好几个us，那么说明这个内存页不在内存中    测量时间
- 不论用多么精确的时钟，由于benchmark时单次任务执行时间都非常短，因此用多次loop中求整体运行时间，取平均后能够得到误差较小的结果。 lmbench的时间机制写的很精妙，比如针对不同的任务，在每次bench的时候，都会预估执行当前任务执行比如500000us，需要执行多少次，这就是需要loop的次数；比较精妙，能够照顾到即使是相同计算机，在负载不一样的时候，对不同任务有一定的适应能力，在运行足够时间后使得系统表现稳定，得到稳定的结果；使用lmbench对相同任务做bench的时候，每次执行结果的误差都不大，低于2%，这个结果我想还是很稳定的。    考虑多进程，以及编译器可能导致的问题'>
+测量数据块大小
+测量从内存经过CPU拷贝到另一块内存时，如果数据量过小，比如32KB，可能这个数据只在最次L2 Cache中流动，那么测量结果将会比真实数据大；如果数据量过大，又有可能被从内存换到磁盘上 为此的应对方法是，在循环中逐渐增大一倍数据量，列出不同数据量大小的测试数据，我们其实可以分辨出哪些是L1 Cache，哪些是Cache已经失效，因为他们之间的速度差异是巨大的；另外，当我们每次跨过一页访问该页内存，如果访问时间需要好几个us，那么说明这个内存页不在内存中 测量时间
+不论用多么精确的时钟，由于benchmark时单次任务执行时间都非常短，因此用多次loop中求整体运行时间，取平均后能够得到误差较小的结果。 lmbench的时间机制写的很精妙，比如针对不同的任务，在每次bench的时候，都会预估执行当前任务执行比如500000us，需要执行多少次，这就是需要loop的次数；比较精妙，能够照顾到即使是相同计算机，在负载不一样的时候，对不同任务有一定的适应能力，在运行足够时间后使得系统表现稳定，得到稳定的结果；使用lmbench对相同任务做bench的时候，每次执行结果的误差都不大，低于2%，这个结果我想还是很稳定的。 考虑多进程，以及编译器可能导致的问题
+测试时运行的benchmark也都比较小，其实可以视为和单处理器没有区别；或者我们可以将进程绑定到某个CPU上。 用gcc编译benchmark，优化级别为 -O，可以避免优化过度；注意一些load指令，如果load结果没有被用到的话，可能会被优化掉 带宽性能测试 Memory: 数据从内存到CPU的带宽
+rd 单次读取512Byte数据，即128个int整数，并做相加操作以防止编译器优化；循环展开，而非在for中挨个相加 use_int(sum)等指令也是防止编译器优化的 每次读取512Byte，直到读完，算是一次读取完成 如果rd的数据块太小，比如32MB，很快被读完，这时需要调整连续循环读取iterations次，然后求平均；iterations的取值取决于根据系统负载情况，实时计算需要执行的次数。 我的CPU是至强E5-2620，包含632KB的8路组相连数据L1缓存，6256KB的8路组相连L2,15MB的20路共享L3cache 根据读取的数据块大小，我们可以逻辑上推断该数据处于哪级缓存；本机的L1/L2/L3分别为192kb/1536kb/15360kb， 数据块16KB，带宽34999.46MB/s 数据块32KB，带宽19191.28MB/s 数据块320KB，带宽10669.'>
 <meta property='og:url' content='https://bg2bkk.github.io/p/%E6%80%8E%E6%A0%B7%E5%B0%BD%E5%8F%AF%E8%83%BD%E5%85%A8%E9%9D%A2%E7%9A%84%E8%AF%84%E4%BC%B0%E4%B8%80%E5%8F%B0%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E6%80%A7%E8%83%BD/'>
 <meta property='og:site_name' content='Bg2bkk Site'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-10-23T16:43:44&#43;08:00'/><meta property='article:modified_time' content='2016-10-23T16:43:44&#43;08:00'/>
@@ -37,15 +41,17 @@
 <meta name="twitter:description" content="给你一台服务器，怎样能够全面评估它的性能？需要测试哪些指标？请写出每个指标的具体测试原理和测试代码。假设这台服务器完全处于线下。
 这个问题看似平常，但是细细审题的话，发现还是不一样的。我们过多关注线上机器的性能，但是如果单独拿出来一台服务器，它的性能怎样呢？
 评估和压榨一台服务器性能的话，找到评估的指标，然后进行压测加观察的方式，得到性能参数。
- 观察哪些指标，意义何在？ 如何观察这些指标，测试原理，观测工具/统计代码 如何进行压测，实现测试场景，压测工具/压测代码  bench可以分类为macro bench和micro bench;对于macro bench，很多时候我们得到的是一个整体而粗略的结果，通过top我们可以看到系统负载，这些对于我们定位线上问题，分析应用程序的性能热点很有帮助，然而这并不能精确衡量一台Linux Server的性能；应用程序多种多样，线上系统目的各不相同，所以macro bench一般用于case by case的性能分析，用于解决应用的性能瓶颈；而micro bench可以定量的分析一台机器&#43;操作系统的性能，采用相同的测试基准，通过无干扰的大量重复基本操作，比如从L1 Cache读取单个字节，耗时一个CPU时钟，在大量重复中得到较为宏观的结果，再排除loop损耗、取运行时间的损耗，可以用于基本衡量一台server的运行效率。
-1 2 3 4 5 6 7  ./bin/x86_64-linux-gnu/enough 结果为n=322229, u=5172，执行322229次 TEN( p = *p )， TEN(T)表示循环展开执行10次任务T，可使loop开销对单次执行结果的影响降低1/10； 总共用时5172000ns，单次平均0.623ns；CPU主频1999.830MHz，折合一个cycle 0.500ns，数据基本可信。   提升性能主要是把CPU喂饱，所有的性能都是从CPU的角度来衡量；内存读写快慢，单纯比较数据从内存的一个位置移动到另一个位置，这是设备厂商用来做广告用的，不是计算机系统来评估性能的；把数据从内存读到CPU，然后写到另一个地址，数据流经过CPU即是经过了计算机系统，测量这段时间才是有意义的。以数据流动为基础，其他的bench，比如pipe的性能，需要排除数据流动的时间，排除loop等时间，才是单纯pipe的带宽性能；比如context switch速度，在做bench时，需要用pipe来驱动切换进程，这里需要排除掉数据流动的时间，pipe通信的时间，其余开销时间，才是context switch的时间。
+观察哪些指标，意义何在？ 如何观察这些指标，测试原理，观测工具/统计代码 如何进行压测，实现测试场景，压测工具/压测代码 bench可以分类为macro bench和micro bench;对于macro bench，很多时候我们得到的是一个整体而粗略的结果，通过top我们可以看到系统负载，这些对于我们定位线上问题，分析应用程序的性能热点很有帮助，然而这并不能精确衡量一台Linux Server的性能；应用程序多种多样，线上系统目的各不相同，所以macro bench一般用于case by case的性能分析，用于解决应用的性能瓶颈；而micro bench可以定量的分析一台机器&#43;操作系统的性能，采用相同的测试基准，通过无干扰的大量重复基本操作，比如从L1 Cache读取单个字节，耗时一个CPU时钟，在大量重复中得到较为宏观的结果，再排除loop损耗、取运行时间的损耗，可以用于基本衡量一台server的运行效率。
+1 2 3 4 5 6 7 ./bin/x86_64-linux-gnu/enough 结果为n=322229, u=5172，执行322229次 TEN( p = *p )， TEN(T)表示循环展开执行10次任务T，可使loop开销对单次执行结果的影响降低1/10； 总共用时5172000ns，单次平均0.623ns；CPU主频1999.830MHz，折合一个cycle 0.500ns，数据基本可信。 提升性能主要是把CPU喂饱，所有的性能都是从CPU的角度来衡量；内存读写快慢，单纯比较数据从内存的一个位置移动到另一个位置，这是设备厂商用来做广告用的，不是计算机系统来评估性能的；把数据从内存读到CPU，然后写到另一个地址，数据流经过CPU即是经过了计算机系统，测量这段时间才是有意义的。以数据流动为基础，其他的bench，比如pipe的性能，需要排除数据流动的时间，排除loop等时间，才是单纯pipe的带宽性能；比如context switch速度，在做bench时，需要用pipe来驱动切换进程，这里需要排除掉数据流动的时间，pipe通信的时间，其余开销时间，才是context switch的时间。
 性能评估主要对CPU、memory、disk IO和network IO四个指标，从带宽和时延两个角度评估。
 所谓带宽，不仅仅是硬件上的读写速度，而是数据从源头到达CPU，然后CPU将其送往目的地的速度，考验的是传输能力；所谓时延，更多的评估传输的效率，读取一定量的数据，数据可以在多长时间内从内存读取到CPU。
 所谓时延，其实也是另一种意义的速度，比如context switch，并没有吞吐量这个概念，但是通过将多个进程切换N次，得到总体时间，平均后可以获得单次切换用时，用以评估context switch的latency。
 测试前的准备 很多很重要的选项，比如设计测试场景，从逻辑上说通一个测试中都包含哪些时间开销，如何测量
-  测量数据块大小
- 测量从内存经过CPU拷贝到另一块内存时，如果数据量过小，比如32KB，可能这个数据只在最次L2 Cache中流动，那么测量结果将会比真实数据大；如果数据量过大，又有可能被从内存换到磁盘上 为此的应对方法是，在循环中逐渐增大一倍数据量，列出不同数据量大小的测试数据，我们其实可以分辨出哪些是L1 Cache，哪些是Cache已经失效，因为他们之间的速度差异是巨大的；另外，当我们每次跨过一页访问该页内存，如果访问时间需要好几个us，那么说明这个内存页不在内存中    测量时间
- 不论用多么精确的时钟，由于benchmark时单次任务执行时间都非常短，因此用多次loop中求整体运行时间，取平均后能够得到误差较小的结果。 lmbench的时间机制写的很精妙，比如针对不同的任务，在每次bench的时候，都会预估执行当前任务执行比如500000us，需要执行多少次，这就是需要loop的次数；比较精妙，能够照顾到即使是相同计算机，在负载不一样的时候，对不同任务有一定的适应能力，在运行足够时间后使得系统表现稳定，得到稳定的结果；使用lmbench对相同任务做bench的时候，每次执行结果的误差都不大，低于2%，这个结果我想还是很稳定的。    考虑多进程，以及编译器可能导致的问题">
+测量数据块大小
+测量从内存经过CPU拷贝到另一块内存时，如果数据量过小，比如32KB，可能这个数据只在最次L2 Cache中流动，那么测量结果将会比真实数据大；如果数据量过大，又有可能被从内存换到磁盘上 为此的应对方法是，在循环中逐渐增大一倍数据量，列出不同数据量大小的测试数据，我们其实可以分辨出哪些是L1 Cache，哪些是Cache已经失效，因为他们之间的速度差异是巨大的；另外，当我们每次跨过一页访问该页内存，如果访问时间需要好几个us，那么说明这个内存页不在内存中 测量时间
+不论用多么精确的时钟，由于benchmark时单次任务执行时间都非常短，因此用多次loop中求整体运行时间，取平均后能够得到误差较小的结果。 lmbench的时间机制写的很精妙，比如针对不同的任务，在每次bench的时候，都会预估执行当前任务执行比如500000us，需要执行多少次，这就是需要loop的次数；比较精妙，能够照顾到即使是相同计算机，在负载不一样的时候，对不同任务有一定的适应能力，在运行足够时间后使得系统表现稳定，得到稳定的结果；使用lmbench对相同任务做bench的时候，每次执行结果的误差都不大，低于2%，这个结果我想还是很稳定的。 考虑多进程，以及编译器可能导致的问题
+测试时运行的benchmark也都比较小，其实可以视为和单处理器没有区别；或者我们可以将进程绑定到某个CPU上。 用gcc编译benchmark，优化级别为 -O，可以避免优化过度；注意一些load指令，如果load结果没有被用到的话，可能会被优化掉 带宽性能测试 Memory: 数据从内存到CPU的带宽
+rd 单次读取512Byte数据，即128个int整数，并做相加操作以防止编译器优化；循环展开，而非在for中挨个相加 use_int(sum)等指令也是防止编译器优化的 每次读取512Byte，直到读完，算是一次读取完成 如果rd的数据块太小，比如32MB，很快被读完，这时需要调整连续循环读取iterations次，然后求平均；iterations的取值取决于根据系统负载情况，实时计算需要执行的次数。 我的CPU是至强E5-2620，包含632KB的8路组相连数据L1缓存，6256KB的8路组相连L2,15MB的20路共享L3cache 根据读取的数据块大小，我们可以逻辑上推断该数据处于哪级缓存；本机的L1/L2/L3分别为192kb/1536kb/15360kb， 数据块16KB，带宽34999.46MB/s 数据块32KB，带宽19191.28MB/s 数据块320KB，带宽10669.">
     </head>
     <body class="
     article-page
@@ -72,7 +78,7 @@
         }
     })();
 </script>
-<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
     <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
         <span class="hamburger-box">
             <span class="hamburger-inner"></span>
@@ -95,15 +101,39 @@
                 
                 </a>
                 
+                    <span class="emoji">🍥</span>
+                
             </figure>
             
         
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
-            <h2 class="site-description"></h2>
+            <h2 class="site-description">Life is so beautiful</h2>
         </div>
-    </header><ol class="menu" id="main-menu">
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/bg2bkk'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
         
         
         
@@ -130,7 +160,7 @@
         
 
         <li >
-            <a href='/about/' >
+            <a href='/%E5%85%B3%E4%BA%8E%E6%88%91/' >
                 
                 
                 
@@ -143,7 +173,7 @@
 
 
                 
-                <span>About</span>
+                <span>关于我</span>
             </a>
         </li>
         
@@ -216,7 +246,56 @@
     </ol>
 </aside>
 
-    
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#测试前的准备">测试前的准备</a></li>
+    <li><a href="#带宽性能测试">带宽性能测试</a></li>
+    <li><a href="#时延性能测试">时延性能测试</a>
+      <ol>
+        <li><a href="#内存延时">内存延时</a>
+          <ol>
+            <li><a href="#对于测量各级cache的latency来说需要对每级进行特定分析">对于测量各级Cache的latency来说，需要对每级进行特定分析。</a></li>
+            <li><a href="#todo">TODO</a></li>
+          </ol>
+        </li>
+        <li><a href="#调用系统组件系统调用">调用系统组件（系统调用）</a></li>
+        <li><a href="#信号处理耗时">信号处理耗时</a></li>
+        <li><a href="#创建进程开销">创建进程开销</a></li>
+        <li><a href="#上下文切换的开销">上下文切换的开销</a></li>
+      </ol>
+    </li>
+    <li><a href="#intel的超线程技术">intel的超线程技术</a></li>
+    <li><a href="#intel的turbo技术">intel的turbo技术</a></li>
+    <li><a href="#lmbench测试框架">lmbench测试框架</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
 
             <main class="main full-width">
     <article class="main-article">
@@ -234,6 +313,9 @@
     </div>
 
     
+    
+    
+    
     <footer class="article-time">
         
             <div>
@@ -250,7 +332,7 @@
             </div>
         
 
-    
+        
             <div>
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
@@ -297,14 +379,14 @@
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">./bin/x86_64-linux-gnu/enough
-
-<span class="nv">结果为n</span><span class="o">=</span>322229, <span class="nv">u</span><span class="o">=</span>5172，执行322229次 TEN<span class="o">(</span> <span class="nv">p</span> <span class="o">=</span> *p <span class="o">)</span>，
-
-TEN<span class="o">(</span>T<span class="o">)</span>表示循环展开执行10次任务T，可使loop开销对单次执行结果的影响降低1/10；
-
-总共用时5172000ns，单次平均0.623ns；CPU主频1999.830MHz，折合一个cycle 0.500ns，数据基本可信。
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">./bin/x86_64-linux-gnu/enough
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">结果为n<span class="o">=</span>322229, <span class="nv">u</span><span class="o">=</span>5172，执行322229次 TEN<span class="o">(</span> <span class="nv">p</span> <span class="o">=</span> *p <span class="o">)</span>，
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">TEN<span class="o">(</span>T<span class="o">)</span>表示循环展开执行10次任务T，可使loop开销对单次执行结果的影响降低1/10；
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">总共用时5172000ns，单次平均0.623ns；CPU主频1999.830MHz，折合一个cycle 0.500ns，数据基本可信。
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>提升性能主要是把CPU喂饱，所有的性能都是从CPU的角度来衡量；内存读写快慢，单纯比较数据从内存的一个位置移动到另一个位置，这是设备厂商用来做广告用的，不是计算机系统来评估性能的；把数据从内存读到CPU，然后写到另一个地址，数据流经过CPU即是经过了计算机系统，测量这段时间才是有意义的。以数据流动为基础，其他的bench，比如pipe的性能，需要排除数据流动的时间，排除loop等时间，才是单纯pipe的带宽性能；比如context switch速度，在做bench时，需要用pipe来驱动切换进程，这里需要排除掉数据流动的时间，pipe通信的时间，其余开销时间，才是context switch的时间。</p>
 <p>性能评估主要对CPU、memory、disk IO和network IO四个指标，从带宽和时延两个角度评估。</p>
@@ -481,18 +563,16 @@ TEN<span class="o">(</span>T<span class="o">)</span>表示循环展开执行10�
 </span><span class="lnt">5
 </span><span class="lnt">6
 </span><span class="lnt">7
-</span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp">
-	<span class="kt">char</span> <span class="o">*</span><span class="n">buf</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">char</span> <span class="p">)</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">);</span>
-	<span class="n">memset</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1024</span><span class="p">);</span>
-	<span class="o">*</span><span class="p">(</span><span class="kt">char</span> <span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">buf</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">buf</span><span class="p">[</span><span class="mi">512</span><span class="p">]);</span>
-	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;%p</span><span class="se">\t</span><span class="s">%p</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">buf</span> <span class="o">+</span> <span class="mi">512</span><span class="p">);</span>
-	<span class="kt">char</span> <span class="o">**</span><span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">buf</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
-	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;%p</span><span class="se">\t</span><span class="s">%p</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="o">*</span><span class="n">p</span><span class="p">);</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kt">char</span> <span class="o">*</span><span class="n">buf</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="n">malloc</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">char</span> <span class="p">)</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">memset</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1024</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">*</span><span class="p">(</span><span class="kt">char</span> <span class="o">**</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">buf</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="p">(</span><span class="n">buf</span><span class="p">[</span><span class="mi">512</span><span class="p">]);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;%p</span><span class="se">\t</span><span class="s">%p</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">buf</span> <span class="o">+</span> <span class="mi">512</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">char</span> <span class="o">**</span><span class="n">p</span> <span class="o">=</span> <span class="p">(</span><span class="kt">char</span> <span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">buf</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">	<span class="n">printf</span><span class="p">(</span><span class="s">&#34;%p</span><span class="se">\t</span><span class="s">%p</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="o">*</span><span class="n">p</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><ul>
 <li>测量结果
@@ -537,30 +617,28 @@ TEN<span class="o">(</span>T<span class="o">)</span>表示循环展开执行10�
 </span><span class="lnt">17
 </span><span class="lnt">18
 </span><span class="lnt">19
-</span><span class="lnt">20
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">Core i7 Xeon <span class="m">5500</span> Series
-
-Data Source Latency <span class="o">(</span>approximate<span class="o">)</span>
-
-L1 CACHE hit, ~4 cycles
-
-L2 CACHE hit, ~10 cycles
-
-L3 CACHE hit, line unshared ~40 cycles
-
-L3 CACHE hit, shared line in another core ~65 cycles
-
-L3 CACHE hit, modified in another core ~75 cycles
-
-remote L3 CACHE ~100-300 cycles
-
-Local Dram ~60 ns
-
-Remote Dram ~100 ns
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Core i7 Xeon <span class="m">5500</span> Series
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Data Source Latency <span class="o">(</span>approximate<span class="o">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">L1 CACHE hit, ~4 cycles
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">L2 CACHE hit, ~10 cycles
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">L3 CACHE hit, line unshared ~40 cycles
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">L3 CACHE hit, shared line in another core ~65 cycles
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">L3 CACHE hit, modified in another core ~75 cycles
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">remote L3 CACHE ~100-300 cycles
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Local Dram ~60 ns
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Remote Dram ~100 ns
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h4 id="对于测量各级cache的latency来说需要对每级进行特定分析">对于测量各级Cache的latency来说，需要对每级进行特定分析。</h4>
 <h5 id="l1-cache-latency">L1 Cache Latency</h5>
@@ -757,8 +835,8 @@ Remote Dram ~100 ns
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">sudo i7z
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">sudo i7z
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>以笔记本CPU i5-2520M 为例，在CPU空闲时主频低至</p>
 <div class="highlight"><div class="chroma">
@@ -768,10 +846,10 @@ Remote Dram ~100 ns
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">        Core <span class="o">[</span>core-id<span class="o">]</span>  :Actual Freq <span class="o">(</span>Mult.<span class="o">)</span>      C0%   Halt<span class="o">(</span>C1<span class="o">)</span>%  C3 %   C6 %  Temp      VCore
-        Core <span class="m">1</span> <span class="o">[</span>0<span class="o">]</span>:       1366.96 <span class="o">(</span>13.72x<span class="o">)</span>      24.9    81.6    4.69       <span class="m">0</span>    <span class="m">62</span>      1.1008
-        Core <span class="m">2</span> <span class="o">[</span>2<span class="o">]</span>:       1381.01 <span class="o">(</span>13.86x<span class="o">)</span>      23.3    79.2    7.89       <span class="m">0</span>    <span class="m">62</span>      1.1008
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">        Core <span class="o">[</span>core-id<span class="o">]</span>  :Actual Freq <span class="o">(</span>Mult.<span class="o">)</span>      C0%   Halt<span class="o">(</span>C1<span class="o">)</span>%  C3 %   C6 %  Temp      VCore
+</span></span><span class="line"><span class="cl">        Core <span class="m">1</span> <span class="o">[</span>0<span class="o">]</span>:       1366.96 <span class="o">(</span>13.72x<span class="o">)</span>      24.9    81.6    4.69       <span class="m">0</span>    <span class="m">62</span>      1.1008
+</span></span><span class="line"><span class="cl">        Core <span class="m">2</span> <span class="o">[</span>2<span class="o">]</span>:       1381.01 <span class="o">(</span>13.86x<span class="o">)</span>      23.3    79.2    7.89       <span class="m">0</span>    <span class="m">62</span>      1.1008
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>甚至更低</p>
 <p>运行lmbench时，CPU满载，主频可达</p>
@@ -782,10 +860,10 @@ Remote Dram ~100 ns
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">        Core <span class="o">[</span>core-id<span class="o">]</span>  :Actual Freq <span class="o">(</span>Mult.<span class="o">)</span>      C0%   Halt<span class="o">(</span>C1<span class="o">)</span>%  C3 %   C6 %  Temp      VCore
-        Core <span class="m">1</span> <span class="o">[</span>0<span class="o">]</span>:       2989.17 <span class="o">(</span>30.00x<span class="o">)</span>      16.9    73.4    6.37       <span class="m">0</span>    <span class="m">69</span>      1.1409
-        Core <span class="m">2</span> <span class="o">[</span>2<span class="o">]</span>:       3050.32 <span class="o">(</span>30.61x<span class="o">)</span>      99.1       <span class="m">0</span>       <span class="m">0</span>       <span class="m">0</span>    <span class="m">73</span>      1.1409
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">        Core <span class="o">[</span>core-id<span class="o">]</span>  :Actual Freq <span class="o">(</span>Mult.<span class="o">)</span>      C0%   Halt<span class="o">(</span>C1<span class="o">)</span>%  C3 %   C6 %  Temp      VCore
+</span></span><span class="line"><span class="cl">        Core <span class="m">1</span> <span class="o">[</span>0<span class="o">]</span>:       2989.17 <span class="o">(</span>30.00x<span class="o">)</span>      16.9    73.4    6.37       <span class="m">0</span>    <span class="m">69</span>      1.1409
+</span></span><span class="line"><span class="cl">        Core <span class="m">2</span> <span class="o">[</span>2<span class="o">]</span>:       3050.32 <span class="o">(</span>30.61x<span class="o">)</span>      99.1       <span class="m">0</span>       <span class="m">0</span>       <span class="m">0</span>    <span class="m">73</span>      1.1409
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>可见睿频的主要作用是动态调整CPU主频适应处理任务，当我们运行lmbench时，理所应当的CPU将会满载运行，所以计算CPU主频时完全不用担心睿频导致的频率变化，总是接近最高值的。</p>
 <h2 id="lmbench测试框架">lmbench测试框架</h2>
@@ -810,6 +888,18 @@ Remote Dram ~100 ns
     <footer class="article-footer">
     
 
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
     </footer>
 
 
@@ -823,18 +913,62 @@ Remote Dram ~100 ns
      
     
         
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
     
 
     <footer class="site-footer">
     <section class="copyright">
         &copy; 
         
-        2022 Bg2bkk Site
+            2020 - 
+        
+        2023 Bg2bkk Site
     </section>
     
     <section class="powerby">
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
 

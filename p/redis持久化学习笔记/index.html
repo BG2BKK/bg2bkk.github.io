@@ -1,48 +1,57 @@
 <!DOCTYPE html>
-<html lang="" dir="ltr">
+<html lang="en" dir="ltr">
     <head><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='虽然网络上关于redis持久化的相关内容数不胜数，但是一来作为我的学习笔记，好记性不如烂笔头；二来除去官方redis之外，很多有意义的修改或补充都非常值得讨论，所以我想做一下记录。
-  持久化用于重启后的数据恢复，而持久化的引入导致了redis可能产生的性能抖动
-  redis持久化的两种方法 
-  RDB方式
-  RDB方式是redis的默认持久化方式
-  快照RDB持久化过程:
- redis调用fork，产生子进程 父进程继续接受用户请求；子进程负责将内存内容写入临时文件，写入完成后rename为dump文件，实现替换 在子进程写内存内容期间，父进程如果要修改内存数据，os将会通过写时复制为父进程创建副本，所以此时子进程写入的仍然是fork时刻的整个数据库内容    不足之处在于:
- 如果redis出现问题崩溃了，此时的rdb文件可能不是最新的数据，从上次RDB文件生成到redis崩溃这段时间的数据全部丢掉。 产生快照时，redis最多将占用2倍于现有数据规模的内存，因此当内存占用过多时，RDB方式可能导致系统负载过高，甚至假死。（有个说法是，当redis的内存占用超过物理内存的3/5时，进行RDB主从复制就比较危险了）    主从复制过程
- 第一次同步  slave向master发送sync同步请求，master先dump出rdb文件，并将其全量传输给slave；master将产生rdb文件之后这段时间内的修改命令缓存起来，并发送给slave。首次同步完成。   第二次及以后的同步实现方式：  master将变量的快照（有修改的变量）直接实时发送给slave。 如果发生断开重连，则重复第一步第二步   reids-2.8版本之后，重连后进行第一步时，不用全量更新了。      AOF方式
-  AOF方式持久化过程
- Append Only File Redis将每次收到的命令都追加到文件中，类似于mysql的binlog；当redis重启时重新执行文件中的所有命令来重建数据 如果将所有命令不加甄别的都写入文件中，持久化文件会越来越大，比如INCR test命令执行100次，效果与SET test 100一样。此时需要进行rewrite，合并命令。 Redis提供了bgrewriteaof命令，执行过程与产生RDB文件的机制类似，fork出的子进程将内存中的数据以命令的方式重写持久化文件。本质上讲，该命令是将数据库中所有数据内容以命令的方式重写进新的AOF文件    AOF方式之我的想法'>
+持久化用于重启后的数据恢复，而持久化的引入导致了redis可能产生的性能抖动
+redis持久化的 两种方法 RDB方式
+RDB方式是redis的默认持久化方式
+快照RDB持久化过程:
+redis调用fork，产生子进程 父进程继续接受用户请求；子进程负责将内存内容写入临时文件，写入完成后rename为dump文件，实现替换 在子进程写内存内容期间，父进程如果要修改内存数据，os将会通过写时复制为父进程创建副本，所以此时子进程写入的仍然是fork时刻的整个数据库内容 不足之处在于:
+如果redis出现问题崩溃了，此时的rdb文件可能不是最新的数据，从上次RDB文件生成到redis崩溃这段时间的数据全部丢掉。 产生快照时，redis最多将占用2倍于现有数据规模的内存，因此当内存占用过多时，RDB方式可能导致系统负载过高，甚至假死。（有个说法是，当redis的内存占用超过物理内存的3/5时，进行RDB主从复制就比较危险了） 主从复制过程
+第一次同步 slave向master发送sync同步请求，master先dump出rdb文件，并将其全量传输给slave；master将产生rdb文件之后这段时间内的修改命令缓存起来，并发送给slave。首次同步完成。 第二次及以后的同步实现方式： master将变量的快照（有修改的变量）直接实时发送给slave。 如果发生断开重连，则重复第一步第二步 reids-2.8版本之后，重连后进行第一步时，不用全量更新了。 AOF方式
+AOF方式持久化过程
+Append Only File Redis将每次收到的命令都追加到文件中，类似于mysql的binlog；当redis重启时重新执行文件中的所有命令来重建数据 如果将所有命令不加甄别的都写入文件中，持久化文件会越来越大，比如INCR test命令执行100次，效果与SET test 100一样。此时需要进行rewrite，合并命令。 Redis提供了bgrewriteaof命令，执行过程与产生RDB文件的机制类似，fork出的子进程将内存中的数据以命令的方式重写持久化文件。本质上讲，该命令是将数据库中所有数据内容以命令的方式重写进新的AOF文件 AOF方式之我的想法
+AOF方式是redis在收到命名后将命令写入文件内，如果redis发生故障，重启时直接读取AOF文件重新执行命令即可恢复，可以克服RDB方式的缺点 bgrewriteaof指令是对AOF方式的一次优化，执行bgrewriteaof命令时是根据此时数据库内容来写入AOF文件，并替换旧的AOF文件。这个过程与RDB快照产生方式一样 RDB方式和AOF方式的对比
+RDB方式恢复起来快，而AOF方式需要一条条命令执行 RDB文件不需要经过编码，是数据库内容的直接克隆，所以文件比较小；而AOF文件内是一条条命令，需要依次执行 RDB文件可能会丢失部分数据，而AOF则专门解决这个问题 选择哪种方式
+官方推荐： 如果想要很高的数据保障，则同时使用两种方式 如果可以接受数据丢失，则仅使用RDB方式 通常的设计思路是 利用replication机制弥补持久化在性能和设计上的不足 master上不做RDB和AOF，保证读写性能 slave同时开启两种方式，保证数据安全性 Redis数据恢复过程
+AOF优先级高于RDB方式，如果同时配置了AOF和RDB，AOF生效 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 void loadDataFromDisk(void) { long long start = ustime(); if (server.'>
 <title>redis持久化学习笔记</title>
 
 <link rel='canonical' href='https://bg2bkk.github.io/p/redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/'>
 
-<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='redis持久化学习笔记'>
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='redis持久化学习笔记'>
 <meta property='og:description' content='虽然网络上关于redis持久化的相关内容数不胜数，但是一来作为我的学习笔记，好记性不如烂笔头；二来除去官方redis之外，很多有意义的修改或补充都非常值得讨论，所以我想做一下记录。
-  持久化用于重启后的数据恢复，而持久化的引入导致了redis可能产生的性能抖动
-  redis持久化的两种方法 
-  RDB方式
-  RDB方式是redis的默认持久化方式
-  快照RDB持久化过程:
- redis调用fork，产生子进程 父进程继续接受用户请求；子进程负责将内存内容写入临时文件，写入完成后rename为dump文件，实现替换 在子进程写内存内容期间，父进程如果要修改内存数据，os将会通过写时复制为父进程创建副本，所以此时子进程写入的仍然是fork时刻的整个数据库内容    不足之处在于:
- 如果redis出现问题崩溃了，此时的rdb文件可能不是最新的数据，从上次RDB文件生成到redis崩溃这段时间的数据全部丢掉。 产生快照时，redis最多将占用2倍于现有数据规模的内存，因此当内存占用过多时，RDB方式可能导致系统负载过高，甚至假死。（有个说法是，当redis的内存占用超过物理内存的3/5时，进行RDB主从复制就比较危险了）    主从复制过程
- 第一次同步  slave向master发送sync同步请求，master先dump出rdb文件，并将其全量传输给slave；master将产生rdb文件之后这段时间内的修改命令缓存起来，并发送给slave。首次同步完成。   第二次及以后的同步实现方式：  master将变量的快照（有修改的变量）直接实时发送给slave。 如果发生断开重连，则重复第一步第二步   reids-2.8版本之后，重连后进行第一步时，不用全量更新了。      AOF方式
-  AOF方式持久化过程
- Append Only File Redis将每次收到的命令都追加到文件中，类似于mysql的binlog；当redis重启时重新执行文件中的所有命令来重建数据 如果将所有命令不加甄别的都写入文件中，持久化文件会越来越大，比如INCR test命令执行100次，效果与SET test 100一样。此时需要进行rewrite，合并命令。 Redis提供了bgrewriteaof命令，执行过程与产生RDB文件的机制类似，fork出的子进程将内存中的数据以命令的方式重写持久化文件。本质上讲，该命令是将数据库中所有数据内容以命令的方式重写进新的AOF文件    AOF方式之我的想法'>
+持久化用于重启后的数据恢复，而持久化的引入导致了redis可能产生的性能抖动
+redis持久化的 两种方法 RDB方式
+RDB方式是redis的默认持久化方式
+快照RDB持久化过程:
+redis调用fork，产生子进程 父进程继续接受用户请求；子进程负责将内存内容写入临时文件，写入完成后rename为dump文件，实现替换 在子进程写内存内容期间，父进程如果要修改内存数据，os将会通过写时复制为父进程创建副本，所以此时子进程写入的仍然是fork时刻的整个数据库内容 不足之处在于:
+如果redis出现问题崩溃了，此时的rdb文件可能不是最新的数据，从上次RDB文件生成到redis崩溃这段时间的数据全部丢掉。 产生快照时，redis最多将占用2倍于现有数据规模的内存，因此当内存占用过多时，RDB方式可能导致系统负载过高，甚至假死。（有个说法是，当redis的内存占用超过物理内存的3/5时，进行RDB主从复制就比较危险了） 主从复制过程
+第一次同步 slave向master发送sync同步请求，master先dump出rdb文件，并将其全量传输给slave；master将产生rdb文件之后这段时间内的修改命令缓存起来，并发送给slave。首次同步完成。 第二次及以后的同步实现方式： master将变量的快照（有修改的变量）直接实时发送给slave。 如果发生断开重连，则重复第一步第二步 reids-2.8版本之后，重连后进行第一步时，不用全量更新了。 AOF方式
+AOF方式持久化过程
+Append Only File Redis将每次收到的命令都追加到文件中，类似于mysql的binlog；当redis重启时重新执行文件中的所有命令来重建数据 如果将所有命令不加甄别的都写入文件中，持久化文件会越来越大，比如INCR test命令执行100次，效果与SET test 100一样。此时需要进行rewrite，合并命令。 Redis提供了bgrewriteaof命令，执行过程与产生RDB文件的机制类似，fork出的子进程将内存中的数据以命令的方式重写持久化文件。本质上讲，该命令是将数据库中所有数据内容以命令的方式重写进新的AOF文件 AOF方式之我的想法
+AOF方式是redis在收到命名后将命令写入文件内，如果redis发生故障，重启时直接读取AOF文件重新执行命令即可恢复，可以克服RDB方式的缺点 bgrewriteaof指令是对AOF方式的一次优化，执行bgrewriteaof命令时是根据此时数据库内容来写入AOF文件，并替换旧的AOF文件。这个过程与RDB快照产生方式一样 RDB方式和AOF方式的对比
+RDB方式恢复起来快，而AOF方式需要一条条命令执行 RDB文件不需要经过编码，是数据库内容的直接克隆，所以文件比较小；而AOF文件内是一条条命令，需要依次执行 RDB文件可能会丢失部分数据，而AOF则专门解决这个问题 选择哪种方式
+官方推荐： 如果想要很高的数据保障，则同时使用两种方式 如果可以接受数据丢失，则仅使用RDB方式 通常的设计思路是 利用replication机制弥补持久化在性能和设计上的不足 master上不做RDB和AOF，保证读写性能 slave同时开启两种方式，保证数据安全性 Redis数据恢复过程
+AOF优先级高于RDB方式，如果同时配置了AOF和RDB，AOF生效 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 void loadDataFromDisk(void) { long long start = ustime(); if (server.'>
 <meta property='og:url' content='https://bg2bkk.github.io/p/redis%E6%8C%81%E4%B9%85%E5%8C%96%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/'>
 <meta property='og:site_name' content='Bg2bkk Site'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-02-26T14:56:41&#43;08:00'/><meta property='article:modified_time' content='2016-02-26T14:56:41&#43;08:00'/>
 <meta name="twitter:title" content="redis持久化学习笔记">
 <meta name="twitter:description" content="虽然网络上关于redis持久化的相关内容数不胜数，但是一来作为我的学习笔记，好记性不如烂笔头；二来除去官方redis之外，很多有意义的修改或补充都非常值得讨论，所以我想做一下记录。
-  持久化用于重启后的数据恢复，而持久化的引入导致了redis可能产生的性能抖动
-  redis持久化的两种方法 
-  RDB方式
-  RDB方式是redis的默认持久化方式
-  快照RDB持久化过程:
- redis调用fork，产生子进程 父进程继续接受用户请求；子进程负责将内存内容写入临时文件，写入完成后rename为dump文件，实现替换 在子进程写内存内容期间，父进程如果要修改内存数据，os将会通过写时复制为父进程创建副本，所以此时子进程写入的仍然是fork时刻的整个数据库内容    不足之处在于:
- 如果redis出现问题崩溃了，此时的rdb文件可能不是最新的数据，从上次RDB文件生成到redis崩溃这段时间的数据全部丢掉。 产生快照时，redis最多将占用2倍于现有数据规模的内存，因此当内存占用过多时，RDB方式可能导致系统负载过高，甚至假死。（有个说法是，当redis的内存占用超过物理内存的3/5时，进行RDB主从复制就比较危险了）    主从复制过程
- 第一次同步  slave向master发送sync同步请求，master先dump出rdb文件，并将其全量传输给slave；master将产生rdb文件之后这段时间内的修改命令缓存起来，并发送给slave。首次同步完成。   第二次及以后的同步实现方式：  master将变量的快照（有修改的变量）直接实时发送给slave。 如果发生断开重连，则重复第一步第二步   reids-2.8版本之后，重连后进行第一步时，不用全量更新了。      AOF方式
-  AOF方式持久化过程
- Append Only File Redis将每次收到的命令都追加到文件中，类似于mysql的binlog；当redis重启时重新执行文件中的所有命令来重建数据 如果将所有命令不加甄别的都写入文件中，持久化文件会越来越大，比如INCR test命令执行100次，效果与SET test 100一样。此时需要进行rewrite，合并命令。 Redis提供了bgrewriteaof命令，执行过程与产生RDB文件的机制类似，fork出的子进程将内存中的数据以命令的方式重写持久化文件。本质上讲，该命令是将数据库中所有数据内容以命令的方式重写进新的AOF文件    AOF方式之我的想法">
+持久化用于重启后的数据恢复，而持久化的引入导致了redis可能产生的性能抖动
+redis持久化的 两种方法 RDB方式
+RDB方式是redis的默认持久化方式
+快照RDB持久化过程:
+redis调用fork，产生子进程 父进程继续接受用户请求；子进程负责将内存内容写入临时文件，写入完成后rename为dump文件，实现替换 在子进程写内存内容期间，父进程如果要修改内存数据，os将会通过写时复制为父进程创建副本，所以此时子进程写入的仍然是fork时刻的整个数据库内容 不足之处在于:
+如果redis出现问题崩溃了，此时的rdb文件可能不是最新的数据，从上次RDB文件生成到redis崩溃这段时间的数据全部丢掉。 产生快照时，redis最多将占用2倍于现有数据规模的内存，因此当内存占用过多时，RDB方式可能导致系统负载过高，甚至假死。（有个说法是，当redis的内存占用超过物理内存的3/5时，进行RDB主从复制就比较危险了） 主从复制过程
+第一次同步 slave向master发送sync同步请求，master先dump出rdb文件，并将其全量传输给slave；master将产生rdb文件之后这段时间内的修改命令缓存起来，并发送给slave。首次同步完成。 第二次及以后的同步实现方式： master将变量的快照（有修改的变量）直接实时发送给slave。 如果发生断开重连，则重复第一步第二步 reids-2.8版本之后，重连后进行第一步时，不用全量更新了。 AOF方式
+AOF方式持久化过程
+Append Only File Redis将每次收到的命令都追加到文件中，类似于mysql的binlog；当redis重启时重新执行文件中的所有命令来重建数据 如果将所有命令不加甄别的都写入文件中，持久化文件会越来越大，比如INCR test命令执行100次，效果与SET test 100一样。此时需要进行rewrite，合并命令。 Redis提供了bgrewriteaof命令，执行过程与产生RDB文件的机制类似，fork出的子进程将内存中的数据以命令的方式重写持久化文件。本质上讲，该命令是将数据库中所有数据内容以命令的方式重写进新的AOF文件 AOF方式之我的想法
+AOF方式是redis在收到命名后将命令写入文件内，如果redis发生故障，重启时直接读取AOF文件重新执行命令即可恢复，可以克服RDB方式的缺点 bgrewriteaof指令是对AOF方式的一次优化，执行bgrewriteaof命令时是根据此时数据库内容来写入AOF文件，并替换旧的AOF文件。这个过程与RDB快照产生方式一样 RDB方式和AOF方式的对比
+RDB方式恢复起来快，而AOF方式需要一条条命令执行 RDB文件不需要经过编码，是数据库内容的直接克隆，所以文件比较小；而AOF文件内是一条条命令，需要依次执行 RDB文件可能会丢失部分数据，而AOF则专门解决这个问题 选择哪种方式
+官方推荐： 如果想要很高的数据保障，则同时使用两种方式 如果可以接受数据丢失，则仅使用RDB方式 通常的设计思路是 利用replication机制弥补持久化在性能和设计上的不足 master上不做RDB和AOF，保证读写性能 slave同时开启两种方式，保证数据安全性 Redis数据恢复过程
+AOF优先级高于RDB方式，如果同时配置了AOF和RDB，AOF生效 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 void loadDataFromDisk(void) { long long start = ustime(); if (server.">
     </head>
     <body class="
     article-page
@@ -69,7 +78,7 @@
         }
     })();
 </script>
-<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
     <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
         <span class="hamburger-box">
             <span class="hamburger-inner"></span>
@@ -92,15 +101,39 @@
                 
                 </a>
                 
+                    <span class="emoji">🍥</span>
+                
             </figure>
             
         
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
-            <h2 class="site-description"></h2>
+            <h2 class="site-description">Life is so beautiful</h2>
         </div>
-    </header><ol class="menu" id="main-menu">
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/bg2bkk'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
         
         
         
@@ -127,7 +160,7 @@
         
 
         <li >
-            <a href='/about/' >
+            <a href='/%E5%85%B3%E4%BA%8E%E6%88%91/' >
                 
                 
                 
@@ -140,7 +173,7 @@
 
 
                 
-                <span>About</span>
+                <span>关于我</span>
             </a>
         </li>
         
@@ -231,6 +264,9 @@
     </div>
 
     
+    
+    
+    
     <footer class="article-time">
         
             <div>
@@ -247,7 +283,7 @@
             </div>
         
 
-    
+        
             <div>
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
@@ -399,22 +435,22 @@
 </span><span class="lnt">15
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp">    <span class="kt">void</span> <span class="nf">loadDataFromDisk</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
-        <span class="kt">long</span> <span class="kt">long</span> <span class="n">start</span> <span class="o">=</span> <span class="n">ustime</span><span class="p">();</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">server</span><span class="p">.</span><span class="n">aof_state</span> <span class="o">==</span> <span class="n">REDIS_AOF_ON</span><span class="p">)</span> <span class="p">{</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">loadAppendOnlyFile</span><span class="p">(</span><span class="n">server</span><span class="p">.</span><span class="n">aof_filename</span><span class="p">)</span> <span class="o">==</span> <span class="n">REDIS_OK</span><span class="p">)</span>
-                <span class="n">redisLog</span><span class="p">(</span><span class="n">REDIS_NOTICE</span><span class="p">,</span><span class="s">&#34;DB loaded from append only file: %.3f seconds&#34;</span><span class="p">,(</span><span class="kt">float</span><span class="p">)(</span><span class="n">ustime</span><span class="p">()</span><span class="o">-</span><span class="n">start</span><span class="p">)</span><span class="o">/</span><span class="mi">1000000</span><span class="p">);</span>
-        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">rdbLoad</span><span class="p">(</span><span class="n">server</span><span class="p">.</span><span class="n">rdb_filename</span><span class="p">)</span> <span class="o">==</span> <span class="n">REDIS_OK</span><span class="p">)</span> <span class="p">{</span>
-                <span class="n">redisLog</span><span class="p">(</span><span class="n">REDIS_NOTICE</span><span class="p">,</span><span class="s">&#34;DB loaded from disk: %.3f seconds&#34;</span><span class="p">,</span>
-                    <span class="p">(</span><span class="kt">float</span><span class="p">)(</span><span class="n">ustime</span><span class="p">()</span><span class="o">-</span><span class="n">start</span><span class="p">)</span><span class="o">/</span><span class="mi">1000000</span><span class="p">);</span>
-            <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">ENOENT</span><span class="p">)</span> <span class="p">{</span>
-                <span class="n">redisLog</span><span class="p">(</span><span class="n">REDIS_WARNING</span><span class="p">,</span><span class="s">&#34;Fatal error loading the DB: %s. Exiting.&#34;</span><span class="p">,</span><span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
-                <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">    <span class="kt">void</span> <span class="nf">loadDataFromDisk</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">long</span> <span class="kt">long</span> <span class="n">start</span> <span class="o">=</span> <span class="n">ustime</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">        <span class="k">if</span> <span class="p">(</span><span class="n">server</span><span class="p">.</span><span class="n">aof_state</span> <span class="o">==</span> <span class="n">REDIS_AOF_ON</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="n">loadAppendOnlyFile</span><span class="p">(</span><span class="n">server</span><span class="p">.</span><span class="n">aof_filename</span><span class="p">)</span> <span class="o">==</span> <span class="n">REDIS_OK</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">                <span class="n">redisLog</span><span class="p">(</span><span class="n">REDIS_NOTICE</span><span class="p">,</span><span class="s">&#34;DB loaded from append only file: %.3f seconds&#34;</span><span class="p">,(</span><span class="kt">float</span><span class="p">)(</span><span class="n">ustime</span><span class="p">()</span><span class="o">-</span><span class="n">start</span><span class="p">)</span><span class="o">/</span><span class="mi">1000000</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">            <span class="k">if</span> <span class="p">(</span><span class="n">rdbLoad</span><span class="p">(</span><span class="n">server</span><span class="p">.</span><span class="n">rdb_filename</span><span class="p">)</span> <span class="o">==</span> <span class="n">REDIS_OK</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">redisLog</span><span class="p">(</span><span class="n">REDIS_NOTICE</span><span class="p">,</span><span class="s">&#34;DB loaded from disk: %.3f seconds&#34;</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">                    <span class="p">(</span><span class="kt">float</span><span class="p">)(</span><span class="n">ustime</span><span class="p">()</span><span class="o">-</span><span class="n">start</span><span class="p">)</span><span class="o">/</span><span class="mi">1000000</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">errno</span> <span class="o">!=</span> <span class="n">ENOENT</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">                <span class="n">redisLog</span><span class="p">(</span><span class="n">REDIS_WARNING</span><span class="p">,</span><span class="s">&#34;Fatal error loading the DB: %s. Exiting.&#34;</span><span class="p">,</span><span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">                <span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">            <span class="p">}</span>
+</span></span><span class="line"><span class="cl">        <span class="p">}</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><ul>
 <li><a class="link" href="http://blog.nosqlfan.com/html/4039.html"  target="_blank" rel="noopener"
@@ -427,6 +463,18 @@
     <footer class="article-footer">
     
 
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
     </footer>
 
 
@@ -440,18 +488,62 @@
      
     
         
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
     
 
     <footer class="site-footer">
     <section class="copyright">
         &copy; 
         
-        2022 Bg2bkk Site
+            2020 - 
+        
+        2023 Bg2bkk Site
     </section>
     
     <section class="powerby">
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
 

@@ -1,25 +1,39 @@
 <!DOCTYPE html>
-<html lang="" dir="ltr">
+<html lang="en" dir="ltr">
     <head><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='C语言中的宏 在看代码的过程中我看到了 ## 和 # 两个符号，前一个我知道，后一个就不清楚了。在文档中我才知道C语言有这么多的宏，##表示连接符concat，而#EXP表示将代码中的表达式EXP转为字符串，这样写在错误日志中我们就知道是那句代码导致错误的了。
 C语言中的宏以及用法还有很多，上述文档总结的非常好，除了##和#外，还有&amp;hellip;、宏展开时多次求值问题都有讲解，值得一读一试。
 这篇文章也不错，他们都源自于gnu的官方文档
-OmniGraffle  OmniGraffle简书 UX基础 - OmniGraffle新手指南  markdown * [markdown边角料](http://blog.csdn.net/phunxm/article/details/49565427)  kernel  kernel工程导论  内存管理  http://blog.jobbole.com/103993/ http://blog.jobbole.com/88673/  前端开发   如何使textarea的大小随着其内容增加而变化呢？
-  解决方法
- 1、http://audi.tw/Blog/Javascript/javascript.textarea.autogrow.asp 2、http://www.cnblogs.com/xmmcn/archive/2012/12/18/2822968.html 3、jquery 插件: https://bobscript.com/archives/419/    awk  http://blog.sina.com.cn/s/blog_4a033b090100xo2b.html http://blog.csdn.net/junjieguo/article/details/7525794  postgre  修改表结构，postgre_wiki 插入数据、postgre_wiki 清楚pg_xlog  python  python魔术方法  指南 入门    [http协议] http协议301和302的区别
- http://www.cnblogs.com/caiyuanzai/archive/2012/04/24/2469013.html http://blog.csdn.net/qmhball/article/details/7838989  linux socket编程样例   http://alas.'>
+OmniGraffle OmniGraffle简书 UX基础 - OmniGraffle新手指南 markdown * [markdown边角料](http://blog.csdn.net/phunxm/article/details/49565427) kernel kernel工程导论 内存管理 http://blog.jobbole.com/103993/ http://blog.jobbole.com/88673/ 前端开发 如何使textarea的大小随着其内容增加而变化呢？
+解决方法
+1、http://audi.tw/Blog/Javascript/javascript.textarea.autogrow.asp 2、http://www.cnblogs.com/xmmcn/archive/2012/12/18/2822968.html 3、jquery 插件: https://bobscript.com/archives/419/ awk http://blog.sina.com.cn/s/blog_4a033b090100xo2b.html http://blog.csdn.net/junjieguo/article/details/7525794 postgre 修改表结构，postgre_wiki 插入数据、postgre_wiki 清楚pg_xlog python python魔术方法 指南 入门 [http协议] http协议301和302的区别
+http://www.cnblogs.com/caiyuanzai/archive/2012/04/24/2469013.html http://blog.csdn.net/qmhball/article/details/7838989 linux socket编程样例 http://alas.matf.bg.ac.rs/manuals/lspe/snode=106.html
+进程间传递fd
+linux apue编程 epoll是同步非阻塞的 epoll、select等多路服用IO，将fd加入等待时间的队列中，每隔一段时间去轮询一次，因此是同步的；优点是能够在等待任务的时间里去做别的任务；缺点是任务完成的响应延迟增大，因为每隔一段时间去轮询他们，在时间间隔内任务可能已经完成而等待处理等待了一段时间了。
+参考链接
+同步/异步指的是被调用方的通知方式，被调用方完成后，主动通知调用方，还是等待调用方发现。前者是异步，后者是同步。从这里也可以看出，异步IO通知调用方时，数据已经就绪，对于网络IO来说，异步IO已经将数据从内核复制到用户空间了。
+阻塞/非阻塞是调用方的等待方式，是一直等待在做的事件完成，还是去做别的事情，等到在做的事件完成后再接着进行处理。前者是阻塞，后者是非阻塞
+因此epoll是同步和非阻塞的。
+性能分析 有用的systemtap脚本 分布式存储 知识体系 B-Tree 分布式ID生成 ID 方案一： 常规数据库的auto increment服务 改进：可以将ID划均分给若干数据库，每个数据库自增的起点不一样，可以保证各库生成ID不同 缺点是非强一致性 方案二： 单点批量生成；ID生成服务每次从数据库预定一定容量的ID，然后派发；可以成倍降低数据库压力； 缺点：单点服务、可能造成空洞； 改进：找备胎，一旦主ID服务挂掉，备胎立刻备上；通过vip&#43;keepalived实现 方案三：uuid 方案四：当前毫秒数；缺点是每个毫秒容量有限，也可能重复 方案五：将64bit数字作为ID，分别包含字段：毫秒数、业务线、机房、机器、以及毫秒内序列号；根据业务来规划容量；毫秒数可以保证ID是趋势自增的 ID 分布式锁 http://www.'>
 <title>effective tips in daily learning</title>
 
 <link rel='canonical' href='https://bg2bkk.github.io/p/effective-tips-in-daily-learning/'>
 
-<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='effective tips in daily learning'>
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='effective tips in daily learning'>
 <meta property='og:description' content='C语言中的宏 在看代码的过程中我看到了 ## 和 # 两个符号，前一个我知道，后一个就不清楚了。在文档中我才知道C语言有这么多的宏，##表示连接符concat，而#EXP表示将代码中的表达式EXP转为字符串，这样写在错误日志中我们就知道是那句代码导致错误的了。
 C语言中的宏以及用法还有很多，上述文档总结的非常好，除了##和#外，还有&amp;hellip;、宏展开时多次求值问题都有讲解，值得一读一试。
 这篇文章也不错，他们都源自于gnu的官方文档
-OmniGraffle  OmniGraffle简书 UX基础 - OmniGraffle新手指南  markdown * [markdown边角料](http://blog.csdn.net/phunxm/article/details/49565427)  kernel  kernel工程导论  内存管理  http://blog.jobbole.com/103993/ http://blog.jobbole.com/88673/  前端开发   如何使textarea的大小随着其内容增加而变化呢？
-  解决方法
- 1、http://audi.tw/Blog/Javascript/javascript.textarea.autogrow.asp 2、http://www.cnblogs.com/xmmcn/archive/2012/12/18/2822968.html 3、jquery 插件: https://bobscript.com/archives/419/    awk  http://blog.sina.com.cn/s/blog_4a033b090100xo2b.html http://blog.csdn.net/junjieguo/article/details/7525794  postgre  修改表结构，postgre_wiki 插入数据、postgre_wiki 清楚pg_xlog  python  python魔术方法  指南 入门    [http协议] http协议301和302的区别
- http://www.cnblogs.com/caiyuanzai/archive/2012/04/24/2469013.html http://blog.csdn.net/qmhball/article/details/7838989  linux socket编程样例   http://alas.'>
+OmniGraffle OmniGraffle简书 UX基础 - OmniGraffle新手指南 markdown * [markdown边角料](http://blog.csdn.net/phunxm/article/details/49565427) kernel kernel工程导论 内存管理 http://blog.jobbole.com/103993/ http://blog.jobbole.com/88673/ 前端开发 如何使textarea的大小随着其内容增加而变化呢？
+解决方法
+1、http://audi.tw/Blog/Javascript/javascript.textarea.autogrow.asp 2、http://www.cnblogs.com/xmmcn/archive/2012/12/18/2822968.html 3、jquery 插件: https://bobscript.com/archives/419/ awk http://blog.sina.com.cn/s/blog_4a033b090100xo2b.html http://blog.csdn.net/junjieguo/article/details/7525794 postgre 修改表结构，postgre_wiki 插入数据、postgre_wiki 清楚pg_xlog python python魔术方法 指南 入门 [http协议] http协议301和302的区别
+http://www.cnblogs.com/caiyuanzai/archive/2012/04/24/2469013.html http://blog.csdn.net/qmhball/article/details/7838989 linux socket编程样例 http://alas.matf.bg.ac.rs/manuals/lspe/snode=106.html
+进程间传递fd
+linux apue编程 epoll是同步非阻塞的 epoll、select等多路服用IO，将fd加入等待时间的队列中，每隔一段时间去轮询一次，因此是同步的；优点是能够在等待任务的时间里去做别的任务；缺点是任务完成的响应延迟增大，因为每隔一段时间去轮询他们，在时间间隔内任务可能已经完成而等待处理等待了一段时间了。
+参考链接
+同步/异步指的是被调用方的通知方式，被调用方完成后，主动通知调用方，还是等待调用方发现。前者是异步，后者是同步。从这里也可以看出，异步IO通知调用方时，数据已经就绪，对于网络IO来说，异步IO已经将数据从内核复制到用户空间了。
+阻塞/非阻塞是调用方的等待方式，是一直等待在做的事件完成，还是去做别的事情，等到在做的事件完成后再接着进行处理。前者是阻塞，后者是非阻塞
+因此epoll是同步和非阻塞的。
+性能分析 有用的systemtap脚本 分布式存储 知识体系 B-Tree 分布式ID生成 ID 方案一： 常规数据库的auto increment服务 改进：可以将ID划均分给若干数据库，每个数据库自增的起点不一样，可以保证各库生成ID不同 缺点是非强一致性 方案二： 单点批量生成；ID生成服务每次从数据库预定一定容量的ID，然后派发；可以成倍降低数据库压力； 缺点：单点服务、可能造成空洞； 改进：找备胎，一旦主ID服务挂掉，备胎立刻备上；通过vip&#43;keepalived实现 方案三：uuid 方案四：当前毫秒数；缺点是每个毫秒容量有限，也可能重复 方案五：将64bit数字作为ID，分别包含字段：毫秒数、业务线、机房、机器、以及毫秒内序列号；根据业务来规划容量；毫秒数可以保证ID是趋势自增的 ID 分布式锁 http://www.'>
 <meta property='og:url' content='https://bg2bkk.github.io/p/effective-tips-in-daily-learning/'>
 <meta property='og:site_name' content='Bg2bkk Site'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-05-06T11:39:48&#43;08:00'/><meta property='article:modified_time' content='2016-05-06T11:39:48&#43;08:00'/>
@@ -27,10 +41,17 @@ OmniGraffle  OmniGraffle简书 UX基础 - OmniGraffle新手指南  markdown * [m
 <meta name="twitter:description" content="C语言中的宏 在看代码的过程中我看到了 ## 和 # 两个符号，前一个我知道，后一个就不清楚了。在文档中我才知道C语言有这么多的宏，##表示连接符concat，而#EXP表示将代码中的表达式EXP转为字符串，这样写在错误日志中我们就知道是那句代码导致错误的了。
 C语言中的宏以及用法还有很多，上述文档总结的非常好，除了##和#外，还有&amp;hellip;、宏展开时多次求值问题都有讲解，值得一读一试。
 这篇文章也不错，他们都源自于gnu的官方文档
-OmniGraffle  OmniGraffle简书 UX基础 - OmniGraffle新手指南  markdown * [markdown边角料](http://blog.csdn.net/phunxm/article/details/49565427)  kernel  kernel工程导论  内存管理  http://blog.jobbole.com/103993/ http://blog.jobbole.com/88673/  前端开发   如何使textarea的大小随着其内容增加而变化呢？
-  解决方法
- 1、http://audi.tw/Blog/Javascript/javascript.textarea.autogrow.asp 2、http://www.cnblogs.com/xmmcn/archive/2012/12/18/2822968.html 3、jquery 插件: https://bobscript.com/archives/419/    awk  http://blog.sina.com.cn/s/blog_4a033b090100xo2b.html http://blog.csdn.net/junjieguo/article/details/7525794  postgre  修改表结构，postgre_wiki 插入数据、postgre_wiki 清楚pg_xlog  python  python魔术方法  指南 入门    [http协议] http协议301和302的区别
- http://www.cnblogs.com/caiyuanzai/archive/2012/04/24/2469013.html http://blog.csdn.net/qmhball/article/details/7838989  linux socket编程样例   http://alas.">
+OmniGraffle OmniGraffle简书 UX基础 - OmniGraffle新手指南 markdown * [markdown边角料](http://blog.csdn.net/phunxm/article/details/49565427) kernel kernel工程导论 内存管理 http://blog.jobbole.com/103993/ http://blog.jobbole.com/88673/ 前端开发 如何使textarea的大小随着其内容增加而变化呢？
+解决方法
+1、http://audi.tw/Blog/Javascript/javascript.textarea.autogrow.asp 2、http://www.cnblogs.com/xmmcn/archive/2012/12/18/2822968.html 3、jquery 插件: https://bobscript.com/archives/419/ awk http://blog.sina.com.cn/s/blog_4a033b090100xo2b.html http://blog.csdn.net/junjieguo/article/details/7525794 postgre 修改表结构，postgre_wiki 插入数据、postgre_wiki 清楚pg_xlog python python魔术方法 指南 入门 [http协议] http协议301和302的区别
+http://www.cnblogs.com/caiyuanzai/archive/2012/04/24/2469013.html http://blog.csdn.net/qmhball/article/details/7838989 linux socket编程样例 http://alas.matf.bg.ac.rs/manuals/lspe/snode=106.html
+进程间传递fd
+linux apue编程 epoll是同步非阻塞的 epoll、select等多路服用IO，将fd加入等待时间的队列中，每隔一段时间去轮询一次，因此是同步的；优点是能够在等待任务的时间里去做别的任务；缺点是任务完成的响应延迟增大，因为每隔一段时间去轮询他们，在时间间隔内任务可能已经完成而等待处理等待了一段时间了。
+参考链接
+同步/异步指的是被调用方的通知方式，被调用方完成后，主动通知调用方，还是等待调用方发现。前者是异步，后者是同步。从这里也可以看出，异步IO通知调用方时，数据已经就绪，对于网络IO来说，异步IO已经将数据从内核复制到用户空间了。
+阻塞/非阻塞是调用方的等待方式，是一直等待在做的事件完成，还是去做别的事情，等到在做的事件完成后再接着进行处理。前者是阻塞，后者是非阻塞
+因此epoll是同步和非阻塞的。
+性能分析 有用的systemtap脚本 分布式存储 知识体系 B-Tree 分布式ID生成 ID 方案一： 常规数据库的auto increment服务 改进：可以将ID划均分给若干数据库，每个数据库自增的起点不一样，可以保证各库生成ID不同 缺点是非强一致性 方案二： 单点批量生成；ID生成服务每次从数据库预定一定容量的ID，然后派发；可以成倍降低数据库压力； 缺点：单点服务、可能造成空洞； 改进：找备胎，一旦主ID服务挂掉，备胎立刻备上；通过vip&#43;keepalived实现 方案三：uuid 方案四：当前毫秒数；缺点是每个毫秒容量有限，也可能重复 方案五：将64bit数字作为ID，分别包含字段：毫秒数、业务线、机房、机器、以及毫秒内序列号；根据业务来规划容量；毫秒数可以保证ID是趋势自增的 ID 分布式锁 http://www.">
     </head>
     <body class="
     article-page
@@ -57,7 +78,7 @@ OmniGraffle  OmniGraffle简书 UX基础 - OmniGraffle新手指南  markdown * [m
         }
     })();
 </script>
-<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
     <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
         <span class="hamburger-box">
             <span class="hamburger-inner"></span>
@@ -80,15 +101,39 @@ OmniGraffle  OmniGraffle简书 UX基础 - OmniGraffle新手指南  markdown * [m
                 
                 </a>
                 
+                    <span class="emoji">🍥</span>
+                
             </figure>
             
         
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
-            <h2 class="site-description"></h2>
+            <h2 class="site-description">Life is so beautiful</h2>
         </div>
-    </header><ol class="menu" id="main-menu">
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/bg2bkk'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
         
         
         
@@ -115,7 +160,7 @@ OmniGraffle  OmniGraffle简书 UX基础 - OmniGraffle新手指南  markdown * [m
         
 
         <li >
-            <a href='/about/' >
+            <a href='/%E5%85%B3%E4%BA%8E%E6%88%91/' >
                 
                 
                 
@@ -128,7 +173,7 @@ OmniGraffle  OmniGraffle简书 UX基础 - OmniGraffle新手指南  markdown * [m
 
 
                 
-                <span>About</span>
+                <span>关于我</span>
             </a>
         </li>
         
@@ -201,7 +246,75 @@ OmniGraffle  OmniGraffle简书 UX基础 - OmniGraffle新手指南  markdown * [m
     </ol>
 </aside>
 
-    
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#c语言中的宏">C语言中的宏</a></li>
+    <li><a href="#omnigraffle">OmniGraffle</a></li>
+    <li><a href="#markdown">markdown</a></li>
+    <li><a href="#kernel">kernel</a></li>
+    <li><a href="#内存管理">内存管理</a></li>
+    <li><a href="#前端开发">前端开发</a></li>
+    <li><a href="#awk">awk</a></li>
+    <li><a href="#postgre">postgre</a></li>
+    <li><a href="#python">python</a></li>
+    <li><a href="#http协议">[http协议]</a></li>
+    <li><a href="#linux-socket编程样例">linux socket编程样例</a></li>
+    <li><a href="#linux-apue编程">linux apue编程</a></li>
+    <li><a href="#性能分析">性能分析</a></li>
+    <li><a href="#分布式存储">分布式存储</a></li>
+    <li><a href="#分布式id生成">分布式ID生成</a></li>
+    <li><a href="#分布式锁">分布式锁</a></li>
+    <li><a href="#一致性哈希-consistent-hashing">一致性哈希 consistent hashing</a></li>
+    <li><a href="#2pc3pc和paxos算法">2PC、3PC和Paxos算法</a></li>
+    <li><a href="#并发编程">并发编程</a></li>
+    <li><a href="#nginx配置文件">nginx配置文件</a></li>
+    <li><a href="#lua的学习使用和源码精读">Lua的学习、使用和源码精读</a></li>
+    <li><a href="#lua的元表">lua的元表</a></li>
+    <li><a href="#lua面向对象">Lua面向对象</a></li>
+    <li><a href="#lua源码精读">Lua源码精读</a></li>
+    <li><a href="#lua与c的交互">Lua与C的交互</a></li>
+    <li><a href="#list和nil">list和nil</a></li>
+    <li><a href="#lua的first-classhttpstechsingularorg20121222programming-in-luaefbc88e59b9befbc89efbc8d-nil-e5928c-list"><a href="https://techsingular.org/2012/12/22/programming-in-lua%EF%BC%88%E5%9B%9B%EF%BC%89%EF%BC%8D-nil-%E5%92%8C-list/">lua的first class</a></a></li>
+    <li><a href="#lua的gc">Lua的GC</a></li>
+    <li><a href="#lua的table">lua的table</a></li>
+    <li><a href="#lua函数使用">lua函数使用</a></li>
+    <li><a href="#lua编码的陷阱">lua编码的陷阱</a></li>
+    <li><a href="#golang">golang</a>
+      <ol>
+        <li><a href="#golang的并发协程和channel">golang的并发、协程和channel</a></li>
+        <li><a href="#golang设计模式">golang设计模式</a></li>
+        <li><a href="#golang接口">golang接口</a></li>
+      </ol>
+    </li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
 
             <main class="main full-width">
     <article class="main-article">
@@ -219,6 +332,9 @@ OmniGraffle  OmniGraffle简书 UX基础 - OmniGraffle新手指南  markdown * [m
     </div>
 
     
+    
+    
+    
     <footer class="article-time">
         
             <div>
@@ -235,7 +351,7 @@ OmniGraffle  OmniGraffle简书 UX基础 - OmniGraffle新手指南  markdown * [m
             </div>
         
 
-    
+        
             <div>
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
@@ -623,27 +739,27 @@ OmniGraffle  OmniGraffle简书 UX基础 - OmniGraffle新手指南  markdown * [m
 </span><span class="lnt">20
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua"><span class="c1">-- http://my.oschina.net/wangxuanyihaha/blog/186401</span>
-
-<span class="kr">function</span> <span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
-    <span class="n">print</span><span class="p">(</span><span class="s2">&#34;foo&#34;</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
-    <span class="kr">return</span> <span class="n">coroutine.yield</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">a</span><span class="p">)</span>
-<span class="kr">end</span>
-
-<span class="n">co</span> <span class="o">=</span> <span class="n">coroutine.create</span><span class="p">(</span><span class="kr">function</span> <span class="p">(</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="p">)</span>
-    <span class="n">print</span><span class="p">(</span><span class="s2">&#34;co-body&#34;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
-    <span class="kd">local</span> <span class="n">r</span> <span class="o">=</span> <span class="n">foo</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">print</span><span class="p">(</span><span class="s2">&#34;co-body&#34;</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
-    <span class="kd">local</span> <span class="n">r</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">coroutine.yield</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span>
-    <span class="n">print</span><span class="p">(</span><span class="s2">&#34;co-body&#34;</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
-    <span class="kr">return</span> <span class="n">b</span><span class="p">,</span> <span class="s2">&#34;end&#34;</span>
-<span class="kr">end</span><span class="p">)</span>
-
-<span class="n">print</span><span class="p">(</span><span class="s2">&#34;main&#34;</span><span class="p">,</span> <span class="n">coroutine.resume</span><span class="p">(</span><span class="n">co</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
-<span class="n">print</span><span class="p">(</span><span class="s2">&#34;main&#34;</span><span class="p">,</span> <span class="n">coroutine.resume</span><span class="p">(</span><span class="n">co</span><span class="p">,</span> <span class="s2">&#34;m&#34;</span><span class="p">))</span>	<span class="c1">-- resume的参数 &#39;m&#39; 是在调用yield传入的，所以本次是在第5行 return m</span>
-<span class="n">print</span><span class="p">(</span><span class="s2">&#34;main&#34;</span><span class="p">,</span> <span class="n">coroutine.resume</span><span class="p">(</span><span class="n">co</span><span class="p">,</span> <span class="s2">&#34;x&#34;</span><span class="p">,</span> <span class="s2">&#34;y&#34;</span><span class="p">))</span>
-<span class="n">print</span><span class="p">(</span><span class="s2">&#34;main&#34;</span><span class="p">,</span> <span class="n">coroutine.resume</span><span class="p">(</span><span class="n">co</span><span class="p">,</span> <span class="s2">&#34;x&#34;</span><span class="p">,</span> <span class="s2">&#34;y&#34;</span><span class="p">))</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="c1">-- http://my.oschina.net/wangxuanyihaha/blog/186401</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">function</span> <span class="nf">foo</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">print</span><span class="p">(</span><span class="s2">&#34;foo&#34;</span><span class="p">,</span> <span class="n">a</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">return</span> <span class="n">coroutine.yield</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">a</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="kr">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">co</span> <span class="o">=</span> <span class="n">coroutine.create</span><span class="p">(</span><span class="kr">function</span> <span class="p">(</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">print</span><span class="p">(</span><span class="s2">&#34;co-body&#34;</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">local</span> <span class="n">r</span> <span class="o">=</span> <span class="n">foo</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">print</span><span class="p">(</span><span class="s2">&#34;co-body&#34;</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kd">local</span> <span class="n">r</span><span class="p">,</span> <span class="n">s</span> <span class="o">=</span> <span class="n">coroutine.yield</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">,</span> <span class="n">a</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">print</span><span class="p">(</span><span class="s2">&#34;co-body&#34;</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">s</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">return</span> <span class="n">b</span><span class="p">,</span> <span class="s2">&#34;end&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="kr">end</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">print</span><span class="p">(</span><span class="s2">&#34;main&#34;</span><span class="p">,</span> <span class="n">coroutine.resume</span><span class="p">(</span><span class="n">co</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">print</span><span class="p">(</span><span class="s2">&#34;main&#34;</span><span class="p">,</span> <span class="n">coroutine.resume</span><span class="p">(</span><span class="n">co</span><span class="p">,</span> <span class="s2">&#34;m&#34;</span><span class="p">))</span>	<span class="c1">-- resume的参数 &#39;m&#39; 是在调用yield传入的，所以本次是在第5行 return m</span>
+</span></span><span class="line"><span class="cl"><span class="n">print</span><span class="p">(</span><span class="s2">&#34;main&#34;</span><span class="p">,</span> <span class="n">coroutine.resume</span><span class="p">(</span><span class="n">co</span><span class="p">,</span> <span class="s2">&#34;x&#34;</span><span class="p">,</span> <span class="s2">&#34;y&#34;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">print</span><span class="p">(</span><span class="s2">&#34;main&#34;</span><span class="p">,</span> <span class="n">coroutine.resume</span><span class="p">(</span><span class="n">co</span><span class="p">,</span> <span class="s2">&#34;x&#34;</span><span class="p">,</span> <span class="s2">&#34;y&#34;</span><span class="p">))</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -657,15 +773,15 @@ OmniGraffle  OmniGraffle简书 UX基础 - OmniGraffle新手指南  markdown * [m
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">co-body	1	<span class="m">10</span>
-foo	<span class="m">2</span>
-main	<span class="nb">true</span>	<span class="m">4</span>
-co-body	m
-main	<span class="nb">true</span>	11	-9
-co-body	x	y
-main	<span class="nb">true</span>	10	end
-main	<span class="nb">false</span>	cannot resume dead coroutine
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">co-body	1	<span class="m">10</span>
+</span></span><span class="line"><span class="cl">foo	<span class="m">2</span>
+</span></span><span class="line"><span class="cl">main	<span class="nb">true</span>	<span class="m">4</span>
+</span></span><span class="line"><span class="cl">co-body	m
+</span></span><span class="line"><span class="cl">main	<span class="nb">true</span>	11	-9
+</span></span><span class="line"><span class="cl">co-body	x	y
+</span></span><span class="line"><span class="cl">main	<span class="nb">true</span>	10	end
+</span></span><span class="line"><span class="cl">main	<span class="nb">false</span>	cannot resume dead coroutine
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="lua编码的陷阱">lua编码的陷阱</h2>
 <pre><code>* [字符串拼接导致垃圾产生](http://tech.uc.cn/?p=1131)
@@ -686,13 +802,13 @@ main	<span class="nb">false</span>	cannot resume dead coroutine
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua">	<span class="kr">for</span> <span class="n">i</span> <span class="p">:</span><span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
-		<span class="n">go</span> <span class="n">func</span><span class="p">()</span> <span class="p">{</span>
-			<span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">i</span>
-			<span class="n">chs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-		<span class="p">}()</span>
-	<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl">	<span class="kr">for</span> <span class="n">i</span> <span class="p">:</span><span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">go</span> <span class="n">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">i</span>
+</span></span><span class="line"><span class="cl">			<span class="n">chs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}()</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>类似于如上形式的for循环中启动go协程，在for循环结束时协程才会开执行，所以每个协程用到的i都是最大值10</p>
 <p>可以将i加入到协程的参数中，如下：</p>
@@ -708,15 +824,15 @@ main	<span class="nb">false</span>	cannot resume dead coroutine
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua">	<span class="kr">for</span> <span class="n">i</span> <span class="p">:</span><span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
-		
-		<span class="n">chs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">make</span><span class="p">(</span><span class="n">chan</span> <span class="n">int</span><span class="p">)</span>
-		<span class="n">go</span> <span class="n">func</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
-			<span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">i</span>
-			<span class="n">chs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-		<span class="p">}(</span><span class="n">i</span><span class="p">)</span>
-	<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl">	<span class="kr">for</span> <span class="n">i</span> <span class="p">:</span><span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">		<span class="n">chs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">make</span><span class="p">(</span><span class="n">chan</span> <span class="n">int</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="n">go</span> <span class="n">func</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">i</span>
+</span></span><span class="line"><span class="cl">			<span class="n">chs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}(</span><span class="n">i</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>可以用局部变量保存i值</p>
 <div class="highlight"><div class="chroma">
@@ -731,15 +847,15 @@ main	<span class="nb">false</span>	cannot resume dead coroutine
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua">	<span class="kr">for</span> <span class="n">i</span> <span class="p">:</span><span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
-		<span class="n">i</span> <span class="p">:</span><span class="o">=</span> <span class="n">i</span>
-		<span class="n">chs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">make</span><span class="p">(</span><span class="n">chan</span> <span class="n">int</span><span class="p">)</span>
-		<span class="n">go</span> <span class="n">func</span><span class="p">()</span> <span class="p">{</span>
-			<span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">i</span>
-			<span class="n">chs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-		<span class="p">}()</span>
-	<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl">	<span class="kr">for</span> <span class="n">i</span> <span class="p">:</span><span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="n">i</span> <span class="p">:</span><span class="o">=</span> <span class="n">i</span>
+</span></span><span class="line"><span class="cl">		<span class="n">chs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">make</span><span class="p">(</span><span class="n">chan</span> <span class="n">int</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="n">go</span> <span class="n">func</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">i</span>
+</span></span><span class="line"><span class="cl">			<span class="n">chs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;-</span> <span class="n">arr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}()</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><ul>
 <li>
@@ -792,6 +908,18 @@ main	<span class="nb">false</span>	cannot resume dead coroutine
     <footer class="article-footer">
     
 
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
     </footer>
 
 
@@ -805,18 +933,62 @@ main	<span class="nb">false</span>	cannot resume dead coroutine
      
     
         
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
     
 
     <footer class="site-footer">
     <section class="copyright">
         &copy; 
         
-        2022 Bg2bkk Site
+            2020 - 
+        
+        2023 Bg2bkk Site
     </section>
     
     <section class="powerby">
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
 

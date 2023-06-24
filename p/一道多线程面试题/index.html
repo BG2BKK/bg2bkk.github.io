@@ -1,33 +1,33 @@
 <!DOCTYPE html>
-<html lang="" dir="ltr">
+<html lang="en" dir="ltr">
     <head><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='最近突然看协程和并发编程比较多，遇到这样一道题
- 题目：子线程循环 10 次，接着主线程循环 100 次，接着又回到子线程循环 10 次，接着再回到主线程又循环 100 次，如此循环50次，试写出代码。
- 参考文档里的代码采用C&#43;&#43;11编写，而我，很不幸的，看不懂。
+题目：子线程循环 10 次，接着主线程循环 100 次，接着又回到子线程循环 10 次，接着再回到主线程又循环 100 次，如此循环50次，试写出代码。
+参考文档里的代码采用C&#43;&#43;11编写，而我，很不幸的，看不懂。
 我想我的cpp已经退化到看不见了吧，然后c&#43;&#43;11我更加看不懂了，甚至连cpp较为官方的文档都开始采用c&#43;&#43;11了。
 虽然我不会c&#43;&#43;11，但是我会lua、c、golang、python、shell，我要报复性的把这个题做了。
-C&#43;&#43;11 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27  #include&amp;lt;iostream&amp;gt;#include&amp;lt;thread&amp;gt;#include&amp;lt;mutex&amp;gt;#include&amp;lt;condition_variable&amp;gt;using namespace std; mutex m; condition_variable cond; int flag=10; void fun(int num){ for(int i=0;i&amp;lt;2;i&#43;&#43;){ unique_lock&amp;lt;mutex&amp;gt; lk(m);//A unique lock is an object that manages a mutex object with unique ownership in both states: locked and unlocked.'>
+C&#43;&#43;11 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 #include&amp;lt;iostream&amp;gt; #include&amp;lt;thread&amp;gt; #include&amp;lt;mutex&amp;gt; #include&amp;lt;condition_variable&amp;gt; using namespace std; mutex m; condition_variable cond; int flag=10; void fun(int num){ for(int i=0;i&amp;lt;2;i&#43;&#43;){ unique_lock&amp;lt;mutex&amp;gt; lk(m);//A unique lock is an object that manages a mutex object with unique ownership in both states: locked and unlocked.'>
 <title>一道多线程面试题</title>
 
 <link rel='canonical' href='https://bg2bkk.github.io/p/%E4%B8%80%E9%81%93%E5%A4%9A%E7%BA%BF%E7%A8%8B%E9%9D%A2%E8%AF%95%E9%A2%98/'>
 
-<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='一道多线程面试题'>
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='一道多线程面试题'>
 <meta property='og:description' content='最近突然看协程和并发编程比较多，遇到这样一道题
- 题目：子线程循环 10 次，接着主线程循环 100 次，接着又回到子线程循环 10 次，接着再回到主线程又循环 100 次，如此循环50次，试写出代码。
- 参考文档里的代码采用C&#43;&#43;11编写，而我，很不幸的，看不懂。
+题目：子线程循环 10 次，接着主线程循环 100 次，接着又回到子线程循环 10 次，接着再回到主线程又循环 100 次，如此循环50次，试写出代码。
+参考文档里的代码采用C&#43;&#43;11编写，而我，很不幸的，看不懂。
 我想我的cpp已经退化到看不见了吧，然后c&#43;&#43;11我更加看不懂了，甚至连cpp较为官方的文档都开始采用c&#43;&#43;11了。
 虽然我不会c&#43;&#43;11，但是我会lua、c、golang、python、shell，我要报复性的把这个题做了。
-C&#43;&#43;11 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27  #include&amp;lt;iostream&amp;gt;#include&amp;lt;thread&amp;gt;#include&amp;lt;mutex&amp;gt;#include&amp;lt;condition_variable&amp;gt;using namespace std; mutex m; condition_variable cond; int flag=10; void fun(int num){ for(int i=0;i&amp;lt;2;i&#43;&#43;){ unique_lock&amp;lt;mutex&amp;gt; lk(m);//A unique lock is an object that manages a mutex object with unique ownership in both states: locked and unlocked.'>
+C&#43;&#43;11 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 #include&amp;lt;iostream&amp;gt; #include&amp;lt;thread&amp;gt; #include&amp;lt;mutex&amp;gt; #include&amp;lt;condition_variable&amp;gt; using namespace std; mutex m; condition_variable cond; int flag=10; void fun(int num){ for(int i=0;i&amp;lt;2;i&#43;&#43;){ unique_lock&amp;lt;mutex&amp;gt; lk(m);//A unique lock is an object that manages a mutex object with unique ownership in both states: locked and unlocked.'>
 <meta property='og:url' content='https://bg2bkk.github.io/p/%E4%B8%80%E9%81%93%E5%A4%9A%E7%BA%BF%E7%A8%8B%E9%9D%A2%E8%AF%95%E9%A2%98/'>
 <meta property='og:site_name' content='Bg2bkk Site'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-05-26T01:39:59&#43;08:00'/><meta property='article:modified_time' content='2016-05-26T01:39:59&#43;08:00'/>
 <meta name="twitter:title" content="一道多线程面试题">
 <meta name="twitter:description" content="最近突然看协程和并发编程比较多，遇到这样一道题
- 题目：子线程循环 10 次，接着主线程循环 100 次，接着又回到子线程循环 10 次，接着再回到主线程又循环 100 次，如此循环50次，试写出代码。
- 参考文档里的代码采用C&#43;&#43;11编写，而我，很不幸的，看不懂。
+题目：子线程循环 10 次，接着主线程循环 100 次，接着又回到子线程循环 10 次，接着再回到主线程又循环 100 次，如此循环50次，试写出代码。
+参考文档里的代码采用C&#43;&#43;11编写，而我，很不幸的，看不懂。
 我想我的cpp已经退化到看不见了吧，然后c&#43;&#43;11我更加看不懂了，甚至连cpp较为官方的文档都开始采用c&#43;&#43;11了。
 虽然我不会c&#43;&#43;11，但是我会lua、c、golang、python、shell，我要报复性的把这个题做了。
-C&#43;&#43;11 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27  #include&amp;lt;iostream&amp;gt;#include&amp;lt;thread&amp;gt;#include&amp;lt;mutex&amp;gt;#include&amp;lt;condition_variable&amp;gt;using namespace std; mutex m; condition_variable cond; int flag=10; void fun(int num){ for(int i=0;i&amp;lt;2;i&#43;&#43;){ unique_lock&amp;lt;mutex&amp;gt; lk(m);//A unique lock is an object that manages a mutex object with unique ownership in both states: locked and unlocked.">
+C&#43;&#43;11 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 #include&amp;lt;iostream&amp;gt; #include&amp;lt;thread&amp;gt; #include&amp;lt;mutex&amp;gt; #include&amp;lt;condition_variable&amp;gt; using namespace std; mutex m; condition_variable cond; int flag=10; void fun(int num){ for(int i=0;i&amp;lt;2;i&#43;&#43;){ unique_lock&amp;lt;mutex&amp;gt; lk(m);//A unique lock is an object that manages a mutex object with unique ownership in both states: locked and unlocked.">
     </head>
     <body class="
     article-page
@@ -54,7 +54,7 @@ C&#43;&#43;11 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 
         }
     })();
 </script>
-<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
     <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
         <span class="hamburger-box">
             <span class="hamburger-inner"></span>
@@ -77,15 +77,39 @@ C&#43;&#43;11 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 
                 
                 </a>
                 
+                    <span class="emoji">🍥</span>
+                
             </figure>
             
         
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
-            <h2 class="site-description"></h2>
+            <h2 class="site-description">Life is so beautiful</h2>
         </div>
-    </header><ol class="menu" id="main-menu">
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/bg2bkk'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
         
         
         
@@ -112,7 +136,7 @@ C&#43;&#43;11 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 
         
 
         <li >
-            <a href='/about/' >
+            <a href='/%E5%85%B3%E4%BA%8E%E6%88%91/' >
                 
                 
                 
@@ -125,7 +149,7 @@ C&#43;&#43;11 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 
 
 
                 
-                <span>About</span>
+                <span>关于我</span>
             </a>
         </li>
         
@@ -198,7 +222,43 @@ C&#43;&#43;11 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 
     </ol>
 </aside>
 
-    
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#c11">C++11</a></li>
+    <li><a href="#lua">Lua</a></li>
+    <li><a href="#c">c</a></li>
+    <li><a href="#python">python</a></li>
+    <li><a href="#golang">golang</a></li>
+    <li><a href="#shell">shell</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
 
             <main class="main full-width">
     <article class="main-article">
@@ -216,6 +276,9 @@ C&#43;&#43;11 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 
     </div>
 
     
+    
+    
+    
     <footer class="article-time">
         
             <div>
@@ -232,7 +295,7 @@ C&#43;&#43;11 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 
             </div>
         
 
-    
+        
             <div>
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
@@ -296,37 +359,35 @@ C&#43;&#43;11 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 
 </span><span class="lnt">24
 </span><span class="lnt">25
 </span><span class="lnt">26
-</span><span class="lnt">27
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="cp">#include</span><span class="cpf">&lt;iostream&gt;</span><span class="cp">
-</span><span class="cp">#include</span><span class="cpf">&lt;thread&gt;</span><span class="cp">
-</span><span class="cp">#include</span><span class="cpf">&lt;mutex&gt;</span><span class="cp">
-</span><span class="cp">#include</span><span class="cpf">&lt;condition_variable&gt;</span><span class="cp">
-</span><span class="cp"></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
-<span class="n">mutex</span> <span class="n">m</span><span class="p">;</span>
-<span class="n">condition_variable</span> <span class="n">cond</span><span class="p">;</span>
-<span class="kt">int</span> <span class="n">flag</span><span class="o">=</span><span class="mi">10</span><span class="p">;</span>
-<span class="kt">void</span> <span class="nf">fun</span><span class="p">(</span><span class="kt">int</span> <span class="n">num</span><span class="p">){</span>
-    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="mi">2</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
-        <span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">lk</span><span class="p">(</span><span class="n">m</span><span class="p">);</span><span class="c1">//A unique lock is an object that manages a mutex object with unique ownership in both states: locked and unlocked.
-</span><span class="c1"></span>        <span class="k">while</span><span class="p">(</span><span class="n">flag</span><span class="o">!=</span><span class="n">num</span><span class="p">)</span>
-            <span class="n">cond</span><span class="p">.</span><span class="n">wait</span><span class="p">(</span><span class="n">lk</span><span class="p">);</span><span class="c1">//在调用wait时会执行lk.unlock()
-</span><span class="c1"></span>        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">j</span><span class="o">&lt;</span><span class="n">num</span><span class="p">;</span><span class="n">j</span><span class="o">++</span><span class="p">)</span>
-            <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">j</span><span class="o">&lt;&lt;</span><span class="s">&#34; &#34;</span><span class="p">;</span>
-        <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
-        <span class="n">flag</span><span class="o">=</span><span class="p">(</span><span class="n">num</span><span class="o">==</span><span class="mi">10</span><span class="p">)</span><span class="o">?</span><span class="mi">100</span><span class="o">:</span><span class="mi">10</span><span class="p">;</span>
-        <span class="n">cond</span><span class="p">.</span><span class="n">notify_one</span><span class="p">();</span><span class="c1">//被阻塞的线程唤醒后lk.lock()恢复在调用wait前的状态
-</span><span class="c1"></span>    <span class="p">}</span>
-<span class="p">}</span>
-<span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
-    <span class="kr">thread</span> <span class="n">child</span><span class="p">(</span><span class="n">fun</span><span class="p">,</span><span class="mi">10</span><span class="p">);</span>
-    <span class="n">fun</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
-    <span class="n">child</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
-    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
-<span class="p">}</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="cp">#include</span><span class="cpf">&lt;iostream&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span><span class="cpf">&lt;thread&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span><span class="cpf">&lt;mutex&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span><span class="cpf">&lt;condition_variable&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">mutex</span> <span class="n">m</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="n">condition_variable</span> <span class="n">cond</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">flag</span><span class="o">=</span><span class="mi">10</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">fun</span><span class="p">(</span><span class="kt">int</span> <span class="n">num</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="mi">2</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">        <span class="n">unique_lock</span><span class="o">&lt;</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">lk</span><span class="p">(</span><span class="n">m</span><span class="p">);</span><span class="c1">//A unique lock is an object that manages a mutex object with unique ownership in both states: locked and unlocked.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">while</span><span class="p">(</span><span class="n">flag</span><span class="o">!=</span><span class="n">num</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">cond</span><span class="p">.</span><span class="n">wait</span><span class="p">(</span><span class="n">lk</span><span class="p">);</span><span class="c1">//在调用wait时会执行lk.unlock()
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">j</span><span class="o">&lt;</span><span class="n">num</span><span class="p">;</span><span class="n">j</span><span class="o">++</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">            <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">j</span><span class="o">&lt;&lt;</span><span class="s">&#34; &#34;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cout</span><span class="o">&lt;&lt;</span><span class="n">endl</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">flag</span><span class="o">=</span><span class="p">(</span><span class="n">num</span><span class="o">==</span><span class="mi">10</span><span class="p">)</span><span class="o">?</span><span class="mi">100</span><span class="o">:</span><span class="mi">10</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">cond</span><span class="p">.</span><span class="n">notify_one</span><span class="p">();</span><span class="c1">//被阻塞的线程唤醒后lk.lock()恢复在调用wait前的状态
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>    <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">(){</span>
+</span></span><span class="line"><span class="cl">    <span class="kr">thread</span> <span class="n">child</span><span class="p">(</span><span class="n">fun</span><span class="p">,</span><span class="mi">10</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">fun</span><span class="p">(</span><span class="mi">100</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="n">child</span><span class="p">.</span><span class="n">join</span><span class="p">();</span>
+</span></span><span class="line"><span class="cl">    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="lua">Lua</h2>
 <p>lua的协程使得主从两个thread之间并没有竞争关系，所以很顺畅的就可以把代码写出来，逻辑也十分简单</p>
@@ -374,47 +435,47 @@ C&#43;&#43;11 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 
 </span><span class="lnt">40
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua"><span class="kd">local</span> <span class="n">thread</span> <span class="o">=</span> <span class="n">coroutine.create</span><span class="p">(</span><span class="kr">function</span><span class="p">()</span> 
-	<span class="kr">for</span> <span class="n">cnt</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span> <span class="kr">do</span>
-		<span class="kd">local</span> <span class="n">tmp</span> <span class="o">=</span> <span class="p">{}</span>
-		<span class="kr">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span> <span class="kr">do</span>
-			<span class="n">table.insert</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
-		<span class="kr">end</span>
-		<span class="n">print</span><span class="p">(</span><span class="s1">&#39;child: &#39;</span><span class="p">,</span> <span class="n">table.concat</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">))</span>
-		<span class="n">coroutine.yield</span><span class="p">()</span>
-
-		<span class="kd">local</span> <span class="n">tmp</span> <span class="o">=</span> <span class="p">{}</span>
-		<span class="kr">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span> <span class="kr">do</span>
-			<span class="n">table.insert</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
-		<span class="kr">end</span>
-		<span class="n">print</span><span class="p">(</span><span class="s1">&#39;child: &#39;</span><span class="p">,</span> <span class="n">table.concat</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">))</span>
-		<span class="n">coroutine.yield</span><span class="p">()</span>
-	<span class="kr">end</span>
-
-<span class="kr">end</span><span class="p">)</span>
-
-
-<span class="kr">for</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span> <span class="kr">do</span>
-	<span class="n">coroutine.resume</span><span class="p">(</span><span class="n">thread</span><span class="p">)</span>
-	<span class="kd">local</span> <span class="n">tmp</span> <span class="o">=</span> <span class="p">{}</span>
-	<span class="kr">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">100</span> <span class="kr">do</span>
-		<span class="n">table.insert</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
-	<span class="kr">end</span>
-	<span class="n">print</span><span class="p">(</span><span class="s1">&#39;main: &#39;</span><span class="p">,</span> <span class="n">table.concat</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">))</span>
-
-	<span class="n">print</span><span class="p">(</span><span class="s1">&#39;------------------------------------&#39;</span><span class="p">)</span>
-
-	<span class="n">coroutine.resume</span><span class="p">(</span><span class="n">thread</span><span class="p">)</span>
-
-	<span class="kd">local</span> <span class="n">tmp</span> <span class="o">=</span> <span class="p">{}</span>
-	<span class="kr">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">100</span> <span class="kr">do</span>
-		<span class="n">table.insert</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
-	<span class="kr">end</span>
-	<span class="n">print</span><span class="p">(</span><span class="s1">&#39;main: &#39;</span><span class="p">,</span> <span class="n">table.concat</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">))</span>
-
-	<span class="n">print</span><span class="p">(</span><span class="s1">&#39;====================================&#39;</span><span class="p">)</span>
-<span class="kr">end</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">thread</span> <span class="o">=</span> <span class="n">coroutine.create</span><span class="p">(</span><span class="kr">function</span><span class="p">()</span> 
+</span></span><span class="line"><span class="cl">	<span class="kr">for</span> <span class="n">cnt</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span> <span class="kr">do</span>
+</span></span><span class="line"><span class="cl">		<span class="kd">local</span> <span class="n">tmp</span> <span class="o">=</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">		<span class="kr">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span> <span class="kr">do</span>
+</span></span><span class="line"><span class="cl">			<span class="n">table.insert</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="kr">end</span>
+</span></span><span class="line"><span class="cl">		<span class="n">print</span><span class="p">(</span><span class="s1">&#39;child: &#39;</span><span class="p">,</span> <span class="n">table.concat</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">		<span class="n">coroutine.yield</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="kd">local</span> <span class="n">tmp</span> <span class="o">=</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">		<span class="kr">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">10</span> <span class="kr">do</span>
+</span></span><span class="line"><span class="cl">			<span class="n">table.insert</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="kr">end</span>
+</span></span><span class="line"><span class="cl">		<span class="n">print</span><span class="p">(</span><span class="s1">&#39;child: &#39;</span><span class="p">,</span> <span class="n">table.concat</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">		<span class="n">coroutine.yield</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="kr">end</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">end</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">for</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span> <span class="kr">do</span>
+</span></span><span class="line"><span class="cl">	<span class="n">coroutine.resume</span><span class="p">(</span><span class="n">thread</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">local</span> <span class="n">tmp</span> <span class="o">=</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">	<span class="kr">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">100</span> <span class="kr">do</span>
+</span></span><span class="line"><span class="cl">		<span class="n">table.insert</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="kr">end</span>
+</span></span><span class="line"><span class="cl">	<span class="n">print</span><span class="p">(</span><span class="s1">&#39;main: &#39;</span><span class="p">,</span> <span class="n">table.concat</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">print</span><span class="p">(</span><span class="s1">&#39;------------------------------------&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">coroutine.resume</span><span class="p">(</span><span class="n">thread</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kd">local</span> <span class="n">tmp</span> <span class="o">=</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl">	<span class="kr">for</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">100</span> <span class="kr">do</span>
+</span></span><span class="line"><span class="cl">		<span class="n">table.insert</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="kr">end</span>
+</span></span><span class="line"><span class="cl">	<span class="n">print</span><span class="p">(</span><span class="s1">&#39;main: &#39;</span><span class="p">,</span> <span class="n">table.concat</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">print</span><span class="p">(</span><span class="s1">&#39;====================================&#39;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="kr">end</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -449,42 +510,40 @@ C&#43;&#43;11 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 
 </span><span class="lnt">29
 </span><span class="lnt">30
 </span><span class="lnt">31
-</span><span class="lnt">32
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">
-child: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span>
-main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span> <span class="m">11</span> <span class="m">12</span> <span class="m">13</span> <span class="m">14</span> <span class="m">15</span> <span class="m">16</span> <span class="m">17</span> <span class="m">18</span> <span class="m">19</span> <span class="m">20</span> <span class="m">21</span> <span class="m">22</span> <span class="m">23</span> <span class="m">24</span> <span class="m">25</span> <span class="m">26</span> <span class="m">27</span> <span class="m">28</span> <span class="m">29</span> <span class="m">30</span> <span class="m">31</span> <span class="m">32</span> <span class="m">33</span> <span class="m">34</span> <span class="m">35</span> <span class="m">36</span> <span class="m">37</span> <span class="m">38</span> <span class="m">39</span> <span class="m">40</span> <span class="m">41</span> <span class="m">42</span> <span class="m">43</span> <span class="m">44</span> <span class="m">45</span> <span class="m">46</span> <span class="m">47</span> <span class="m">48</span> <span class="m">49</span> <span class="m">50</span> <span class="m">51</span> <span class="m">52</span> <span class="m">53</span> <span class="m">54</span> <span class="m">55</span> <span class="m">56</span> <span class="m">57</span> <span class="m">58</span> <span class="m">59</span> <span class="m">60</span> <span class="m">61</span> <span class="m">62</span> <span class="m">63</span> <span class="m">64</span> <span class="m">65</span> <span class="m">66</span> <span class="m">67</span> <span class="m">68</span> <span class="m">69</span> <span class="m">70</span> <span class="m">71</span> <span class="m">72</span> <span class="m">73</span> <span class="m">74</span> <span class="m">75</span> <span class="m">76</span> <span class="m">77</span> <span class="m">78</span> <span class="m">79</span> <span class="m">80</span> <span class="m">81</span> <span class="m">82</span> <span class="m">83</span> <span class="m">84</span> <span class="m">85</span> <span class="m">86</span> <span class="m">87</span> <span class="m">88</span> <span class="m">89</span> <span class="m">90</span> <span class="m">91</span> <span class="m">92</span> <span class="m">93</span> <span class="m">94</span> <span class="m">95</span> <span class="m">96</span> <span class="m">97</span> <span class="m">98</span> <span class="m">99</span> <span class="m">100</span>
-------------------------------------
-child: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span>
-main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span> <span class="m">11</span> <span class="m">12</span> <span class="m">13</span> <span class="m">14</span> <span class="m">15</span> <span class="m">16</span> <span class="m">17</span> <span class="m">18</span> <span class="m">19</span> <span class="m">20</span> <span class="m">21</span> <span class="m">22</span> <span class="m">23</span> <span class="m">24</span> <span class="m">25</span> <span class="m">26</span> <span class="m">27</span> <span class="m">28</span> <span class="m">29</span> <span class="m">30</span> <span class="m">31</span> <span class="m">32</span> <span class="m">33</span> <span class="m">34</span> <span class="m">35</span> <span class="m">36</span> <span class="m">37</span> <span class="m">38</span> <span class="m">39</span> <span class="m">40</span> <span class="m">41</span> <span class="m">42</span> <span class="m">43</span> <span class="m">44</span> <span class="m">45</span> <span class="m">46</span> <span class="m">47</span> <span class="m">48</span> <span class="m">49</span> <span class="m">50</span> <span class="m">51</span> <span class="m">52</span> <span class="m">53</span> <span class="m">54</span> <span class="m">55</span> <span class="m">56</span> <span class="m">57</span> <span class="m">58</span> <span class="m">59</span> <span class="m">60</span> <span class="m">61</span> <span class="m">62</span> <span class="m">63</span> <span class="m">64</span> <span class="m">65</span> <span class="m">66</span> <span class="m">67</span> <span class="m">68</span> <span class="m">69</span> <span class="m">70</span> <span class="m">71</span> <span class="m">72</span> <span class="m">73</span> <span class="m">74</span> <span class="m">75</span> <span class="m">76</span> <span class="m">77</span> <span class="m">78</span> <span class="m">79</span> <span class="m">80</span> <span class="m">81</span> <span class="m">82</span> <span class="m">83</span> <span class="m">84</span> <span class="m">85</span> <span class="m">86</span> <span class="m">87</span> <span class="m">88</span> <span class="m">89</span> <span class="m">90</span> <span class="m">91</span> <span class="m">92</span> <span class="m">93</span> <span class="m">94</span> <span class="m">95</span> <span class="m">96</span> <span class="m">97</span> <span class="m">98</span> <span class="m">99</span> <span class="nv">100</span>
-<span class="o">====================================</span>
-child: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span>
-main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span> <span class="m">11</span> <span class="m">12</span> <span class="m">13</span> <span class="m">14</span> <span class="m">15</span> <span class="m">16</span> <span class="m">17</span> <span class="m">18</span> <span class="m">19</span> <span class="m">20</span> <span class="m">21</span> <span class="m">22</span> <span class="m">23</span> <span class="m">24</span> <span class="m">25</span> <span class="m">26</span> <span class="m">27</span> <span class="m">28</span> <span class="m">29</span> <span class="m">30</span> <span class="m">31</span> <span class="m">32</span> <span class="m">33</span> <span class="m">34</span> <span class="m">35</span> <span class="m">36</span> <span class="m">37</span> <span class="m">38</span> <span class="m">39</span> <span class="m">40</span> <span class="m">41</span> <span class="m">42</span> <span class="m">43</span> <span class="m">44</span> <span class="m">45</span> <span class="m">46</span> <span class="m">47</span> <span class="m">48</span> <span class="m">49</span> <span class="m">50</span> <span class="m">51</span> <span class="m">52</span> <span class="m">53</span> <span class="m">54</span> <span class="m">55</span> <span class="m">56</span> <span class="m">57</span> <span class="m">58</span> <span class="m">59</span> <span class="m">60</span> <span class="m">61</span> <span class="m">62</span> <span class="m">63</span> <span class="m">64</span> <span class="m">65</span> <span class="m">66</span> <span class="m">67</span> <span class="m">68</span> <span class="m">69</span> <span class="m">70</span> <span class="m">71</span> <span class="m">72</span> <span class="m">73</span> <span class="m">74</span> <span class="m">75</span> <span class="m">76</span> <span class="m">77</span> <span class="m">78</span> <span class="m">79</span> <span class="m">80</span> <span class="m">81</span> <span class="m">82</span> <span class="m">83</span> <span class="m">84</span> <span class="m">85</span> <span class="m">86</span> <span class="m">87</span> <span class="m">88</span> <span class="m">89</span> <span class="m">90</span> <span class="m">91</span> <span class="m">92</span> <span class="m">93</span> <span class="m">94</span> <span class="m">95</span> <span class="m">96</span> <span class="m">97</span> <span class="m">98</span> <span class="m">99</span> <span class="m">100</span>
-------------------------------------
-child: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span>
-main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span> <span class="m">11</span> <span class="m">12</span> <span class="m">13</span> <span class="m">14</span> <span class="m">15</span> <span class="m">16</span> <span class="m">17</span> <span class="m">18</span> <span class="m">19</span> <span class="m">20</span> <span class="m">21</span> <span class="m">22</span> <span class="m">23</span> <span class="m">24</span> <span class="m">25</span> <span class="m">26</span> <span class="m">27</span> <span class="m">28</span> <span class="m">29</span> <span class="m">30</span> <span class="m">31</span> <span class="m">32</span> <span class="m">33</span> <span class="m">34</span> <span class="m">35</span> <span class="m">36</span> <span class="m">37</span> <span class="m">38</span> <span class="m">39</span> <span class="m">40</span> <span class="m">41</span> <span class="m">42</span> <span class="m">43</span> <span class="m">44</span> <span class="m">45</span> <span class="m">46</span> <span class="m">47</span> <span class="m">48</span> <span class="m">49</span> <span class="m">50</span> <span class="m">51</span> <span class="m">52</span> <span class="m">53</span> <span class="m">54</span> <span class="m">55</span> <span class="m">56</span> <span class="m">57</span> <span class="m">58</span> <span class="m">59</span> <span class="m">60</span> <span class="m">61</span> <span class="m">62</span> <span class="m">63</span> <span class="m">64</span> <span class="m">65</span> <span class="m">66</span> <span class="m">67</span> <span class="m">68</span> <span class="m">69</span> <span class="m">70</span> <span class="m">71</span> <span class="m">72</span> <span class="m">73</span> <span class="m">74</span> <span class="m">75</span> <span class="m">76</span> <span class="m">77</span> <span class="m">78</span> <span class="m">79</span> <span class="m">80</span> <span class="m">81</span> <span class="m">82</span> <span class="m">83</span> <span class="m">84</span> <span class="m">85</span> <span class="m">86</span> <span class="m">87</span> <span class="m">88</span> <span class="m">89</span> <span class="m">90</span> <span class="m">91</span> <span class="m">92</span> <span class="m">93</span> <span class="m">94</span> <span class="m">95</span> <span class="m">96</span> <span class="m">97</span> <span class="m">98</span> <span class="m">99</span> <span class="nv">100</span>
-<span class="o">====================================</span>
-child: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span>
-main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span> <span class="m">11</span> <span class="m">12</span> <span class="m">13</span> <span class="m">14</span> <span class="m">15</span> <span class="m">16</span> <span class="m">17</span> <span class="m">18</span> <span class="m">19</span> <span class="m">20</span> <span class="m">21</span> <span class="m">22</span> <span class="m">23</span> <span class="m">24</span> <span class="m">25</span> <span class="m">26</span> <span class="m">27</span> <span class="m">28</span> <span class="m">29</span> <span class="m">30</span> <span class="m">31</span> <span class="m">32</span> <span class="m">33</span> <span class="m">34</span> <span class="m">35</span> <span class="m">36</span> <span class="m">37</span> <span class="m">38</span> <span class="m">39</span> <span class="m">40</span> <span class="m">41</span> <span class="m">42</span> <span class="m">43</span> <span class="m">44</span> <span class="m">45</span> <span class="m">46</span> <span class="m">47</span> <span class="m">48</span> <span class="m">49</span> <span class="m">50</span> <span class="m">51</span> <span class="m">52</span> <span class="m">53</span> <span class="m">54</span> <span class="m">55</span> <span class="m">56</span> <span class="m">57</span> <span class="m">58</span> <span class="m">59</span> <span class="m">60</span> <span class="m">61</span> <span class="m">62</span> <span class="m">63</span> <span class="m">64</span> <span class="m">65</span> <span class="m">66</span> <span class="m">67</span> <span class="m">68</span> <span class="m">69</span> <span class="m">70</span> <span class="m">71</span> <span class="m">72</span> <span class="m">73</span> <span class="m">74</span> <span class="m">75</span> <span class="m">76</span> <span class="m">77</span> <span class="m">78</span> <span class="m">79</span> <span class="m">80</span> <span class="m">81</span> <span class="m">82</span> <span class="m">83</span> <span class="m">84</span> <span class="m">85</span> <span class="m">86</span> <span class="m">87</span> <span class="m">88</span> <span class="m">89</span> <span class="m">90</span> <span class="m">91</span> <span class="m">92</span> <span class="m">93</span> <span class="m">94</span> <span class="m">95</span> <span class="m">96</span> <span class="m">97</span> <span class="m">98</span> <span class="m">99</span> <span class="m">100</span>
-------------------------------------
-child: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span>
-main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span> <span class="m">11</span> <span class="m">12</span> <span class="m">13</span> <span class="m">14</span> <span class="m">15</span> <span class="m">16</span> <span class="m">17</span> <span class="m">18</span> <span class="m">19</span> <span class="m">20</span> <span class="m">21</span> <span class="m">22</span> <span class="m">23</span> <span class="m">24</span> <span class="m">25</span> <span class="m">26</span> <span class="m">27</span> <span class="m">28</span> <span class="m">29</span> <span class="m">30</span> <span class="m">31</span> <span class="m">32</span> <span class="m">33</span> <span class="m">34</span> <span class="m">35</span> <span class="m">36</span> <span class="m">37</span> <span class="m">38</span> <span class="m">39</span> <span class="m">40</span> <span class="m">41</span> <span class="m">42</span> <span class="m">43</span> <span class="m">44</span> <span class="m">45</span> <span class="m">46</span> <span class="m">47</span> <span class="m">48</span> <span class="m">49</span> <span class="m">50</span> <span class="m">51</span> <span class="m">52</span> <span class="m">53</span> <span class="m">54</span> <span class="m">55</span> <span class="m">56</span> <span class="m">57</span> <span class="m">58</span> <span class="m">59</span> <span class="m">60</span> <span class="m">61</span> <span class="m">62</span> <span class="m">63</span> <span class="m">64</span> <span class="m">65</span> <span class="m">66</span> <span class="m">67</span> <span class="m">68</span> <span class="m">69</span> <span class="m">70</span> <span class="m">71</span> <span class="m">72</span> <span class="m">73</span> <span class="m">74</span> <span class="m">75</span> <span class="m">76</span> <span class="m">77</span> <span class="m">78</span> <span class="m">79</span> <span class="m">80</span> <span class="m">81</span> <span class="m">82</span> <span class="m">83</span> <span class="m">84</span> <span class="m">85</span> <span class="m">86</span> <span class="m">87</span> <span class="m">88</span> <span class="m">89</span> <span class="m">90</span> <span class="m">91</span> <span class="m">92</span> <span class="m">93</span> <span class="m">94</span> <span class="m">95</span> <span class="m">96</span> <span class="m">97</span> <span class="m">98</span> <span class="m">99</span> <span class="nv">100</span>
-<span class="o">====================================</span>
-child: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span>
-main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span> <span class="m">11</span> <span class="m">12</span> <span class="m">13</span> <span class="m">14</span> <span class="m">15</span> <span class="m">16</span> <span class="m">17</span> <span class="m">18</span> <span class="m">19</span> <span class="m">20</span> <span class="m">21</span> <span class="m">22</span> <span class="m">23</span> <span class="m">24</span> <span class="m">25</span> <span class="m">26</span> <span class="m">27</span> <span class="m">28</span> <span class="m">29</span> <span class="m">30</span> <span class="m">31</span> <span class="m">32</span> <span class="m">33</span> <span class="m">34</span> <span class="m">35</span> <span class="m">36</span> <span class="m">37</span> <span class="m">38</span> <span class="m">39</span> <span class="m">40</span> <span class="m">41</span> <span class="m">42</span> <span class="m">43</span> <span class="m">44</span> <span class="m">45</span> <span class="m">46</span> <span class="m">47</span> <span class="m">48</span> <span class="m">49</span> <span class="m">50</span> <span class="m">51</span> <span class="m">52</span> <span class="m">53</span> <span class="m">54</span> <span class="m">55</span> <span class="m">56</span> <span class="m">57</span> <span class="m">58</span> <span class="m">59</span> <span class="m">60</span> <span class="m">61</span> <span class="m">62</span> <span class="m">63</span> <span class="m">64</span> <span class="m">65</span> <span class="m">66</span> <span class="m">67</span> <span class="m">68</span> <span class="m">69</span> <span class="m">70</span> <span class="m">71</span> <span class="m">72</span> <span class="m">73</span> <span class="m">74</span> <span class="m">75</span> <span class="m">76</span> <span class="m">77</span> <span class="m">78</span> <span class="m">79</span> <span class="m">80</span> <span class="m">81</span> <span class="m">82</span> <span class="m">83</span> <span class="m">84</span> <span class="m">85</span> <span class="m">86</span> <span class="m">87</span> <span class="m">88</span> <span class="m">89</span> <span class="m">90</span> <span class="m">91</span> <span class="m">92</span> <span class="m">93</span> <span class="m">94</span> <span class="m">95</span> <span class="m">96</span> <span class="m">97</span> <span class="m">98</span> <span class="m">99</span> <span class="m">100</span>
-------------------------------------
-child: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span>
-main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span> <span class="m">11</span> <span class="m">12</span> <span class="m">13</span> <span class="m">14</span> <span class="m">15</span> <span class="m">16</span> <span class="m">17</span> <span class="m">18</span> <span class="m">19</span> <span class="m">20</span> <span class="m">21</span> <span class="m">22</span> <span class="m">23</span> <span class="m">24</span> <span class="m">25</span> <span class="m">26</span> <span class="m">27</span> <span class="m">28</span> <span class="m">29</span> <span class="m">30</span> <span class="m">31</span> <span class="m">32</span> <span class="m">33</span> <span class="m">34</span> <span class="m">35</span> <span class="m">36</span> <span class="m">37</span> <span class="m">38</span> <span class="m">39</span> <span class="m">40</span> <span class="m">41</span> <span class="m">42</span> <span class="m">43</span> <span class="m">44</span> <span class="m">45</span> <span class="m">46</span> <span class="m">47</span> <span class="m">48</span> <span class="m">49</span> <span class="m">50</span> <span class="m">51</span> <span class="m">52</span> <span class="m">53</span> <span class="m">54</span> <span class="m">55</span> <span class="m">56</span> <span class="m">57</span> <span class="m">58</span> <span class="m">59</span> <span class="m">60</span> <span class="m">61</span> <span class="m">62</span> <span class="m">63</span> <span class="m">64</span> <span class="m">65</span> <span class="m">66</span> <span class="m">67</span> <span class="m">68</span> <span class="m">69</span> <span class="m">70</span> <span class="m">71</span> <span class="m">72</span> <span class="m">73</span> <span class="m">74</span> <span class="m">75</span> <span class="m">76</span> <span class="m">77</span> <span class="m">78</span> <span class="m">79</span> <span class="m">80</span> <span class="m">81</span> <span class="m">82</span> <span class="m">83</span> <span class="m">84</span> <span class="m">85</span> <span class="m">86</span> <span class="m">87</span> <span class="m">88</span> <span class="m">89</span> <span class="m">90</span> <span class="m">91</span> <span class="m">92</span> <span class="m">93</span> <span class="m">94</span> <span class="m">95</span> <span class="m">96</span> <span class="m">97</span> <span class="m">98</span> <span class="m">99</span> <span class="nv">100</span>
-<span class="o">====================================</span>
-child: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span>
-main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span> <span class="m">11</span> <span class="m">12</span> <span class="m">13</span> <span class="m">14</span> <span class="m">15</span> <span class="m">16</span> <span class="m">17</span> <span class="m">18</span> <span class="m">19</span> <span class="m">20</span> <span class="m">21</span> <span class="m">22</span> <span class="m">23</span> <span class="m">24</span> <span class="m">25</span> <span class="m">26</span> <span class="m">27</span> <span class="m">28</span> <span class="m">29</span> <span class="m">30</span> <span class="m">31</span> <span class="m">32</span> <span class="m">33</span> <span class="m">34</span> <span class="m">35</span> <span class="m">36</span> <span class="m">37</span> <span class="m">38</span> <span class="m">39</span> <span class="m">40</span> <span class="m">41</span> <span class="m">42</span> <span class="m">43</span> <span class="m">44</span> <span class="m">45</span> <span class="m">46</span> <span class="m">47</span> <span class="m">48</span> <span class="m">49</span> <span class="m">50</span> <span class="m">51</span> <span class="m">52</span> <span class="m">53</span> <span class="m">54</span> <span class="m">55</span> <span class="m">56</span> <span class="m">57</span> <span class="m">58</span> <span class="m">59</span> <span class="m">60</span> <span class="m">61</span> <span class="m">62</span> <span class="m">63</span> <span class="m">64</span> <span class="m">65</span> <span class="m">66</span> <span class="m">67</span> <span class="m">68</span> <span class="m">69</span> <span class="m">70</span> <span class="m">71</span> <span class="m">72</span> <span class="m">73</span> <span class="m">74</span> <span class="m">75</span> <span class="m">76</span> <span class="m">77</span> <span class="m">78</span> <span class="m">79</span> <span class="m">80</span> <span class="m">81</span> <span class="m">82</span> <span class="m">83</span> <span class="m">84</span> <span class="m">85</span> <span class="m">86</span> <span class="m">87</span> <span class="m">88</span> <span class="m">89</span> <span class="m">90</span> <span class="m">91</span> <span class="m">92</span> <span class="m">93</span> <span class="m">94</span> <span class="m">95</span> <span class="m">96</span> <span class="m">97</span> <span class="m">98</span> <span class="m">99</span> <span class="m">100</span>
-------------------------------------
-child: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span>
-main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span> <span class="m">11</span> <span class="m">12</span> <span class="m">13</span> <span class="m">14</span> <span class="m">15</span> <span class="m">16</span> <span class="m">17</span> <span class="m">18</span> <span class="m">19</span> <span class="m">20</span> <span class="m">21</span> <span class="m">22</span> <span class="m">23</span> <span class="m">24</span> <span class="m">25</span> <span class="m">26</span> <span class="m">27</span> <span class="m">28</span> <span class="m">29</span> <span class="m">30</span> <span class="m">31</span> <span class="m">32</span> <span class="m">33</span> <span class="m">34</span> <span class="m">35</span> <span class="m">36</span> <span class="m">37</span> <span class="m">38</span> <span class="m">39</span> <span class="m">40</span> <span class="m">41</span> <span class="m">42</span> <span class="m">43</span> <span class="m">44</span> <span class="m">45</span> <span class="m">46</span> <span class="m">47</span> <span class="m">48</span> <span class="m">49</span> <span class="m">50</span> <span class="m">51</span> <span class="m">52</span> <span class="m">53</span> <span class="m">54</span> <span class="m">55</span> <span class="m">56</span> <span class="m">57</span> <span class="m">58</span> <span class="m">59</span> <span class="m">60</span> <span class="m">61</span> <span class="m">62</span> <span class="m">63</span> <span class="m">64</span> <span class="m">65</span> <span class="m">66</span> <span class="m">67</span> <span class="m">68</span> <span class="m">69</span> <span class="m">70</span> <span class="m">71</span> <span class="m">72</span> <span class="m">73</span> <span class="m">74</span> <span class="m">75</span> <span class="m">76</span> <span class="m">77</span> <span class="m">78</span> <span class="m">79</span> <span class="m">80</span> <span class="m">81</span> <span class="m">82</span> <span class="m">83</span> <span class="m">84</span> <span class="m">85</span> <span class="m">86</span> <span class="m">87</span> <span class="m">88</span> <span class="m">89</span> <span class="m">90</span> <span class="m">91</span> <span class="m">92</span> <span class="m">93</span> <span class="m">94</span> <span class="m">95</span> <span class="m">96</span> <span class="m">97</span> <span class="m">98</span> <span class="m">99</span> <span class="nv">100</span>
-<span class="o">====================================</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">child: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span>
+</span></span><span class="line"><span class="cl">main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span> <span class="m">11</span> <span class="m">12</span> <span class="m">13</span> <span class="m">14</span> <span class="m">15</span> <span class="m">16</span> <span class="m">17</span> <span class="m">18</span> <span class="m">19</span> <span class="m">20</span> <span class="m">21</span> <span class="m">22</span> <span class="m">23</span> <span class="m">24</span> <span class="m">25</span> <span class="m">26</span> <span class="m">27</span> <span class="m">28</span> <span class="m">29</span> <span class="m">30</span> <span class="m">31</span> <span class="m">32</span> <span class="m">33</span> <span class="m">34</span> <span class="m">35</span> <span class="m">36</span> <span class="m">37</span> <span class="m">38</span> <span class="m">39</span> <span class="m">40</span> <span class="m">41</span> <span class="m">42</span> <span class="m">43</span> <span class="m">44</span> <span class="m">45</span> <span class="m">46</span> <span class="m">47</span> <span class="m">48</span> <span class="m">49</span> <span class="m">50</span> <span class="m">51</span> <span class="m">52</span> <span class="m">53</span> <span class="m">54</span> <span class="m">55</span> <span class="m">56</span> <span class="m">57</span> <span class="m">58</span> <span class="m">59</span> <span class="m">60</span> <span class="m">61</span> <span class="m">62</span> <span class="m">63</span> <span class="m">64</span> <span class="m">65</span> <span class="m">66</span> <span class="m">67</span> <span class="m">68</span> <span class="m">69</span> <span class="m">70</span> <span class="m">71</span> <span class="m">72</span> <span class="m">73</span> <span class="m">74</span> <span class="m">75</span> <span class="m">76</span> <span class="m">77</span> <span class="m">78</span> <span class="m">79</span> <span class="m">80</span> <span class="m">81</span> <span class="m">82</span> <span class="m">83</span> <span class="m">84</span> <span class="m">85</span> <span class="m">86</span> <span class="m">87</span> <span class="m">88</span> <span class="m">89</span> <span class="m">90</span> <span class="m">91</span> <span class="m">92</span> <span class="m">93</span> <span class="m">94</span> <span class="m">95</span> <span class="m">96</span> <span class="m">97</span> <span class="m">98</span> <span class="m">99</span> <span class="m">100</span>
+</span></span><span class="line"><span class="cl">------------------------------------
+</span></span><span class="line"><span class="cl">child: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span>
+</span></span><span class="line"><span class="cl">main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span> <span class="m">11</span> <span class="m">12</span> <span class="m">13</span> <span class="m">14</span> <span class="m">15</span> <span class="m">16</span> <span class="m">17</span> <span class="m">18</span> <span class="m">19</span> <span class="m">20</span> <span class="m">21</span> <span class="m">22</span> <span class="m">23</span> <span class="m">24</span> <span class="m">25</span> <span class="m">26</span> <span class="m">27</span> <span class="m">28</span> <span class="m">29</span> <span class="m">30</span> <span class="m">31</span> <span class="m">32</span> <span class="m">33</span> <span class="m">34</span> <span class="m">35</span> <span class="m">36</span> <span class="m">37</span> <span class="m">38</span> <span class="m">39</span> <span class="m">40</span> <span class="m">41</span> <span class="m">42</span> <span class="m">43</span> <span class="m">44</span> <span class="m">45</span> <span class="m">46</span> <span class="m">47</span> <span class="m">48</span> <span class="m">49</span> <span class="m">50</span> <span class="m">51</span> <span class="m">52</span> <span class="m">53</span> <span class="m">54</span> <span class="m">55</span> <span class="m">56</span> <span class="m">57</span> <span class="m">58</span> <span class="m">59</span> <span class="m">60</span> <span class="m">61</span> <span class="m">62</span> <span class="m">63</span> <span class="m">64</span> <span class="m">65</span> <span class="m">66</span> <span class="m">67</span> <span class="m">68</span> <span class="m">69</span> <span class="m">70</span> <span class="m">71</span> <span class="m">72</span> <span class="m">73</span> <span class="m">74</span> <span class="m">75</span> <span class="m">76</span> <span class="m">77</span> <span class="m">78</span> <span class="m">79</span> <span class="m">80</span> <span class="m">81</span> <span class="m">82</span> <span class="m">83</span> <span class="m">84</span> <span class="m">85</span> <span class="m">86</span> <span class="m">87</span> <span class="m">88</span> <span class="m">89</span> <span class="m">90</span> <span class="m">91</span> <span class="m">92</span> <span class="m">93</span> <span class="m">94</span> <span class="m">95</span> <span class="m">96</span> <span class="m">97</span> <span class="m">98</span> <span class="m">99</span> <span class="nv">100</span>
+</span></span><span class="line"><span class="cl"><span class="o">====================================</span>
+</span></span><span class="line"><span class="cl">child: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span>
+</span></span><span class="line"><span class="cl">main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span> <span class="m">11</span> <span class="m">12</span> <span class="m">13</span> <span class="m">14</span> <span class="m">15</span> <span class="m">16</span> <span class="m">17</span> <span class="m">18</span> <span class="m">19</span> <span class="m">20</span> <span class="m">21</span> <span class="m">22</span> <span class="m">23</span> <span class="m">24</span> <span class="m">25</span> <span class="m">26</span> <span class="m">27</span> <span class="m">28</span> <span class="m">29</span> <span class="m">30</span> <span class="m">31</span> <span class="m">32</span> <span class="m">33</span> <span class="m">34</span> <span class="m">35</span> <span class="m">36</span> <span class="m">37</span> <span class="m">38</span> <span class="m">39</span> <span class="m">40</span> <span class="m">41</span> <span class="m">42</span> <span class="m">43</span> <span class="m">44</span> <span class="m">45</span> <span class="m">46</span> <span class="m">47</span> <span class="m">48</span> <span class="m">49</span> <span class="m">50</span> <span class="m">51</span> <span class="m">52</span> <span class="m">53</span> <span class="m">54</span> <span class="m">55</span> <span class="m">56</span> <span class="m">57</span> <span class="m">58</span> <span class="m">59</span> <span class="m">60</span> <span class="m">61</span> <span class="m">62</span> <span class="m">63</span> <span class="m">64</span> <span class="m">65</span> <span class="m">66</span> <span class="m">67</span> <span class="m">68</span> <span class="m">69</span> <span class="m">70</span> <span class="m">71</span> <span class="m">72</span> <span class="m">73</span> <span class="m">74</span> <span class="m">75</span> <span class="m">76</span> <span class="m">77</span> <span class="m">78</span> <span class="m">79</span> <span class="m">80</span> <span class="m">81</span> <span class="m">82</span> <span class="m">83</span> <span class="m">84</span> <span class="m">85</span> <span class="m">86</span> <span class="m">87</span> <span class="m">88</span> <span class="m">89</span> <span class="m">90</span> <span class="m">91</span> <span class="m">92</span> <span class="m">93</span> <span class="m">94</span> <span class="m">95</span> <span class="m">96</span> <span class="m">97</span> <span class="m">98</span> <span class="m">99</span> <span class="m">100</span>
+</span></span><span class="line"><span class="cl">------------------------------------
+</span></span><span class="line"><span class="cl">child: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span>
+</span></span><span class="line"><span class="cl">main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span> <span class="m">11</span> <span class="m">12</span> <span class="m">13</span> <span class="m">14</span> <span class="m">15</span> <span class="m">16</span> <span class="m">17</span> <span class="m">18</span> <span class="m">19</span> <span class="m">20</span> <span class="m">21</span> <span class="m">22</span> <span class="m">23</span> <span class="m">24</span> <span class="m">25</span> <span class="m">26</span> <span class="m">27</span> <span class="m">28</span> <span class="m">29</span> <span class="m">30</span> <span class="m">31</span> <span class="m">32</span> <span class="m">33</span> <span class="m">34</span> <span class="m">35</span> <span class="m">36</span> <span class="m">37</span> <span class="m">38</span> <span class="m">39</span> <span class="m">40</span> <span class="m">41</span> <span class="m">42</span> <span class="m">43</span> <span class="m">44</span> <span class="m">45</span> <span class="m">46</span> <span class="m">47</span> <span class="m">48</span> <span class="m">49</span> <span class="m">50</span> <span class="m">51</span> <span class="m">52</span> <span class="m">53</span> <span class="m">54</span> <span class="m">55</span> <span class="m">56</span> <span class="m">57</span> <span class="m">58</span> <span class="m">59</span> <span class="m">60</span> <span class="m">61</span> <span class="m">62</span> <span class="m">63</span> <span class="m">64</span> <span class="m">65</span> <span class="m">66</span> <span class="m">67</span> <span class="m">68</span> <span class="m">69</span> <span class="m">70</span> <span class="m">71</span> <span class="m">72</span> <span class="m">73</span> <span class="m">74</span> <span class="m">75</span> <span class="m">76</span> <span class="m">77</span> <span class="m">78</span> <span class="m">79</span> <span class="m">80</span> <span class="m">81</span> <span class="m">82</span> <span class="m">83</span> <span class="m">84</span> <span class="m">85</span> <span class="m">86</span> <span class="m">87</span> <span class="m">88</span> <span class="m">89</span> <span class="m">90</span> <span class="m">91</span> <span class="m">92</span> <span class="m">93</span> <span class="m">94</span> <span class="m">95</span> <span class="m">96</span> <span class="m">97</span> <span class="m">98</span> <span class="m">99</span> <span class="nv">100</span>
+</span></span><span class="line"><span class="cl"><span class="o">====================================</span>
+</span></span><span class="line"><span class="cl">child: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span>
+</span></span><span class="line"><span class="cl">main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span> <span class="m">11</span> <span class="m">12</span> <span class="m">13</span> <span class="m">14</span> <span class="m">15</span> <span class="m">16</span> <span class="m">17</span> <span class="m">18</span> <span class="m">19</span> <span class="m">20</span> <span class="m">21</span> <span class="m">22</span> <span class="m">23</span> <span class="m">24</span> <span class="m">25</span> <span class="m">26</span> <span class="m">27</span> <span class="m">28</span> <span class="m">29</span> <span class="m">30</span> <span class="m">31</span> <span class="m">32</span> <span class="m">33</span> <span class="m">34</span> <span class="m">35</span> <span class="m">36</span> <span class="m">37</span> <span class="m">38</span> <span class="m">39</span> <span class="m">40</span> <span class="m">41</span> <span class="m">42</span> <span class="m">43</span> <span class="m">44</span> <span class="m">45</span> <span class="m">46</span> <span class="m">47</span> <span class="m">48</span> <span class="m">49</span> <span class="m">50</span> <span class="m">51</span> <span class="m">52</span> <span class="m">53</span> <span class="m">54</span> <span class="m">55</span> <span class="m">56</span> <span class="m">57</span> <span class="m">58</span> <span class="m">59</span> <span class="m">60</span> <span class="m">61</span> <span class="m">62</span> <span class="m">63</span> <span class="m">64</span> <span class="m">65</span> <span class="m">66</span> <span class="m">67</span> <span class="m">68</span> <span class="m">69</span> <span class="m">70</span> <span class="m">71</span> <span class="m">72</span> <span class="m">73</span> <span class="m">74</span> <span class="m">75</span> <span class="m">76</span> <span class="m">77</span> <span class="m">78</span> <span class="m">79</span> <span class="m">80</span> <span class="m">81</span> <span class="m">82</span> <span class="m">83</span> <span class="m">84</span> <span class="m">85</span> <span class="m">86</span> <span class="m">87</span> <span class="m">88</span> <span class="m">89</span> <span class="m">90</span> <span class="m">91</span> <span class="m">92</span> <span class="m">93</span> <span class="m">94</span> <span class="m">95</span> <span class="m">96</span> <span class="m">97</span> <span class="m">98</span> <span class="m">99</span> <span class="m">100</span>
+</span></span><span class="line"><span class="cl">------------------------------------
+</span></span><span class="line"><span class="cl">child: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span>
+</span></span><span class="line"><span class="cl">main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span> <span class="m">11</span> <span class="m">12</span> <span class="m">13</span> <span class="m">14</span> <span class="m">15</span> <span class="m">16</span> <span class="m">17</span> <span class="m">18</span> <span class="m">19</span> <span class="m">20</span> <span class="m">21</span> <span class="m">22</span> <span class="m">23</span> <span class="m">24</span> <span class="m">25</span> <span class="m">26</span> <span class="m">27</span> <span class="m">28</span> <span class="m">29</span> <span class="m">30</span> <span class="m">31</span> <span class="m">32</span> <span class="m">33</span> <span class="m">34</span> <span class="m">35</span> <span class="m">36</span> <span class="m">37</span> <span class="m">38</span> <span class="m">39</span> <span class="m">40</span> <span class="m">41</span> <span class="m">42</span> <span class="m">43</span> <span class="m">44</span> <span class="m">45</span> <span class="m">46</span> <span class="m">47</span> <span class="m">48</span> <span class="m">49</span> <span class="m">50</span> <span class="m">51</span> <span class="m">52</span> <span class="m">53</span> <span class="m">54</span> <span class="m">55</span> <span class="m">56</span> <span class="m">57</span> <span class="m">58</span> <span class="m">59</span> <span class="m">60</span> <span class="m">61</span> <span class="m">62</span> <span class="m">63</span> <span class="m">64</span> <span class="m">65</span> <span class="m">66</span> <span class="m">67</span> <span class="m">68</span> <span class="m">69</span> <span class="m">70</span> <span class="m">71</span> <span class="m">72</span> <span class="m">73</span> <span class="m">74</span> <span class="m">75</span> <span class="m">76</span> <span class="m">77</span> <span class="m">78</span> <span class="m">79</span> <span class="m">80</span> <span class="m">81</span> <span class="m">82</span> <span class="m">83</span> <span class="m">84</span> <span class="m">85</span> <span class="m">86</span> <span class="m">87</span> <span class="m">88</span> <span class="m">89</span> <span class="m">90</span> <span class="m">91</span> <span class="m">92</span> <span class="m">93</span> <span class="m">94</span> <span class="m">95</span> <span class="m">96</span> <span class="m">97</span> <span class="m">98</span> <span class="m">99</span> <span class="nv">100</span>
+</span></span><span class="line"><span class="cl"><span class="o">====================================</span>
+</span></span><span class="line"><span class="cl">child: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span>
+</span></span><span class="line"><span class="cl">main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span> <span class="m">11</span> <span class="m">12</span> <span class="m">13</span> <span class="m">14</span> <span class="m">15</span> <span class="m">16</span> <span class="m">17</span> <span class="m">18</span> <span class="m">19</span> <span class="m">20</span> <span class="m">21</span> <span class="m">22</span> <span class="m">23</span> <span class="m">24</span> <span class="m">25</span> <span class="m">26</span> <span class="m">27</span> <span class="m">28</span> <span class="m">29</span> <span class="m">30</span> <span class="m">31</span> <span class="m">32</span> <span class="m">33</span> <span class="m">34</span> <span class="m">35</span> <span class="m">36</span> <span class="m">37</span> <span class="m">38</span> <span class="m">39</span> <span class="m">40</span> <span class="m">41</span> <span class="m">42</span> <span class="m">43</span> <span class="m">44</span> <span class="m">45</span> <span class="m">46</span> <span class="m">47</span> <span class="m">48</span> <span class="m">49</span> <span class="m">50</span> <span class="m">51</span> <span class="m">52</span> <span class="m">53</span> <span class="m">54</span> <span class="m">55</span> <span class="m">56</span> <span class="m">57</span> <span class="m">58</span> <span class="m">59</span> <span class="m">60</span> <span class="m">61</span> <span class="m">62</span> <span class="m">63</span> <span class="m">64</span> <span class="m">65</span> <span class="m">66</span> <span class="m">67</span> <span class="m">68</span> <span class="m">69</span> <span class="m">70</span> <span class="m">71</span> <span class="m">72</span> <span class="m">73</span> <span class="m">74</span> <span class="m">75</span> <span class="m">76</span> <span class="m">77</span> <span class="m">78</span> <span class="m">79</span> <span class="m">80</span> <span class="m">81</span> <span class="m">82</span> <span class="m">83</span> <span class="m">84</span> <span class="m">85</span> <span class="m">86</span> <span class="m">87</span> <span class="m">88</span> <span class="m">89</span> <span class="m">90</span> <span class="m">91</span> <span class="m">92</span> <span class="m">93</span> <span class="m">94</span> <span class="m">95</span> <span class="m">96</span> <span class="m">97</span> <span class="m">98</span> <span class="m">99</span> <span class="m">100</span>
+</span></span><span class="line"><span class="cl">------------------------------------
+</span></span><span class="line"><span class="cl">child: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span>
+</span></span><span class="line"><span class="cl">main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span> <span class="m">11</span> <span class="m">12</span> <span class="m">13</span> <span class="m">14</span> <span class="m">15</span> <span class="m">16</span> <span class="m">17</span> <span class="m">18</span> <span class="m">19</span> <span class="m">20</span> <span class="m">21</span> <span class="m">22</span> <span class="m">23</span> <span class="m">24</span> <span class="m">25</span> <span class="m">26</span> <span class="m">27</span> <span class="m">28</span> <span class="m">29</span> <span class="m">30</span> <span class="m">31</span> <span class="m">32</span> <span class="m">33</span> <span class="m">34</span> <span class="m">35</span> <span class="m">36</span> <span class="m">37</span> <span class="m">38</span> <span class="m">39</span> <span class="m">40</span> <span class="m">41</span> <span class="m">42</span> <span class="m">43</span> <span class="m">44</span> <span class="m">45</span> <span class="m">46</span> <span class="m">47</span> <span class="m">48</span> <span class="m">49</span> <span class="m">50</span> <span class="m">51</span> <span class="m">52</span> <span class="m">53</span> <span class="m">54</span> <span class="m">55</span> <span class="m">56</span> <span class="m">57</span> <span class="m">58</span> <span class="m">59</span> <span class="m">60</span> <span class="m">61</span> <span class="m">62</span> <span class="m">63</span> <span class="m">64</span> <span class="m">65</span> <span class="m">66</span> <span class="m">67</span> <span class="m">68</span> <span class="m">69</span> <span class="m">70</span> <span class="m">71</span> <span class="m">72</span> <span class="m">73</span> <span class="m">74</span> <span class="m">75</span> <span class="m">76</span> <span class="m">77</span> <span class="m">78</span> <span class="m">79</span> <span class="m">80</span> <span class="m">81</span> <span class="m">82</span> <span class="m">83</span> <span class="m">84</span> <span class="m">85</span> <span class="m">86</span> <span class="m">87</span> <span class="m">88</span> <span class="m">89</span> <span class="m">90</span> <span class="m">91</span> <span class="m">92</span> <span class="m">93</span> <span class="m">94</span> <span class="m">95</span> <span class="m">96</span> <span class="m">97</span> <span class="m">98</span> <span class="m">99</span> <span class="nv">100</span>
+</span></span><span class="line"><span class="cl"><span class="o">====================================</span>
+</span></span><span class="line"><span class="cl">child: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span>
+</span></span><span class="line"><span class="cl">main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span> <span class="m">11</span> <span class="m">12</span> <span class="m">13</span> <span class="m">14</span> <span class="m">15</span> <span class="m">16</span> <span class="m">17</span> <span class="m">18</span> <span class="m">19</span> <span class="m">20</span> <span class="m">21</span> <span class="m">22</span> <span class="m">23</span> <span class="m">24</span> <span class="m">25</span> <span class="m">26</span> <span class="m">27</span> <span class="m">28</span> <span class="m">29</span> <span class="m">30</span> <span class="m">31</span> <span class="m">32</span> <span class="m">33</span> <span class="m">34</span> <span class="m">35</span> <span class="m">36</span> <span class="m">37</span> <span class="m">38</span> <span class="m">39</span> <span class="m">40</span> <span class="m">41</span> <span class="m">42</span> <span class="m">43</span> <span class="m">44</span> <span class="m">45</span> <span class="m">46</span> <span class="m">47</span> <span class="m">48</span> <span class="m">49</span> <span class="m">50</span> <span class="m">51</span> <span class="m">52</span> <span class="m">53</span> <span class="m">54</span> <span class="m">55</span> <span class="m">56</span> <span class="m">57</span> <span class="m">58</span> <span class="m">59</span> <span class="m">60</span> <span class="m">61</span> <span class="m">62</span> <span class="m">63</span> <span class="m">64</span> <span class="m">65</span> <span class="m">66</span> <span class="m">67</span> <span class="m">68</span> <span class="m">69</span> <span class="m">70</span> <span class="m">71</span> <span class="m">72</span> <span class="m">73</span> <span class="m">74</span> <span class="m">75</span> <span class="m">76</span> <span class="m">77</span> <span class="m">78</span> <span class="m">79</span> <span class="m">80</span> <span class="m">81</span> <span class="m">82</span> <span class="m">83</span> <span class="m">84</span> <span class="m">85</span> <span class="m">86</span> <span class="m">87</span> <span class="m">88</span> <span class="m">89</span> <span class="m">90</span> <span class="m">91</span> <span class="m">92</span> <span class="m">93</span> <span class="m">94</span> <span class="m">95</span> <span class="m">96</span> <span class="m">97</span> <span class="m">98</span> <span class="m">99</span> <span class="m">100</span>
+</span></span><span class="line"><span class="cl">------------------------------------
+</span></span><span class="line"><span class="cl">child: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span>
+</span></span><span class="line"><span class="cl">main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span> <span class="m">4</span> <span class="m">5</span> <span class="m">6</span> <span class="m">7</span> <span class="m">8</span> <span class="m">9</span> <span class="m">10</span> <span class="m">11</span> <span class="m">12</span> <span class="m">13</span> <span class="m">14</span> <span class="m">15</span> <span class="m">16</span> <span class="m">17</span> <span class="m">18</span> <span class="m">19</span> <span class="m">20</span> <span class="m">21</span> <span class="m">22</span> <span class="m">23</span> <span class="m">24</span> <span class="m">25</span> <span class="m">26</span> <span class="m">27</span> <span class="m">28</span> <span class="m">29</span> <span class="m">30</span> <span class="m">31</span> <span class="m">32</span> <span class="m">33</span> <span class="m">34</span> <span class="m">35</span> <span class="m">36</span> <span class="m">37</span> <span class="m">38</span> <span class="m">39</span> <span class="m">40</span> <span class="m">41</span> <span class="m">42</span> <span class="m">43</span> <span class="m">44</span> <span class="m">45</span> <span class="m">46</span> <span class="m">47</span> <span class="m">48</span> <span class="m">49</span> <span class="m">50</span> <span class="m">51</span> <span class="m">52</span> <span class="m">53</span> <span class="m">54</span> <span class="m">55</span> <span class="m">56</span> <span class="m">57</span> <span class="m">58</span> <span class="m">59</span> <span class="m">60</span> <span class="m">61</span> <span class="m">62</span> <span class="m">63</span> <span class="m">64</span> <span class="m">65</span> <span class="m">66</span> <span class="m">67</span> <span class="m">68</span> <span class="m">69</span> <span class="m">70</span> <span class="m">71</span> <span class="m">72</span> <span class="m">73</span> <span class="m">74</span> <span class="m">75</span> <span class="m">76</span> <span class="m">77</span> <span class="m">78</span> <span class="m">79</span> <span class="m">80</span> <span class="m">81</span> <span class="m">82</span> <span class="m">83</span> <span class="m">84</span> <span class="m">85</span> <span class="m">86</span> <span class="m">87</span> <span class="m">88</span> <span class="m">89</span> <span class="m">90</span> <span class="m">91</span> <span class="m">92</span> <span class="m">93</span> <span class="m">94</span> <span class="m">95</span> <span class="m">96</span> <span class="m">97</span> <span class="m">98</span> <span class="m">99</span> <span class="nv">100</span>
+</span></span><span class="line"><span class="cl"><span class="o">====================================</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="c">c</h2>
 <ul>
@@ -544,63 +603,61 @@ main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span
 </span><span class="lnt">50
 </span><span class="lnt">51
 </span><span class="lnt">52
-</span><span class="lnt">53
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="cp">#include</span> <span class="cpf">&lt;pthread.h&gt;</span><span class="cp">
-</span><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
-</span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
-</span><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
-</span><span class="cp">#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
-</span><span class="cp">#include</span> <span class="cpf">&lt;errno.h&gt;</span><span class="cp">
-</span><span class="cp">#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
-</span><span class="cp"></span>
-<span class="k">volatile</span> <span class="kt">int</span> <span class="n">cond</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-
-<span class="kt">void</span> <span class="nf">func</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span>
-<span class="p">{</span>
-	<span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-	<span class="k">for</span><span class="p">(</span><span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">j</span><span class="o">&lt;</span><span class="mi">5</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">){</span>
-		<span class="k">while</span><span class="p">(</span><span class="n">cond</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
-			<span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">----------------------------------</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
-		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;child: &#34;</span><span class="p">);</span>
-		<span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">)</span>
-			<span class="n">printf</span><span class="p">(</span><span class="s">&#34;%d</span><span class="se">\t</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
-		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
-		<span class="n">cond</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
-<span class="p">{</span>
-	<span class="n">pthread_t</span> <span class="n">tid</span><span class="p">;</span>
-	<span class="kt">int</span> <span class="n">s</span> <span class="o">=</span> <span class="n">pthread_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tid</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
-	<span class="k">if</span><span class="p">(</span><span class="n">s</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">){</span>
-		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;pthread_create error for %s&#34;</span><span class="p">,</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
-		<span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-	<span class="p">}</span>
-
-	<span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-	<span class="k">for</span><span class="p">(</span><span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">){</span>
-		<span class="k">while</span><span class="p">(</span><span class="n">cond</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)</span>
-			<span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;master: &#34;</span><span class="p">);</span>
-		<span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">)</span>
-			<span class="n">printf</span><span class="p">(</span><span class="s">&#34;%d</span><span class="se">\t</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
-		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
-		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;==================================</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
-		<span class="n">cond</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-	<span class="p">}</span>
-
-	<span class="n">s</span> <span class="o">=</span> <span class="n">pthread_join</span><span class="p">(</span><span class="n">tid</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
-	<span class="k">if</span><span class="p">(</span><span class="n">s</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">){</span>
-		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;pthread_join error for %s&#34;</span><span class="p">,</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
-		<span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;pthread.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;errno.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">volatile</span> <span class="kt">int</span> <span class="n">cond</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">func</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span><span class="p">(</span><span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">j</span><span class="o">&lt;</span><span class="mi">5</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">		<span class="k">while</span><span class="p">(</span><span class="n">cond</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">----------------------------------</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;child: &#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="n">printf</span><span class="p">(</span><span class="s">&#34;%d</span><span class="se">\t</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">cond</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">pthread_t</span> <span class="n">tid</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">s</span> <span class="o">=</span> <span class="n">pthread_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tid</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="mi">10</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span><span class="p">(</span><span class="n">s</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;pthread_create error for %s&#34;</span><span class="p">,</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">		<span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span><span class="p">(</span><span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">		<span class="k">while</span><span class="p">(</span><span class="n">cond</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;master: &#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="n">printf</span><span class="p">(</span><span class="s">&#34;%d</span><span class="se">\t</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;==================================</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">cond</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">s</span> <span class="o">=</span> <span class="n">pthread_join</span><span class="p">(</span><span class="n">tid</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span><span class="p">(</span><span class="n">s</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;pthread_join error for %s&#34;</span><span class="p">,</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">		<span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><ul>
 <li>
@@ -700,99 +757,97 @@ main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span
 </span><span class="lnt">86
 </span><span class="lnt">87
 </span><span class="lnt">88
-</span><span class="lnt">89
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="cp">#include</span> <span class="cpf">&lt;pthread.h&gt;</span><span class="cp">
-</span><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
-</span><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
-</span><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
-</span><span class="cp">#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
-</span><span class="cp">#include</span> <span class="cpf">&lt;errno.h&gt;</span><span class="cp">
-</span><span class="cp">#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
-</span><span class="cp">#include</span> <span class="cpf">&lt;signal.h&gt;</span><span class="cp">
-</span><span class="cp"></span>
-<span class="cp">#include</span> <span class="cpf">&lt;sys/types.h&gt;</span><span class="cp">
-</span><span class="cp">#include</span> <span class="cpf">&lt;sys/ipc.h&gt;</span><span class="cp">
-</span><span class="cp">#include</span> <span class="cpf">&lt;sys/sem.h&gt;</span><span class="cp">
-</span><span class="cp"></span>
-<span class="k">volatile</span> <span class="kt">int</span> <span class="n">cond</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-<span class="kt">int</span> <span class="n">semid</span><span class="p">;</span>
-<span class="k">struct</span> <span class="nc">sembuf</span> <span class="n">sem</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
-
-<span class="kt">void</span> <span class="nf">func</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span>
-<span class="p">{</span>
-
-<span class="c1">//	printf(&#34;ppid = %d, getpid = %d\n&#34;, getppid(), getpid());
-</span><span class="c1"></span>
-	<span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-	<span class="k">for</span><span class="p">(</span><span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">j</span><span class="o">&lt;</span><span class="mi">5</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">){</span>
-
-		<span class="n">sem</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">sem_num</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-		<span class="n">sem</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">sem_op</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
-		<span class="n">sem</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">sem_flg</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-		<span class="n">semop</span><span class="p">(</span><span class="n">semid</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sem</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">);</span>
-
-		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">----------------------------------</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
-		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;child: &#34;</span><span class="p">);</span>
-		<span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">)</span>
-			<span class="n">printf</span><span class="p">(</span><span class="s">&#34;%d</span><span class="se">\t</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
-		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
-
-		<span class="n">sem</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">sem_num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-		<span class="n">sem</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">sem_op</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-		<span class="n">sem</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">sem_flg</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-		<span class="n">semop</span><span class="p">(</span><span class="n">semid</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sem</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">);</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
-<span class="p">{</span>
-	<span class="n">semid</span> <span class="o">=</span> <span class="n">semget</span><span class="p">(</span><span class="n">IPC_PRIVATE</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mo">0666</span><span class="o">|</span> <span class="n">IPC_CREAT</span><span class="p">);</span>
-	<span class="k">if</span><span class="p">(</span><span class="n">semid</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">){</span>
-		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;semget error for %s&#34;</span><span class="p">,</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
-		<span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-	<span class="p">}</span>
-
-	<span class="n">pthread_t</span> <span class="n">tid</span><span class="p">;</span>
-	<span class="kt">int</span> <span class="n">s</span> <span class="o">=</span> <span class="n">pthread_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tid</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">getpid</span><span class="p">());</span>
-	<span class="k">if</span><span class="p">(</span><span class="n">s</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">){</span>
-		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;pthread_create error for %s&#34;</span><span class="p">,</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
-		<span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-	<span class="p">}</span>
-
-	<span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-	<span class="k">for</span><span class="p">(</span><span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">){</span>
-
-		<span class="n">sem</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">sem_num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-		<span class="n">sem</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">sem_op</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
-		<span class="n">sem</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">sem_flg</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-		<span class="n">sem</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">sem_num</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-		<span class="n">sem</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">sem_op</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-		<span class="n">sem</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">sem_flg</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-
-		<span class="n">semop</span><span class="p">(</span><span class="n">semid</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sem</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">);</span>
-		<span class="n">semop</span><span class="p">(</span><span class="n">semid</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sem</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">);</span>
-
-		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;master: &#34;</span><span class="p">);</span>
-		<span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">)</span>
-			<span class="n">printf</span><span class="p">(</span><span class="s">&#34;%d</span><span class="se">\t</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
-		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
-		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;==================================</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
-
-		<span class="n">sem</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">sem_num</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-		<span class="n">sem</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">sem_op</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-		<span class="n">sem</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">sem_flg</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-	<span class="p">}</span>
-
-	<span class="n">s</span> <span class="o">=</span> <span class="n">pthread_join</span><span class="p">(</span><span class="n">tid</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
-	<span class="k">if</span><span class="p">(</span><span class="n">s</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">){</span>
-		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;pthread_join error for %s&#34;</span><span class="p">,</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
-		<span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;pthread.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;string.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;stdlib.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;unistd.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;errno.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;ctype.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;signal.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/types.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/ipc.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp">#include</span> <span class="cpf">&lt;sys/sem.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl"><span class="k">volatile</span> <span class="kt">int</span> <span class="n">cond</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">semid</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="nc">sembuf</span> <span class="n">sem</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">void</span> <span class="nf">func</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">//	printf(&#34;ppid = %d, getpid = %d\n&#34;, getppid(), getpid());
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span><span class="p">(</span><span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">j</span><span class="o">&lt;</span><span class="mi">5</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="n">sem</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">sem_num</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">sem</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">sem_op</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">sem</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">sem_flg</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">semop</span><span class="p">(</span><span class="n">semid</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sem</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">----------------------------------</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;child: &#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="n">printf</span><span class="p">(</span><span class="s">&#34;%d</span><span class="se">\t</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="n">sem</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">sem_num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">sem</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">sem_op</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">sem</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">sem_flg</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">semop</span><span class="p">(</span><span class="n">semid</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sem</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">semid</span> <span class="o">=</span> <span class="n">semget</span><span class="p">(</span><span class="n">IPC_PRIVATE</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mo">0666</span><span class="o">|</span> <span class="n">IPC_CREAT</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span><span class="p">(</span><span class="n">semid</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;semget error for %s&#34;</span><span class="p">,</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">		<span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">pthread_t</span> <span class="n">tid</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">s</span> <span class="o">=</span> <span class="n">pthread_create</span><span class="p">(</span><span class="o">&amp;</span><span class="n">tid</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="n">getpid</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span><span class="p">(</span><span class="n">s</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;pthread_create error for %s&#34;</span><span class="p">,</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">		<span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">for</span><span class="p">(</span><span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="n">sem</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">sem_num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">sem</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">sem_op</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">sem</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="n">sem_flg</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">sem</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">sem_num</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">sem</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">sem_op</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">sem</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">sem_flg</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="n">semop</span><span class="p">(</span><span class="n">semid</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sem</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">semop</span><span class="p">(</span><span class="n">semid</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">sem</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;master: &#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">for</span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span> <span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="n">printf</span><span class="p">(</span><span class="s">&#34;%d</span><span class="se">\t</span><span class="s">&#34;</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;==================================</span><span class="se">\n</span><span class="s">&#34;</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="n">sem</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">sem_num</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">sem</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">sem_op</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">sem</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">sem_flg</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">s</span> <span class="o">=</span> <span class="n">pthread_join</span><span class="p">(</span><span class="n">tid</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span><span class="p">(</span><span class="n">s</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">){</span>
+</span></span><span class="line"><span class="cl">		<span class="n">printf</span><span class="p">(</span><span class="s">&#34;pthread_join error for %s&#34;</span><span class="p">,</span> <span class="n">strerror</span><span class="p">(</span><span class="n">errno</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">		<span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="python">python</h2>
 <ul>
@@ -845,52 +900,50 @@ main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span
 </span><span class="lnt">39
 </span><span class="lnt">40
 </span><span class="lnt">41
-</span><span class="lnt">42
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="s">&#34;fmt&#34;</span>
-
-<span class="kd">var</span> <span class="nx">c1</span> <span class="kd">chan</span> <span class="kt">int</span>
-<span class="kd">var</span> <span class="nx">c2</span> <span class="kd">chan</span> <span class="kt">int</span>
-
-<span class="kd">func</span> <span class="nf">task</span><span class="p">(</span><span class="nx">loop</span> <span class="kt">int</span><span class="p">,</span> <span class="nx">times</span> <span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
-
-	<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">loop</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-		<span class="o">&lt;-</span><span class="nx">c1</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;------------------------------&#34;</span><span class="p">)</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Print</span><span class="p">(</span><span class="s">&#34;child: &#34;</span><span class="p">)</span>
-		<span class="k">for</span> <span class="nx">j</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">j</span> <span class="p">&lt;</span> <span class="nx">times</span><span class="p">;</span> <span class="nx">j</span><span class="o">++</span> <span class="p">{</span>
-			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%d\t&#34;</span><span class="p">,</span> <span class="nx">j</span><span class="p">)</span>
-		<span class="p">}</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span>
-		<span class="nx">c2</span> <span class="o">&lt;-</span> <span class="mi">1</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-	<span class="nx">times</span> <span class="o">:=</span> <span class="mi">100</span>
-	<span class="nx">loop</span> <span class="o">:=</span> <span class="mi">5</span>
-
-	<span class="nx">c1</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">,</span> <span class="mi">1024</span><span class="p">)</span>
-	<span class="nx">c2</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">,</span> <span class="mi">1024</span><span class="p">)</span>
-
-	<span class="k">go</span> <span class="nf">task</span><span class="p">(</span><span class="nx">loop</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-
-	<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">loop</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-		<span class="nx">c1</span> <span class="o">&lt;-</span> <span class="mi">1</span>
-		<span class="o">&lt;-</span><span class="nx">c2</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Print</span><span class="p">(</span><span class="s">&#34;master: &#34;</span><span class="p">)</span>
-		<span class="k">for</span> <span class="nx">j</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">j</span> <span class="p">&lt;</span> <span class="nx">times</span><span class="p">;</span> <span class="nx">j</span><span class="o">++</span> <span class="p">{</span>
-			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%d\t&#34;</span><span class="p">,</span> <span class="nx">j</span><span class="p">)</span>
-		<span class="p">}</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;==============================&#34;</span><span class="p">)</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">c1</span> <span class="kd">chan</span> <span class="kt">int</span>
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">c2</span> <span class="kd">chan</span> <span class="kt">int</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">task</span><span class="p">(</span><span class="nx">loop</span> <span class="kt">int</span><span class="p">,</span> <span class="nx">times</span> <span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">loop</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="o">&lt;-</span><span class="nx">c1</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;------------------------------&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Print</span><span class="p">(</span><span class="s">&#34;child: &#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">for</span> <span class="nx">j</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">j</span> <span class="p">&lt;</span> <span class="nx">times</span><span class="p">;</span> <span class="nx">j</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%d\t&#34;</span><span class="p">,</span> <span class="nx">j</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">c2</span> <span class="o">&lt;-</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">times</span> <span class="o">:=</span> <span class="mi">100</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">loop</span> <span class="o">:=</span> <span class="mi">5</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">c1</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">,</span> <span class="mi">1024</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">c2</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">,</span> <span class="mi">1024</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">go</span> <span class="nf">task</span><span class="p">(</span><span class="nx">loop</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">loop</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">c1</span> <span class="o">&lt;-</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">		<span class="o">&lt;-</span><span class="nx">c2</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Print</span><span class="p">(</span><span class="s">&#34;master: &#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">for</span> <span class="nx">j</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">j</span> <span class="p">&lt;</span> <span class="nx">times</span><span class="p">;</span> <span class="nx">j</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%d\t&#34;</span><span class="p">,</span> <span class="nx">j</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;==============================&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><ul>
 <li>其实golang的chan作为阻塞读取的协程通信组件，有一个也就能实现谁先谁后的同步了；毕竟，不光 val &lt;- chan 这种读操作会堵塞，chan &lt;- val这种写操作也会被堵塞</li>
@@ -935,49 +988,47 @@ main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span
 </span><span class="lnt">36
 </span><span class="lnt">37
 </span><span class="lnt">38
-</span><span class="lnt">39
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="kn">package</span> <span class="nx">main</span>
-
-<span class="kn">import</span> <span class="s">&#34;fmt&#34;</span>
-
-<span class="kd">var</span> <span class="nx">c1</span> <span class="kd">chan</span> <span class="kt">int</span>
-
-<span class="kd">func</span> <span class="nf">task</span><span class="p">(</span><span class="nx">loop</span> <span class="kt">int</span><span class="p">,</span> <span class="nx">times</span> <span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
-
-	<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">loop</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;------------------------------&#34;</span><span class="p">)</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Print</span><span class="p">(</span><span class="s">&#34;child: &#34;</span><span class="p">)</span>
-		<span class="k">for</span> <span class="nx">j</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">j</span> <span class="p">&lt;</span> <span class="nx">times</span><span class="p">;</span> <span class="nx">j</span><span class="o">++</span> <span class="p">{</span>
-			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%d\t&#34;</span><span class="p">,</span> <span class="nx">j</span><span class="p">)</span>
-		<span class="p">}</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span>
-		<span class="nx">c1</span> <span class="o">&lt;-</span> <span class="mi">1</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-
-<span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-	<span class="nx">times</span> <span class="o">:=</span> <span class="mi">100</span>
-	<span class="nx">loop</span> <span class="o">:=</span> <span class="mi">5</span>
-
-	<span class="nx">c1</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">)</span>
-	<span class="k">go</span> <span class="nf">task</span><span class="p">(</span><span class="nx">loop</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
-
-	<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">loop</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
-
-		<span class="o">&lt;-</span><span class="nx">c1</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Print</span><span class="p">(</span><span class="s">&#34;master: &#34;</span><span class="p">)</span>
-		<span class="k">for</span> <span class="nx">j</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">j</span> <span class="p">&lt;</span> <span class="nx">times</span><span class="p">;</span> <span class="nx">j</span><span class="o">++</span> <span class="p">{</span>
-			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%d\t&#34;</span><span class="p">,</span> <span class="nx">j</span><span class="p">)</span>
-		<span class="p">}</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span>
-		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;==============================&#34;</span><span class="p">)</span>
-	<span class="p">}</span>
-<span class="p">}</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-go" data-lang="go"><span class="line"><span class="cl"><span class="kn">package</span> <span class="nx">main</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="s">&#34;fmt&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">var</span> <span class="nx">c1</span> <span class="kd">chan</span> <span class="kt">int</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">task</span><span class="p">(</span><span class="nx">loop</span> <span class="kt">int</span><span class="p">,</span> <span class="nx">times</span> <span class="kt">int</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">loop</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;------------------------------&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Print</span><span class="p">(</span><span class="s">&#34;child: &#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">for</span> <span class="nx">j</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">j</span> <span class="p">&lt;</span> <span class="nx">times</span><span class="p">;</span> <span class="nx">j</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%d\t&#34;</span><span class="p">,</span> <span class="nx">j</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">c1</span> <span class="o">&lt;-</span> <span class="mi">1</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kd">func</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">times</span> <span class="o">:=</span> <span class="mi">100</span>
+</span></span><span class="line"><span class="cl">	<span class="nx">loop</span> <span class="o">:=</span> <span class="mi">5</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="nx">c1</span> <span class="p">=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="kt">int</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="k">go</span> <span class="nf">task</span><span class="p">(</span><span class="nx">loop</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">for</span> <span class="nx">i</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">i</span> <span class="p">&lt;</span> <span class="nx">loop</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">		<span class="o">&lt;-</span><span class="nx">c1</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Print</span><span class="p">(</span><span class="s">&#34;master: &#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="k">for</span> <span class="nx">j</span> <span class="o">:=</span> <span class="mi">0</span><span class="p">;</span> <span class="nx">j</span> <span class="p">&lt;</span> <span class="nx">times</span><span class="p">;</span> <span class="nx">j</span><span class="o">++</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="nx">fmt</span><span class="p">.</span><span class="nf">Printf</span><span class="p">(</span><span class="s">&#34;%d\t&#34;</span><span class="p">,</span> <span class="nx">j</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="p">}</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">		<span class="nx">fmt</span><span class="p">.</span><span class="nf">Println</span><span class="p">(</span><span class="s">&#34;==============================&#34;</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="shell">shell</h2>
 <ul>
@@ -990,6 +1041,18 @@ main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span
     <footer class="article-footer">
     
 
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
     </footer>
 
 
@@ -1003,18 +1066,62 @@ main: 	<span class="m">1</span> <span class="m">2</span> <span class="m">3</span
      
     
         
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
     
 
     <footer class="site-footer">
     <section class="copyright">
         &copy; 
         
-        2022 Bg2bkk Site
+            2020 - 
+        
+        2023 Bg2bkk Site
     </section>
     
     <section class="powerby">
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
 

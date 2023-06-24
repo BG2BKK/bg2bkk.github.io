@@ -1,27 +1,27 @@
 <!DOCTYPE html>
-<html lang="" dir="ltr">
+<html lang="en" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='DNS消息格式 EDNS详解 rfc6891 edns_client_subnet draft 小米的ends实践  1  6. respond时也需要增加一个Additional RRs区域，直接把请求的Additional内容发过去就可以(如果支持source netmask，将请求中的source netmask复制到scope netmask中，OpenDNS要求必须支持scope netmask)   * 意思是非OpenDNS就可以不支持scope netmask吗？目前新浪的仍然不支持    miekg/dns: golang lib
-  dig with edns
- https://www.gsic.uva.es/~jnisigl/dig-edns-client-subnet.html http://xmodulo.com/geographic-location-ip-address-command-line.html 在线查询：curl ipinfo.io/23.66.166.151    DNS报文格式
- IP packet  IP Header 20 bytes IP Data: UDP  UDP Header 8 bytes UDP Data: DNS  DNS Header 12 bytes DNS Data: RR  RR: Question[] RR: Answer[] RR: Authority[] RR: Additional[] RR  QName QType QClass RDLENGTH RDATA   RR OPT  QName null QType OPT=41 QClass = UDP payload 2bytes TTL = Extended-RCODE 1byte: extend &#43; VERSION 1byte: 0 &#43; Z 2bytes: 0 RDLen	len of data(OPT) OPT  Option-Code 2bytes: EDNS0_SUBNET Option-Length 2bytes Option-Data  Family 1byte: IPV4(1) Source Netmask 1byte: 32 Scope Netmask 1byte: 0 Client Subnet 4bytes: 65.'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='DNS消息格式 EDNS详解 rfc6891 edns_client_subnet draft 小米的ends实践 1 6. respond时也需要增加一个Additional RRs区域，直接把请求的Additional内容发过去就可以(如果支持source netmask，将请求中的source netmask复制到scope netmask中，OpenDNS要求必须支持scope netmask) * 意思是非OpenDNS就可以不支持scope netmask吗？目前新浪的仍然不支持 miekg/dns: golang lib
+dig with edns
+https://www.gsic.uva.es/~jnisigl/dig-edns-client-subnet.html http://xmodulo.com/geographic-location-ip-address-command-line.html 在线查询：curl ipinfo.io/23.66.166.151 DNS报文格式
+IP packet IP Header 20 bytes IP Data: UDP UDP Header 8 bytes UDP Data: DNS DNS Header 12 bytes DNS Data: RR RR: Question[] RR: Answer[] RR: Authority[] RR: Additional[] RR QName QType QClass RDLENGTH RDATA RR OPT QName null QType OPT=41 QClass = UDP payload 2bytes TTL = Extended-RCODE 1byte: extend &#43; VERSION 1byte: 0 &#43; Z 2bytes: 0 RDLen	len of data(OPT) OPT Option-Code 2bytes: EDNS0_SUBNET Option-Length 2bytes Option-Data Family 1byte: IPV4(1) Source Netmask 1byte: 32 Scope Netmask 1byte: 0 Client Subnet 4bytes: 65.'>
 <title>DNS with golang</title>
 
 <link rel='canonical' href='https://bg2bkk.github.io/p/dns-with-golang/'>
 
-<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='DNS with golang'>
-<meta property='og:description' content='DNS消息格式 EDNS详解 rfc6891 edns_client_subnet draft 小米的ends实践  1  6. respond时也需要增加一个Additional RRs区域，直接把请求的Additional内容发过去就可以(如果支持source netmask，将请求中的source netmask复制到scope netmask中，OpenDNS要求必须支持scope netmask)   * 意思是非OpenDNS就可以不支持scope netmask吗？目前新浪的仍然不支持    miekg/dns: golang lib
-  dig with edns
- https://www.gsic.uva.es/~jnisigl/dig-edns-client-subnet.html http://xmodulo.com/geographic-location-ip-address-command-line.html 在线查询：curl ipinfo.io/23.66.166.151    DNS报文格式
- IP packet  IP Header 20 bytes IP Data: UDP  UDP Header 8 bytes UDP Data: DNS  DNS Header 12 bytes DNS Data: RR  RR: Question[] RR: Answer[] RR: Authority[] RR: Additional[] RR  QName QType QClass RDLENGTH RDATA   RR OPT  QName null QType OPT=41 QClass = UDP payload 2bytes TTL = Extended-RCODE 1byte: extend &#43; VERSION 1byte: 0 &#43; Z 2bytes: 0 RDLen	len of data(OPT) OPT  Option-Code 2bytes: EDNS0_SUBNET Option-Length 2bytes Option-Data  Family 1byte: IPV4(1) Source Netmask 1byte: 32 Scope Netmask 1byte: 0 Client Subnet 4bytes: 65.'>
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='DNS with golang'>
+<meta property='og:description' content='DNS消息格式 EDNS详解 rfc6891 edns_client_subnet draft 小米的ends实践 1 6. respond时也需要增加一个Additional RRs区域，直接把请求的Additional内容发过去就可以(如果支持source netmask，将请求中的source netmask复制到scope netmask中，OpenDNS要求必须支持scope netmask) * 意思是非OpenDNS就可以不支持scope netmask吗？目前新浪的仍然不支持 miekg/dns: golang lib
+dig with edns
+https://www.gsic.uva.es/~jnisigl/dig-edns-client-subnet.html http://xmodulo.com/geographic-location-ip-address-command-line.html 在线查询：curl ipinfo.io/23.66.166.151 DNS报文格式
+IP packet IP Header 20 bytes IP Data: UDP UDP Header 8 bytes UDP Data: DNS DNS Header 12 bytes DNS Data: RR RR: Question[] RR: Answer[] RR: Authority[] RR: Additional[] RR QName QType QClass RDLENGTH RDATA RR OPT QName null QType OPT=41 QClass = UDP payload 2bytes TTL = Extended-RCODE 1byte: extend &#43; VERSION 1byte: 0 &#43; Z 2bytes: 0 RDLen	len of data(OPT) OPT Option-Code 2bytes: EDNS0_SUBNET Option-Length 2bytes Option-Data Family 1byte: IPV4(1) Source Netmask 1byte: 32 Scope Netmask 1byte: 0 Client Subnet 4bytes: 65.'>
 <meta property='og:url' content='https://bg2bkk.github.io/p/dns-with-golang/'>
 <meta property='og:site_name' content='Bg2bkk Site'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-04-13T11:37:24&#43;08:00'/><meta property='article:modified_time' content='2016-04-13T11:37:24&#43;08:00'/>
 <meta name="twitter:title" content="DNS with golang">
-<meta name="twitter:description" content="DNS消息格式 EDNS详解 rfc6891 edns_client_subnet draft 小米的ends实践  1  6. respond时也需要增加一个Additional RRs区域，直接把请求的Additional内容发过去就可以(如果支持source netmask，将请求中的source netmask复制到scope netmask中，OpenDNS要求必须支持scope netmask)   * 意思是非OpenDNS就可以不支持scope netmask吗？目前新浪的仍然不支持    miekg/dns: golang lib
-  dig with edns
- https://www.gsic.uva.es/~jnisigl/dig-edns-client-subnet.html http://xmodulo.com/geographic-location-ip-address-command-line.html 在线查询：curl ipinfo.io/23.66.166.151    DNS报文格式
- IP packet  IP Header 20 bytes IP Data: UDP  UDP Header 8 bytes UDP Data: DNS  DNS Header 12 bytes DNS Data: RR  RR: Question[] RR: Answer[] RR: Authority[] RR: Additional[] RR  QName QType QClass RDLENGTH RDATA   RR OPT  QName null QType OPT=41 QClass = UDP payload 2bytes TTL = Extended-RCODE 1byte: extend &#43; VERSION 1byte: 0 &#43; Z 2bytes: 0 RDLen	len of data(OPT) OPT  Option-Code 2bytes: EDNS0_SUBNET Option-Length 2bytes Option-Data  Family 1byte: IPV4(1) Source Netmask 1byte: 32 Scope Netmask 1byte: 0 Client Subnet 4bytes: 65.">
+<meta name="twitter:description" content="DNS消息格式 EDNS详解 rfc6891 edns_client_subnet draft 小米的ends实践 1 6. respond时也需要增加一个Additional RRs区域，直接把请求的Additional内容发过去就可以(如果支持source netmask，将请求中的source netmask复制到scope netmask中，OpenDNS要求必须支持scope netmask) * 意思是非OpenDNS就可以不支持scope netmask吗？目前新浪的仍然不支持 miekg/dns: golang lib
+dig with edns
+https://www.gsic.uva.es/~jnisigl/dig-edns-client-subnet.html http://xmodulo.com/geographic-location-ip-address-command-line.html 在线查询：curl ipinfo.io/23.66.166.151 DNS报文格式
+IP packet IP Header 20 bytes IP Data: UDP UDP Header 8 bytes UDP Data: DNS DNS Header 12 bytes DNS Data: RR RR: Question[] RR: Answer[] RR: Authority[] RR: Additional[] RR QName QType QClass RDLENGTH RDATA RR OPT QName null QType OPT=41 QClass = UDP payload 2bytes TTL = Extended-RCODE 1byte: extend &#43; VERSION 1byte: 0 &#43; Z 2bytes: 0 RDLen	len of data(OPT) OPT Option-Code 2bytes: EDNS0_SUBNET Option-Length 2bytes Option-Data Family 1byte: IPV4(1) Source Netmask 1byte: 32 Scope Netmask 1byte: 0 Client Subnet 4bytes: 65.">
     </head>
     <body class="
     article-page
@@ -48,7 +48,7 @@
         }
     })();
 </script>
-<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
     <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
         <span class="hamburger-box">
             <span class="hamburger-inner"></span>
@@ -71,15 +71,39 @@
                 
                 </a>
                 
+                    <span class="emoji">🍥</span>
+                
             </figure>
             
         
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
-            <h2 class="site-description"></h2>
+            <h2 class="site-description">Life is so beautiful</h2>
         </div>
-    </header><ol class="menu" id="main-menu">
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/bg2bkk'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
         
         
         
@@ -106,7 +130,7 @@
         
 
         <li >
-            <a href='/about/' >
+            <a href='/%E5%85%B3%E4%BA%8E%E6%88%91/' >
                 
                 
                 
@@ -119,7 +143,7 @@
 
 
                 
-                <span>About</span>
+                <span>关于我</span>
             </a>
         </li>
         
@@ -210,6 +234,9 @@
     </div>
 
     
+    
+    
+    
     <footer class="article-time">
         
             <div>
@@ -226,7 +253,7 @@
             </div>
         
 
-    
+        
             <div>
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
@@ -269,8 +296,8 @@
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">6. respond时也需要增加一个Additional RRs区域，直接把请求的Additional内容发过去就可以<span class="o">(</span>如果支持source netmask，将请求中的source netmask复制到scope netmask中，OpenDNS要求必须支持scope netmask<span class="o">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">6. respond时也需要增加一个Additional RRs区域，直接把请求的Additional内容发过去就可以<span class="o">(</span>如果支持source netmask，将请求中的source netmask复制到scope netmask中，OpenDNS要求必须支持scope netmask<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><pre><code>* 意思是非OpenDNS就可以不支持scope netmask吗？目前新浪的仍然不支持
 </code></pre>
@@ -367,6 +394,18 @@
     <footer class="article-footer">
     
 
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
     </footer>
 
 
@@ -380,18 +419,62 @@
      
     
         
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
     
 
     <footer class="site-footer">
     <section class="copyright">
         &copy; 
         
-        2022 Bg2bkk Site
+            2020 - 
+        
+        2023 Bg2bkk Site
     </section>
     
     <section class="powerby">
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
 

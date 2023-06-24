@@ -1,33 +1,33 @@
 <!DOCTYPE html>
-<html lang="" dir="ltr">
+<html lang="en" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='openresty中如何写redis或者mysql的wraper  参考资料  ngx_lua获取post字段参数 在用户请求为POST方式时，如果想获取post中的各参数字段，比如post数据为 &amp;ldquo;uid=100&amp;amp;ip=10.13.112.53&amp;rdquo;，此时想获取该字段的话，可以调用ngx.req.get_post_args函数。按惯例返回table类型，post数据的各字段为table的key
-1 2 3 4 5  function get_uid() local args = ngx.req.get_post_args() local uid = args[&amp;#39;uid&amp;#39;] return uid end   关于HTTP的POST提交数据的方式，网上有很多讨论
- 四种常见的POST提交数据方式  application/x-www-form-urlencoded multipart/form-data application/json text/xml   HTTP header头的一些字段  ngx_lua同样提供了读写HTTP请求中uri参数，读写HTTP请求中的HEADER头部，这些在ngx_lua开发中为我们提供了丰富的工具，非常好的功能。
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='openresty中如何写redis或者mysql的wraper 参考资料 ngx_lua获取post字段参数 在用户请求为POST方式时，如果想获取post中的各参数字段，比如post数据为 &amp;ldquo;uid=100&amp;amp;ip=10.13.112.53&amp;rdquo;，此时想获取该字段的话，可以调用ngx.req.get_post_args函数。按惯例返回table类型，post数据的各字段为table的key
+1 2 3 4 5 function get_uid() local args = ngx.req.get_post_args() local uid = args[&amp;#39;uid&amp;#39;] return uid end 关于HTTP的POST提交数据的方式，网上有很多讨论
+四种常见的POST提交数据方式 application/x-www-form-urlencoded multipart/form-data application/json text/xml HTTP header头的一些字段 ngx_lua同样提供了读写HTTP请求中uri参数，读写HTTP请求中的HEADER头部，这些在ngx_lua开发中为我们提供了丰富的工具，非常好的功能。
 最后回到主题，当我读出uid字段后，有时候会发现报错&amp;quot;requesty body in temp file not supported&amp;quot;，原因在于nginx会将用户请求的body字段缓存起来，如果超出缓存大小，则将用户body数据写到文件中；而ngx.req.get_post_args()是不支持从文件中读取数据的。因此解决办法是：适当加大 nginx 的 client_body_buffer_size 配置, 当 client_body_buffer_size 配置为和 client_max_body_size 一样大时，nginx就不会把请求体缓冲到文件系统了（但也要仔细内存占用）。
 对于client_max_body_size来说，
-1 2 3 4 5  Syntax:	client_max_body_size size; Default:	client_max_body_size 1m; Context:	http, server, location Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field.'>
+1 2 3 4 5 Syntax:	client_max_body_size size; Default:	client_max_body_size 1m; Context:	http, server, location Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field.'>
 <title>openresty学习过程中的一些tips</title>
 
 <link rel='canonical' href='https://bg2bkk.github.io/p/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/'>
 
-<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='openresty学习过程中的一些tips'>
-<meta property='og:description' content='openresty中如何写redis或者mysql的wraper  参考资料  ngx_lua获取post字段参数 在用户请求为POST方式时，如果想获取post中的各参数字段，比如post数据为 &amp;ldquo;uid=100&amp;amp;ip=10.13.112.53&amp;rdquo;，此时想获取该字段的话，可以调用ngx.req.get_post_args函数。按惯例返回table类型，post数据的各字段为table的key
-1 2 3 4 5  function get_uid() local args = ngx.req.get_post_args() local uid = args[&amp;#39;uid&amp;#39;] return uid end   关于HTTP的POST提交数据的方式，网上有很多讨论
- 四种常见的POST提交数据方式  application/x-www-form-urlencoded multipart/form-data application/json text/xml   HTTP header头的一些字段  ngx_lua同样提供了读写HTTP请求中uri参数，读写HTTP请求中的HEADER头部，这些在ngx_lua开发中为我们提供了丰富的工具，非常好的功能。
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='openresty学习过程中的一些tips'>
+<meta property='og:description' content='openresty中如何写redis或者mysql的wraper 参考资料 ngx_lua获取post字段参数 在用户请求为POST方式时，如果想获取post中的各参数字段，比如post数据为 &amp;ldquo;uid=100&amp;amp;ip=10.13.112.53&amp;rdquo;，此时想获取该字段的话，可以调用ngx.req.get_post_args函数。按惯例返回table类型，post数据的各字段为table的key
+1 2 3 4 5 function get_uid() local args = ngx.req.get_post_args() local uid = args[&amp;#39;uid&amp;#39;] return uid end 关于HTTP的POST提交数据的方式，网上有很多讨论
+四种常见的POST提交数据方式 application/x-www-form-urlencoded multipart/form-data application/json text/xml HTTP header头的一些字段 ngx_lua同样提供了读写HTTP请求中uri参数，读写HTTP请求中的HEADER头部，这些在ngx_lua开发中为我们提供了丰富的工具，非常好的功能。
 最后回到主题，当我读出uid字段后，有时候会发现报错&amp;quot;requesty body in temp file not supported&amp;quot;，原因在于nginx会将用户请求的body字段缓存起来，如果超出缓存大小，则将用户body数据写到文件中；而ngx.req.get_post_args()是不支持从文件中读取数据的。因此解决办法是：适当加大 nginx 的 client_body_buffer_size 配置, 当 client_body_buffer_size 配置为和 client_max_body_size 一样大时，nginx就不会把请求体缓冲到文件系统了（但也要仔细内存占用）。
 对于client_max_body_size来说，
-1 2 3 4 5  Syntax:	client_max_body_size size; Default:	client_max_body_size 1m; Context:	http, server, location Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field.'>
+1 2 3 4 5 Syntax:	client_max_body_size size; Default:	client_max_body_size 1m; Context:	http, server, location Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field.'>
 <meta property='og:url' content='https://bg2bkk.github.io/p/openresty%E5%AD%A6%E4%B9%A0%E8%BF%87%E7%A8%8B%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9Btips/'>
 <meta property='og:site_name' content='Bg2bkk Site'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-03-14T16:36:14&#43;08:00'/><meta property='article:modified_time' content='2016-03-14T16:36:14&#43;08:00'/>
 <meta name="twitter:title" content="openresty学习过程中的一些tips">
-<meta name="twitter:description" content="openresty中如何写redis或者mysql的wraper  参考资料  ngx_lua获取post字段参数 在用户请求为POST方式时，如果想获取post中的各参数字段，比如post数据为 &amp;ldquo;uid=100&amp;amp;ip=10.13.112.53&amp;rdquo;，此时想获取该字段的话，可以调用ngx.req.get_post_args函数。按惯例返回table类型，post数据的各字段为table的key
-1 2 3 4 5  function get_uid() local args = ngx.req.get_post_args() local uid = args[&amp;#39;uid&amp;#39;] return uid end   关于HTTP的POST提交数据的方式，网上有很多讨论
- 四种常见的POST提交数据方式  application/x-www-form-urlencoded multipart/form-data application/json text/xml   HTTP header头的一些字段  ngx_lua同样提供了读写HTTP请求中uri参数，读写HTTP请求中的HEADER头部，这些在ngx_lua开发中为我们提供了丰富的工具，非常好的功能。
+<meta name="twitter:description" content="openresty中如何写redis或者mysql的wraper 参考资料 ngx_lua获取post字段参数 在用户请求为POST方式时，如果想获取post中的各参数字段，比如post数据为 &amp;ldquo;uid=100&amp;amp;ip=10.13.112.53&amp;rdquo;，此时想获取该字段的话，可以调用ngx.req.get_post_args函数。按惯例返回table类型，post数据的各字段为table的key
+1 2 3 4 5 function get_uid() local args = ngx.req.get_post_args() local uid = args[&amp;#39;uid&amp;#39;] return uid end 关于HTTP的POST提交数据的方式，网上有很多讨论
+四种常见的POST提交数据方式 application/x-www-form-urlencoded multipart/form-data application/json text/xml HTTP header头的一些字段 ngx_lua同样提供了读写HTTP请求中uri参数，读写HTTP请求中的HEADER头部，这些在ngx_lua开发中为我们提供了丰富的工具，非常好的功能。
 最后回到主题，当我读出uid字段后，有时候会发现报错&amp;quot;requesty body in temp file not supported&amp;quot;，原因在于nginx会将用户请求的body字段缓存起来，如果超出缓存大小，则将用户body数据写到文件中；而ngx.req.get_post_args()是不支持从文件中读取数据的。因此解决办法是：适当加大 nginx 的 client_body_buffer_size 配置, 当 client_body_buffer_size 配置为和 client_max_body_size 一样大时，nginx就不会把请求体缓冲到文件系统了（但也要仔细内存占用）。
 对于client_max_body_size来说，
-1 2 3 4 5  Syntax:	client_max_body_size size; Default:	client_max_body_size 1m; Context:	http, server, location Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field.">
+1 2 3 4 5 Syntax:	client_max_body_size size; Default:	client_max_body_size 1m; Context:	http, server, location Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field.">
     </head>
     <body class="
     article-page
@@ -54,7 +54,7 @@
         }
     })();
 </script>
-<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
     <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
         <span class="hamburger-box">
             <span class="hamburger-inner"></span>
@@ -77,15 +77,39 @@
                 
                 </a>
                 
+                    <span class="emoji">🍥</span>
+                
             </figure>
             
         
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
-            <h2 class="site-description"></h2>
+            <h2 class="site-description">Life is so beautiful</h2>
         </div>
-    </header><ol class="menu" id="main-menu">
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/bg2bkk'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
         
         
         
@@ -112,7 +136,7 @@
         
 
         <li >
-            <a href='/about/' >
+            <a href='/%E5%85%B3%E4%BA%8E%E6%88%91/' >
                 
                 
                 
@@ -125,7 +149,7 @@
 
 
                 
-                <span>About</span>
+                <span>关于我</span>
             </a>
         </li>
         
@@ -198,7 +222,41 @@
     </ol>
 </aside>
 
-    
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#openresty中如何写redis或者mysql的wraper">openresty中如何写redis或者mysql的wraper</a></li>
+    <li><a href="#ngx_lua获取post字段参数">ngx_lua获取post字段参数</a></li>
+    <li><a href="#ngx_lua中判断table为空">ngx_lua中判断table为空</a></li>
+    <li><a href="#ngx_lua中的参数获得">ngx_lua中的参数获得</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
 
             <main class="main full-width">
     <article class="main-article">
@@ -216,6 +274,9 @@
     </div>
 
     
+    
+    
+    
     <footer class="article-time">
         
             <div>
@@ -232,7 +293,7 @@
             </div>
         
 
-    
+        
             <div>
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
@@ -275,12 +336,12 @@
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua"><span class="kr">function</span> <span class="nf">get_uid</span><span class="p">()</span>
-	<span class="kd">local</span> <span class="n">args</span> <span class="o">=</span> <span class="n">ngx.req</span><span class="p">.</span><span class="n">get_post_args</span><span class="p">()</span>
-	<span class="kd">local</span> <span class="n">uid</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;uid&#39;</span><span class="p">]</span>
-	<span class="kr">return</span> <span class="n">uid</span>
-<span class="kr">end</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="kr">function</span> <span class="nf">get_uid</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">local</span> <span class="n">args</span> <span class="o">=</span> <span class="n">ngx.req</span><span class="p">.</span><span class="n">get_post_args</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">	<span class="kd">local</span> <span class="n">uid</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s1">&#39;uid&#39;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl">	<span class="kr">return</span> <span class="n">uid</span>
+</span></span><span class="line"><span class="cl"><span class="kr">end</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>关于HTTP的POST提交数据的方式，网上有很多讨论</p>
 <ul>
@@ -311,12 +372,12 @@
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">Syntax:		client_max_body_size size<span class="p">;</span>
-Default:	client_max_body_size 1m<span class="p">;</span>
-Context:	http, server, location
-
-Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field. If the size in a request exceeds the configured value, the <span class="m">413</span> <span class="o">(</span>Request Entity Too Large<span class="o">)</span> error is returned to the client. Please be aware that browsers cannot correctly display this error. Setting size to <span class="m">0</span> disables checking of client request body size.
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Syntax:		client_max_body_size size<span class="p">;</span>
+</span></span><span class="line"><span class="cl">Default:	client_max_body_size 1m<span class="p">;</span>
+</span></span><span class="line"><span class="cl">Context:	http, server, location
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Sets the maximum allowed size of the client request body, specified in the “Content-Length” request header field. If the size in a request exceeds the configured value, the <span class="m">413</span> <span class="o">(</span>Request Entity Too Large<span class="o">)</span> error is returned to the client. Please be aware that browsers cannot correctly display this error. Setting size to <span class="m">0</span> disables checking of client request body size.
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>设置允许的client body最大值，对http server来说是种保护。</p>
 <p>对于client_body_buffer_size来说，</p>
@@ -329,17 +390,17 @@ Sets the maximum allowed size of the client request body, specified in the “Co
 </span><span class="lnt">5
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">Syntax:		client_body_buffer_size size<span class="p">;</span>
-Default:	client_body_buffer_size 8k<span class="p">|</span>16k<span class="p">;</span>
-Context:	http, server, location
-
-Sets buffer size <span class="k">for</span> reading client request body. In <span class="k">case</span> the request body is larger than the buffer, the whole body or only its part is written to a temporary file. By default, buffer size is equal to two memory pages. This is 8K on x86, other 32-bit platforms, and x86-64. It is usually 16K on other 64-bit platforms.
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">Syntax:		client_body_buffer_size size<span class="p">;</span>
+</span></span><span class="line"><span class="cl">Default:	client_body_buffer_size 8k<span class="p">|</span>16k<span class="p">;</span>
+</span></span><span class="line"><span class="cl">Context:	http, server, location
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Sets buffer size <span class="k">for</span> reading client request body. In <span class="k">case</span> the request body is larger than the buffer, the whole body or only its part is written to a temporary file. By default, buffer size is equal to two memory pages. This is 8K on x86, other 32-bit platforms, and x86-64. It is usually 16K on other 64-bit platforms.
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>如果client body size大于默认值，则nginx将会把body缓存在文件中。将client body buffer size设置为和client_max_body_size一样大，nginx将不会把它写进文件中。</p>
 <h2 id="ngx_lua中判断table为空">ngx_lua中判断table为空</h2>
 <ul>
-<li>lua的table中，有两类kv，一类是以数字为index，比如{&lsquo;abc&rsquo;, &lsquo;efg&rsquo;}中，{k=1, v=abc}, {k=2, v=efg}，另一类以自己kv存储，比如{[&lsquo;abc&rsquo;] = &lsquo;efg&rsquo;}，k为abc的元素，v为efg</li>
+<li>lua的table中，有两类kv，一类是以数字为index，比如{&lsquo;abc&rsquo;, &rsquo;efg&rsquo;}中，{k=1, v=abc}, {k=2, v=efg}，另一类以自己kv存储，比如{[&lsquo;abc&rsquo;] = &rsquo;efg&rsquo;}，k为abc的元素，v为efg</li>
 <li>#table中，#标识符是返回以数字为index的key，从1开始算，连续的key的数量</li>
 </ul>
 <div class="highlight"><div class="chroma">
@@ -353,14 +414,14 @@ Sets buffer size <span class="k">for</span> reading client request body. In <spa
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua"><span class="kd">local</span> <span class="n">t</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span>
-<span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span>
-<span class="n">t</span><span class="p">[</span><span class="mi">20</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;c&#39;</span>
-
-<span class="n">print</span><span class="p">(</span><span class="o">#</span><span class="n">t</span><span class="p">)</span>
-<span class="mi">2</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">t</span> <span class="o">=</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl"><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">t</span><span class="p">[</span><span class="mi">20</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;c&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">print</span><span class="p">(</span><span class="o">#</span><span class="n">t</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="mi">2</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><ul>
 <li>因此#号不能获得table的真实大小，也不能用于判断table是否为空</li>
@@ -377,14 +438,14 @@ Sets buffer size <span class="k">for</span> reading client request body. In <spa
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua"><span class="kd">local</span> <span class="n">t</span> <span class="o">=</span> <span class="p">{}</span>
-<span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span>
-<span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span>
-<span class="n">t</span><span class="p">[</span><span class="mi">20</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;c&#39;</span>
-
-<span class="n">print</span><span class="p">(</span><span class="n">table.maxn</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
-<span class="mi">20</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-lua" data-lang="lua"><span class="line"><span class="cl"><span class="kd">local</span> <span class="n">t</span> <span class="o">=</span> <span class="p">{}</span>
+</span></span><span class="line"><span class="cl"><span class="n">t</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;a&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">t</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="n">t</span><span class="p">[</span><span class="mi">20</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;c&#39;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">print</span><span class="p">(</span><span class="n">table.maxn</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="mi">20</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><ul>
 <li>
@@ -402,7 +463,7 @@ Sets buffer size <span class="k">for</span> reading client request body. In <spa
 <p>ngx.var.arg_city 获取city参数</p>
 <ul>
 <li>host:port/uri?city=abc    <em><strong>ngx.var.arg_city = abc</strong></em></li>
-<li>host:port/uri?city=       <em><strong>ngx.var.arg_city = &lsquo;'</strong></em>, and its length is 0</li>
+<li>host:port/uri?city=       <em><strong>ngx.var.arg_city = &lsquo;&rsquo;</strong></em>, and its length is 0</li>
 <li>host:port/uri?city        <em><strong>ngx.var.arg_city = nil</strong></em>，cause it doesn&rsquo;t exist yet</li>
 </ul>
 </li>
@@ -471,34 +532,34 @@ Sets buffer size <span class="k">for</span> reading client request body. In <spa
 </span><span class="lnt">27
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">引用：
-	我们有一整套的基于 systemtap 的工具链可以用于在线或者离线的性能分析。 
-	你的 nginx 进程的 CPU 使用率如果很高的话，可以使用 C 级别的 on-CPU 时间火焰图工具对你最忙的 nginx worker 进程进行采样： 
-	    https://github.com/agentzh/nginx-systemtap-toolkit#sample-bt 
-	如果你的 nginx 进程的 CPU 很低，但请求延时很高，则有两种可能： 
-	1. 你的 nginx 阻塞在了某些阻塞的 IO 操作（比如文件 IO）或者系统的同步锁上，此时你可以使用 C 级别的 off-CPU 
-	时间火焰图工具对某个典型的 nginx worker 进程进行采样： 
-	   https://github.com/agentzh/nginx-systemtap-toolkit#sample-bt-off-cpu 
-	如果你发现 Lua 代码占用了大部分的 CPU 时间，则可以进一步使用 ngx-lua-exec-time 工具加以确认： 
-	    https://github.com/agentzh/stapxx#ngx-lua-exec-time 
-	进一步地，你可以使用 Lua 代码级别的 on-CPU 火焰图工具在 Lua 层面上分析 CPU 时间的分布。如果你使用的是 LuaJIT 
-	2.0.x，则可以使用下面这个工具进行采样： 
-	    https://github.com/agentzh/nginx-systemtap-toolkit#ngx-sample-lua-bt 
-	如果你使用的是 LuaJIT 2.1，则可以使用 lj-lua-stacks 工具进行采样： 
-	    https://github.com/agentzh/stapxx#lj-lua-stacks 
-	2. 你的 nginx 通过 ngx_lua 的 cosocket 或者 ngx_proxy 这样的 upstream 
-	模块和上游服务进行通信时，上游服务的延时过大。此时你可以分别使用 
-	ngx-lua-tcp-recv-time、ngx-lua-udp-recv-time 以及 ngx-single-req-latency 
-	工具进行分析： 
-	    https://github.com/agentzh/stapxx#ngx-lua-tcp-recv-time 
-	    https://github.com/agentzh/stapxx#ngx-lua-udp-recv-time 
-	    https://github.com/agentzh/stapxx#ngx-single-req-latency  
-
-
-
-    - 我们主要使用四个工具来生成火焰图以分析性能，sample-bt、sample-bt-off-cpu、ngx-sample-lua-bt 和 lj-lua-stacks。
-    - 实际使用中命令：
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">引用：
+</span></span><span class="line"><span class="cl">	我们有一整套的基于 systemtap 的工具链可以用于在线或者离线的性能分析。 
+</span></span><span class="line"><span class="cl">	你的 nginx 进程的 CPU 使用率如果很高的话，可以使用 C 级别的 on-CPU 时间火焰图工具对你最忙的 nginx worker 进程进行采样： 
+</span></span><span class="line"><span class="cl">	    https://github.com/agentzh/nginx-systemtap-toolkit#sample-bt 
+</span></span><span class="line"><span class="cl">	如果你的 nginx 进程的 CPU 很低，但请求延时很高，则有两种可能： 
+</span></span><span class="line"><span class="cl">	1. 你的 nginx 阻塞在了某些阻塞的 IO 操作（比如文件 IO）或者系统的同步锁上，此时你可以使用 C 级别的 off-CPU 
+</span></span><span class="line"><span class="cl">	时间火焰图工具对某个典型的 nginx worker 进程进行采样： 
+</span></span><span class="line"><span class="cl">	   https://github.com/agentzh/nginx-systemtap-toolkit#sample-bt-off-cpu 
+</span></span><span class="line"><span class="cl">	如果你发现 Lua 代码占用了大部分的 CPU 时间，则可以进一步使用 ngx-lua-exec-time 工具加以确认： 
+</span></span><span class="line"><span class="cl">	    https://github.com/agentzh/stapxx#ngx-lua-exec-time 
+</span></span><span class="line"><span class="cl">	进一步地，你可以使用 Lua 代码级别的 on-CPU 火焰图工具在 Lua 层面上分析 CPU 时间的分布。如果你使用的是 LuaJIT 
+</span></span><span class="line"><span class="cl">	2.0.x，则可以使用下面这个工具进行采样： 
+</span></span><span class="line"><span class="cl">	    https://github.com/agentzh/nginx-systemtap-toolkit#ngx-sample-lua-bt 
+</span></span><span class="line"><span class="cl">	如果你使用的是 LuaJIT 2.1，则可以使用 lj-lua-stacks 工具进行采样： 
+</span></span><span class="line"><span class="cl">	    https://github.com/agentzh/stapxx#lj-lua-stacks 
+</span></span><span class="line"><span class="cl">	2. 你的 nginx 通过 ngx_lua 的 cosocket 或者 ngx_proxy 这样的 upstream 
+</span></span><span class="line"><span class="cl">	模块和上游服务进行通信时，上游服务的延时过大。此时你可以分别使用 
+</span></span><span class="line"><span class="cl">	ngx-lua-tcp-recv-time、ngx-lua-udp-recv-time 以及 ngx-single-req-latency 
+</span></span><span class="line"><span class="cl">	工具进行分析： 
+</span></span><span class="line"><span class="cl">	    https://github.com/agentzh/stapxx#ngx-lua-tcp-recv-time 
+</span></span><span class="line"><span class="cl">	    https://github.com/agentzh/stapxx#ngx-lua-udp-recv-time 
+</span></span><span class="line"><span class="cl">	    https://github.com/agentzh/stapxx#ngx-single-req-latency  
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    - 我们主要使用四个工具来生成火焰图以分析性能，sample-bt、sample-bt-off-cpu、ngx-sample-lua-bt 和 lj-lua-stacks。
+</span></span><span class="line"><span class="cl">    - 实际使用中命令：
+</span></span></code></pre></td></tr></table>
 </div>
 </div><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -508,11 +569,11 @@ Sets buffer size <span class="k">for</span> reading client request body. In <spa
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">1、sudo ./sample-bt -p <span class="m">8736</span> -t <span class="m">20</span> -u -a <span class="s1">&#39;-DMAXSKIPPED=10000&#39;</span> &gt; a.bt
-2、sudo ./sample-bt-off-cpu -p <span class="m">8736</span> -t <span class="m">20</span> -u &gt; b.bt
-3、sudo ./ngx-sample-lua-bt --luajit20 -p <span class="m">44252</span> -t <span class="m">20</span> &gt; c.bt
-4、sudo ./samples/lj-lua-stacks.sxx --skip-badvars -x <span class="m">44250</span> -I tapset/ &gt; d.bt
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">1、sudo ./sample-bt -p <span class="m">8736</span> -t <span class="m">20</span> -u -a <span class="s1">&#39;-DMAXSKIPPED=10000&#39;</span> &gt; a.bt
+</span></span><span class="line"><span class="cl">2、sudo ./sample-bt-off-cpu -p <span class="m">8736</span> -t <span class="m">20</span> -u &gt; b.bt
+</span></span><span class="line"><span class="cl">3、sudo ./ngx-sample-lua-bt --luajit20 -p <span class="m">44252</span> -t <span class="m">20</span> &gt; c.bt
+</span></span><span class="line"><span class="cl">4、sudo ./samples/lj-lua-stacks.sxx --skip-badvars -x <span class="m">44250</span> -I tapset/ &gt; d.bt
+</span></span></code></pre></td></tr></table>
 </div>
 </div><pre><code>- 通过a.bt生成火焰图
 </code></pre>
@@ -521,8 +582,8 @@ Sets buffer size <span class="k">for</span> reading client request body. In <spa
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">	../FlameGraph/stackcollapse-stap.pl a.bt <span class="p">|</span> ../FlameGraph/flamegraph.pl &gt; a.svg
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">	../FlameGraph/stackcollapse-stap.pl a.bt <span class="p">|</span> ../FlameGraph/flamegraph.pl &gt; a.svg
+</span></span></code></pre></td></tr></table>
 </div>
 </div><pre><code>- 通过脚本ngx-lua-conn-pools来追踪ngx lua connection pool的工作情况。		
 </code></pre>
@@ -531,8 +592,8 @@ Sets buffer size <span class="k">for</span> reading client request body. In <spa
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">    sudo ./ngx-lua-conn-pools  --luajit20 -p <span class="m">28261</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">    sudo ./ngx-lua-conn-pools  --luajit20 -p <span class="m">28261</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div>
 </section>
@@ -541,6 +602,18 @@ Sets buffer size <span class="k">for</span> reading client request body. In <spa
     <footer class="article-footer">
     
 
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
     </footer>
 
 
@@ -554,18 +627,62 @@ Sets buffer size <span class="k">for</span> reading client request body. In <spa
      
     
         
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
     
 
     <footer class="site-footer">
     <section class="copyright">
         &copy; 
         
-        2022 Bg2bkk Site
+            2020 - 
+        
+        2023 Bg2bkk Site
     </section>
     
     <section class="powerby">
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
 

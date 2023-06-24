@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="" dir="ltr">
+<html lang="en" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='一、tegine编译&#43;高版本的httpluamodule  tengine-2.1.0的ngx_lua模块随着tengine软件发布，和以往版本的tengine不一样。 tengine自带的ngx_lua模块版本太老，与openresty相比要差几个版本，导致openresty里的一些好的软件工具不可用。  编译tengine&#43;lua时需要手动指定ngx_lua模块和LuaJIT2.1  新版本ngx_lua能弥补openrestysystemtap在probe某些函数时的错误  关键脚本ngx-lua-exec-time.sxx中第58行@pfunc(ngx_http_lua_free_fake_request)函数找不到   使用LuaJIT2.1能解决lua执行时的stap问题。      1 2 3 4 5 6 7 8  #关键脚本stapxx/samples/ngx-lua-exec-time.sxx中第58行@pfunc(ngx_http_lua_free_fake_request)函数找不到的问题： 2&amp;gt; sudo ./samples/ngx-lua-exec-time.sxx -x 11070 semantic error: while resolving probe point: identifier &amp;#39;process&amp;#39; at &amp;lt;input&amp;gt;:58:7 source: process(&amp;#34;/usr/local/nginx/sbin/nginx&amp;#34;).function(&amp;#34;ngx_http_lua_free_fake_request&amp;#34;) ^ semantic error: no match (similar functions: ngx_http_lua_get_request, ngx_http_create_request, ngx_http_free_request, ngx_http_lua_post_subrequest, ngx_http_scgi_create_request) Pass 2: analysis failed. [man error::pass2]   1 2 3 4 5 6 7 8 9 10 11 12  #tegine编译选项 CFLAGS=&amp;#34;-g -O2&amp;#34; .'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='一、tegine编译&#43;高版本的httpluamodule tengine-2.1.0的ngx_lua模块随着tengine软件发布，和以往版本的tengine不一样。 tengine自带的ngx_lua模块版本太老，与openresty相比要差几个版本，导致openresty里的一些好的软件工具不可用。 编译tengine&#43;lua时需要手动指定ngx_lua模块和LuaJIT2.1 新版本ngx_lua能弥补openrestysystemtap在probe某些函数时的错误 关键脚本ngx-lua-exec-time.sxx中第58行@pfunc(ngx_http_lua_free_fake_request)函数找不到 使用LuaJIT2.1能解决lua执行时的stap问题。 1 2 3 4 5 6 7 8 #关键脚本stapxx/samples/ngx-lua-exec-time.sxx中第58行@pfunc(ngx_http_lua_free_fake_request)函数找不到的问题： 2&amp;gt; sudo ./samples/ngx-lua-exec-time.sxx -x 11070 semantic error: while resolving probe point: identifier &amp;#39;process&amp;#39; at &amp;lt;input&amp;gt;:58:7 source: process(&amp;#34;/usr/local/nginx/sbin/nginx&amp;#34;).function(&amp;#34;ngx_http_lua_free_fake_request&amp;#34;) ^ semantic error: no match (similar functions: ngx_http_lua_get_request, ngx_http_create_request, ngx_http_free_request, ngx_http_lua_post_subrequest, ngx_http_scgi_create_request) Pass 2: analysis failed. [man error::pass2] 1 2 3 4 5 6 7 8 9 10 11 12 #tegine编译选项 CFLAGS=&amp;#34;-g -O2&amp;#34; ./configure --add-module=/path/ngx_openresty-1.7.10.1/bundle/ngx_lua-0.9.15/ --with-luajit-lib=/usr/local/lib/ --with-luajit-inc=/usr/local/include/luajit-2.1/ --with-ld-opt=-Wl,-rpath,/usr/local/lib make -j16 #新版本ngx_lua在openresty的bundle的ngx_lua-0.'>
 <title>openresty压测过程和systemtap工具使用中的一些问题</title>
 
 <link rel='canonical' href='https://bg2bkk.github.io/p/openresty%E5%8E%8B%E6%B5%8B%E8%BF%87%E7%A8%8B%E5%92%8Csystemtap%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/'>
 
-<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='openresty压测过程和systemtap工具使用中的一些问题'>
-<meta property='og:description' content='一、tegine编译&#43;高版本的httpluamodule  tengine-2.1.0的ngx_lua模块随着tengine软件发布，和以往版本的tengine不一样。 tengine自带的ngx_lua模块版本太老，与openresty相比要差几个版本，导致openresty里的一些好的软件工具不可用。  编译tengine&#43;lua时需要手动指定ngx_lua模块和LuaJIT2.1  新版本ngx_lua能弥补openrestysystemtap在probe某些函数时的错误  关键脚本ngx-lua-exec-time.sxx中第58行@pfunc(ngx_http_lua_free_fake_request)函数找不到   使用LuaJIT2.1能解决lua执行时的stap问题。      1 2 3 4 5 6 7 8  #关键脚本stapxx/samples/ngx-lua-exec-time.sxx中第58行@pfunc(ngx_http_lua_free_fake_request)函数找不到的问题： 2&amp;gt; sudo ./samples/ngx-lua-exec-time.sxx -x 11070 semantic error: while resolving probe point: identifier &amp;#39;process&amp;#39; at &amp;lt;input&amp;gt;:58:7 source: process(&amp;#34;/usr/local/nginx/sbin/nginx&amp;#34;).function(&amp;#34;ngx_http_lua_free_fake_request&amp;#34;) ^ semantic error: no match (similar functions: ngx_http_lua_get_request, ngx_http_create_request, ngx_http_free_request, ngx_http_lua_post_subrequest, ngx_http_scgi_create_request) Pass 2: analysis failed. [man error::pass2]   1 2 3 4 5 6 7 8 9 10 11 12  #tegine编译选项 CFLAGS=&amp;#34;-g -O2&amp;#34; .'>
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='openresty压测过程和systemtap工具使用中的一些问题'>
+<meta property='og:description' content='一、tegine编译&#43;高版本的httpluamodule tengine-2.1.0的ngx_lua模块随着tengine软件发布，和以往版本的tengine不一样。 tengine自带的ngx_lua模块版本太老，与openresty相比要差几个版本，导致openresty里的一些好的软件工具不可用。 编译tengine&#43;lua时需要手动指定ngx_lua模块和LuaJIT2.1 新版本ngx_lua能弥补openrestysystemtap在probe某些函数时的错误 关键脚本ngx-lua-exec-time.sxx中第58行@pfunc(ngx_http_lua_free_fake_request)函数找不到 使用LuaJIT2.1能解决lua执行时的stap问题。 1 2 3 4 5 6 7 8 #关键脚本stapxx/samples/ngx-lua-exec-time.sxx中第58行@pfunc(ngx_http_lua_free_fake_request)函数找不到的问题： 2&amp;gt; sudo ./samples/ngx-lua-exec-time.sxx -x 11070 semantic error: while resolving probe point: identifier &amp;#39;process&amp;#39; at &amp;lt;input&amp;gt;:58:7 source: process(&amp;#34;/usr/local/nginx/sbin/nginx&amp;#34;).function(&amp;#34;ngx_http_lua_free_fake_request&amp;#34;) ^ semantic error: no match (similar functions: ngx_http_lua_get_request, ngx_http_create_request, ngx_http_free_request, ngx_http_lua_post_subrequest, ngx_http_scgi_create_request) Pass 2: analysis failed. [man error::pass2] 1 2 3 4 5 6 7 8 9 10 11 12 #tegine编译选项 CFLAGS=&amp;#34;-g -O2&amp;#34; ./configure --add-module=/path/ngx_openresty-1.7.10.1/bundle/ngx_lua-0.9.15/ --with-luajit-lib=/usr/local/lib/ --with-luajit-inc=/usr/local/include/luajit-2.1/ --with-ld-opt=-Wl,-rpath,/usr/local/lib make -j16 #新版本ngx_lua在openresty的bundle的ngx_lua-0.'>
 <meta property='og:url' content='https://bg2bkk.github.io/p/openresty%E5%8E%8B%E6%B5%8B%E8%BF%87%E7%A8%8B%E5%92%8Csystemtap%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%B8%AD%E7%9A%84%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98/'>
 <meta property='og:site_name' content='Bg2bkk Site'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-02-22T11:15:36&#43;08:00'/><meta property='article:modified_time' content='2016-02-22T11:15:36&#43;08:00'/>
 <meta name="twitter:title" content="openresty压测过程和systemtap工具使用中的一些问题">
-<meta name="twitter:description" content="一、tegine编译&#43;高版本的httpluamodule  tengine-2.1.0的ngx_lua模块随着tengine软件发布，和以往版本的tengine不一样。 tengine自带的ngx_lua模块版本太老，与openresty相比要差几个版本，导致openresty里的一些好的软件工具不可用。  编译tengine&#43;lua时需要手动指定ngx_lua模块和LuaJIT2.1  新版本ngx_lua能弥补openrestysystemtap在probe某些函数时的错误  关键脚本ngx-lua-exec-time.sxx中第58行@pfunc(ngx_http_lua_free_fake_request)函数找不到   使用LuaJIT2.1能解决lua执行时的stap问题。      1 2 3 4 5 6 7 8  #关键脚本stapxx/samples/ngx-lua-exec-time.sxx中第58行@pfunc(ngx_http_lua_free_fake_request)函数找不到的问题： 2&amp;gt; sudo ./samples/ngx-lua-exec-time.sxx -x 11070 semantic error: while resolving probe point: identifier &amp;#39;process&amp;#39; at &amp;lt;input&amp;gt;:58:7 source: process(&amp;#34;/usr/local/nginx/sbin/nginx&amp;#34;).function(&amp;#34;ngx_http_lua_free_fake_request&amp;#34;) ^ semantic error: no match (similar functions: ngx_http_lua_get_request, ngx_http_create_request, ngx_http_free_request, ngx_http_lua_post_subrequest, ngx_http_scgi_create_request) Pass 2: analysis failed. [man error::pass2]   1 2 3 4 5 6 7 8 9 10 11 12  #tegine编译选项 CFLAGS=&amp;#34;-g -O2&amp;#34; .">
+<meta name="twitter:description" content="一、tegine编译&#43;高版本的httpluamodule tengine-2.1.0的ngx_lua模块随着tengine软件发布，和以往版本的tengine不一样。 tengine自带的ngx_lua模块版本太老，与openresty相比要差几个版本，导致openresty里的一些好的软件工具不可用。 编译tengine&#43;lua时需要手动指定ngx_lua模块和LuaJIT2.1 新版本ngx_lua能弥补openrestysystemtap在probe某些函数时的错误 关键脚本ngx-lua-exec-time.sxx中第58行@pfunc(ngx_http_lua_free_fake_request)函数找不到 使用LuaJIT2.1能解决lua执行时的stap问题。 1 2 3 4 5 6 7 8 #关键脚本stapxx/samples/ngx-lua-exec-time.sxx中第58行@pfunc(ngx_http_lua_free_fake_request)函数找不到的问题： 2&amp;gt; sudo ./samples/ngx-lua-exec-time.sxx -x 11070 semantic error: while resolving probe point: identifier &amp;#39;process&amp;#39; at &amp;lt;input&amp;gt;:58:7 source: process(&amp;#34;/usr/local/nginx/sbin/nginx&amp;#34;).function(&amp;#34;ngx_http_lua_free_fake_request&amp;#34;) ^ semantic error: no match (similar functions: ngx_http_lua_get_request, ngx_http_create_request, ngx_http_free_request, ngx_http_lua_post_subrequest, ngx_http_scgi_create_request) Pass 2: analysis failed. [man error::pass2] 1 2 3 4 5 6 7 8 9 10 11 12 #tegine编译选项 CFLAGS=&amp;#34;-g -O2&amp;#34; ./configure --add-module=/path/ngx_openresty-1.7.10.1/bundle/ngx_lua-0.9.15/ --with-luajit-lib=/usr/local/lib/ --with-luajit-inc=/usr/local/include/luajit-2.1/ --with-ld-opt=-Wl,-rpath,/usr/local/lib make -j16 #新版本ngx_lua在openresty的bundle的ngx_lua-0.">
     </head>
     <body class="
     article-page
@@ -39,7 +39,7 @@
         }
     })();
 </script>
-<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
     <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
         <span class="hamburger-box">
             <span class="hamburger-inner"></span>
@@ -62,15 +62,39 @@
                 
                 </a>
                 
+                    <span class="emoji">🍥</span>
+                
             </figure>
             
         
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
-            <h2 class="site-description"></h2>
+            <h2 class="site-description">Life is so beautiful</h2>
         </div>
-    </header><ol class="menu" id="main-menu">
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/bg2bkk'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
         
         
         
@@ -97,7 +121,7 @@
         
 
         <li >
-            <a href='/about/' >
+            <a href='/%E5%85%B3%E4%BA%8E%E6%88%91/' >
                 
                 
                 
@@ -110,7 +134,7 @@
 
 
                 
-                <span>About</span>
+                <span>关于我</span>
             </a>
         </li>
         
@@ -183,7 +207,43 @@
     </ol>
 </aside>
 
-    
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#一tegine编译高版本的httpluamodule">一、tegine编译+高版本的httpluamodule</a></li>
+    <li><a href="#二axel下载工具和debuginfocentosorg">二、axel下载工具和debuginfo.centos.org</a></li>
+    <li><a href="#三centos64的gcc版本过低导致的问题">三、centos6.4的gcc版本过低导致的问题</a></li>
+    <li><a href="#四apache的压测工具ab升级高版本">四、apache的压测工具ab升级高版本</a></li>
+    <li><a href="#五tcpdump抓取fin包">五、tcpdump抓取fin包</a></li>
+    <li><a href="#六redis内部监测工具-redis-faina">六、redis内部监测工具 redis-faina</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
 
             <main class="main full-width">
     <article class="main-article">
@@ -201,6 +261,9 @@
     </div>
 
     
+    
+    
+    
     <footer class="article-time">
         
             <div>
@@ -217,7 +280,7 @@
             </div>
         
 
-    
+        
             <div>
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
@@ -273,15 +336,15 @@
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1">#关键脚本stapxx/samples/ngx-lua-exec-time.sxx中第58行@pfunc(ngx_http_lua_free_fake_request)函数找不到的问题：</span>
-2&gt; sudo ./samples/ngx-lua-exec-time.sxx -x <span class="m">11070</span>
-semantic error: <span class="k">while</span> resolving probe point: identifier <span class="s1">&#39;process&#39;</span> at &lt;input&gt;:58:7
-        source:       process<span class="o">(</span><span class="s2">&#34;/usr/local/nginx/sbin/nginx&#34;</span><span class="o">)</span>.function<span class="o">(</span><span class="s2">&#34;ngx_http_lua_free_fake_request&#34;</span><span class="o">)</span>
-                      ^
-
-semantic error: no match <span class="o">(</span>similar functions: ngx_http_lua_get_request, ngx_http_create_request, ngx_http_free_request, ngx_http_lua_post_subrequest, ngx_http_scgi_create_request<span class="o">)</span>
-Pass 2: analysis failed.  <span class="o">[</span>man error::pass2<span class="o">]</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#关键脚本stapxx/samples/ngx-lua-exec-time.sxx中第58行@pfunc(ngx_http_lua_free_fake_request)函数找不到的问题：</span>
+</span></span><span class="line"><span class="cl">2&gt; sudo ./samples/ngx-lua-exec-time.sxx -x <span class="m">11070</span>
+</span></span><span class="line"><span class="cl">semantic error: <span class="k">while</span> resolving probe point: identifier <span class="s1">&#39;process&#39;</span> at &lt;input&gt;:58:7
+</span></span><span class="line"><span class="cl">        source:       process<span class="o">(</span><span class="s2">&#34;/usr/local/nginx/sbin/nginx&#34;</span><span class="o">)</span>.function<span class="o">(</span><span class="s2">&#34;ngx_http_lua_free_fake_request&#34;</span><span class="o">)</span>
+</span></span><span class="line"><span class="cl">                      ^
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">semantic error: no match <span class="o">(</span>similar functions: ngx_http_lua_get_request, ngx_http_create_request, ngx_http_free_request, ngx_http_lua_post_subrequest, ngx_http_scgi_create_request<span class="o">)</span>
+</span></span><span class="line"><span class="cl">Pass 2: analysis failed.  <span class="o">[</span>man error::pass2<span class="o">]</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><div class="highlight"><div class="chroma">
 <table class="lntable"><tr><td class="lntd">
@@ -299,19 +362,19 @@ Pass 2: analysis failed.  <span class="o">[</span>man error::pass2<span class="o
 </span><span class="lnt">12
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1">#tegine编译选项</span>
-<span class="nv">CFLAGS</span><span class="o">=</span><span class="s2">&#34;-g -O2&#34;</span> ./configure  --add-module<span class="o">=</span>/path/ngx_openresty-1.7.10.1/bundle/ngx_lua-0.9.15/ --with-luajit-lib<span class="o">=</span>/usr/local/lib/ --with-luajit-inc<span class="o">=</span>/usr/local/include/luajit-2.1/ --with-ld-opt<span class="o">=</span>-Wl,-rpath,/usr/local/lib
-
-make -j16
-
-<span class="c1">#新版本ngx_lua在openresty的bundle的ngx_lua-0.9.15/里，也可以从https://github.com/openresty/lua-nginx-module获得</span>
-
-<span class="c1">#LuaJIT2.1的源代码也在bundle里，也可以从https://github.com/openresty/luajit2获得。</span>
-
-LuaJIT2.1的编译选项是：
-make <span class="nv">CCDEBUG</span><span class="o">=</span>-g -B -j8
-make -j16
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#tegine编译选项</span>
+</span></span><span class="line"><span class="cl"><span class="nv">CFLAGS</span><span class="o">=</span><span class="s2">&#34;-g -O2&#34;</span> ./configure  --add-module<span class="o">=</span>/path/ngx_openresty-1.7.10.1/bundle/ngx_lua-0.9.15/ --with-luajit-lib<span class="o">=</span>/usr/local/lib/ --with-luajit-inc<span class="o">=</span>/usr/local/include/luajit-2.1/ --with-ld-opt<span class="o">=</span>-Wl,-rpath,/usr/local/lib
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">make -j16
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#新版本ngx_lua在openresty的bundle的ngx_lua-0.9.15/里，也可以从https://github.com/openresty/lua-nginx-module获得</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#LuaJIT2.1的源代码也在bundle里，也可以从https://github.com/openresty/luajit2获得。</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">LuaJIT2.1的编译选项是：
+</span></span><span class="line"><span class="cl">make <span class="nv">CCDEBUG</span><span class="o">=</span>-g -B -j8
+</span></span><span class="line"><span class="cl">make -j16
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="二axel下载工具和debuginfocentosorg">二、axel下载工具和debuginfo.centos.org</h2>
 <ul>
@@ -338,23 +401,23 @@ make -j16
 </span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1">#debian系的可以使用dpkg -l linux-image*命令，查看具体内核版本；</span>
-
-huang@ThinkPad-X220:~$ dpkg -l linux-image*
-<span class="nv">Desired</span><span class="o">=</span>Unknown/Install/Remove/Purge/Hold
-<span class="p">|</span> <span class="nv">Status</span><span class="o">=</span>Not/Inst/Conf-files/Unpacked/halF-conf/Half-inst/trig-aWait/Trig-pend
-<span class="p">|</span>/ Err?<span class="o">=(</span>none<span class="o">)</span>/Reinst-required <span class="o">(</span>Status,Err: <span class="nv">uppercase</span><span class="o">=</span>bad<span class="o">)</span>
-<span class="o">||</span>/ Name                   Version          Architecture     Description
-+++-<span class="o">======================</span>-<span class="o">================</span>-<span class="o">================</span>-<span class="o">==================================================</span>
-un  linux-image            &lt;none&gt;           &lt;none&gt;           <span class="o">(</span>no description available<span class="o">)</span>
-un  linux-image-3.0        &lt;none&gt;           &lt;none&gt;           <span class="o">(</span>no description available<span class="o">)</span>
-ii  linux-image-3.13.0-24- 3.13.0-24.47     amd64            Linux kernel image <span class="k">for</span> version 3.13.0 on <span class="m">64</span> bit x8
-ii  linux-image-3.13.0-24- 3.13.0-24.47     amd64            Linux kernel debug image <span class="k">for</span> version 3.13.0 on <span class="m">64</span> 
-ii  linux-image-extra-3.13 3.13.0-24.46     amd64            Linux kernel extra modules <span class="k">for</span> version 3.13.0 on <span class="m">6</span>
-ii  linux-image-generic    3.13.0.24.28     amd64            Generic Linux kernel image
-
-<span class="c1">#特别要注意的是3.13.0-24.46、 47、 48，小版本很重要的。</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1">#debian系的可以使用dpkg -l linux-image*命令，查看具体内核版本；</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">huang@ThinkPad-X220:~$ dpkg -l linux-image*
+</span></span><span class="line"><span class="cl"><span class="nv">Desired</span><span class="o">=</span>Unknown/Install/Remove/Purge/Hold
+</span></span><span class="line"><span class="cl"><span class="p">|</span> <span class="nv">Status</span><span class="o">=</span>Not/Inst/Conf-files/Unpacked/halF-conf/Half-inst/trig-aWait/Trig-pend
+</span></span><span class="line"><span class="cl"><span class="p">|</span>/ Err?<span class="o">=(</span>none<span class="o">)</span>/Reinst-required <span class="o">(</span>Status,Err: <span class="nv">uppercase</span><span class="o">=</span>bad<span class="o">)</span>
+</span></span><span class="line"><span class="cl"><span class="o">||</span>/ Name                   Version          Architecture     Description
+</span></span><span class="line"><span class="cl">+++-<span class="o">======================</span>-<span class="o">================</span>-<span class="o">================</span>-<span class="o">==================================================</span>
+</span></span><span class="line"><span class="cl">un  linux-image            &lt;none&gt;           &lt;none&gt;           <span class="o">(</span>no description available<span class="o">)</span>
+</span></span><span class="line"><span class="cl">un  linux-image-3.0        &lt;none&gt;           &lt;none&gt;           <span class="o">(</span>no description available<span class="o">)</span>
+</span></span><span class="line"><span class="cl">ii  linux-image-3.13.0-24- 3.13.0-24.47     amd64            Linux kernel image <span class="k">for</span> version 3.13.0 on <span class="m">64</span> bit x8
+</span></span><span class="line"><span class="cl">ii  linux-image-3.13.0-24- 3.13.0-24.47     amd64            Linux kernel debug image <span class="k">for</span> version 3.13.0 on <span class="m">64</span> 
+</span></span><span class="line"><span class="cl">ii  linux-image-extra-3.13 3.13.0-24.46     amd64            Linux kernel extra modules <span class="k">for</span> version 3.13.0 on <span class="m">6</span>
+</span></span><span class="line"><span class="cl">ii  linux-image-generic    3.13.0.24.28     amd64            Generic Linux kernel image
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#特别要注意的是3.13.0-24.46、 47、 48，小版本很重要的。</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="三centos64的gcc版本过低导致的问题">三、centos6.4的gcc版本过低导致的问题</h2>
 <ul>
@@ -376,19 +439,19 @@ ii  linux-image-generic    3.13.0.24.28     amd64            Generic Linux kerne
 </span><span class="lnt">12
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">2&gt; sudo ./samples/ngx-rewrite-latency-distr.sxx -x <span class="m">11070</span>
-semantic error: not accessible at this address <span class="o">[</span>man error::dwarf<span class="o">]</span> <span class="o">(</span>0x44a53b, dieoffset: 0x13a891<span class="o">)</span>: identifier <span class="s1">&#39;$r&#39;</span> at &lt;input&gt;:67:9
-        source:     <span class="nv">r</span> <span class="o">=</span> <span class="nv">$r</span>
-                        ^
-
-Pass 2: analysis failed.  <span class="o">[</span>man error::pass2<span class="o">]</span>
-
-<span class="c1"># 这个r是没有问题的，在nginx-systemtap-toolkit/ngx-active-reqs中有类似定义：</span>
-my <span class="nv">$c</span> <span class="o">=</span> <span class="s1">&#39;@cast(c, &#34;ngx_connection_t&#34;)&#39;</span><span class="p">;</span>
-my <span class="nv">$r</span> <span class="o">=</span> <span class="s1">&#39;@cast(r, &#34;ngx_http_request_t&#34;)&#39;</span><span class="p">;</span>
-my <span class="nv">$u</span> <span class="o">=</span> <span class="s1">&#39;@cast(u, &#34;ngx_http_upstream_t&#34;)&#39;</span><span class="p">;</span>
-my <span class="nv">$p</span> <span class="o">=</span> <span class="s1">&#39;@cast(p, &#34;ngx_event_pipe_t&#34;)&#39;</span><span class="p">;</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">2&gt; sudo ./samples/ngx-rewrite-latency-distr.sxx -x <span class="m">11070</span>
+</span></span><span class="line"><span class="cl">semantic error: not accessible at this address <span class="o">[</span>man error::dwarf<span class="o">]</span> <span class="o">(</span>0x44a53b, dieoffset: 0x13a891<span class="o">)</span>: identifier <span class="s1">&#39;$r&#39;</span> at &lt;input&gt;:67:9
+</span></span><span class="line"><span class="cl">        source:     <span class="nv">r</span> <span class="o">=</span> <span class="nv">$r</span>
+</span></span><span class="line"><span class="cl">                        ^
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">Pass 2: analysis failed.  <span class="o">[</span>man error::pass2<span class="o">]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 这个r是没有问题的，在nginx-systemtap-toolkit/ngx-active-reqs中有类似定义：</span>
+</span></span><span class="line"><span class="cl">my <span class="nv">$c</span> <span class="o">=</span> <span class="s1">&#39;@cast(c, &#34;ngx_connection_t&#34;)&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">my <span class="nv">$r</span> <span class="o">=</span> <span class="s1">&#39;@cast(r, &#34;ngx_http_request_t&#34;)&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">my <span class="nv">$u</span> <span class="o">=</span> <span class="s1">&#39;@cast(u, &#34;ngx_http_upstream_t&#34;)&#39;</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">my <span class="nv">$p</span> <span class="o">=</span> <span class="s1">&#39;@cast(p, &#34;ngx_event_pipe_t&#34;)&#39;</span><span class="p">;</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><ul>
 <li>
@@ -420,13 +483,13 @@ my <span class="nv">$p</span> <span class="o">=</span> <span class="s1">&#39;@ca
 </span><span class="lnt">6
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ sudo wget http://people.centos.org/tru/devtools-1.1/devtools-1.1.repo -P /etc/yum.repos.d
-$ sudo sh -c <span class="s1">&#39;echo &#34;enabled=1&#34; &gt;&gt; /etc/yum.repos.d/devtools-1.1.repo&#39;</span>
-$ sudo yum install devtoolset-1.1
-$ scl <span class="nb">enable</span> devtoolset-1.1 bash
-$ gcc --version
-<span class="c1"># 通过devtoolset工具可以暂时提高gcc版本，而不更改之前服务器的配置，这个很有效果，高版本的gcc会智能保留symbol。</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ sudo wget http://people.centos.org/tru/devtools-1.1/devtools-1.1.repo -P /etc/yum.repos.d
+</span></span><span class="line"><span class="cl">$ sudo sh -c <span class="s1">&#39;echo &#34;enabled=1&#34; &gt;&gt; /etc/yum.repos.d/devtools-1.1.repo&#39;</span>
+</span></span><span class="line"><span class="cl">$ sudo yum install devtoolset-1.1
+</span></span><span class="line"><span class="cl">$ scl <span class="nb">enable</span> devtoolset-1.1 bash
+</span></span><span class="line"><span class="cl">$ gcc --version
+</span></span><span class="line"><span class="cl"><span class="c1"># 通过devtoolset工具可以暂时提高gcc版本，而不更改之前服务器的配置，这个很有效果，高版本的gcc会智能保留symbol。</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><h2 id="四apache的压测工具ab升级高版本">四、apache的压测工具ab升级高版本</h2>
 <p>在压测过程中，我们想微观的通过tcpdump抓包分析通信过程。</p>
@@ -454,22 +517,22 @@ $ gcc --version
 </span><span class="lnt">15
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="c1"># tcp包里有个flags字段表示包的类型，tcpdump可以根据该字段抓取相应类型的包：</span>
-<span class="c1"># tcp[13] 就是 TCP flags (URG,ACK,PSH,RST,SYN,FIN)</span>
-<span class="c1"># Unskilled 32</span>
-<span class="c1"># Attackers 16</span>
-<span class="c1"># Pester     8</span>
-<span class="c1"># Real       4</span>
-<span class="c1"># Security   2</span>
-<span class="c1"># Folks      1</span>
-
-<span class="c1">#抓取fin包：</span>
-tcpdump -ni any port <span class="m">9001</span> and <span class="s1">&#39;tcp[13] &amp; 1 != 0 &#39;</span> -s0  -w fin.cap -vvv
-<span class="c1">#抓取syn+fin包：</span>
-tcpdump -ni any port <span class="m">9001</span> and <span class="s1">&#39;tcp[13] &amp; 3 != 0 &#39;</span> -s0  -w syn_fin.cap -vvv
-<span class="c1">#抓取rst包：</span>
-tcpdump -ni any port <span class="m">9001</span> and <span class="s1">&#39;tcp[13] &amp; 4 != 0 &#39;</span> -s0  -w rst.cap -vvv
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># tcp包里有个flags字段表示包的类型，tcpdump可以根据该字段抓取相应类型的包：</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># tcp[13] 就是 TCP flags (URG,ACK,PSH,RST,SYN,FIN)</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Unskilled 32</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Attackers 16</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Pester     8</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Real       4</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Security   2</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># Folks      1</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1">#抓取fin包：</span>
+</span></span><span class="line"><span class="cl">tcpdump -ni any port <span class="m">9001</span> and <span class="s1">&#39;tcp[13] &amp; 1 != 0 &#39;</span> -s0  -w fin.cap -vvv
+</span></span><span class="line"><span class="cl"><span class="c1">#抓取syn+fin包：</span>
+</span></span><span class="line"><span class="cl">tcpdump -ni any port <span class="m">9001</span> and <span class="s1">&#39;tcp[13] &amp; 3 != 0 &#39;</span> -s0  -w syn_fin.cap -vvv
+</span></span><span class="line"><span class="cl"><span class="c1">#抓取rst包：</span>
+</span></span><span class="line"><span class="cl">tcpdump -ni any port <span class="m">9001</span> and <span class="s1">&#39;tcp[13] &amp; 4 != 0 &#39;</span> -s0  -w rst.cap -vvv
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p><a class="link" href="http://babyhe.blog.51cto.com/1104064/1395489"  target="_blank" rel="noopener"
     >参考链接</a></p>
@@ -481,8 +544,8 @@ tcpdump -ni any port <span class="m">9001</span> and <span class="s1">&#39;tcp[1
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">redis-cli  -p <span class="m">6379</span> MONITOR <span class="p">|</span> head -n <span class="m">100000</span> <span class="p">|</span> ./redis-faina/redis-faina.py
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">redis-cli  -p <span class="m">6379</span> MONITOR <span class="p">|</span> head -n <span class="m">100000</span> <span class="p">|</span> ./redis-faina/redis-faina.py
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>七、压测过程中发现lua获取用户特征时，如果用户特征不存在，比如headers中的UID参数，事实上它是处于ngx.req.get_headers()函数返回值(table类型)中，如果lua提取用户特征时，找不到UID，则会扩大范围去上一级里找，此时性能会大大下降</p>
 
@@ -492,6 +555,18 @@ tcpdump -ni any port <span class="m">9001</span> and <span class="s1">&#39;tcp[1
     <footer class="article-footer">
     
 
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
     </footer>
 
 
@@ -505,18 +580,62 @@ tcpdump -ni any port <span class="m">9001</span> and <span class="s1">&#39;tcp[1
      
     
         
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
     
 
     <footer class="site-footer">
     <section class="copyright">
         &copy; 
         
-        2022 Bg2bkk Site
+            2020 - 
+        
+        2023 Bg2bkk Site
     </section>
     
     <section class="powerby">
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
 

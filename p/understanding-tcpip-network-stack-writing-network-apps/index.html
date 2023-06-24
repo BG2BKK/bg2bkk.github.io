@@ -1,39 +1,51 @@
 <!DOCTYPE html>
-<html lang="" dir="ltr">
+<html lang="en" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='理解TCP/IP协议栈 实现网络应用  遇到好文章我就想给翻译下来，觉得写的很好，现在cubrid的一篇TCP/IP相关的文章详细介绍了TCP协议栈，以及收发数据包的流程，非常有启发意义，所以我就想翻译一下，做个记录。将TCP/IP协议栈在一篇文章内讲明白是不可能的，所以本文能够做到的是讲清楚TCP/IP协议栈收发数据包的流程，我们要做的是首先了解大致流程，然后尝试根据TCP/IP协议和拿着代码去理解。由于我本人能力十分有限，译文都是我个人理解，所以会有大量错误，希望您能帮我纠正。如果您想转载，我必须提醒一句我这个译文是自己学习之用，并未取得版权方同意，因此首先做免责声明。
- 我们不能想象没有TCP/IP，互联网服务将会是何种情况。所有我们开发和使用的Internet服务都基于一个坚实的基础：TCP/IP。理解数据如何在网络中传输可以帮助你通过优化和调试的方式来提升程序性能，引入和使用新的技术。
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='理解TCP/IP协议栈 实现网络应用 遇到好文章我就想给翻译下来，觉得写的很好，现在cubrid的一篇TCP/IP相关的文章详细介绍了TCP协议栈，以及收发数据包的流程，非常有启发意义，所以我就想翻译一下，做个记录。将TCP/IP协议栈在一篇文章内讲明白是不可能的，所以本文能够做到的是讲清楚TCP/IP协议栈收发数据包的流程，我们要做的是首先了解大致流程，然后尝试根据TCP/IP协议和拿着代码去理解。由于我本人能力十分有限，译文都是我个人理解，所以会有大量错误，希望您能帮我纠正。如果您想转载，我必须提醒一句我这个译文是自己学习之用，并未取得版权方同意，因此首先做免责声明。
+我们不能想象没有TCP/IP，互联网服务将会是何种情况。所有我们开发和使用的Internet服务都基于一个坚实的基础：TCP/IP。理解数据如何在网络中传输可以帮助你通过优化和调试的方式来提升程序性能，引入和使用新的技术。
 本文将通过在linux操作系统和硬件层面的数据流和控制流来描述网络技术栈的整体执行流程。
 TCP/IP的关键字 我如何设计网络协议，能够在保持数据不丢失不乱序的情况下，快速传输数据？
 TCP/IP协议为这些考虑而设计，如下是理解TCP/IP协议栈需要了解的关键字
-确切的说，TCP和IP是两个不同的层，理应分开描述；不过惯例上一直将他俩合成一个概念来讲   CONNECTIONI-ORIENTED，面向连接的  首先通信双方需要建立一条连接，一条TCP连接的标识符是local IP address, local port number和remote IP address, remote port number组成的四元组   BIDIRECTIONAL BYTE STREAM, 双向数据流传输  使用字节流实现双向传输   IN-ORDER DELIVERY，顺序发送  接收方按照数据从发送方发送的顺序接收；采用32bit整型作为数据包的序号，以实现顺序传输   RELIABILITY THROUGH ACK，通过ACK实现可靠性  当发送方发送数据后，没有收到接收方传来的该包的ACK，发送方将重新发送该数据。因此，发送方的TCP需要将未被ACK的数据缓存起来。   FLOW CONTROL，流控  发送方都想尽可能的发送数据给接收方，但是对端也得能够有能力接收，因此接收方要发送自己能够接收的最大数据量给发送方知道，最终发送方发出数据量由接收方的接收窗口决定。   CONGESTION CONTROL，拥塞控制  拥塞窗口是除接收窗口之外的另一个通过限制在途数据流大小以防止网络拥塞的方法。发送方尽可能多的发出拥塞窗口允许的数据量，该窗口大小有诸多方法可以实现，Vegas、Westwood、BIC或者CUBIC。不同于流控中的接收窗口，拥塞窗口是由发送方单独确定的。    数据发送 如下图所示，一个网络栈有很多层，图中包含各层类型。
+确切的说，TCP和IP是两个不同的层，理应分开描述；不过惯例上一直将他俩合成一个概念来讲 CONNECTIONI-ORIENTED，面向连接的 首先通信双方需要建立一条连接，一条TCP连接的标识符是local IP address, local port number和remote IP address, remote port number组成的四元组 BIDIRECTIONAL BYTE STREAM, 双向数据流传输 使用字节流实现双向传输 IN-ORDER DELIVERY，顺序发送 接收方按照数据从发送方发送的顺序接收；采用32bit整型作为数据包的序号，以实现顺序传输 RELIABILITY THROUGH ACK，通过ACK实现可靠性 当发送方发送数据后，没有收到接收方传来的该包的ACK，发送方将重新发送该数据。因此，发送方的TCP需要将未被ACK的数据缓存起来。 FLOW CONTROL，流控 发送方都想尽可能的发送数据给接收方，但是对端也得能够有能力接收，因此接收方要发送自己能够接收的最大数据量给发送方知道，最终发送方发出数据量由接收方的接收窗口决定。 CONGESTION CONTROL，拥塞控制 拥塞窗口是除接收窗口之外的另一个通过限制在途数据流大小以防止网络拥塞的方法。发送方尽可能多的发出拥塞窗口允许的数据量，该窗口大小有诸多方法可以实现，Vegas、Westwood、BIC或者CUBIC。不同于流控中的接收窗口，拥塞窗口是由发送方单独确定的。 数据发送 如下图所示，一个网络栈有很多层，图中包含各层类型。
 图中虽然有多层，但可以简要分为3类：
- User area 用户区 Kernel area 内核区 Device area 设备区  在user area和kerne area处理的任务都是由CPU完成的，所以user area和kernel area统称为host来与device area加以区分。在这里的device是Network Interface Card(NIC)，也就是网卡，用于收发数据，NIC是一个比我们常用的&amp;quot;局域网网卡&amp;quot;更准确的术语。'>
+User area 用户区 Kernel area 内核区 Device area 设备区 在user area和kerne area处理的任务都是由CPU完成的，所以user area和kernel area统称为host来与device area加以区分。在这里的device是Network Interface Card(NIC)，也就是网卡，用于收发数据，NIC是一个比我们常用的&amp;quot;局域网网卡&amp;quot;更准确的术语。
+让我们大致看看user area，首先应用程序准备好数据(右上角的user data灰色框)，然后调用***write()***系统调用发送数据。假设所用的socket(图中write调用的参数fd)合法，那么当发起系统调用后，发送流程切换到kernel area。
+POSIX系列操作系统例如Linux和Unix在应用程序通过一个file descriptor，即文件描述符fd来表示所用的socket。在POSIX系系统中，socket也是一种文件，应用程序使用的fd在进程中有其对应的file structure，与socket对应（file-&amp;gt;private_data指向对应的struct socket，此处不影响理解），图1中的文件层进行简单的检查(VFS对write()的权限检查)，然后通过调用socket的相关函数最终实现write()。
+内核中每个socket有两个buffer：
+一个是send socket buffer，发送缓冲区，用于发送 一个是receive socket buffer，接收缓冲区，用于接收 当write系统调用被调用时，待发送数据从用户空间复制到内核内存中，然后添加进发送缓冲区的链表末尾。这样就可以按顺序发出数据。图一中的&amp;rsquo;Sockets&amp;rsquo;那层对应的右边灰色的小格子指向socket send buffer中的数据。然后，调用TCP/IP协议栈。'>
 <title>Understanding TCPIP Network Stack &amp; Writing Network Apps</title>
 
 <link rel='canonical' href='https://bg2bkk.github.io/p/understanding-tcpip-network-stack-writing-network-apps/'>
 
-<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='Understanding TCPIP Network Stack &amp; Writing Network Apps'>
-<meta property='og:description' content='理解TCP/IP协议栈 实现网络应用  遇到好文章我就想给翻译下来，觉得写的很好，现在cubrid的一篇TCP/IP相关的文章详细介绍了TCP协议栈，以及收发数据包的流程，非常有启发意义，所以我就想翻译一下，做个记录。将TCP/IP协议栈在一篇文章内讲明白是不可能的，所以本文能够做到的是讲清楚TCP/IP协议栈收发数据包的流程，我们要做的是首先了解大致流程，然后尝试根据TCP/IP协议和拿着代码去理解。由于我本人能力十分有限，译文都是我个人理解，所以会有大量错误，希望您能帮我纠正。如果您想转载，我必须提醒一句我这个译文是自己学习之用，并未取得版权方同意，因此首先做免责声明。
- 我们不能想象没有TCP/IP，互联网服务将会是何种情况。所有我们开发和使用的Internet服务都基于一个坚实的基础：TCP/IP。理解数据如何在网络中传输可以帮助你通过优化和调试的方式来提升程序性能，引入和使用新的技术。
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='Understanding TCPIP Network Stack &amp; Writing Network Apps'>
+<meta property='og:description' content='理解TCP/IP协议栈 实现网络应用 遇到好文章我就想给翻译下来，觉得写的很好，现在cubrid的一篇TCP/IP相关的文章详细介绍了TCP协议栈，以及收发数据包的流程，非常有启发意义，所以我就想翻译一下，做个记录。将TCP/IP协议栈在一篇文章内讲明白是不可能的，所以本文能够做到的是讲清楚TCP/IP协议栈收发数据包的流程，我们要做的是首先了解大致流程，然后尝试根据TCP/IP协议和拿着代码去理解。由于我本人能力十分有限，译文都是我个人理解，所以会有大量错误，希望您能帮我纠正。如果您想转载，我必须提醒一句我这个译文是自己学习之用，并未取得版权方同意，因此首先做免责声明。
+我们不能想象没有TCP/IP，互联网服务将会是何种情况。所有我们开发和使用的Internet服务都基于一个坚实的基础：TCP/IP。理解数据如何在网络中传输可以帮助你通过优化和调试的方式来提升程序性能，引入和使用新的技术。
 本文将通过在linux操作系统和硬件层面的数据流和控制流来描述网络技术栈的整体执行流程。
 TCP/IP的关键字 我如何设计网络协议，能够在保持数据不丢失不乱序的情况下，快速传输数据？
 TCP/IP协议为这些考虑而设计，如下是理解TCP/IP协议栈需要了解的关键字
-确切的说，TCP和IP是两个不同的层，理应分开描述；不过惯例上一直将他俩合成一个概念来讲   CONNECTIONI-ORIENTED，面向连接的  首先通信双方需要建立一条连接，一条TCP连接的标识符是local IP address, local port number和remote IP address, remote port number组成的四元组   BIDIRECTIONAL BYTE STREAM, 双向数据流传输  使用字节流实现双向传输   IN-ORDER DELIVERY，顺序发送  接收方按照数据从发送方发送的顺序接收；采用32bit整型作为数据包的序号，以实现顺序传输   RELIABILITY THROUGH ACK，通过ACK实现可靠性  当发送方发送数据后，没有收到接收方传来的该包的ACK，发送方将重新发送该数据。因此，发送方的TCP需要将未被ACK的数据缓存起来。   FLOW CONTROL，流控  发送方都想尽可能的发送数据给接收方，但是对端也得能够有能力接收，因此接收方要发送自己能够接收的最大数据量给发送方知道，最终发送方发出数据量由接收方的接收窗口决定。   CONGESTION CONTROL，拥塞控制  拥塞窗口是除接收窗口之外的另一个通过限制在途数据流大小以防止网络拥塞的方法。发送方尽可能多的发出拥塞窗口允许的数据量，该窗口大小有诸多方法可以实现，Vegas、Westwood、BIC或者CUBIC。不同于流控中的接收窗口，拥塞窗口是由发送方单独确定的。    数据发送 如下图所示，一个网络栈有很多层，图中包含各层类型。
+确切的说，TCP和IP是两个不同的层，理应分开描述；不过惯例上一直将他俩合成一个概念来讲 CONNECTIONI-ORIENTED，面向连接的 首先通信双方需要建立一条连接，一条TCP连接的标识符是local IP address, local port number和remote IP address, remote port number组成的四元组 BIDIRECTIONAL BYTE STREAM, 双向数据流传输 使用字节流实现双向传输 IN-ORDER DELIVERY，顺序发送 接收方按照数据从发送方发送的顺序接收；采用32bit整型作为数据包的序号，以实现顺序传输 RELIABILITY THROUGH ACK，通过ACK实现可靠性 当发送方发送数据后，没有收到接收方传来的该包的ACK，发送方将重新发送该数据。因此，发送方的TCP需要将未被ACK的数据缓存起来。 FLOW CONTROL，流控 发送方都想尽可能的发送数据给接收方，但是对端也得能够有能力接收，因此接收方要发送自己能够接收的最大数据量给发送方知道，最终发送方发出数据量由接收方的接收窗口决定。 CONGESTION CONTROL，拥塞控制 拥塞窗口是除接收窗口之外的另一个通过限制在途数据流大小以防止网络拥塞的方法。发送方尽可能多的发出拥塞窗口允许的数据量，该窗口大小有诸多方法可以实现，Vegas、Westwood、BIC或者CUBIC。不同于流控中的接收窗口，拥塞窗口是由发送方单独确定的。 数据发送 如下图所示，一个网络栈有很多层，图中包含各层类型。
 图中虽然有多层，但可以简要分为3类：
- User area 用户区 Kernel area 内核区 Device area 设备区  在user area和kerne area处理的任务都是由CPU完成的，所以user area和kernel area统称为host来与device area加以区分。在这里的device是Network Interface Card(NIC)，也就是网卡，用于收发数据，NIC是一个比我们常用的&amp;quot;局域网网卡&amp;quot;更准确的术语。'>
+User area 用户区 Kernel area 内核区 Device area 设备区 在user area和kerne area处理的任务都是由CPU完成的，所以user area和kernel area统称为host来与device area加以区分。在这里的device是Network Interface Card(NIC)，也就是网卡，用于收发数据，NIC是一个比我们常用的&amp;quot;局域网网卡&amp;quot;更准确的术语。
+让我们大致看看user area，首先应用程序准备好数据(右上角的user data灰色框)，然后调用***write()***系统调用发送数据。假设所用的socket(图中write调用的参数fd)合法，那么当发起系统调用后，发送流程切换到kernel area。
+POSIX系列操作系统例如Linux和Unix在应用程序通过一个file descriptor，即文件描述符fd来表示所用的socket。在POSIX系系统中，socket也是一种文件，应用程序使用的fd在进程中有其对应的file structure，与socket对应（file-&amp;gt;private_data指向对应的struct socket，此处不影响理解），图1中的文件层进行简单的检查(VFS对write()的权限检查)，然后通过调用socket的相关函数最终实现write()。
+内核中每个socket有两个buffer：
+一个是send socket buffer，发送缓冲区，用于发送 一个是receive socket buffer，接收缓冲区，用于接收 当write系统调用被调用时，待发送数据从用户空间复制到内核内存中，然后添加进发送缓冲区的链表末尾。这样就可以按顺序发出数据。图一中的&amp;rsquo;Sockets&amp;rsquo;那层对应的右边灰色的小格子指向socket send buffer中的数据。然后，调用TCP/IP协议栈。'>
 <meta property='og:url' content='https://bg2bkk.github.io/p/understanding-tcpip-network-stack-writing-network-apps/'>
 <meta property='og:site_name' content='Bg2bkk Site'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-10-20T22:21:55&#43;08:00'/><meta property='article:modified_time' content='2016-10-20T22:21:55&#43;08:00'/>
 <meta name="twitter:title" content="Understanding TCPIP Network Stack &amp; Writing Network Apps">
-<meta name="twitter:description" content="理解TCP/IP协议栈 实现网络应用  遇到好文章我就想给翻译下来，觉得写的很好，现在cubrid的一篇TCP/IP相关的文章详细介绍了TCP协议栈，以及收发数据包的流程，非常有启发意义，所以我就想翻译一下，做个记录。将TCP/IP协议栈在一篇文章内讲明白是不可能的，所以本文能够做到的是讲清楚TCP/IP协议栈收发数据包的流程，我们要做的是首先了解大致流程，然后尝试根据TCP/IP协议和拿着代码去理解。由于我本人能力十分有限，译文都是我个人理解，所以会有大量错误，希望您能帮我纠正。如果您想转载，我必须提醒一句我这个译文是自己学习之用，并未取得版权方同意，因此首先做免责声明。
- 我们不能想象没有TCP/IP，互联网服务将会是何种情况。所有我们开发和使用的Internet服务都基于一个坚实的基础：TCP/IP。理解数据如何在网络中传输可以帮助你通过优化和调试的方式来提升程序性能，引入和使用新的技术。
+<meta name="twitter:description" content="理解TCP/IP协议栈 实现网络应用 遇到好文章我就想给翻译下来，觉得写的很好，现在cubrid的一篇TCP/IP相关的文章详细介绍了TCP协议栈，以及收发数据包的流程，非常有启发意义，所以我就想翻译一下，做个记录。将TCP/IP协议栈在一篇文章内讲明白是不可能的，所以本文能够做到的是讲清楚TCP/IP协议栈收发数据包的流程，我们要做的是首先了解大致流程，然后尝试根据TCP/IP协议和拿着代码去理解。由于我本人能力十分有限，译文都是我个人理解，所以会有大量错误，希望您能帮我纠正。如果您想转载，我必须提醒一句我这个译文是自己学习之用，并未取得版权方同意，因此首先做免责声明。
+我们不能想象没有TCP/IP，互联网服务将会是何种情况。所有我们开发和使用的Internet服务都基于一个坚实的基础：TCP/IP。理解数据如何在网络中传输可以帮助你通过优化和调试的方式来提升程序性能，引入和使用新的技术。
 本文将通过在linux操作系统和硬件层面的数据流和控制流来描述网络技术栈的整体执行流程。
 TCP/IP的关键字 我如何设计网络协议，能够在保持数据不丢失不乱序的情况下，快速传输数据？
 TCP/IP协议为这些考虑而设计，如下是理解TCP/IP协议栈需要了解的关键字
-确切的说，TCP和IP是两个不同的层，理应分开描述；不过惯例上一直将他俩合成一个概念来讲   CONNECTIONI-ORIENTED，面向连接的  首先通信双方需要建立一条连接，一条TCP连接的标识符是local IP address, local port number和remote IP address, remote port number组成的四元组   BIDIRECTIONAL BYTE STREAM, 双向数据流传输  使用字节流实现双向传输   IN-ORDER DELIVERY，顺序发送  接收方按照数据从发送方发送的顺序接收；采用32bit整型作为数据包的序号，以实现顺序传输   RELIABILITY THROUGH ACK，通过ACK实现可靠性  当发送方发送数据后，没有收到接收方传来的该包的ACK，发送方将重新发送该数据。因此，发送方的TCP需要将未被ACK的数据缓存起来。   FLOW CONTROL，流控  发送方都想尽可能的发送数据给接收方，但是对端也得能够有能力接收，因此接收方要发送自己能够接收的最大数据量给发送方知道，最终发送方发出数据量由接收方的接收窗口决定。   CONGESTION CONTROL，拥塞控制  拥塞窗口是除接收窗口之外的另一个通过限制在途数据流大小以防止网络拥塞的方法。发送方尽可能多的发出拥塞窗口允许的数据量，该窗口大小有诸多方法可以实现，Vegas、Westwood、BIC或者CUBIC。不同于流控中的接收窗口，拥塞窗口是由发送方单独确定的。    数据发送 如下图所示，一个网络栈有很多层，图中包含各层类型。
+确切的说，TCP和IP是两个不同的层，理应分开描述；不过惯例上一直将他俩合成一个概念来讲 CONNECTIONI-ORIENTED，面向连接的 首先通信双方需要建立一条连接，一条TCP连接的标识符是local IP address, local port number和remote IP address, remote port number组成的四元组 BIDIRECTIONAL BYTE STREAM, 双向数据流传输 使用字节流实现双向传输 IN-ORDER DELIVERY，顺序发送 接收方按照数据从发送方发送的顺序接收；采用32bit整型作为数据包的序号，以实现顺序传输 RELIABILITY THROUGH ACK，通过ACK实现可靠性 当发送方发送数据后，没有收到接收方传来的该包的ACK，发送方将重新发送该数据。因此，发送方的TCP需要将未被ACK的数据缓存起来。 FLOW CONTROL，流控 发送方都想尽可能的发送数据给接收方，但是对端也得能够有能力接收，因此接收方要发送自己能够接收的最大数据量给发送方知道，最终发送方发出数据量由接收方的接收窗口决定。 CONGESTION CONTROL，拥塞控制 拥塞窗口是除接收窗口之外的另一个通过限制在途数据流大小以防止网络拥塞的方法。发送方尽可能多的发出拥塞窗口允许的数据量，该窗口大小有诸多方法可以实现，Vegas、Westwood、BIC或者CUBIC。不同于流控中的接收窗口，拥塞窗口是由发送方单独确定的。 数据发送 如下图所示，一个网络栈有很多层，图中包含各层类型。
 图中虽然有多层，但可以简要分为3类：
- User area 用户区 Kernel area 内核区 Device area 设备区  在user area和kerne area处理的任务都是由CPU完成的，所以user area和kernel area统称为host来与device area加以区分。在这里的device是Network Interface Card(NIC)，也就是网卡，用于收发数据，NIC是一个比我们常用的&amp;quot;局域网网卡&amp;quot;更准确的术语。">
+User area 用户区 Kernel area 内核区 Device area 设备区 在user area和kerne area处理的任务都是由CPU完成的，所以user area和kernel area统称为host来与device area加以区分。在这里的device是Network Interface Card(NIC)，也就是网卡，用于收发数据，NIC是一个比我们常用的&amp;quot;局域网网卡&amp;quot;更准确的术语。
+让我们大致看看user area，首先应用程序准备好数据(右上角的user data灰色框)，然后调用***write()***系统调用发送数据。假设所用的socket(图中write调用的参数fd)合法，那么当发起系统调用后，发送流程切换到kernel area。
+POSIX系列操作系统例如Linux和Unix在应用程序通过一个file descriptor，即文件描述符fd来表示所用的socket。在POSIX系系统中，socket也是一种文件，应用程序使用的fd在进程中有其对应的file structure，与socket对应（file-&amp;gt;private_data指向对应的struct socket，此处不影响理解），图1中的文件层进行简单的检查(VFS对write()的权限检查)，然后通过调用socket的相关函数最终实现write()。
+内核中每个socket有两个buffer：
+一个是send socket buffer，发送缓冲区，用于发送 一个是receive socket buffer，接收缓冲区，用于接收 当write系统调用被调用时，待发送数据从用户空间复制到内核内存中，然后添加进发送缓冲区的链表末尾。这样就可以按顺序发出数据。图一中的&amp;rsquo;Sockets&amp;rsquo;那层对应的右边灰色的小格子指向socket send buffer中的数据。然后，调用TCP/IP协议栈。">
     </head>
     <body class="
     article-page
@@ -60,7 +72,7 @@ TCP/IP协议为这些考虑而设计，如下是理解TCP/IP协议栈需要了�
         }
     })();
 </script>
-<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
     <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
         <span class="hamburger-box">
             <span class="hamburger-inner"></span>
@@ -83,15 +95,39 @@ TCP/IP协议为这些考虑而设计，如下是理解TCP/IP协议栈需要了�
                 
                 </a>
                 
+                    <span class="emoji">🍥</span>
+                
             </figure>
             
         
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
-            <h2 class="site-description"></h2>
+            <h2 class="site-description">Life is so beautiful</h2>
         </div>
-    </header><ol class="menu" id="main-menu">
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/bg2bkk'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
         
         
         
@@ -118,7 +154,7 @@ TCP/IP协议为这些考虑而设计，如下是理解TCP/IP协议栈需要了�
         
 
         <li >
-            <a href='/about/' >
+            <a href='/%E5%85%B3%E4%BA%8E%E6%88%91/' >
                 
                 
                 
@@ -131,7 +167,7 @@ TCP/IP协议为这些考虑而设计，如下是理解TCP/IP协议栈需要了�
 
 
                 
-                <span>About</span>
+                <span>关于我</span>
             </a>
         </li>
         
@@ -204,7 +240,58 @@ TCP/IP协议为这些考虑而设计，如下是理解TCP/IP协议栈需要了�
     </ol>
 </aside>
 
-    
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#tcpip的关键字">TCP/IP的关键字</a></li>
+    <li><a href="#数据发送">数据发送</a></li>
+    <li><a href="#数据接收">数据接收</a></li>
+    <li><a href="#网络栈进化方向">网络栈进化方向</a></li>
+    <li><a href="#网络栈的控制流">网络栈的控制流</a></li>
+    <li><a href="#怎样处理中断然后接收数据包">怎样处理中断然后接收数据包</a></li>
+    <li><a href="#相关数据结构">相关数据结构</a></li>
+    <li><a href="#sk_buff-structure">sk_buff structure</a>
+      <ol>
+        <li><a href="#sk_buff包括数据包的data部分和元数据部分">sk_buff包括数据包的Data部分和元数据部分</a></li>
+        <li><a href="#如何添加或删除头部">如何添加或删除头部</a></li>
+        <li><a href="#怎样合并或者分解数据包">怎样合并或者分解数据包</a></li>
+        <li><a href="#快速分配或者释放内存">快速分配或者释放内存</a></li>
+      </ol>
+    </li>
+    <li><a href="#tcp-control-block">TCP Control Block</a></li>
+    <li><a href="#追踪代码如何发送数据">追踪代码：如何发送数据</a></li>
+    <li><a href="#追踪代码如何接收数据">追踪代码：如何接收数据</a></li>
+    <li><a href="#nic和nic驱动是怎样通信的">NIC和NIC驱动是怎样通信的</a></li>
+    <li><a href="#缓存和流控制">缓存和流控制</a></li>
+    <li><a href="#to-be-continued">To Be Continued</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
 
             <main class="main full-width">
     <article class="main-article">
@@ -222,6 +309,9 @@ TCP/IP协议为这些考虑而设计，如下是理解TCP/IP协议栈需要了�
     </div>
 
     
+    
+    
+    
     <footer class="article-time">
         
             <div>
@@ -238,7 +328,7 @@ TCP/IP协议为这些考虑而设计，如下是理解TCP/IP协议栈需要了�
             </div>
         
 
-    
+        
             <div>
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
@@ -433,38 +523,36 @@ TCP/IP协议为这些考虑而设计，如下是理解TCP/IP协议栈需要了�
 </span><span class="lnt">25
 </span><span class="lnt">26
 </span><span class="lnt">27
-</span><span class="lnt">28
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="c1">// socket 结构体, include/linux/net.h
-</span><span class="c1"></span>
-<span class="cm">/**
-</span><span class="cm"> *  struct socket - general BSD socket
-</span><span class="cm"> *  @state: socket state (%SS_CONNECTED, etc)
-</span><span class="cm"> *  @type: socket type (%SOCK_STREAM, etc)
-</span><span class="cm"> *  @flags: socket flags (%SOCK_NOSPACE, etc)
-</span><span class="cm"> *  @ops: protocol specific socket operations
-</span><span class="cm"> *  @file: File back pointer for gc
-</span><span class="cm"> *  @sk: internal networking protocol agnostic socket representation
-</span><span class="cm"> *  @wq: wait queue for several uses
-</span><span class="cm"> */</span>
-<span class="k">struct</span> <span class="nc">socket</span> <span class="p">{</span>
-	<span class="n">socket_state</span>		<span class="n">state</span><span class="p">;</span>
-
-	<span class="n">kmemcheck_bitfield_begin</span><span class="p">(</span><span class="n">type</span><span class="p">);</span>
-	<span class="kt">short</span>			<span class="n">type</span><span class="p">;</span>
-	<span class="n">kmemcheck_bitfield_end</span><span class="p">(</span><span class="n">type</span><span class="p">);</span>
-
-	<span class="kt">unsigned</span> <span class="kt">long</span>		<span class="n">flags</span><span class="p">;</span>
-
-	<span class="k">struct</span> <span class="nc">socket_wq</span> <span class="n">__rcu</span>	<span class="o">*</span><span class="n">wq</span><span class="p">;</span>
-
-	<span class="k">struct</span> <span class="nc">file</span>		<span class="o">*</span><span class="n">file</span><span class="p">;</span>
-	<span class="k">struct</span> <span class="nc">sock</span>		<span class="o">*</span><span class="n">sk</span><span class="p">;</span>
-	<span class="k">const</span> <span class="k">struct</span> <span class="nc">proto_ops</span>	<span class="o">*</span><span class="n">ops</span><span class="p">;</span>
-<span class="p">};</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="c1">// socket 结构体, include/linux/net.h
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>
+</span></span><span class="line"><span class="cl"><span class="cm">/**
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *  struct socket - general BSD socket
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *  @state: socket state (%SS_CONNECTED, etc)
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *  @type: socket type (%SOCK_STREAM, etc)
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *  @flags: socket flags (%SOCK_NOSPACE, etc)
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *  @ops: protocol specific socket operations
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *  @file: File back pointer for gc
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *  @sk: internal networking protocol agnostic socket representation
+</span></span></span><span class="line"><span class="cl"><span class="cm"> *  @wq: wait queue for several uses
+</span></span></span><span class="line"><span class="cl"><span class="cm"> */</span>
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="nc">socket</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="n">socket_state</span>		<span class="n">state</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">kmemcheck_bitfield_begin</span><span class="p">(</span><span class="n">type</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">short</span>			<span class="n">type</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">kmemcheck_bitfield_end</span><span class="p">(</span><span class="n">type</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="kt">unsigned</span> <span class="kt">long</span>		<span class="n">flags</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="nc">socket_wq</span> <span class="n">__rcu</span>	<span class="o">*</span><span class="n">wq</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="nc">file</span>		<span class="o">*</span><span class="n">file</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="nc">sock</span>		<span class="o">*</span><span class="n">sk</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">const</span> <span class="k">struct</span> <span class="nc">proto_ops</span>	<span class="o">*</span><span class="n">ops</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>socket结构体指向的tcp_sock结构体除了支持TCP协议类型外还有别的比如sock，inet_sock等类型，这点可以视为某种意义上的多态。</p>
 <p>所有TCP协议的状态信息保存在tcp_sock结构体中，比如TCP的序号sequence number、接受窗口receive window、拥塞窗口和重传定时器等。</p>
@@ -499,28 +587,28 @@ TCP/IP协议为这些考虑而设计，如下是理解TCP/IP协议栈需要了�
 </span><span class="lnt">21
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="n">SYSCALL_DEFINE3</span><span class="p">(</span><span class="n">write</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span><span class="p">,</span> <span class="n">fd</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="n">__user</span> <span class="o">*</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="p">...)</span>
-<span class="p">{</span>
-	<span class="k">struct</span> <span class="nc">file</span> <span class="o">*</span><span class="n">file</span><span class="p">;</span>
-	<span class="p">[...]</span>
-	<span class="n">file</span> <span class="o">=</span> <span class="n">fget_light</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">fput_needed</span><span class="p">);</span>
-	<span class="p">[...]</span> <span class="o">===&gt;</span>
-	<span class="n">ret</span> <span class="o">=</span> <span class="n">filp</span><span class="o">-&gt;</span><span class="n">f_op</span><span class="o">-&gt;</span><span class="n">aio_write</span><span class="p">(</span><span class="o">&amp;</span><span class="n">kiocb</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">iov</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">kiocb</span><span class="p">.</span><span class="n">ki_pos</span><span class="p">);</span>
- 
-<span class="k">struct</span> <span class="nc">file_operations</span> <span class="p">{</span>
-	<span class="p">[...]</span>
-	<span class="n">ssize_t</span> <span class="p">(</span><span class="o">*</span><span class="n">aio_read</span><span class="p">)</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">kiocb</span> <span class="o">*</span><span class="p">,</span> <span class="k">const</span> <span class="k">struct</span> <span class="nc">iovec</span> <span class="o">*</span><span class="p">,</span> <span class="p">...)</span>
-	<span class="n">ssize_t</span> <span class="p">(</span><span class="o">*</span><span class="n">aio_write</span><span class="p">)</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">kiocb</span> <span class="o">*</span><span class="p">,</span> <span class="k">const</span> <span class="k">struct</span> <span class="nc">iovec</span> <span class="o">*</span><span class="p">,</span> <span class="p">...)</span>
-	<span class="p">[...]</span>
-<span class="p">};</span>
- 
-<span class="k">static</span> <span class="k">const</span> <span class="k">struct</span> <span class="nc">file_operations</span> <span class="n">socket_file_ops</span> <span class="o">=</span> <span class="p">{</span>
-	<span class="p">[...]</span>
-	<span class="p">.</span><span class="n">aio_read</span> <span class="o">=</span> <span class="n">sock_aio_read</span><span class="p">,</span>
-	<span class="p">.</span><span class="n">aio_write</span> <span class="o">=</span> <span class="n">sock_aio_write</span><span class="p">,</span>
-	<span class="p">[...]</span>
-<span class="p">};</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="n">SYSCALL_DEFINE3</span><span class="p">(</span><span class="n">write</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span><span class="p">,</span> <span class="n">fd</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="n">__user</span> <span class="o">*</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="p">...)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="nc">file</span> <span class="o">*</span><span class="n">file</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">	<span class="n">file</span> <span class="o">=</span> <span class="n">fget_light</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">fput_needed</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span> <span class="o">===&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">ret</span> <span class="o">=</span> <span class="n">filp</span><span class="o">-&gt;</span><span class="n">f_op</span><span class="o">-&gt;</span><span class="n">aio_write</span><span class="p">(</span><span class="o">&amp;</span><span class="n">kiocb</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">iov</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">kiocb</span><span class="p">.</span><span class="n">ki_pos</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="nc">file_operations</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">	<span class="n">ssize_t</span> <span class="p">(</span><span class="o">*</span><span class="n">aio_read</span><span class="p">)</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">kiocb</span> <span class="o">*</span><span class="p">,</span> <span class="k">const</span> <span class="k">struct</span> <span class="nc">iovec</span> <span class="o">*</span><span class="p">,</span> <span class="p">...)</span>
+</span></span><span class="line"><span class="cl">	<span class="n">ssize_t</span> <span class="p">(</span><span class="o">*</span><span class="n">aio_write</span><span class="p">)</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">kiocb</span> <span class="o">*</span><span class="p">,</span> <span class="k">const</span> <span class="k">struct</span> <span class="nc">iovec</span> <span class="o">*</span><span class="p">,</span> <span class="p">...)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"><span class="k">static</span> <span class="k">const</span> <span class="k">struct</span> <span class="nc">file_operations</span> <span class="n">socket_file_ops</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">	<span class="p">.</span><span class="n">aio_read</span> <span class="o">=</span> <span class="n">sock_aio_read</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="p">.</span><span class="n">aio_write</span> <span class="o">=</span> <span class="n">sock_aio_write</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>当应用程序调用write()系统调用，内核在文件层执行write()，首先找到fd对应的struct file，然后调用file_operations中的aio_write()，它是一个函数指针，最终调用的是socket_file_ops的sock_aio_write()方法。kenerl中通过函数表的方式实现接口，这点十分常见，但是对于TCP的具体指向方式，可以以后详查(TODO LIST)。</p>
 <p>接下来是sock_aio_write()的具体调用过程。</p>
@@ -562,41 +650,41 @@ TCP/IP协议为这些考虑而设计，如下是理解TCP/IP协议栈需要了�
 </span><span class="lnt">34
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="k">static</span> <span class="n">ssize_t</span> <span class="nf">sock_aio_write</span><span class="p">(</span><span class="k">struct</span> <span class="nc">kiocb</span> <span class="o">*</span><span class="n">iocb</span><span class="p">,</span> <span class="k">const</span> <span class="k">struct</span> <span class="nc">iovec</span> <span class="o">*</span><span class="n">iov</span><span class="p">,</span> <span class="p">..)</span>
-<span class="p">{</span>
-	<span class="p">[...]</span>
-	<span class="k">struct</span> <span class="nc">socket</span> <span class="o">*</span><span class="n">sock</span> <span class="o">=</span> <span class="n">file</span><span class="o">-&gt;</span><span class="n">private_data</span><span class="p">;</span>
-	<span class="p">[...]</span> <span class="o">===&gt;</span>
-	<span class="k">return</span> <span class="n">sock</span><span class="o">-&gt;</span><span class="n">ops</span><span class="o">-&gt;</span><span class="n">sendmsg</span><span class="p">(</span><span class="n">iocb</span><span class="p">,</span> <span class="n">sock</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
- 
-<span class="k">struct</span> <span class="nc">socket</span> <span class="p">{</span>
-	<span class="p">[...]</span>
-	<span class="k">struct</span> <span class="nc">file</span> <span class="o">*</span><span class="n">file</span><span class="p">;</span>
-	<span class="k">struct</span> <span class="nc">sock</span> <span class="o">*</span><span class="n">sk</span><span class="p">;</span>
-	<span class="k">const</span> <span class="k">struct</span> <span class="nc">proto_ops</span> <span class="o">*</span><span class="n">ops</span><span class="p">;</span>
-<span class="p">};</span>
- 
-<span class="k">const</span> <span class="k">struct</span> <span class="nc">proto_ops</span> <span class="n">inet_stream_ops</span> <span class="o">=</span> <span class="p">{</span>
-	<span class="p">.</span><span class="n">family</span> <span class="o">=</span> <span class="n">PF_INET</span><span class="p">,</span>
-	<span class="p">[...]</span>
-	<span class="p">.</span><span class="n">connect</span> <span class="o">=</span> <span class="n">inet_stream_connect</span><span class="p">,</span>
-	<span class="p">.</span><span class="n">accept</span> <span class="o">=</span> <span class="n">inet_accept</span><span class="p">,</span>
-	<span class="p">.</span><span class="n">listen</span> <span class="o">=</span> <span class="n">inet_listen</span><span class="p">,</span>
-	<span class="p">.</span><span class="n">sendmsg</span> <span class="o">=</span> <span class="n">tcp_sendmsg</span><span class="p">,</span>
-	<span class="p">.</span><span class="n">recvmsg</span> <span class="o">=</span> <span class="n">inet_recvmsg</span><span class="p">,</span>
-	<span class="p">[...]</span>
-<span class="p">};</span>
- 
-<span class="k">struct</span> <span class="nc">proto_ops</span> <span class="p">{</span>
-	<span class="p">[...]</span>
-	<span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">connect</span><span class="p">)</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">socket</span> <span class="o">*</span><span class="n">sock</span><span class="p">,</span> <span class="p">...)</span>
-	<span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">accept</span><span class="p">)</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">socket</span> <span class="o">*</span><span class="n">sock</span><span class="p">,</span> <span class="p">...)</span>
-	<span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">listen</span><span class="p">)</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">socket</span> <span class="o">*</span><span class="n">sock</span><span class="p">,</span> <span class="kt">int</span> <span class="n">len</span><span class="p">);</span>
-	<span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">sendmsg</span><span class="p">)</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">kiocb</span> <span class="o">*</span><span class="n">iocb</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">socket</span> <span class="o">*</span><span class="n">sock</span><span class="p">,</span> <span class="p">...)</span>
-	<span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">recvmsg</span><span class="p">)</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">kiocb</span> <span class="o">*</span><span class="n">iocb</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">socket</span> <span class="o">*</span><span class="n">sock</span><span class="p">,</span> <span class="p">...)</span>
-	<span class="p">[...]</span>
-<span class="p">};</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">static</span> <span class="n">ssize_t</span> <span class="nf">sock_aio_write</span><span class="p">(</span><span class="k">struct</span> <span class="nc">kiocb</span> <span class="o">*</span><span class="n">iocb</span><span class="p">,</span> <span class="k">const</span> <span class="k">struct</span> <span class="nc">iovec</span> <span class="o">*</span><span class="n">iov</span><span class="p">,</span> <span class="p">..)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="nc">socket</span> <span class="o">*</span><span class="n">sock</span> <span class="o">=</span> <span class="n">file</span><span class="o">-&gt;</span><span class="n">private_data</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span> <span class="o">===&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">sock</span><span class="o">-&gt;</span><span class="n">ops</span><span class="o">-&gt;</span><span class="n">sendmsg</span><span class="p">(</span><span class="n">iocb</span><span class="p">,</span> <span class="n">sock</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="n">size</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="nc">socket</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="nc">file</span> <span class="o">*</span><span class="n">file</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="nc">sock</span> <span class="o">*</span><span class="n">sk</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">const</span> <span class="k">struct</span> <span class="nc">proto_ops</span> <span class="o">*</span><span class="n">ops</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"><span class="k">const</span> <span class="k">struct</span> <span class="nc">proto_ops</span> <span class="n">inet_stream_ops</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="p">.</span><span class="n">family</span> <span class="o">=</span> <span class="n">PF_INET</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">	<span class="p">.</span><span class="n">connect</span> <span class="o">=</span> <span class="n">inet_stream_connect</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="p">.</span><span class="n">accept</span> <span class="o">=</span> <span class="n">inet_accept</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="p">.</span><span class="n">listen</span> <span class="o">=</span> <span class="n">inet_listen</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="p">.</span><span class="n">sendmsg</span> <span class="o">=</span> <span class="n">tcp_sendmsg</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="p">.</span><span class="n">recvmsg</span> <span class="o">=</span> <span class="n">inet_recvmsg</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span><span class="line"><span class="cl"> 
+</span></span><span class="line"><span class="cl"><span class="k">struct</span> <span class="nc">proto_ops</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">connect</span><span class="p">)</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">socket</span> <span class="o">*</span><span class="n">sock</span><span class="p">,</span> <span class="p">...)</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">accept</span><span class="p">)</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">socket</span> <span class="o">*</span><span class="n">sock</span><span class="p">,</span> <span class="p">...)</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">listen</span><span class="p">)</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">socket</span> <span class="o">*</span><span class="n">sock</span><span class="p">,</span> <span class="kt">int</span> <span class="n">len</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">sendmsg</span><span class="p">)</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">kiocb</span> <span class="o">*</span><span class="n">iocb</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">socket</span> <span class="o">*</span><span class="n">sock</span><span class="p">,</span> <span class="p">...)</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="p">(</span><span class="o">*</span><span class="n">recvmsg</span><span class="p">)</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">kiocb</span> <span class="o">*</span><span class="n">iocb</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">socket</span> <span class="o">*</span><span class="n">sock</span><span class="p">,</span> <span class="p">...)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>sock_aio_write()函数从struct file中获取struct socket，然后调用socket的sendmsg方法，sendmsg依然是个函数指针，指向的是struct socket中的proto_ops函数表的sendmsg，IPv4协议族的TCP类型的proto_ops操作表是inet_stream_ops，将sendmsg实现为tcp_sendmsg。</p>
 <div class="highlight"><div class="chroma">
@@ -659,63 +747,63 @@ TCP/IP协议为这些考虑而设计，如下是理解TCP/IP协议栈需要了�
 </span><span class="lnt">56
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="nf">tcp_sendmsg</span><span class="p">(</span><span class="k">struct</span> <span class="nc">kiocb</span> <span class="o">*</span><span class="n">iocb</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">socket</span> <span class="o">*</span><span class="n">sock</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">msghdr</span> <span class="o">*</span><span class="n">msg</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">size</span><span class="p">)</span>
-<span class="p">{</span>
-	<span class="k">struct</span> <span class="nc">sock</span> <span class="o">*</span><span class="n">sk</span> <span class="o">=</span> <span class="n">sock</span><span class="o">-&gt;</span><span class="n">sk</span><span class="p">;</span>
-	<span class="k">struct</span> <span class="nc">iovec</span> <span class="o">*</span><span class="n">iov</span><span class="p">;</span>
-	<span class="k">struct</span> <span class="nc">tcp_sock</span> <span class="o">*</span><span class="n">tp</span> <span class="o">=</span> <span class="n">tcp_sk</span><span class="p">(</span><span class="n">sk</span><span class="p">);</span>
-	<span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">skb</span><span class="p">;</span>
-
-	<span class="p">[...]</span>
-
-	<span class="n">mss_now</span> <span class="o">=</span> <span class="n">tcp_send_mss</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">size_goal</span><span class="p">,</span> <span class="n">flags</span><span class="p">);</span>
-
-	<span class="cm">/* Ok commence sending. */</span>
-	<span class="n">iovlen</span> <span class="o">=</span> <span class="n">msg</span><span class="o">-&gt;</span><span class="n">msg_iovlen</span><span class="p">;</span>
-	<span class="n">iov</span> <span class="o">=</span> <span class="n">msg</span><span class="o">-&gt;</span><span class="n">msg_iov</span><span class="p">;</span>
-	<span class="n">copied</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-
-	<span class="p">[...]</span>
-
-	<span class="k">while</span> <span class="p">(</span><span class="o">--</span><span class="n">iovlen</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-		<span class="kt">int</span> <span class="n">seglen</span> <span class="o">=</span> <span class="n">iov</span><span class="o">-&gt;</span><span class="n">iov_len</span><span class="p">;</span>
-		<span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">__user</span> <span class="o">*</span><span class="n">from</span> <span class="o">=</span> <span class="n">iov</span><span class="o">-&gt;</span><span class="n">iov_base</span><span class="p">;</span>
-		<span class="n">iov</span><span class="o">++</span><span class="p">;</span>
-		<span class="k">while</span> <span class="p">(</span><span class="n">seglen</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-			<span class="kt">int</span> <span class="n">copy</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-			<span class="kt">int</span> <span class="n">max</span> <span class="o">=</span> <span class="n">size_goal</span><span class="p">;</span>
-	
-			<span class="p">[...]</span>
-		
-			<span class="n">skb</span> <span class="o">=</span> <span class="n">sk_stream_alloc_skb</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="n">select_size</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="n">sg</span><span class="p">),</span> <span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_allocation</span><span class="p">);</span>
-			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">skb</span><span class="p">)</span>
-				<span class="k">goto</span> <span class="n">wait_for_memory</span><span class="p">;</span>
-			<span class="cm">/*
-</span><span class="cm">			* Check whether we can use HW checksum.
-</span><span class="cm">			*/</span>
-			<span class="k">if</span> <span class="p">(</span><span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_route_caps</span> <span class="o">&amp;</span> <span class="n">NETIF_F_ALL_CSUM</span><span class="p">)</span>
-				<span class="n">skb</span><span class="o">-&gt;</span><span class="n">ip_summed</span> <span class="o">=</span> <span class="n">CHECKSUM_PARTIAL</span><span class="p">;</span>
-		
-			<span class="p">[...]</span>
-			<span class="n">skb_entail</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="n">skb</span><span class="p">);</span>
-		
-			<span class="p">[...]</span>
-			<span class="cm">/* Where to copy to? */</span>
-			<span class="k">if</span> <span class="p">(</span><span class="n">skb_tailroom</span><span class="p">(</span><span class="n">skb</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-		
-				<span class="cm">/* We have some space in skb head. Superb! */</span>
-				<span class="k">if</span> <span class="p">(</span><span class="n">copy</span> <span class="o">&gt;</span> <span class="n">skb_tailroom</span><span class="p">(</span><span class="n">skb</span><span class="p">))</span>
-					<span class="n">copy</span> <span class="o">=</span> <span class="n">skb_tailroom</span><span class="p">(</span><span class="n">skb</span><span class="p">);</span>
-				<span class="k">if</span> <span class="p">((</span><span class="n">err</span> <span class="o">=</span> <span class="n">skb_add_data</span><span class="p">(</span><span class="n">skb</span><span class="p">,</span> <span class="n">from</span><span class="p">,</span> <span class="n">copy</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
-					<span class="k">goto</span> <span class="n">do_fault</span><span class="p">;</span>
-				<span class="p">[...]</span>
-			
-				<span class="k">if</span> <span class="p">(</span><span class="n">copied</span><span class="p">)</span>
-					<span class="n">tcp_push</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="n">flags</span><span class="p">,</span> <span class="n">mss_now</span><span class="p">,</span> <span class="n">tp</span><span class="o">-&gt;</span><span class="n">nonagle</span><span class="p">);</span>
-			
-				<span class="p">[...]</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">tcp_sendmsg</span><span class="p">(</span><span class="k">struct</span> <span class="nc">kiocb</span> <span class="o">*</span><span class="n">iocb</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">socket</span> <span class="o">*</span><span class="n">sock</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">msghdr</span> <span class="o">*</span><span class="n">msg</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">size</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="nc">sock</span> <span class="o">*</span><span class="n">sk</span> <span class="o">=</span> <span class="n">sock</span><span class="o">-&gt;</span><span class="n">sk</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="nc">iovec</span> <span class="o">*</span><span class="n">iov</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="nc">tcp_sock</span> <span class="o">*</span><span class="n">tp</span> <span class="o">=</span> <span class="n">tcp_sk</span><span class="p">(</span><span class="n">sk</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">skb</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">mss_now</span> <span class="o">=</span> <span class="n">tcp_send_mss</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">size_goal</span><span class="p">,</span> <span class="n">flags</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/* Ok commence sending. */</span>
+</span></span><span class="line"><span class="cl">	<span class="n">iovlen</span> <span class="o">=</span> <span class="n">msg</span><span class="o">-&gt;</span><span class="n">msg_iovlen</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">iov</span> <span class="o">=</span> <span class="n">msg</span><span class="o">-&gt;</span><span class="n">msg_iov</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">copied</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">while</span> <span class="p">(</span><span class="o">--</span><span class="n">iovlen</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="kt">int</span> <span class="n">seglen</span> <span class="o">=</span> <span class="n">iov</span><span class="o">-&gt;</span><span class="n">iov_len</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">__user</span> <span class="o">*</span><span class="n">from</span> <span class="o">=</span> <span class="n">iov</span><span class="o">-&gt;</span><span class="n">iov_base</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">iov</span><span class="o">++</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="k">while</span> <span class="p">(</span><span class="n">seglen</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="kt">int</span> <span class="n">copy</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">			<span class="kt">int</span> <span class="n">max</span> <span class="o">=</span> <span class="n">size_goal</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	
+</span></span><span class="line"><span class="cl">			<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">			<span class="n">skb</span> <span class="o">=</span> <span class="n">sk_stream_alloc_skb</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="n">select_size</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="n">sg</span><span class="p">),</span> <span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_allocation</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">skb</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">				<span class="k">goto</span> <span class="n">wait_for_memory</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">			<span class="cm">/*
+</span></span></span><span class="line"><span class="cl"><span class="cm">			* Check whether we can use HW checksum.
+</span></span></span><span class="line"><span class="cl"><span class="cm">			*/</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_route_caps</span> <span class="o">&amp;</span> <span class="n">NETIF_F_ALL_CSUM</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">				<span class="n">skb</span><span class="o">-&gt;</span><span class="n">ip_summed</span> <span class="o">=</span> <span class="n">CHECKSUM_PARTIAL</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">			<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">			<span class="n">skb_entail</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="n">skb</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">			<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">			<span class="cm">/* Where to copy to? */</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="n">skb_tailroom</span><span class="p">(</span><span class="n">skb</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		
+</span></span><span class="line"><span class="cl">				<span class="cm">/* We have some space in skb head. Superb! */</span>
+</span></span><span class="line"><span class="cl">				<span class="k">if</span> <span class="p">(</span><span class="n">copy</span> <span class="o">&gt;</span> <span class="n">skb_tailroom</span><span class="p">(</span><span class="n">skb</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">					<span class="n">copy</span> <span class="o">=</span> <span class="n">skb_tailroom</span><span class="p">(</span><span class="n">skb</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">				<span class="k">if</span> <span class="p">((</span><span class="n">err</span> <span class="o">=</span> <span class="n">skb_add_data</span><span class="p">(</span><span class="n">skb</span><span class="p">,</span> <span class="n">from</span><span class="p">,</span> <span class="n">copy</span><span class="p">))</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">					<span class="k">goto</span> <span class="n">do_fault</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">				<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">			
+</span></span><span class="line"><span class="cl">				<span class="k">if</span> <span class="p">(</span><span class="n">copied</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">					<span class="n">tcp_push</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="n">flags</span><span class="p">,</span> <span class="n">mss_now</span><span class="p">,</span> <span class="n">tp</span><span class="o">-&gt;</span><span class="n">nonagle</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">			
+</span></span><span class="line"><span class="cl">				<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>tcp_sendmsg()首先从参数struct socket *sock获取tcp_sock，即TCP Control Blcok，然后将应用程序请求发送的数据复制到socket的发送缓冲区中。当复制数据到sk_buff中前，首先获取socket的Maximum Segment Size(MSS，最大消息长度)，MSS代表一个TCP包可携带的最大数据量（当然如果支持TSO或者GSO的话可以大于MSS），然后创建数据包，即sk_stream_alloc_skb()函数创建一个新的sk_buff，返回skb，skb_entail()函数将新建的skb添加到socket的发送缓冲区中（前文提到该缓冲区是一个链表）。skb_add_data函数将应用程序的数据复制到skb的buffer中。所有的数据将在重复调用这一过程中复制完成。此时，socket的发送缓冲区将以链表形式组织起MSS大小的若干个sk_buff。最后，调用tcp_push()函数将可发送的数据以数据包的形式发送出去，实现write()掉用的完整流程。</p>
 <div class="highlight"><div class="chroma">
@@ -745,36 +833,34 @@ TCP/IP协议为这些考虑而设计，如下是理解TCP/IP协议栈需要了�
 </span><span class="lnt">23
 </span><span class="lnt">24
 </span><span class="lnt">25
-</span><span class="lnt">26
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="k">static</span> <span class="kr">inline</span> <span class="kt">void</span> <span class="nf">tcp_push</span><span class="p">(</span><span class="k">struct</span> <span class="nc">sock</span> <span class="o">*</span><span class="n">sk</span><span class="p">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="p">,</span> <span class="kt">int</span> <span class="n">mss_now</span><span class="p">,</span> <span class="p">...)</span>
-	<span class="p">[...]</span> <span class="o">===&gt;</span>
-	<span class="k">static</span> <span class="kt">int</span> <span class="n">tcp_write_xmit</span><span class="p">(</span><span class="k">struct</span> <span class="nc">sock</span> <span class="o">*</span><span class="n">sk</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">mss_now</span><span class="p">,</span> <span class="p">...)</span>
-	<span class="kt">int</span> <span class="n">nonagle</span><span class="p">,</span>
-	<span class="p">{</span>
-		<span class="k">struct</span> <span class="nc">tcp_sock</span> <span class="o">*</span><span class="n">tp</span> <span class="o">=</span> <span class="n">tcp_sk</span><span class="p">(</span><span class="n">sk</span><span class="p">);</span>
-		<span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">skb</span><span class="p">;</span>
-		<span class="p">[...]</span>
-		<span class="k">while</span> <span class="p">((</span><span class="n">skb</span> <span class="o">=</span> <span class="n">tcp_send_head</span><span class="p">(</span><span class="n">sk</span><span class="p">)))</span> <span class="p">{</span>
-			<span class="p">[...]</span>
-			<span class="n">cwnd_quota</span> <span class="o">=</span> <span class="n">tcp_cwnd_test</span><span class="p">(</span><span class="n">tp</span><span class="p">,</span> <span class="n">skb</span><span class="p">);</span>
-			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">cwnd_quota</span><span class="p">)</span>
-			<span class="k">break</span><span class="p">;</span>
-			 
-			<span class="k">if</span> <span class="p">(</span><span class="n">unlikely</span><span class="p">(</span><span class="o">!</span><span class="n">tcp_snd_wnd_test</span><span class="p">(</span><span class="n">tp</span><span class="p">,</span> <span class="n">skb</span><span class="p">,</span> <span class="n">mss_now</span><span class="p">)))</span>
-			<span class="k">break</span><span class="p">;</span>
-			<span class="p">[...]</span>
-			<span class="k">if</span> <span class="p">(</span><span class="n">unlikely</span><span class="p">(</span><span class="n">tcp_transmit_skb</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="n">skb</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">gfp</span><span class="p">)))</span>
-			<span class="k">break</span><span class="p">;</span>
-			 
-			<span class="cm">/* Advance the send_head. This one is sent out.
-</span><span class="cm">			* This call will increment packets_out.
-</span><span class="cm">			*/</span>
-			<span class="n">tcp_event_new_data_sent</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="n">skb</span><span class="p">);</span>
-			<span class="p">[...]</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">static</span> <span class="kr">inline</span> <span class="kt">void</span> <span class="nf">tcp_push</span><span class="p">(</span><span class="k">struct</span> <span class="nc">sock</span> <span class="o">*</span><span class="n">sk</span><span class="p">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="p">,</span> <span class="kt">int</span> <span class="n">mss_now</span><span class="p">,</span> <span class="p">...)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span> <span class="o">===&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">static</span> <span class="kt">int</span> <span class="n">tcp_write_xmit</span><span class="p">(</span><span class="k">struct</span> <span class="nc">sock</span> <span class="o">*</span><span class="n">sk</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">mss_now</span><span class="p">,</span> <span class="p">...)</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">nonagle</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">struct</span> <span class="nc">tcp_sock</span> <span class="o">*</span><span class="n">tp</span> <span class="o">=</span> <span class="n">tcp_sk</span><span class="p">(</span><span class="n">sk</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">skb</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">		<span class="k">while</span> <span class="p">((</span><span class="n">skb</span> <span class="o">=</span> <span class="n">tcp_send_head</span><span class="p">(</span><span class="n">sk</span><span class="p">)))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">			<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">			<span class="n">cwnd_quota</span> <span class="o">=</span> <span class="n">tcp_cwnd_test</span><span class="p">(</span><span class="n">tp</span><span class="p">,</span> <span class="n">skb</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">cwnd_quota</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">			<span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">			 
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="n">unlikely</span><span class="p">(</span><span class="o">!</span><span class="n">tcp_snd_wnd_test</span><span class="p">(</span><span class="n">tp</span><span class="p">,</span> <span class="n">skb</span><span class="p">,</span> <span class="n">mss_now</span><span class="p">)))</span>
+</span></span><span class="line"><span class="cl">			<span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">			<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">			<span class="k">if</span> <span class="p">(</span><span class="n">unlikely</span><span class="p">(</span><span class="n">tcp_transmit_skb</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="n">skb</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">gfp</span><span class="p">)))</span>
+</span></span><span class="line"><span class="cl">			<span class="k">break</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">			 
+</span></span><span class="line"><span class="cl">			<span class="cm">/* Advance the send_head. This one is sent out.
+</span></span></span><span class="line"><span class="cl"><span class="cm">			* This call will increment packets_out.
+</span></span></span><span class="line"><span class="cl"><span class="cm">			*/</span>
+</span></span><span class="line"><span class="cl">			<span class="n">tcp_event_new_data_sent</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="n">skb</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">			<span class="p">[...]</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>tcp_push()函数尽可能的将TCP允许发送的sk_buff按序号发送出去。首先调用tcp_send_head()函数获取发送缓冲区队列头的sk_buff，然后tcp_cwnd_test()和tcp_snd_wnd_test()函数用来检查拥塞窗口和接收窗口是否允许新的数据包发送，如果可以，调用tcp_transmit_skb()函数新建网络数据包，用于发送。</p>
 <div class="highlight"><div class="chroma">
@@ -822,54 +908,52 @@ TCP/IP协议为这些考虑而设计，如下是理解TCP/IP协议栈需要了�
 </span><span class="lnt">41
 </span><span class="lnt">42
 </span><span class="lnt">43
-</span><span class="lnt">44
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp">
-<span class="k">static</span> <span class="kt">int</span> <span class="nf">tcp_transmit_skb</span><span class="p">(</span><span class="k">struct</span> <span class="nc">sock</span> <span class="o">*</span><span class="n">sk</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">skb</span><span class="p">,</span><span class="kt">int</span> <span class="n">clone_it</span><span class="p">,</span> <span class="n">gfp_t</span> <span class="n">gfp_mask</span><span class="p">)</span>
-<span class="p">{</span>
-	<span class="k">const</span> <span class="k">struct</span> <span class="nc">inet_connection_sock</span> <span class="o">*</span><span class="n">icsk</span> <span class="o">=</span> <span class="n">inet_csk</span><span class="p">(</span><span class="n">sk</span><span class="p">);</span>
-	<span class="k">struct</span> <span class="nc">inet_sock</span> <span class="o">*</span><span class="n">inet</span><span class="p">;</span>
-	<span class="k">struct</span> <span class="nc">tcp_sock</span> <span class="o">*</span><span class="n">tp</span><span class="p">;</span>
-
-	<span class="p">[...]</span>
-
-	<span class="k">if</span> <span class="p">(</span><span class="n">likely</span><span class="p">(</span><span class="n">clone_it</span><span class="p">))</span> <span class="p">{</span>
-		<span class="k">if</span> <span class="p">(</span><span class="n">unlikely</span><span class="p">(</span><span class="n">skb_cloned</span><span class="p">(</span><span class="n">skb</span><span class="p">)))</span>
-		<span class="n">skb</span> <span class="o">=</span> <span class="n">pskb_copy</span><span class="p">(</span><span class="n">skb</span><span class="p">,</span> <span class="n">gfp_mask</span><span class="p">);</span>
-		<span class="k">else</span>
-		<span class="n">skb</span> <span class="o">=</span> <span class="n">skb_clone</span><span class="p">(</span><span class="n">skb</span><span class="p">,</span> <span class="n">gfp_mask</span><span class="p">);</span>
-		<span class="k">if</span> <span class="p">(</span><span class="n">unlikely</span><span class="p">(</span><span class="o">!</span><span class="n">skb</span><span class="p">))</span>
-		<span class="k">return</span> <span class="o">-</span><span class="n">ENOBUFS</span><span class="p">;</span>
-	<span class="p">}</span>
-
-	<span class="p">[...]</span>
-
-	<span class="n">skb_push</span><span class="p">(</span><span class="n">skb</span><span class="p">,</span> <span class="n">tcp_header_size</span><span class="p">);</span>
-	<span class="n">skb_reset_transport_header</span><span class="p">(</span><span class="n">skb</span><span class="p">);</span>
-	<span class="n">skb_set_owner_w</span><span class="p">(</span><span class="n">skb</span><span class="p">,</span> <span class="n">sk</span><span class="p">);</span>
-
-	<span class="cm">/* Build TCP header and checksum it. */</span>
-	<span class="n">th</span> <span class="o">=</span> <span class="n">tcp_hdr</span><span class="p">(</span><span class="n">skb</span><span class="p">);</span>
-	<span class="n">th</span><span class="o">-&gt;</span><span class="n">source</span> <span class="o">=</span> <span class="n">inet</span><span class="o">-&gt;</span><span class="n">inet_sport</span><span class="p">;</span>
-	<span class="n">th</span><span class="o">-&gt;</span><span class="n">dest</span> <span class="o">=</span> <span class="n">inet</span><span class="o">-&gt;</span><span class="n">inet_dport</span><span class="p">;</span>
-	<span class="n">th</span><span class="o">-&gt;</span><span class="n">seq</span> <span class="o">=</span> <span class="n">htonl</span><span class="p">(</span><span class="n">tcb</span><span class="o">-&gt;</span><span class="n">seq</span><span class="p">);</span>
-	<span class="n">th</span><span class="o">-&gt;</span><span class="n">ack_seq</span> <span class="o">=</span> <span class="n">htonl</span><span class="p">(</span><span class="n">tp</span><span class="o">-&gt;</span><span class="n">rcv_nxt</span><span class="p">);</span>
-
-	<span class="p">[...]</span>
-
-	<span class="n">icsk</span><span class="o">-&gt;</span><span class="n">icsk_af_ops</span><span class="o">-&gt;</span><span class="n">send_check</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="n">skb</span><span class="p">);</span>
-
-	<span class="p">[...]</span>
-
-	<span class="n">err</span> <span class="o">=</span> <span class="n">icsk</span><span class="o">-&gt;</span><span class="n">icsk_af_ops</span><span class="o">-&gt;</span><span class="n">queue_xmit</span><span class="p">(</span><span class="n">skb</span><span class="p">);</span>
-	<span class="k">if</span> <span class="p">(</span><span class="n">likely</span><span class="p">(</span><span class="n">err</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">))</span>
-		<span class="k">return</span> <span class="n">err</span><span class="p">;</span>
-	<span class="n">tcp_enter_cwr</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
-	<span class="k">return</span> <span class="n">net_xmit_eval</span><span class="p">(</span><span class="n">err</span><span class="p">);</span>
-<span class="p">}</span>
-
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">static</span> <span class="kt">int</span> <span class="nf">tcp_transmit_skb</span><span class="p">(</span><span class="k">struct</span> <span class="nc">sock</span> <span class="o">*</span><span class="n">sk</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">skb</span><span class="p">,</span><span class="kt">int</span> <span class="n">clone_it</span><span class="p">,</span> <span class="n">gfp_t</span> <span class="n">gfp_mask</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="k">const</span> <span class="k">struct</span> <span class="nc">inet_connection_sock</span> <span class="o">*</span><span class="n">icsk</span> <span class="o">=</span> <span class="n">inet_csk</span><span class="p">(</span><span class="n">sk</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="nc">inet_sock</span> <span class="o">*</span><span class="n">inet</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="k">struct</span> <span class="nc">tcp_sock</span> <span class="o">*</span><span class="n">tp</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">likely</span><span class="p">(</span><span class="n">clone_it</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">unlikely</span><span class="p">(</span><span class="n">skb_cloned</span><span class="p">(</span><span class="n">skb</span><span class="p">)))</span>
+</span></span><span class="line"><span class="cl">		<span class="n">skb</span> <span class="o">=</span> <span class="n">pskb_copy</span><span class="p">(</span><span class="n">skb</span><span class="p">,</span> <span class="n">gfp_mask</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">else</span>
+</span></span><span class="line"><span class="cl">		<span class="n">skb</span> <span class="o">=</span> <span class="n">skb_clone</span><span class="p">(</span><span class="n">skb</span><span class="p">,</span> <span class="n">gfp_mask</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">unlikely</span><span class="p">(</span><span class="o">!</span><span class="n">skb</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="o">-</span><span class="n">ENOBUFS</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">skb_push</span><span class="p">(</span><span class="n">skb</span><span class="p">,</span> <span class="n">tcp_header_size</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">skb_reset_transport_header</span><span class="p">(</span><span class="n">skb</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">skb_set_owner_w</span><span class="p">(</span><span class="n">skb</span><span class="p">,</span> <span class="n">sk</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/* Build TCP header and checksum it. */</span>
+</span></span><span class="line"><span class="cl">	<span class="n">th</span> <span class="o">=</span> <span class="n">tcp_hdr</span><span class="p">(</span><span class="n">skb</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">th</span><span class="o">-&gt;</span><span class="n">source</span> <span class="o">=</span> <span class="n">inet</span><span class="o">-&gt;</span><span class="n">inet_sport</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">th</span><span class="o">-&gt;</span><span class="n">dest</span> <span class="o">=</span> <span class="n">inet</span><span class="o">-&gt;</span><span class="n">inet_dport</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">th</span><span class="o">-&gt;</span><span class="n">seq</span> <span class="o">=</span> <span class="n">htonl</span><span class="p">(</span><span class="n">tcb</span><span class="o">-&gt;</span><span class="n">seq</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">th</span><span class="o">-&gt;</span><span class="n">ack_seq</span> <span class="o">=</span> <span class="n">htonl</span><span class="p">(</span><span class="n">tp</span><span class="o">-&gt;</span><span class="n">rcv_nxt</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">icsk</span><span class="o">-&gt;</span><span class="n">icsk_af_ops</span><span class="o">-&gt;</span><span class="n">send_check</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="n">skb</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="n">err</span> <span class="o">=</span> <span class="n">icsk</span><span class="o">-&gt;</span><span class="n">icsk_af_ops</span><span class="o">-&gt;</span><span class="n">queue_xmit</span><span class="p">(</span><span class="n">skb</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">likely</span><span class="p">(</span><span class="n">err</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">err</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">tcp_enter_cwr</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">net_xmit_eval</span><span class="p">(</span><span class="n">err</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>tcp_transmit_skb()首先调用pskb_copy()创建待发送sk_buff的副本，仅复制sk_buff的元数据；然后调用skb_push()锁定tcp头部区域，然后填充头部字段，send_check()计算TCP头部的checksum。最后，queue_xmit()将数据包skb转移到下一层IP层，IPv4的queue_xmit指针指向函数ip_queue_xmit()。</p>
 <div class="highlight"><div class="chroma">
@@ -922,53 +1006,53 @@ TCP/IP协议为这些考虑而设计，如下是理解TCP/IP协议栈需要了�
 </span><span class="lnt">46
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp">
-<span class="kt">int</span> <span class="nf">ip_queue_xmit</span><span class="p">(</span><span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">skb</span><span class="p">)</span>
-<span class="p">{</span>
-	<span class="p">[...]</span>
-	<span class="n">rt</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">rtable</span> <span class="o">*</span><span class="p">)</span><span class="n">__sk_dst_check</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
-	<span class="p">[...]</span>
-
-	<span class="cm">/* OK, we know where to send it, allocate and build IP header. */</span>
-	<span class="n">skb_push</span><span class="p">(</span><span class="n">skb</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="nc">iphdr</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">opt</span> <span class="o">?</span> <span class="n">opt</span><span class="o">-&gt;</span><span class="nl">optlen</span> <span class="p">:</span> <span class="mi">0</span><span class="p">));</span>
-	<span class="n">skb_reset_network_header</span><span class="p">(</span><span class="n">skb</span><span class="p">);</span>
-	<span class="n">iph</span> <span class="o">=</span> <span class="n">ip_hdr</span><span class="p">(</span><span class="n">skb</span><span class="p">);</span>
-	<span class="o">*</span><span class="p">((</span><span class="n">__be16</span> <span class="o">*</span><span class="p">)</span><span class="n">iph</span><span class="p">)</span> <span class="o">=</span> <span class="n">htons</span><span class="p">((</span><span class="mi">4</span> <span class="o">&lt;&lt;</span> <span class="mi">12</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="mi">5</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">inet</span><span class="o">-&gt;</span><span class="n">tos</span> <span class="o">&amp;</span> <span class="mh">0xff</span><span class="p">));</span>
-	<span class="k">if</span> <span class="p">(</span><span class="n">ip_dont_fragment</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rt</span><span class="o">-&gt;</span><span class="n">dst</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">skb</span><span class="o">-&gt;</span><span class="n">local_df</span><span class="p">)</span>
-		<span class="n">iph</span><span class="o">-&gt;</span><span class="n">frag_off</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">IP_DF</span><span class="p">);</span>
-	<span class="k">else</span>
-		<span class="n">iph</span><span class="o">-&gt;</span><span class="n">frag_off</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
-	<span class="n">iph</span><span class="o">-&gt;</span><span class="n">ttl</span> <span class="o">=</span> <span class="n">ip_select_ttl</span><span class="p">(</span><span class="n">inet</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rt</span><span class="o">-&gt;</span><span class="n">dst</span><span class="p">);</span>
-	<span class="n">iph</span><span class="o">-&gt;</span><span class="n">protocol</span> <span class="o">=</span> <span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_protocol</span><span class="p">;</span>
-	<span class="n">iph</span><span class="o">-&gt;</span><span class="n">saddr</span> <span class="o">=</span> <span class="n">rt</span><span class="o">-&gt;</span><span class="n">rt_src</span><span class="p">;</span>
-	<span class="n">iph</span><span class="o">-&gt;</span><span class="n">daddr</span> <span class="o">=</span> <span class="n">rt</span><span class="o">-&gt;</span><span class="n">rt_dst</span><span class="p">;</span>
-	<span class="p">[...]</span>
-	<span class="n">res</span> <span class="o">=</span> <span class="n">ip_local_out</span><span class="p">(</span><span class="n">skb</span><span class="p">);</span>
-	<span class="p">[...]</span> <span class="o">===&gt;</span>
-	<span class="kt">int</span> <span class="n">__ip_local_out</span><span class="p">(</span><span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">skb</span><span class="p">)</span>
-	<span class="p">[...]</span>
-	<span class="n">ip_send_check</span><span class="p">(</span><span class="n">iph</span><span class="p">);</span>
-	<span class="k">return</span> <span class="n">nf_hook</span><span class="p">(</span><span class="n">NFPROTO_IPV4</span><span class="p">,</span> <span class="n">NF_INET_LOCAL_OUT</span><span class="p">,</span> <span class="n">skb</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span>	<span class="n">skb_dst</span><span class="p">(</span><span class="n">skb</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">dev</span><span class="p">,</span> <span class="n">dst_output</span><span class="p">);</span>
-
-<span class="p">[...]</span> <span class="o">===&gt;</span>
-<span class="kt">int</span> <span class="n">ip_output</span><span class="p">(</span><span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">skb</span><span class="p">)</span>
-<span class="p">{</span>
-		<span class="k">struct</span> <span class="nc">net_device</span> <span class="o">*</span><span class="n">dev</span> <span class="o">=</span> <span class="n">skb_dst</span><span class="p">(</span><span class="n">skb</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">dev</span><span class="p">;</span>
-		<span class="p">[...]</span>
-		<span class="n">skb</span><span class="o">-&gt;</span><span class="n">dev</span> <span class="o">=</span> <span class="n">dev</span><span class="p">;</span>
-		<span class="n">skb</span><span class="o">-&gt;</span><span class="n">protocol</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">ETH_P_IP</span><span class="p">);</span>
-		<span class="k">return</span> <span class="n">NF_HOOK_COND</span><span class="p">(</span><span class="n">NFPROTO_IPV4</span><span class="p">,</span> <span class="n">NF_INET_POST_ROUTING</span><span class="p">,</span> <span class="n">skb</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">dev</span><span class="p">,</span>
-		<span class="n">ip_finish_output</span><span class="p">,</span>
-
-<span class="p">[...]</span> <span class="o">===&gt;</span>
-<span class="k">static</span> <span class="kt">int</span> <span class="n">ip_finish_output</span><span class="p">(</span><span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">skb</span><span class="p">)</span>
-<span class="p">{</span>
-	<span class="p">[...]</span>
-	<span class="k">if</span> <span class="p">(</span><span class="n">skb</span><span class="o">-&gt;</span><span class="n">len</span> <span class="o">&gt;</span> <span class="n">ip_skb_dst_mtu</span><span class="p">(</span><span class="n">skb</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">skb_is_gso</span><span class="p">(</span><span class="n">skb</span><span class="p">))</span>
-		<span class="k">return</span> <span class="n">ip_fragment</span><span class="p">(</span><span class="n">skb</span><span class="p">,</span> <span class="n">ip_finish_output2</span><span class="p">);</span>
-	<span class="k">else</span>
-		<span class="k">return</span> <span class="n">ip_finish_output2</span><span class="p">(</span><span class="n">skb</span><span class="p">);</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">ip_queue_xmit</span><span class="p">(</span><span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">skb</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">	<span class="n">rt</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="nc">rtable</span> <span class="o">*</span><span class="p">)</span><span class="n">__sk_dst_check</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">	<span class="cm">/* OK, we know where to send it, allocate and build IP header. */</span>
+</span></span><span class="line"><span class="cl">	<span class="n">skb_push</span><span class="p">(</span><span class="n">skb</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="nc">iphdr</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">opt</span> <span class="o">?</span> <span class="n">opt</span><span class="o">-&gt;</span><span class="nl">optlen</span> <span class="p">:</span> <span class="mi">0</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">	<span class="n">skb_reset_network_header</span><span class="p">(</span><span class="n">skb</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">iph</span> <span class="o">=</span> <span class="n">ip_hdr</span><span class="p">(</span><span class="n">skb</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="o">*</span><span class="p">((</span><span class="n">__be16</span> <span class="o">*</span><span class="p">)</span><span class="n">iph</span><span class="p">)</span> <span class="o">=</span> <span class="n">htons</span><span class="p">((</span><span class="mi">4</span> <span class="o">&lt;&lt;</span> <span class="mi">12</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="mi">5</span> <span class="o">&lt;&lt;</span> <span class="mi">8</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">inet</span><span class="o">-&gt;</span><span class="n">tos</span> <span class="o">&amp;</span> <span class="mh">0xff</span><span class="p">));</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">ip_dont_fragment</span><span class="p">(</span><span class="n">sk</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rt</span><span class="o">-&gt;</span><span class="n">dst</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">skb</span><span class="o">-&gt;</span><span class="n">local_df</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">		<span class="n">iph</span><span class="o">-&gt;</span><span class="n">frag_off</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">IP_DF</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span>
+</span></span><span class="line"><span class="cl">		<span class="n">iph</span><span class="o">-&gt;</span><span class="n">frag_off</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">iph</span><span class="o">-&gt;</span><span class="n">ttl</span> <span class="o">=</span> <span class="n">ip_select_ttl</span><span class="p">(</span><span class="n">inet</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">rt</span><span class="o">-&gt;</span><span class="n">dst</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">iph</span><span class="o">-&gt;</span><span class="n">protocol</span> <span class="o">=</span> <span class="n">sk</span><span class="o">-&gt;</span><span class="n">sk_protocol</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">iph</span><span class="o">-&gt;</span><span class="n">saddr</span> <span class="o">=</span> <span class="n">rt</span><span class="o">-&gt;</span><span class="n">rt_src</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="n">iph</span><span class="o">-&gt;</span><span class="n">daddr</span> <span class="o">=</span> <span class="n">rt</span><span class="o">-&gt;</span><span class="n">rt_dst</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">	<span class="n">res</span> <span class="o">=</span> <span class="n">ip_local_out</span><span class="p">(</span><span class="n">skb</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span> <span class="o">===&gt;</span>
+</span></span><span class="line"><span class="cl">	<span class="kt">int</span> <span class="n">__ip_local_out</span><span class="p">(</span><span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">skb</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">	<span class="n">ip_send_check</span><span class="p">(</span><span class="n">iph</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">return</span> <span class="n">nf_hook</span><span class="p">(</span><span class="n">NFPROTO_IPV4</span><span class="p">,</span> <span class="n">NF_INET_LOCAL_OUT</span><span class="p">,</span> <span class="n">skb</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span>	<span class="n">skb_dst</span><span class="p">(</span><span class="n">skb</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">dev</span><span class="p">,</span> <span class="n">dst_output</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">[...]</span> <span class="o">===&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">ip_output</span><span class="p">(</span><span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">skb</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="k">struct</span> <span class="nc">net_device</span> <span class="o">*</span><span class="n">dev</span> <span class="o">=</span> <span class="n">skb_dst</span><span class="p">(</span><span class="n">skb</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">dev</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">		<span class="n">skb</span><span class="o">-&gt;</span><span class="n">dev</span> <span class="o">=</span> <span class="n">dev</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">		<span class="n">skb</span><span class="o">-&gt;</span><span class="n">protocol</span> <span class="o">=</span> <span class="n">htons</span><span class="p">(</span><span class="n">ETH_P_IP</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">NF_HOOK_COND</span><span class="p">(</span><span class="n">NFPROTO_IPV4</span><span class="p">,</span> <span class="n">NF_INET_POST_ROUTING</span><span class="p">,</span> <span class="n">skb</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">dev</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">		<span class="n">ip_finish_output</span><span class="p">,</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">[...]</span> <span class="o">===&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="k">static</span> <span class="kt">int</span> <span class="n">ip_finish_output</span><span class="p">(</span><span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">skb</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">{</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="n">skb</span><span class="o">-&gt;</span><span class="n">len</span> <span class="o">&gt;</span> <span class="n">ip_skb_dst_mtu</span><span class="p">(</span><span class="n">skb</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">skb_is_gso</span><span class="p">(</span><span class="n">skb</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">ip_fragment</span><span class="p">(</span><span class="n">skb</span><span class="p">,</span> <span class="n">ip_finish_output2</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="k">else</span>
+</span></span><span class="line"><span class="cl">		<span class="k">return</span> <span class="n">ip_finish_output2</span><span class="p">(</span><span class="n">skb</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>ip_queue_xmit()方法负责执行IP层的任务，__sk_dst_check()检查缓存的路由结果是否合法。如果此时没有缓存的路由，或者缓存路由结果过期，就会进行IP路由查找。然后调用skb_push()锁定IP包头，填充IP包头部字段。接着调用ip_send_check()计算IP头的checksum，然后使用nf_hook调用netfilter模块，nf_hook()方法设置回调函数为dst_output，该函数被调用时，作为函数指针指向的是ip_output()函数。在ip_output()函数中，设置ip_finish_output()为回调函数，当发送数据包需要被分片发送时，进行分片，否则调用ip_finish_output2()，添加Ethernet Header，进入链路层Ethernet层。这样，一个数据包最终生成。</p>
 <div class="highlight"><div class="chroma">
@@ -1006,38 +1090,38 @@ TCP/IP协议为这些考虑而设计，如下是理解TCP/IP协议栈需要了�
 </span><span class="lnt">31
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="kt">int</span> <span class="nf">dev_queue_xmit</span><span class="p">(</span><span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">skb</span><span class="p">)</span>
-<span class="p">[...]</span> <span class="o">===&gt;</span>
-
-<span class="k">static</span> <span class="kr">inline</span> <span class="kt">int</span> <span class="n">__dev_xmit_skb</span><span class="p">(</span><span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">skb</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">Qdisc</span> <span class="o">*</span><span class="n">q</span><span class="p">,</span> <span class="p">...)</span>
-<span class="p">[...]</span>
-	<span class="k">if</span> <span class="p">(...)</span> <span class="p">{</span>
-		<span class="p">....</span>
-	<span class="p">}</span> 
-	<span class="k">else</span> <span class="nf">if</span> <span class="p">((</span><span class="n">q</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">TCQ_F_CAN_BYPASS</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">qdisc_qlen</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">qdisc_run_begin</span><span class="p">(</span><span class="n">q</span><span class="p">))</span> 
-	<span class="p">{</span>
-		<span class="p">[...]</span>
-		<span class="k">if</span> <span class="p">(</span><span class="n">sch_direct_xmit</span><span class="p">(</span><span class="n">skb</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">dev</span><span class="p">,</span> <span class="n">txq</span><span class="p">,</span> <span class="n">root_lock</span><span class="p">))</span> <span class="p">{</span>
-
-<span class="p">[...]</span> <span class="o">===&gt;</span>
-<span class="kt">int</span> <span class="n">sch_direct_xmit</span><span class="p">(</span><span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">skb</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">Qdisc</span> <span class="o">*</span><span class="n">q</span><span class="p">,</span> <span class="p">...)</span>
-	<span class="p">[...]</span>
-	<span class="n">HARD_TX_LOCK</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span> <span class="n">txq</span><span class="p">,</span> <span class="n">smp_processor_id</span><span class="p">());</span>
-	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">netif_tx_queue_frozen_or_stopped</span><span class="p">(</span><span class="n">txq</span><span class="p">))</span>
-		<span class="n">ret</span> <span class="o">=</span> <span class="n">dev_hard_start_xmit</span><span class="p">(</span><span class="n">skb</span><span class="p">,</span> <span class="n">dev</span><span class="p">,</span> <span class="n">txq</span><span class="p">);</span>
-	<span class="n">HARD_TX_UNLOCK</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span> <span class="n">txq</span><span class="p">);</span>
-	<span class="p">[...]</span>
-<span class="p">}</span>
-
-<span class="kt">int</span> <span class="n">dev_hard_start_xmit</span><span class="p">(</span><span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">skb</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">net_device</span> <span class="o">*</span><span class="n">dev</span><span class="p">,</span> <span class="p">...)</span>
-	<span class="p">[...]</span>
-	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">list_empty</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ptype_all</span><span class="p">))</span>
-		<span class="n">dev_queue_xmit_nit</span><span class="p">(</span><span class="n">skb</span><span class="p">,</span> <span class="n">dev</span><span class="p">);</span>
-	<span class="p">[...]</span>
-	<span class="n">rc</span> <span class="o">=</span> <span class="n">ops</span><span class="o">-&gt;</span><span class="n">ndo_start_xmit</span><span class="p">(</span><span class="n">skb</span><span class="p">,</span> <span class="n">dev</span><span class="p">);</span>
-	<span class="p">[...]</span>
-<span class="p">}</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="kt">int</span> <span class="nf">dev_queue_xmit</span><span class="p">(</span><span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">skb</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="p">[...]</span> <span class="o">===&gt;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="k">static</span> <span class="kr">inline</span> <span class="kt">int</span> <span class="n">__dev_xmit_skb</span><span class="p">(</span><span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">skb</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">Qdisc</span> <span class="o">*</span><span class="n">q</span><span class="p">,</span> <span class="p">...)</span>
+</span></span><span class="line"><span class="cl"><span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(...)</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="p">....</span>
+</span></span><span class="line"><span class="cl">	<span class="p">}</span> 
+</span></span><span class="line"><span class="cl">	<span class="k">else</span> <span class="nf">if</span> <span class="p">((</span><span class="n">q</span><span class="o">-&gt;</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="n">TCQ_F_CAN_BYPASS</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">qdisc_qlen</span><span class="p">(</span><span class="n">q</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">qdisc_run_begin</span><span class="p">(</span><span class="n">q</span><span class="p">))</span> 
+</span></span><span class="line"><span class="cl">	<span class="p">{</span>
+</span></span><span class="line"><span class="cl">		<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">		<span class="k">if</span> <span class="p">(</span><span class="n">sch_direct_xmit</span><span class="p">(</span><span class="n">skb</span><span class="p">,</span> <span class="n">q</span><span class="p">,</span> <span class="n">dev</span><span class="p">,</span> <span class="n">txq</span><span class="p">,</span> <span class="n">root_lock</span><span class="p">))</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="p">[...]</span> <span class="o">===&gt;</span>
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">sch_direct_xmit</span><span class="p">(</span><span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">skb</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">Qdisc</span> <span class="o">*</span><span class="n">q</span><span class="p">,</span> <span class="p">...)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">	<span class="n">HARD_TX_LOCK</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span> <span class="n">txq</span><span class="p">,</span> <span class="n">smp_processor_id</span><span class="p">());</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">netif_tx_queue_frozen_or_stopped</span><span class="p">(</span><span class="n">txq</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">		<span class="n">ret</span> <span class="o">=</span> <span class="n">dev_hard_start_xmit</span><span class="p">(</span><span class="n">skb</span><span class="p">,</span> <span class="n">dev</span><span class="p">,</span> <span class="n">txq</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="n">HARD_TX_UNLOCK</span><span class="p">(</span><span class="n">dev</span><span class="p">,</span> <span class="n">txq</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kt">int</span> <span class="n">dev_hard_start_xmit</span><span class="p">(</span><span class="k">struct</span> <span class="nc">sk_buff</span> <span class="o">*</span><span class="n">skb</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">net_device</span> <span class="o">*</span><span class="n">dev</span><span class="p">,</span> <span class="p">...)</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">	<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">list_empty</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ptype_all</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl">		<span class="n">dev_queue_xmit_nit</span><span class="p">(</span><span class="n">skb</span><span class="p">,</span> <span class="n">dev</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl">	<span class="n">rc</span> <span class="o">=</span> <span class="n">ops</span><span class="o">-&gt;</span><span class="n">ndo_start_xmit</span><span class="p">(</span><span class="n">skb</span><span class="p">,</span> <span class="n">dev</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">	<span class="p">[...]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>上层最终生成数据包后，函数dev_queue_xmit()将数据包发送出去。首先，数据包以qdisc方式传递过去；如果采用默认数据包入队规则（FIFO）并且队列为空，sch_direct_xmit()函数将直接把数据包发送给网卡驱动，越过缓冲队列；该函数调用dev_hard_start_xmit()函数选择对应的驱动并发送。在调用网卡驱动前，设备的TX队列将被加锁，防止在多任务同时访问网络设备。由于kernel已经向设备的TX队列加锁，所以设备驱动的发送代码不需要额外加锁。这和接下来要讨论的并行处理紧密相关。</p>
 <p>ndo_start_xmit()函数负责调用NIC驱动代码。在调用之前你可以看到ptype_all和dev_queue_xmit_nit()语句，ptype_all是一个包括处理模块的链表，比如抓包模块，如果一个抓包程序在运行中，这个数据包将被ptype_all复制给这个程序。所以，类似于tcpdump这类软件显示的数据包，其实是发送给网卡驱动的；响应的tcpdump显示收到的数据包也是从这层拿到的。此时数据包未携带checksum，或者如果此时TSO使能的话，NIC将会操作编辑这个包。所以tcpdump抓到的包和实际发到网络的包还是有一定区别的。当完成发送数据包后，网卡驱动的终端处理程序返回发送的sk_buff。</p>
@@ -1077,6 +1161,18 @@ PCIE驱动就知道，将PCIE设备的配置寄存器映射到Host的内存空�
     <footer class="article-footer">
     
 
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
     </footer>
 
 
@@ -1090,18 +1186,62 @@ PCIE驱动就知道，将PCIE设备的配置寄存器映射到Host的内存空�
      
     
         
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
     
 
     <footer class="site-footer">
     <section class="copyright">
         &copy; 
         
-        2022 Bg2bkk Site
+            2020 - 
+        
+        2023 Bg2bkk Site
     </section>
     
     <section class="powerby">
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
 

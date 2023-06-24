@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html lang="" dir="ltr">
+<html lang="en" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='结论 1. SO_REUSEPORT用于多个socket监听同一个TCP链接 2. SO_REUSEADDR可用于多个进程bind同一端口，但需要TCP连接的四元组不一样。 3. SO_REUSEPORT比SO_REUSEADDR更加扩展，但是也带来了隐患，需要额外注意 4. SO_REUSEADDR的最大作用是，当服务因故障重启时，不用等待需要绑定的端口从TIME_WAIT状态变更到CLOSED状态，就可以直接绑定该端口  引言 nginx 1.9.1引入了 SO_REUSEPORT选项，在高版本（linux kernel 3.9以上）系统上可用。该选项允许多个socket监听同一个IP:PORT组合，
- SO_REUSEPORT可以简化服务器编程 prefork模式：master预先分配进程池，每一个client连接用一个进程处理  省资源，不用每次都fork，然后再回收 可控制，预先分配的进程池大小是固定的   SO_REUSEPORT使得多进程时不用使master再做管理工作，比如管理子进程，设置信号等等，设置不需要一个master进程，只需要子进程监听同一个端口就行。操作系统做了大部分工作。  这里还有个好处是，C写的server模块，python写的server模块，它们可以共存监听同一个端口，灵活性更好    听听linux kernle维护者怎么说  允许多个进程绑定host上的同一端口 只需要第一个绑定端口的进程指定SO_REUSEPORT选项，后继者都可以绑定该端口，所以需要担心的是端口劫持，不希望恶意程序能accept该端口的连接。 方法是后继者要与第一次绑定端口的进程的USER ID一样，比如用root和普通用户启动程序绑定同一个端口，会报address already in use SO_REUSEPORT的负载均衡性能更好   TCP和UDP都可以用  UDP场景中，在DNS server的应用比较有意义，可以负载均衡的处理dns请求 作者指出，SO_REUSEADDR虽然也能让UDP连接绑定同一端口，但是SO_REUSEPORT可以防止劫持，并能将请求均衡的分配给监听的线程    传统多线程的工作模式的缺点    传统的多线程server都是有一个listener线程绑定端口并接受所有的请求，然后传递给其他线程，而这个listener往往会成为瓶颈    master绑定端口，每个slave轮流accept从该端口获取连接（nginx）   缺点是有可能导致每个slave不能平均的处理连接，unblanced；有的slave处理的过多，有的slave处理的过少，导致cpu资源不能充分利用 SO_REUSEPORT的实现可以使请求平均的分配给堵塞在accept上的各个进程    SO_REUSEPORT的应用举例  server.py  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15  import socket import os SO_REUSEPORT = 15 s = socket.'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='结论 1. SO_REUSEPORT用于多个socket监听同一个TCP链接 2. SO_REUSEADDR可用于多个进程bind同一端口，但需要TCP连接的四元组不一样。 3. SO_REUSEPORT比SO_REUSEADDR更加扩展，但是也带来了隐患，需要额外注意 4. SO_REUSEADDR的最大作用是，当服务因故障重启时，不用等待需要绑定的端口从TIME_WAIT状态变更到CLOSED状态，就可以直接绑定该端口 引言 nginx 1.9.1引入了 SO_REUSEPORT选项，在高版本（linux kernel 3.9以上）系统上可用。该选项允许多个socket监听同一个IP:PORT组合，
+SO_REUSEPORT可以简化服务器编程 prefork模式：master预先分配进程池，每一个client连接用一个进程处理 省资源，不用每次都fork，然后再回收 可控制，预先分配的进程池大小是固定的 SO_REUSEPORT使得多进程时不用使master再做管理工作，比如管理子进程，设置信号等等，设置不需要一个master进程，只需要子进程监听同一个端口就行。操作系统做了大部分工作。 这里还有个好处是，C写的server模块，python写的server模块，它们可以共存监听同一个端口，灵活性更好 听听linux kernle维护者怎么说 允许多个进程绑定host上的同一端口 只需要第一个绑定端口的进程指定SO_REUSEPORT选项，后继者都可以绑定该端口，所以需要担心的是端口劫持，不希望恶意程序能accept该端口的连接。 方法是后继者要与第一次绑定端口的进程的USER ID一样，比如用root和普通用户启动程序绑定同一个端口，会报address already in use SO_REUSEPORT的负载均衡性能更好 TCP和UDP都可以用 UDP场景中，在DNS server的应用比较有意义，可以负载均衡的处理dns请求 作者指出，SO_REUSEADDR虽然也能让UDP连接绑定同一端口，但是SO_REUSEPORT可以防止劫持，并能将请求均衡的分配给监听的线程 传统多线程的工作模式的缺点 传统的多线程server都是有一个listener线程绑定端口并接受所有的请求，然后传递给其他线程，而这个listener往往会成为瓶颈 master绑定端口，每个slave轮流accept从该端口获取连接（nginx） 缺点是有可能导致每个slave不能平均的处理连接，unblanced；有的slave处理的过多，有的slave处理的过少，导致cpu资源不能充分利用 SO_REUSEPORT的实现可以使请求平均的分配给堵塞在accept上的各个进程 SO_REUSEPORT的应用举例 server.py 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 import socket import os SO_REUSEPORT = 15 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) s.setsockopt(socket.SOL_SOCKET, SO_REUSEPORT, 1) s.'>
 <title>SO_REUSEADDR和SO_REUSEPORT</title>
 
 <link rel='canonical' href='https://bg2bkk.github.io/p/so_reuseaddr%E5%92%8Cso_reuseport/'>
 
-<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='SO_REUSEADDR和SO_REUSEPORT'>
-<meta property='og:description' content='结论 1. SO_REUSEPORT用于多个socket监听同一个TCP链接 2. SO_REUSEADDR可用于多个进程bind同一端口，但需要TCP连接的四元组不一样。 3. SO_REUSEPORT比SO_REUSEADDR更加扩展，但是也带来了隐患，需要额外注意 4. SO_REUSEADDR的最大作用是，当服务因故障重启时，不用等待需要绑定的端口从TIME_WAIT状态变更到CLOSED状态，就可以直接绑定该端口  引言 nginx 1.9.1引入了 SO_REUSEPORT选项，在高版本（linux kernel 3.9以上）系统上可用。该选项允许多个socket监听同一个IP:PORT组合，
- SO_REUSEPORT可以简化服务器编程 prefork模式：master预先分配进程池，每一个client连接用一个进程处理  省资源，不用每次都fork，然后再回收 可控制，预先分配的进程池大小是固定的   SO_REUSEPORT使得多进程时不用使master再做管理工作，比如管理子进程，设置信号等等，设置不需要一个master进程，只需要子进程监听同一个端口就行。操作系统做了大部分工作。  这里还有个好处是，C写的server模块，python写的server模块，它们可以共存监听同一个端口，灵活性更好    听听linux kernle维护者怎么说  允许多个进程绑定host上的同一端口 只需要第一个绑定端口的进程指定SO_REUSEPORT选项，后继者都可以绑定该端口，所以需要担心的是端口劫持，不希望恶意程序能accept该端口的连接。 方法是后继者要与第一次绑定端口的进程的USER ID一样，比如用root和普通用户启动程序绑定同一个端口，会报address already in use SO_REUSEPORT的负载均衡性能更好   TCP和UDP都可以用  UDP场景中，在DNS server的应用比较有意义，可以负载均衡的处理dns请求 作者指出，SO_REUSEADDR虽然也能让UDP连接绑定同一端口，但是SO_REUSEPORT可以防止劫持，并能将请求均衡的分配给监听的线程    传统多线程的工作模式的缺点    传统的多线程server都是有一个listener线程绑定端口并接受所有的请求，然后传递给其他线程，而这个listener往往会成为瓶颈    master绑定端口，每个slave轮流accept从该端口获取连接（nginx）   缺点是有可能导致每个slave不能平均的处理连接，unblanced；有的slave处理的过多，有的slave处理的过少，导致cpu资源不能充分利用 SO_REUSEPORT的实现可以使请求平均的分配给堵塞在accept上的各个进程    SO_REUSEPORT的应用举例  server.py  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15  import socket import os SO_REUSEPORT = 15 s = socket.'>
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='SO_REUSEADDR和SO_REUSEPORT'>
+<meta property='og:description' content='结论 1. SO_REUSEPORT用于多个socket监听同一个TCP链接 2. SO_REUSEADDR可用于多个进程bind同一端口，但需要TCP连接的四元组不一样。 3. SO_REUSEPORT比SO_REUSEADDR更加扩展，但是也带来了隐患，需要额外注意 4. SO_REUSEADDR的最大作用是，当服务因故障重启时，不用等待需要绑定的端口从TIME_WAIT状态变更到CLOSED状态，就可以直接绑定该端口 引言 nginx 1.9.1引入了 SO_REUSEPORT选项，在高版本（linux kernel 3.9以上）系统上可用。该选项允许多个socket监听同一个IP:PORT组合，
+SO_REUSEPORT可以简化服务器编程 prefork模式：master预先分配进程池，每一个client连接用一个进程处理 省资源，不用每次都fork，然后再回收 可控制，预先分配的进程池大小是固定的 SO_REUSEPORT使得多进程时不用使master再做管理工作，比如管理子进程，设置信号等等，设置不需要一个master进程，只需要子进程监听同一个端口就行。操作系统做了大部分工作。 这里还有个好处是，C写的server模块，python写的server模块，它们可以共存监听同一个端口，灵活性更好 听听linux kernle维护者怎么说 允许多个进程绑定host上的同一端口 只需要第一个绑定端口的进程指定SO_REUSEPORT选项，后继者都可以绑定该端口，所以需要担心的是端口劫持，不希望恶意程序能accept该端口的连接。 方法是后继者要与第一次绑定端口的进程的USER ID一样，比如用root和普通用户启动程序绑定同一个端口，会报address already in use SO_REUSEPORT的负载均衡性能更好 TCP和UDP都可以用 UDP场景中，在DNS server的应用比较有意义，可以负载均衡的处理dns请求 作者指出，SO_REUSEADDR虽然也能让UDP连接绑定同一端口，但是SO_REUSEPORT可以防止劫持，并能将请求均衡的分配给监听的线程 传统多线程的工作模式的缺点 传统的多线程server都是有一个listener线程绑定端口并接受所有的请求，然后传递给其他线程，而这个listener往往会成为瓶颈 master绑定端口，每个slave轮流accept从该端口获取连接（nginx） 缺点是有可能导致每个slave不能平均的处理连接，unblanced；有的slave处理的过多，有的slave处理的过少，导致cpu资源不能充分利用 SO_REUSEPORT的实现可以使请求平均的分配给堵塞在accept上的各个进程 SO_REUSEPORT的应用举例 server.py 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 import socket import os SO_REUSEPORT = 15 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) s.setsockopt(socket.SOL_SOCKET, SO_REUSEPORT, 1) s.'>
 <meta property='og:url' content='https://bg2bkk.github.io/p/so_reuseaddr%E5%92%8Cso_reuseport/'>
 <meta property='og:site_name' content='Bg2bkk Site'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-05-09T16:55:42&#43;08:00'/><meta property='article:modified_time' content='2016-05-09T16:55:42&#43;08:00'/>
 <meta name="twitter:title" content="SO_REUSEADDR和SO_REUSEPORT">
-<meta name="twitter:description" content="结论 1. SO_REUSEPORT用于多个socket监听同一个TCP链接 2. SO_REUSEADDR可用于多个进程bind同一端口，但需要TCP连接的四元组不一样。 3. SO_REUSEPORT比SO_REUSEADDR更加扩展，但是也带来了隐患，需要额外注意 4. SO_REUSEADDR的最大作用是，当服务因故障重启时，不用等待需要绑定的端口从TIME_WAIT状态变更到CLOSED状态，就可以直接绑定该端口  引言 nginx 1.9.1引入了 SO_REUSEPORT选项，在高版本（linux kernel 3.9以上）系统上可用。该选项允许多个socket监听同一个IP:PORT组合，
- SO_REUSEPORT可以简化服务器编程 prefork模式：master预先分配进程池，每一个client连接用一个进程处理  省资源，不用每次都fork，然后再回收 可控制，预先分配的进程池大小是固定的   SO_REUSEPORT使得多进程时不用使master再做管理工作，比如管理子进程，设置信号等等，设置不需要一个master进程，只需要子进程监听同一个端口就行。操作系统做了大部分工作。  这里还有个好处是，C写的server模块，python写的server模块，它们可以共存监听同一个端口，灵活性更好    听听linux kernle维护者怎么说  允许多个进程绑定host上的同一端口 只需要第一个绑定端口的进程指定SO_REUSEPORT选项，后继者都可以绑定该端口，所以需要担心的是端口劫持，不希望恶意程序能accept该端口的连接。 方法是后继者要与第一次绑定端口的进程的USER ID一样，比如用root和普通用户启动程序绑定同一个端口，会报address already in use SO_REUSEPORT的负载均衡性能更好   TCP和UDP都可以用  UDP场景中，在DNS server的应用比较有意义，可以负载均衡的处理dns请求 作者指出，SO_REUSEADDR虽然也能让UDP连接绑定同一端口，但是SO_REUSEPORT可以防止劫持，并能将请求均衡的分配给监听的线程    传统多线程的工作模式的缺点    传统的多线程server都是有一个listener线程绑定端口并接受所有的请求，然后传递给其他线程，而这个listener往往会成为瓶颈    master绑定端口，每个slave轮流accept从该端口获取连接（nginx）   缺点是有可能导致每个slave不能平均的处理连接，unblanced；有的slave处理的过多，有的slave处理的过少，导致cpu资源不能充分利用 SO_REUSEPORT的实现可以使请求平均的分配给堵塞在accept上的各个进程    SO_REUSEPORT的应用举例  server.py  1 2 3 4 5 6 7 8 9 10 11 12 13 14 15  import socket import os SO_REUSEPORT = 15 s = socket.">
+<meta name="twitter:description" content="结论 1. SO_REUSEPORT用于多个socket监听同一个TCP链接 2. SO_REUSEADDR可用于多个进程bind同一端口，但需要TCP连接的四元组不一样。 3. SO_REUSEPORT比SO_REUSEADDR更加扩展，但是也带来了隐患，需要额外注意 4. SO_REUSEADDR的最大作用是，当服务因故障重启时，不用等待需要绑定的端口从TIME_WAIT状态变更到CLOSED状态，就可以直接绑定该端口 引言 nginx 1.9.1引入了 SO_REUSEPORT选项，在高版本（linux kernel 3.9以上）系统上可用。该选项允许多个socket监听同一个IP:PORT组合，
+SO_REUSEPORT可以简化服务器编程 prefork模式：master预先分配进程池，每一个client连接用一个进程处理 省资源，不用每次都fork，然后再回收 可控制，预先分配的进程池大小是固定的 SO_REUSEPORT使得多进程时不用使master再做管理工作，比如管理子进程，设置信号等等，设置不需要一个master进程，只需要子进程监听同一个端口就行。操作系统做了大部分工作。 这里还有个好处是，C写的server模块，python写的server模块，它们可以共存监听同一个端口，灵活性更好 听听linux kernle维护者怎么说 允许多个进程绑定host上的同一端口 只需要第一个绑定端口的进程指定SO_REUSEPORT选项，后继者都可以绑定该端口，所以需要担心的是端口劫持，不希望恶意程序能accept该端口的连接。 方法是后继者要与第一次绑定端口的进程的USER ID一样，比如用root和普通用户启动程序绑定同一个端口，会报address already in use SO_REUSEPORT的负载均衡性能更好 TCP和UDP都可以用 UDP场景中，在DNS server的应用比较有意义，可以负载均衡的处理dns请求 作者指出，SO_REUSEADDR虽然也能让UDP连接绑定同一端口，但是SO_REUSEPORT可以防止劫持，并能将请求均衡的分配给监听的线程 传统多线程的工作模式的缺点 传统的多线程server都是有一个listener线程绑定端口并接受所有的请求，然后传递给其他线程，而这个listener往往会成为瓶颈 master绑定端口，每个slave轮流accept从该端口获取连接（nginx） 缺点是有可能导致每个slave不能平均的处理连接，unblanced；有的slave处理的过多，有的slave处理的过少，导致cpu资源不能充分利用 SO_REUSEPORT的实现可以使请求平均的分配给堵塞在accept上的各个进程 SO_REUSEPORT的应用举例 server.py 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 import socket import os SO_REUSEPORT = 15 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) s.setsockopt(socket.SOL_SOCKET, SO_REUSEPORT, 1) s.">
     </head>
     <body class="
     article-page
@@ -42,7 +42,7 @@
         }
     })();
 </script>
-<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
     <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
         <span class="hamburger-box">
             <span class="hamburger-inner"></span>
@@ -65,15 +65,39 @@
                 
                 </a>
                 
+                    <span class="emoji">🍥</span>
+                
             </figure>
             
         
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
-            <h2 class="site-description"></h2>
+            <h2 class="site-description">Life is so beautiful</h2>
         </div>
-    </header><ol class="menu" id="main-menu">
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/bg2bkk'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
         
         
         
@@ -100,7 +124,7 @@
         
 
         <li >
-            <a href='/about/' >
+            <a href='/%E5%85%B3%E4%BA%8E%E6%88%91/' >
                 
                 
                 
@@ -113,7 +137,7 @@
 
 
                 
-                <span>About</span>
+                <span>关于我</span>
             </a>
         </li>
         
@@ -186,7 +210,44 @@
     </ol>
 </aside>
 
-    
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#结论">结论</a></li>
+    <li><a href="#引言">引言</a></li>
+    <li><a href="#听听linux-kernle维护者怎么说httpslwnnetarticles542629">听听linux kernle<a href="https://lwn.net/Articles/542629/">维护者怎么说</a></a></li>
+    <li><a href="#传统多线程的工作模式的缺点">传统多线程的工作模式的缺点</a></li>
+    <li><a href="#so_reuseport的应用举例">SO_REUSEPORT的应用举例</a></li>
+    <li><a href="#so_reuseport-和-so_reuseaddr-对比待续">SO_REUSEPORT 和 SO_REUSEADDR 对比（待续）</a></li>
+    <li><a href="#参考链接">参考链接</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
 
             <main class="main full-width">
     <article class="main-article">
@@ -204,6 +265,9 @@
     </div>
 
     
+    
+    
+    
     <footer class="article-time">
         
             <div>
@@ -220,7 +284,7 @@
             </div>
         
 
-    
+        
             <div>
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
@@ -326,22 +390,22 @@
 </span><span class="lnt">15
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="kn">import</span> <span class="nn">socket</span>
-<span class="kn">import</span> <span class="nn">os</span>
-
-<span class="n">SO_REUSEPORT</span> <span class="o">=</span> <span class="mi">15</span>
-
-<span class="n">s</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">)</span>
-<span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">SO_REUSEPORT</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">10000</span><span class="p">))</span>
-<span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
-    <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Connected to </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()))</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
-    <span class="n">conn</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-    <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-python" data-lang="python"><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">socket</span>
+</span></span><span class="line"><span class="cl"><span class="kn">import</span> <span class="nn">os</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">SO_REUSEPORT</span> <span class="o">=</span> <span class="mi">15</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="n">s</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">s</span><span class="o">.</span><span class="n">setsockopt</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">SOL_SOCKET</span><span class="p">,</span> <span class="n">SO_REUSEPORT</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="n">s</span><span class="o">.</span><span class="n">bind</span><span class="p">((</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">10000</span><span class="p">))</span>
+</span></span><span class="line"><span class="cl"><span class="n">s</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl"><span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+</span></span><span class="line"><span class="cl">    <span class="n">conn</span><span class="p">,</span> <span class="n">addr</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">accept</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl">    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Connected to </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">()))</span>
+</span></span><span class="line"><span class="cl">    <span class="n">data</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">recv</span><span class="p">(</span><span class="mi">1024</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">conn</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span></span><span class="line"><span class="cl">    <span class="n">conn</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>启动两个进程，都绑定10000端口；使用nc作为client</p>
 <div class="highlight"><div class="chroma">
@@ -364,23 +428,23 @@
 </span><span class="lnt">16
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ python server.py<span class="p">&amp;</span>
-<span class="o">[</span>1<span class="o">]</span> <span class="m">12649</span>
-$ python server.py<span class="p">&amp;</span>
-<span class="o">[</span>2<span class="o">]</span> <span class="m">12650</span>
-$ <span class="nb">echo</span> data <span class="p">|</span> nc localhost <span class="m">10000</span>
-Connected to <span class="m">12649</span>
-data
-$ <span class="nb">echo</span> data <span class="p">|</span> nc localhost <span class="m">10000</span>
-Connected to <span class="m">12650</span>
-data
-$ <span class="nb">echo</span> data <span class="p">|</span> nc localhost <span class="m">10000</span>
-Connected to <span class="m">12649</span>
-data
-$ <span class="nb">echo</span> data <span class="p">|</span> nc localhost <span class="m">10000</span>
-Connected to <span class="m">12650</span>
-data
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ python server.py<span class="p">&amp;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>1<span class="o">]</span> <span class="m">12649</span>
+</span></span><span class="line"><span class="cl">$ python server.py<span class="p">&amp;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>2<span class="o">]</span> <span class="m">12650</span>
+</span></span><span class="line"><span class="cl">$ <span class="nb">echo</span> data <span class="p">|</span> nc localhost <span class="m">10000</span>
+</span></span><span class="line"><span class="cl">Connected to <span class="m">12649</span>
+</span></span><span class="line"><span class="cl">data
+</span></span><span class="line"><span class="cl">$ <span class="nb">echo</span> data <span class="p">|</span> nc localhost <span class="m">10000</span>
+</span></span><span class="line"><span class="cl">Connected to <span class="m">12650</span>
+</span></span><span class="line"><span class="cl">data
+</span></span><span class="line"><span class="cl">$ <span class="nb">echo</span> data <span class="p">|</span> nc localhost <span class="m">10000</span>
+</span></span><span class="line"><span class="cl">Connected to <span class="m">12649</span>
+</span></span><span class="line"><span class="cl">data
+</span></span><span class="line"><span class="cl">$ <span class="nb">echo</span> data <span class="p">|</span> nc localhost <span class="m">10000</span>
+</span></span><span class="line"><span class="cl">Connected to <span class="m">12650</span>
+</span></span><span class="line"><span class="cl">data
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>再启动一个新的进程显然也是可以的</p>
 <div class="highlight"><div class="chroma">
@@ -395,15 +459,15 @@ data
 </span><span class="lnt">8
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">$ python server.py<span class="p">&amp;</span>
-<span class="o">[</span>3<span class="o">]</span> <span class="m">14021</span>
-$ <span class="nb">echo</span> data <span class="p">|</span> nc localhost <span class="m">10000</span>
-Connected to <span class="m">12650</span>
-data
-$ <span class="nb">echo</span> data <span class="p">|</span> nc localhost <span class="m">10000</span>
-Connected to <span class="m">14021</span>
-data
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">$ python server.py<span class="p">&amp;</span>
+</span></span><span class="line"><span class="cl"><span class="o">[</span>3<span class="o">]</span> <span class="m">14021</span>
+</span></span><span class="line"><span class="cl">$ <span class="nb">echo</span> data <span class="p">|</span> nc localhost <span class="m">10000</span>
+</span></span><span class="line"><span class="cl">Connected to <span class="m">12650</span>
+</span></span><span class="line"><span class="cl">data
+</span></span><span class="line"><span class="cl">$ <span class="nb">echo</span> data <span class="p">|</span> nc localhost <span class="m">10000</span>
+</span></span><span class="line"><span class="cl">Connected to <span class="m">14021</span>
+</span></span><span class="line"><span class="cl">data
+</span></span></code></pre></td></tr></table>
 </div>
 </div><ul>
 <li>
@@ -442,6 +506,18 @@ data
     <footer class="article-footer">
     
 
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
     </footer>
 
 
@@ -455,18 +531,62 @@ data
      
     
         
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
     
 
     <footer class="site-footer">
     <section class="copyright">
         &copy; 
         
-        2022 Bg2bkk Site
+            2020 - 
+        
+        2023 Bg2bkk Site
     </section>
     
     <section class="powerby">
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
 

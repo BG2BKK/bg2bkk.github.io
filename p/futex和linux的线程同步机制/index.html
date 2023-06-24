@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="" dir="ltr">
+<html lang="en" dir="ltr">
     <head><meta charset='utf-8'>
-<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content=' futex初体验 阿里基础架构事业群的博客关于futex的文章 linux线程同步机制  Linux中的线程同步机制(二)–In Glibc  大部分的glibc的同步方式，mutex或者semaphore，大多基于futex的方式，首先进行用户态检查，未果的话进行futex系统调用。这是我疑惑为什么futex这么常用却在代码层面上看不到它，原因是我们使用的都是基于futex的机制   Linux中的线程同步机制(三)–Practice  pthread库中的pthread_join也是基于futex的哦，当父进程执行pthread_join它的某一个子线程时，如果子线程已经执行完毕，则父进程不会调用futex系统调用，如果子线程仍然执行中，那么父进程调用futex系统调用进行FUTEX_WAIT休眠，等待子线程的唤醒   好文章，值得深挖和思考   man page  先通过__sync_bool_compare_and_swap等原子操作比对futex的值是否有变化，如果没有，说明没有进程竞争。这里都是用户态执行的 如果有变化，说明有进程竞争了，所以这时系统调用futex进行FUTEX_WAIT，使得本进程休眠或休眠一段时间，直到有别的进程FUTEX_WAKE它 说白了，futex针对有些同步场景中，尽管没有竞争发生，但是还要陷入内核态去获得锁或者标志位然后同步的情况，futex可以仅通过原子性的内核态即可实现线程安全 提供futex_demo.c  如果将futex1和futex2互换下，画面太美不敢看，CPU暴涨100%      1 2 3 4 5 6 7  futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable)   '>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content=' futex初体验 阿里基础架构事业群的博客关于futex的文章 linux线程同步机制 Linux中的线程同步机制(二)–In Glibc 大部分的glibc的同步方式，mutex或者semaphore，大多基于futex的方式，首先进行用户态检查，未果的话进行futex系统调用。这是我疑惑为什么futex这么常用却在代码层面上看不到它，原因是我们使用的都是基于futex的机制 Linux中的线程同步机制(三)–Practice pthread库中的pthread_join也是基于futex的哦，当父进程执行pthread_join它的某一个子线程时，如果子线程已经执行完毕，则父进程不会调用futex系统调用，如果子线程仍然执行中，那么父进程调用futex系统调用进行FUTEX_WAIT休眠，等待子线程的唤醒 好文章，值得深挖和思考 man page 先通过__sync_bool_compare_and_swap等原子操作比对futex的值是否有变化，如果没有，说明没有进程竞争。这里都是用户态执行的 如果有变化，说明有进程竞争了，所以这时系统调用futex进行FUTEX_WAIT，使得本进程休眠或休眠一段时间，直到有别的进程FUTEX_WAKE它 说白了，futex针对有些同步场景中，尽管没有竞争发生，但是还要陷入内核态去获得锁或者标志位然后同步的情况，futex可以仅通过原子性的内核态即可实现线程安全 提供futex_demo.c 如果将futex1和futex2互换下，画面太美不敢看，CPU暴涨100% 1 2 3 4 5 6 7 futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) '>
 <title>futex和linux的线程同步机制</title>
 
 <link rel='canonical' href='https://bg2bkk.github.io/p/futex%E5%92%8Clinux%E7%9A%84%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6/'>
 
-<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='futex和linux的线程同步机制'>
-<meta property='og:description' content=' futex初体验 阿里基础架构事业群的博客关于futex的文章 linux线程同步机制  Linux中的线程同步机制(二)–In Glibc  大部分的glibc的同步方式，mutex或者semaphore，大多基于futex的方式，首先进行用户态检查，未果的话进行futex系统调用。这是我疑惑为什么futex这么常用却在代码层面上看不到它，原因是我们使用的都是基于futex的机制   Linux中的线程同步机制(三)–Practice  pthread库中的pthread_join也是基于futex的哦，当父进程执行pthread_join它的某一个子线程时，如果子线程已经执行完毕，则父进程不会调用futex系统调用，如果子线程仍然执行中，那么父进程调用futex系统调用进行FUTEX_WAIT休眠，等待子线程的唤醒   好文章，值得深挖和思考   man page  先通过__sync_bool_compare_and_swap等原子操作比对futex的值是否有变化，如果没有，说明没有进程竞争。这里都是用户态执行的 如果有变化，说明有进程竞争了，所以这时系统调用futex进行FUTEX_WAIT，使得本进程休眠或休眠一段时间，直到有别的进程FUTEX_WAKE它 说白了，futex针对有些同步场景中，尽管没有竞争发生，但是还要陷入内核态去获得锁或者标志位然后同步的情况，futex可以仅通过原子性的内核态即可实现线程安全 提供futex_demo.c  如果将futex1和futex2互换下，画面太美不敢看，CPU暴涨100%      1 2 3 4 5 6 7  futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable)   '>
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='futex和linux的线程同步机制'>
+<meta property='og:description' content=' futex初体验 阿里基础架构事业群的博客关于futex的文章 linux线程同步机制 Linux中的线程同步机制(二)–In Glibc 大部分的glibc的同步方式，mutex或者semaphore，大多基于futex的方式，首先进行用户态检查，未果的话进行futex系统调用。这是我疑惑为什么futex这么常用却在代码层面上看不到它，原因是我们使用的都是基于futex的机制 Linux中的线程同步机制(三)–Practice pthread库中的pthread_join也是基于futex的哦，当父进程执行pthread_join它的某一个子线程时，如果子线程已经执行完毕，则父进程不会调用futex系统调用，如果子线程仍然执行中，那么父进程调用futex系统调用进行FUTEX_WAIT休眠，等待子线程的唤醒 好文章，值得深挖和思考 man page 先通过__sync_bool_compare_and_swap等原子操作比对futex的值是否有变化，如果没有，说明没有进程竞争。这里都是用户态执行的 如果有变化，说明有进程竞争了，所以这时系统调用futex进行FUTEX_WAIT，使得本进程休眠或休眠一段时间，直到有别的进程FUTEX_WAKE它 说白了，futex针对有些同步场景中，尽管没有竞争发生，但是还要陷入内核态去获得锁或者标志位然后同步的情况，futex可以仅通过原子性的内核态即可实现线程安全 提供futex_demo.c 如果将futex1和futex2互换下，画面太美不敢看，CPU暴涨100% 1 2 3 4 5 6 7 futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) '>
 <meta property='og:url' content='https://bg2bkk.github.io/p/futex%E5%92%8Clinux%E7%9A%84%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6/'>
 <meta property='og:site_name' content='Bg2bkk Site'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2016-10-13T13:57:31&#43;08:00'/><meta property='article:modified_time' content='2016-10-13T13:57:31&#43;08:00'/>
 <meta name="twitter:title" content="futex和linux的线程同步机制">
-<meta name="twitter:description" content=" futex初体验 阿里基础架构事业群的博客关于futex的文章 linux线程同步机制  Linux中的线程同步机制(二)–In Glibc  大部分的glibc的同步方式，mutex或者semaphore，大多基于futex的方式，首先进行用户态检查，未果的话进行futex系统调用。这是我疑惑为什么futex这么常用却在代码层面上看不到它，原因是我们使用的都是基于futex的机制   Linux中的线程同步机制(三)–Practice  pthread库中的pthread_join也是基于futex的哦，当父进程执行pthread_join它的某一个子线程时，如果子线程已经执行完毕，则父进程不会调用futex系统调用，如果子线程仍然执行中，那么父进程调用futex系统调用进行FUTEX_WAIT休眠，等待子线程的唤醒   好文章，值得深挖和思考   man page  先通过__sync_bool_compare_and_swap等原子操作比对futex的值是否有变化，如果没有，说明没有进程竞争。这里都是用户态执行的 如果有变化，说明有进程竞争了，所以这时系统调用futex进行FUTEX_WAIT，使得本进程休眠或休眠一段时间，直到有别的进程FUTEX_WAKE它 说白了，futex针对有些同步场景中，尽管没有竞争发生，但是还要陷入内核态去获得锁或者标志位然后同步的情况，futex可以仅通过原子性的内核态即可实现线程安全 提供futex_demo.c  如果将futex1和futex2互换下，画面太美不敢看，CPU暴涨100%      1 2 3 4 5 6 7  futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable)   ">
+<meta name="twitter:description" content=" futex初体验 阿里基础架构事业群的博客关于futex的文章 linux线程同步机制 Linux中的线程同步机制(二)–In Glibc 大部分的glibc的同步方式，mutex或者semaphore，大多基于futex的方式，首先进行用户态检查，未果的话进行futex系统调用。这是我疑惑为什么futex这么常用却在代码层面上看不到它，原因是我们使用的都是基于futex的机制 Linux中的线程同步机制(三)–Practice pthread库中的pthread_join也是基于futex的哦，当父进程执行pthread_join它的某一个子线程时，如果子线程已经执行完毕，则父进程不会调用futex系统调用，如果子线程仍然执行中，那么父进程调用futex系统调用进行FUTEX_WAIT休眠，等待子线程的唤醒 好文章，值得深挖和思考 man page 先通过__sync_bool_compare_and_swap等原子操作比对futex的值是否有变化，如果没有，说明没有进程竞争。这里都是用户态执行的 如果有变化，说明有进程竞争了，所以这时系统调用futex进行FUTEX_WAIT，使得本进程休眠或休眠一段时间，直到有别的进程FUTEX_WAKE它 说白了，futex针对有些同步场景中，尽管没有竞争发生，但是还要陷入内核态去获得锁或者标志位然后同步的情况，futex可以仅通过原子性的内核态即可实现线程安全 提供futex_demo.c 如果将futex1和futex2互换下，画面太美不敢看，CPU暴涨100% 1 2 3 4 5 6 7 futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) futex(0x7f99372d3004, FUTEX_WAIT, 0, NULL) = -1 EAGAIN (Resource temporarily unavailable) ">
     </head>
     <body class="
     article-page
@@ -39,7 +39,7 @@
         }
     })();
 </script>
-<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
     <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
         <span class="hamburger-box">
             <span class="hamburger-inner"></span>
@@ -62,15 +62,39 @@
                 
                 </a>
                 
+                    <span class="emoji">🍥</span>
+                
             </figure>
             
         
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
-            <h2 class="site-description"></h2>
+            <h2 class="site-description">Life is so beautiful</h2>
         </div>
-    </header><ol class="menu" id="main-menu">
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/bg2bkk'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
         
         
         
@@ -97,7 +121,7 @@
         
 
         <li >
-            <a href='/about/' >
+            <a href='/%E5%85%B3%E4%BA%8E%E6%88%91/' >
                 
                 
                 
@@ -110,7 +134,7 @@
 
 
                 
-                <span>About</span>
+                <span>关于我</span>
             </a>
         </li>
         
@@ -201,6 +225,9 @@
     </div>
 
     
+    
+    
+    
     <footer class="article-time">
         
             <div>
@@ -217,7 +244,7 @@
             </div>
         
 
-    
+        
             <div>
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
@@ -288,14 +315,14 @@
 </span><span class="lnt">7
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash">futex<span class="o">(</span>0x7f99372d3004, FUTEX_WAIT, 0, NULL<span class="o">)</span> <span class="o">=</span> -1 EAGAIN <span class="o">(</span>Resource temporarily unavailable<span class="o">)</span>
-futex<span class="o">(</span>0x7f99372d3004, FUTEX_WAIT, 0, NULL<span class="o">)</span> <span class="o">=</span> -1 EAGAIN <span class="o">(</span>Resource temporarily unavailable<span class="o">)</span>
-futex<span class="o">(</span>0x7f99372d3004, FUTEX_WAIT, 0, NULL<span class="o">)</span> <span class="o">=</span> -1 EAGAIN <span class="o">(</span>Resource temporarily unavailable<span class="o">)</span>
-futex<span class="o">(</span>0x7f99372d3004, FUTEX_WAIT, 0, NULL<span class="o">)</span> <span class="o">=</span> -1 EAGAIN <span class="o">(</span>Resource temporarily unavailable<span class="o">)</span>
-futex<span class="o">(</span>0x7f99372d3004, FUTEX_WAIT, 0, NULL<span class="o">)</span> <span class="o">=</span> -1 EAGAIN <span class="o">(</span>Resource temporarily unavailable<span class="o">)</span>
-futex<span class="o">(</span>0x7f99372d3004, FUTEX_WAIT, 0, NULL<span class="o">)</span> <span class="o">=</span> -1 EAGAIN <span class="o">(</span>Resource temporarily unavailable<span class="o">)</span>
-futex<span class="o">(</span>0x7f99372d3004, FUTEX_WAIT, 0, NULL<span class="o">)</span> <span class="o">=</span> -1 EAGAIN <span class="o">(</span>Resource temporarily unavailable<span class="o">)</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl">futex<span class="o">(</span>0x7f99372d3004, FUTEX_WAIT, 0, NULL<span class="o">)</span> <span class="o">=</span> -1 EAGAIN <span class="o">(</span>Resource temporarily unavailable<span class="o">)</span>
+</span></span><span class="line"><span class="cl">futex<span class="o">(</span>0x7f99372d3004, FUTEX_WAIT, 0, NULL<span class="o">)</span> <span class="o">=</span> -1 EAGAIN <span class="o">(</span>Resource temporarily unavailable<span class="o">)</span>
+</span></span><span class="line"><span class="cl">futex<span class="o">(</span>0x7f99372d3004, FUTEX_WAIT, 0, NULL<span class="o">)</span> <span class="o">=</span> -1 EAGAIN <span class="o">(</span>Resource temporarily unavailable<span class="o">)</span>
+</span></span><span class="line"><span class="cl">futex<span class="o">(</span>0x7f99372d3004, FUTEX_WAIT, 0, NULL<span class="o">)</span> <span class="o">=</span> -1 EAGAIN <span class="o">(</span>Resource temporarily unavailable<span class="o">)</span>
+</span></span><span class="line"><span class="cl">futex<span class="o">(</span>0x7f99372d3004, FUTEX_WAIT, 0, NULL<span class="o">)</span> <span class="o">=</span> -1 EAGAIN <span class="o">(</span>Resource temporarily unavailable<span class="o">)</span>
+</span></span><span class="line"><span class="cl">futex<span class="o">(</span>0x7f99372d3004, FUTEX_WAIT, 0, NULL<span class="o">)</span> <span class="o">=</span> -1 EAGAIN <span class="o">(</span>Resource temporarily unavailable<span class="o">)</span>
+</span></span><span class="line"><span class="cl">futex<span class="o">(</span>0x7f99372d3004, FUTEX_WAIT, 0, NULL<span class="o">)</span> <span class="o">=</span> -1 EAGAIN <span class="o">(</span>Resource temporarily unavailable<span class="o">)</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div>
 </section>
@@ -304,6 +331,18 @@ futex<span class="o">(</span>0x7f99372d3004, FUTEX_WAIT, 0, NULL<span class="o">
     <footer class="article-footer">
     
 
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
     </footer>
 
 
@@ -317,18 +356,62 @@ futex<span class="o">(</span>0x7f99372d3004, FUTEX_WAIT, 0, NULL<span class="o">
      
     
         
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
     
 
     <footer class="site-footer">
     <section class="copyright">
         &copy; 
         
-        2022 Bg2bkk Site
+            2020 - 
+        
+        2023 Bg2bkk Site
     </section>
     
     <section class="powerby">
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
 

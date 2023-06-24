@@ -1,27 +1,31 @@
 <!DOCTYPE html>
-<html lang="" dir="ltr">
+<html lang="en" dir="ltr">
     <head><meta charset='utf-8'>
 <meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content='EPOLL在linux 内核中的新发展 Epoll是linux专有的系统调用，用于快速地高效轮询大规模文件描述符fd。这个API在kernel-2.5版本时就已经合并，并使用至今。即使如此，epoll和其他接口一样，仍然有提升空间。现在有两个patch为epoll系列系统调用添加了新的功能。
 epoll概述 epoll的功能与select或者poll类似，但是epoll在应对轮询处理大规模文件描述符时拥有更灵活的选项和更高的性能。每次调用select和poll，都会将被轮询的fd集合复制，生成新的fd集合，所以内核需要检查每一个描述符是否合法，是否IO就绪，然后将执行监听的进程添加到相应的唤醒等待队列。但实际上，一般情况下，在两次select或者poll调用之间，有事件产生的fd并不多，所以对每个fd都进行前述流程实际上有很多不必要的重复性操作。Epoll将设置被监听fd和轮询fd是否就绪这两个任务分开，从而解决这一问题。
 使用epoll的话，必须首先新建epoll fd用于轮询，新建epfd通过如下调用：
-1 2 3 4  #include &amp;lt;sys/poll.h&amp;gt; int epoll_create(int size); int epoll_create1(int flags);   两者都返回epoll fd，而epoll_create()的size参数已经不再有意义，epoll_create1()的flag参数可以设置epfd的CLOSE_ON_EXEC标志。
+1 2 3 4 #include &amp;lt;sys/poll.h&amp;gt; int epoll_create(int size); int epoll_create1(int flags); 两者都返回epoll fd，而epoll_create()的size参数已经不再有意义，epoll_create1()的flag参数可以设置epfd的CLOSE_ON_EXEC标志。
 第二步是添加所有被监听的fd，通过调用：
-1  int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);   参数op是EPOLL_CTL_ADD时，fd将被添加进epfd轮询的fd集合中，event参数用于指定哪个类型的事件被轮询，读事件、写事件或者其他事件，详情参考man page。
+1 int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event); 参数op是EPOLL_CTL_ADD时，fd将被添加进epfd轮询的fd集合中，event参数用于指定哪个类型的事件被轮询，读事件、写事件或者其他事件，详情参考man page。
 最后，等待集合中fd是否就绪的工作由以下函数实现：
-1 2 3  int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout); int epoll_pwait(int epfd, struct epoll_event *events, int maxevents, int timeout, const sigset_t *sigmask);   有事件发生时，epoll_wait将返回，产生的时间存在参数events中，最多maxevents个事件。如果timeout时间内没有事件发生，epoll_wait也将返回，timeout的单位是ms。epoll_pwait可以使用信号集sigmask来屏蔽特定信号，可以使应用程序安全的等待fd就绪或者捕获信号。二者的关系和select与pselect关系一样。'>
+1 2 3 int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout); int epoll_pwait(int epfd, struct epoll_event *events, int maxevents, int timeout, const sigset_t *sigmask); 有事件发生时，epoll_wait将返回，产生的时间存在参数events中，最多maxevents个事件。如果timeout时间内没有事件发生，epoll_wait也将返回，timeout的单位是ms。epoll_pwait可以使用信号集sigmask来屏蔽特定信号，可以使应用程序安全的等待fd就绪或者捕获信号。二者的关系和select与pselect关系一样。
+patch 1：epoll_ctl_batch() 和 epoll_pwait1() Fam Zheng为epoll引入了两个新的系统调用。
+Fam的第一个系统调用是epoll_ctl_batch，用来解决一个性能问题：每次调用epoll_ctl，都只能添加、修改和删除一个fd，如果有大量fd需要修改，那么需要调用相应次数的epoll_ctl来实现，这会导致大量系统调用发生，而这个场景却是经常发生的。Fam引入的epoll_ctl_batch()通过在一个系统调用中添加多个fd来解决这个问题：'>
 <title>New evolvement of Epoll</title>
 
 <link rel='canonical' href='https://bg2bkk.github.io/p/new-evolvement-of-epoll/'>
 
-<link rel="stylesheet" href="/scss/style.min.3b122f5b6a7023e613be9affad843eaceacf4a3383edd177ce41e35501998968.css"><meta property='og:title' content='New evolvement of Epoll'>
+<link rel="stylesheet" href="/scss/style.min.8191399262444ab68b72a18c97392f5349be20a1615d77445be51e974c144cff.css"><meta property='og:title' content='New evolvement of Epoll'>
 <meta property='og:description' content='EPOLL在linux 内核中的新发展 Epoll是linux专有的系统调用，用于快速地高效轮询大规模文件描述符fd。这个API在kernel-2.5版本时就已经合并，并使用至今。即使如此，epoll和其他接口一样，仍然有提升空间。现在有两个patch为epoll系列系统调用添加了新的功能。
 epoll概述 epoll的功能与select或者poll类似，但是epoll在应对轮询处理大规模文件描述符时拥有更灵活的选项和更高的性能。每次调用select和poll，都会将被轮询的fd集合复制，生成新的fd集合，所以内核需要检查每一个描述符是否合法，是否IO就绪，然后将执行监听的进程添加到相应的唤醒等待队列。但实际上，一般情况下，在两次select或者poll调用之间，有事件产生的fd并不多，所以对每个fd都进行前述流程实际上有很多不必要的重复性操作。Epoll将设置被监听fd和轮询fd是否就绪这两个任务分开，从而解决这一问题。
 使用epoll的话，必须首先新建epoll fd用于轮询，新建epfd通过如下调用：
-1 2 3 4  #include &amp;lt;sys/poll.h&amp;gt; int epoll_create(int size); int epoll_create1(int flags);   两者都返回epoll fd，而epoll_create()的size参数已经不再有意义，epoll_create1()的flag参数可以设置epfd的CLOSE_ON_EXEC标志。
+1 2 3 4 #include &amp;lt;sys/poll.h&amp;gt; int epoll_create(int size); int epoll_create1(int flags); 两者都返回epoll fd，而epoll_create()的size参数已经不再有意义，epoll_create1()的flag参数可以设置epfd的CLOSE_ON_EXEC标志。
 第二步是添加所有被监听的fd，通过调用：
-1  int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);   参数op是EPOLL_CTL_ADD时，fd将被添加进epfd轮询的fd集合中，event参数用于指定哪个类型的事件被轮询，读事件、写事件或者其他事件，详情参考man page。
+1 int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event); 参数op是EPOLL_CTL_ADD时，fd将被添加进epfd轮询的fd集合中，event参数用于指定哪个类型的事件被轮询，读事件、写事件或者其他事件，详情参考man page。
 最后，等待集合中fd是否就绪的工作由以下函数实现：
-1 2 3  int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout); int epoll_pwait(int epfd, struct epoll_event *events, int maxevents, int timeout, const sigset_t *sigmask);   有事件发生时，epoll_wait将返回，产生的时间存在参数events中，最多maxevents个事件。如果timeout时间内没有事件发生，epoll_wait也将返回，timeout的单位是ms。epoll_pwait可以使用信号集sigmask来屏蔽特定信号，可以使应用程序安全的等待fd就绪或者捕获信号。二者的关系和select与pselect关系一样。'>
+1 2 3 int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout); int epoll_pwait(int epfd, struct epoll_event *events, int maxevents, int timeout, const sigset_t *sigmask); 有事件发生时，epoll_wait将返回，产生的时间存在参数events中，最多maxevents个事件。如果timeout时间内没有事件发生，epoll_wait也将返回，timeout的单位是ms。epoll_pwait可以使用信号集sigmask来屏蔽特定信号，可以使应用程序安全的等待fd就绪或者捕获信号。二者的关系和select与pselect关系一样。
+patch 1：epoll_ctl_batch() 和 epoll_pwait1() Fam Zheng为epoll引入了两个新的系统调用。
+Fam的第一个系统调用是epoll_ctl_batch，用来解决一个性能问题：每次调用epoll_ctl，都只能添加、修改和删除一个fd，如果有大量fd需要修改，那么需要调用相应次数的epoll_ctl来实现，这会导致大量系统调用发生，而这个场景却是经常发生的。Fam引入的epoll_ctl_batch()通过在一个系统调用中添加多个fd来解决这个问题：'>
 <meta property='og:url' content='https://bg2bkk.github.io/p/new-evolvement-of-epoll/'>
 <meta property='og:site_name' content='Bg2bkk Site'>
 <meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='linux kenrel' /><meta property='article:published_time' content='2016-03-22T01:48:41&#43;08:00'/><meta property='article:modified_time' content='2016-03-22T01:48:41&#43;08:00'/>
@@ -29,11 +33,13 @@ epoll概述 epoll的功能与select或者poll类似，但是epoll在应对轮询
 <meta name="twitter:description" content="EPOLL在linux 内核中的新发展 Epoll是linux专有的系统调用，用于快速地高效轮询大规模文件描述符fd。这个API在kernel-2.5版本时就已经合并，并使用至今。即使如此，epoll和其他接口一样，仍然有提升空间。现在有两个patch为epoll系列系统调用添加了新的功能。
 epoll概述 epoll的功能与select或者poll类似，但是epoll在应对轮询处理大规模文件描述符时拥有更灵活的选项和更高的性能。每次调用select和poll，都会将被轮询的fd集合复制，生成新的fd集合，所以内核需要检查每一个描述符是否合法，是否IO就绪，然后将执行监听的进程添加到相应的唤醒等待队列。但实际上，一般情况下，在两次select或者poll调用之间，有事件产生的fd并不多，所以对每个fd都进行前述流程实际上有很多不必要的重复性操作。Epoll将设置被监听fd和轮询fd是否就绪这两个任务分开，从而解决这一问题。
 使用epoll的话，必须首先新建epoll fd用于轮询，新建epfd通过如下调用：
-1 2 3 4  #include &amp;lt;sys/poll.h&amp;gt; int epoll_create(int size); int epoll_create1(int flags);   两者都返回epoll fd，而epoll_create()的size参数已经不再有意义，epoll_create1()的flag参数可以设置epfd的CLOSE_ON_EXEC标志。
+1 2 3 4 #include &amp;lt;sys/poll.h&amp;gt; int epoll_create(int size); int epoll_create1(int flags); 两者都返回epoll fd，而epoll_create()的size参数已经不再有意义，epoll_create1()的flag参数可以设置epfd的CLOSE_ON_EXEC标志。
 第二步是添加所有被监听的fd，通过调用：
-1  int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);   参数op是EPOLL_CTL_ADD时，fd将被添加进epfd轮询的fd集合中，event参数用于指定哪个类型的事件被轮询，读事件、写事件或者其他事件，详情参考man page。
+1 int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event); 参数op是EPOLL_CTL_ADD时，fd将被添加进epfd轮询的fd集合中，event参数用于指定哪个类型的事件被轮询，读事件、写事件或者其他事件，详情参考man page。
 最后，等待集合中fd是否就绪的工作由以下函数实现：
-1 2 3  int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout); int epoll_pwait(int epfd, struct epoll_event *events, int maxevents, int timeout, const sigset_t *sigmask);   有事件发生时，epoll_wait将返回，产生的时间存在参数events中，最多maxevents个事件。如果timeout时间内没有事件发生，epoll_wait也将返回，timeout的单位是ms。epoll_pwait可以使用信号集sigmask来屏蔽特定信号，可以使应用程序安全的等待fd就绪或者捕获信号。二者的关系和select与pselect关系一样。">
+1 2 3 int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout); int epoll_pwait(int epfd, struct epoll_event *events, int maxevents, int timeout, const sigset_t *sigmask); 有事件发生时，epoll_wait将返回，产生的时间存在参数events中，最多maxevents个事件。如果timeout时间内没有事件发生，epoll_wait也将返回，timeout的单位是ms。epoll_pwait可以使用信号集sigmask来屏蔽特定信号，可以使应用程序安全的等待fd就绪或者捕获信号。二者的关系和select与pselect关系一样。
+patch 1：epoll_ctl_batch() 和 epoll_pwait1() Fam Zheng为epoll引入了两个新的系统调用。
+Fam的第一个系统调用是epoll_ctl_batch，用来解决一个性能问题：每次调用epoll_ctl，都只能添加、修改和删除一个fd，如果有大量fd需要修改，那么需要调用相应次数的epoll_ctl来实现，这会导致大量系统调用发生，而这个场景却是经常发生的。Fam引入的epoll_ctl_batch()通过在一个系统调用中添加多个fd来解决这个问题：">
     </head>
     <body class="
     article-page
@@ -60,7 +66,7 @@ epoll概述 epoll的功能与select或者poll类似，但是epoll在应对轮询
         }
     })();
 </script>
-<div class="container main-container flex on-phone--column compact"><aside class="sidebar left-sidebar sticky ">
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
     <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
         <span class="hamburger-box">
             <span class="hamburger-inner"></span>
@@ -83,15 +89,39 @@ epoll概述 epoll的功能与select或者poll类似，但是epoll在应对轮询
                 
                 </a>
                 
+                    <span class="emoji">🍥</span>
+                
             </figure>
             
         
         
         <div class="site-meta">
             <h1 class="site-name"><a href="/">Bg2bkk Site</a></h1>
-            <h2 class="site-description"></h2>
+            <h2 class="site-description">Life is so beautiful</h2>
         </div>
-    </header><ol class="menu" id="main-menu">
+    </header><ol class="social-menu">
+            
+                <li>
+                    <a 
+                        href='https://github.com/bg2bkk'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
         
         
         
@@ -118,7 +148,7 @@ epoll概述 epoll的功能与select或者poll类似，但是epoll在应对轮询
         
 
         <li >
-            <a href='/about/' >
+            <a href='/%E5%85%B3%E4%BA%8E%E6%88%91/' >
                 
                 
                 
@@ -131,7 +161,7 @@ epoll概述 epoll的功能与select或者poll类似，但是epoll在应对轮询
 
 
                 
-                <span>About</span>
+                <span>关于我</span>
             </a>
         </li>
         
@@ -204,7 +234,42 @@ epoll概述 epoll的功能与select或者poll类似，但是epoll在应对轮询
     </ol>
 </aside>
 
-    
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ol>
+    <li><a href="#epoll在linux-内核中的新发展">EPOLL在linux 内核中的新发展</a></li>
+    <li><a href="#epoll概述">epoll概述</a></li>
+    <li><a href="#patch-1epoll_ctl_batch-和-epoll_pwait1">patch 1：epoll_ctl_batch() 和 epoll_pwait1()</a></li>
+    <li><a href="#patch2-多线程环境下更好的性能解决惊群问题">patch2: 多线程环境下更好的性能，解决“惊群”问题</a></li>
+    <li><a href="#结语">结语</a></li>
+  </ol>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
 
             <main class="main full-width">
     <article class="main-article">
@@ -230,6 +295,9 @@ epoll概述 epoll的功能与select或者poll类似，但是epoll在应对轮询
     </div>
 
     
+    
+    
+    
     <footer class="article-time">
         
             <div>
@@ -246,7 +314,7 @@ epoll概述 epoll的功能与select或者poll类似，但是epoll在应对轮询
             </div>
         
 
-    
+        
             <div>
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
   <path stroke="none" d="M0 0h24v24H0z"/>
@@ -285,11 +353,11 @@ epoll概述 epoll的功能与select或者poll类似，但是epoll在应对轮询
 </span><span class="lnt">4
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp">    <span class="cp">#include</span> <span class="cpf">&lt;sys/poll.h&gt;</span><span class="cp">
-</span><span class="cp"></span>
-    <span class="kt">int</span> <span class="nf">epoll_create</span><span class="p">(</span><span class="kt">int</span> <span class="n">size</span><span class="p">);</span>
-    <span class="kt">int</span> <span class="nf">epoll_create1</span><span class="p">(</span><span class="kt">int</span> <span class="n">flags</span><span class="p">);</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">    <span class="cp">#include</span> <span class="cpf">&lt;sys/poll.h&gt;</span><span class="cp">
+</span></span></span><span class="line"><span class="cl"><span class="cp"></span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="nf">epoll_create</span><span class="p">(</span><span class="kt">int</span> <span class="n">size</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="nf">epoll_create1</span><span class="p">(</span><span class="kt">int</span> <span class="n">flags</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>两者都返回epoll fd，而epoll_create()的size参数已经不再有意义，epoll_create1()的flag参数可以设置epfd的CLOSE_ON_EXEC标志。</p>
 <p>第二步是添加所有被监听的fd，通过调用：</p>
@@ -298,8 +366,8 @@ epoll概述 epoll的功能与select或者poll类似，但是epoll在应对轮询
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp">    <span class="kt">int</span> <span class="nf">epoll_ctl</span><span class="p">(</span><span class="kt">int</span> <span class="n">epfd</span><span class="p">,</span> <span class="kt">int</span> <span class="n">op</span><span class="p">,</span> <span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">epoll_event</span> <span class="o">*</span><span class="n">event</span><span class="p">);</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">    <span class="kt">int</span> <span class="nf">epoll_ctl</span><span class="p">(</span><span class="kt">int</span> <span class="n">epfd</span><span class="p">,</span> <span class="kt">int</span> <span class="n">op</span><span class="p">,</span> <span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">epoll_event</span> <span class="o">*</span><span class="n">event</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>参数op是EPOLL_CTL_ADD时，fd将被添加进epfd轮询的fd集合中，event参数用于指定哪个类型的事件被轮询，读事件、写事件或者其他事件，详情参考<a class="link" href="http://man7.org/linux/man-pages/man2/epoll_ctl.2.html"  target="_blank" rel="noopener"
     >man page</a>。</p>
@@ -311,10 +379,10 @@ epoll概述 epoll的功能与select或者poll类似，但是epoll在应对轮询
 </span><span class="lnt">3
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp">    <span class="kt">int</span> <span class="nf">epoll_wait</span><span class="p">(</span><span class="kt">int</span> <span class="n">epfd</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">epoll_event</span> <span class="o">*</span><span class="n">events</span><span class="p">,</span> <span class="kt">int</span> <span class="n">maxevents</span><span class="p">,</span> <span class="kt">int</span> <span class="n">timeout</span><span class="p">);</span>
-    <span class="kt">int</span> <span class="nf">epoll_pwait</span><span class="p">(</span><span class="kt">int</span> <span class="n">epfd</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">epoll_event</span> <span class="o">*</span><span class="n">events</span><span class="p">,</span> <span class="kt">int</span> <span class="n">maxevents</span><span class="p">,</span> 
-                                                <span class="kt">int</span> <span class="n">timeout</span><span class="p">,</span> <span class="k">const</span> <span class="n">sigset_t</span> <span class="o">*</span><span class="n">sigmask</span><span class="p">);</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">    <span class="kt">int</span> <span class="nf">epoll_wait</span><span class="p">(</span><span class="kt">int</span> <span class="n">epfd</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">epoll_event</span> <span class="o">*</span><span class="n">events</span><span class="p">,</span> <span class="kt">int</span> <span class="n">maxevents</span><span class="p">,</span> <span class="kt">int</span> <span class="n">timeout</span><span class="p">);</span>
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="nf">epoll_pwait</span><span class="p">(</span><span class="kt">int</span> <span class="n">epfd</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">epoll_event</span> <span class="o">*</span><span class="n">events</span><span class="p">,</span> <span class="kt">int</span> <span class="n">maxevents</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">                                                <span class="kt">int</span> <span class="n">timeout</span><span class="p">,</span> <span class="k">const</span> <span class="n">sigset_t</span> <span class="o">*</span><span class="n">sigmask</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>有事件发生时，epoll_wait将返回，产生的时间存在参数events中，最多maxevents个事件。如果timeout时间内没有事件发生，epoll_wait也将返回，timeout的单位是ms。epoll_pwait可以使用信号集sigmask来屏蔽特定信号，可以使应用程序安全的等待fd就绪或者捕获信号。二者的关系和select与pselect关系一样。</p>
 <h2 id="patch-1epoll_ctl_batch-和-epoll_pwait1">patch 1：epoll_ctl_batch() 和 epoll_pwait1()</h2>
@@ -326,8 +394,8 @@ epoll概述 epoll的功能与select或者poll类似，但是epoll在应对轮询
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp">    <span class="kt">int</span> <span class="nf">epoll_ctl_batch</span><span class="p">(</span><span class="kt">int</span> <span class="n">epfd</span><span class="p">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="p">,</span> <span class="kt">int</span> <span class="n">ncmds</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">epoll_ctl_cmd</span> <span class="o">*</span><span class="n">cmds</span><span class="p">);</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">    <span class="kt">int</span> <span class="nf">epoll_ctl_batch</span><span class="p">(</span><span class="kt">int</span> <span class="n">epfd</span><span class="p">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="p">,</span> <span class="kt">int</span> <span class="n">ncmds</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">epoll_ctl_cmd</span> <span class="o">*</span><span class="n">cmds</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>结构体epoll_ctl_cmd用于描述一个待添加的事件，可以看作是epoll_ctl参数的一次打包：</p>
 <div class="highlight"><div class="chroma">
@@ -349,22 +417,22 @@ epoll概述 epoll的功能与select或者poll类似，但是epoll在应对轮询
 </span><span class="lnt">15
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="k">struct</span> <span class="nc">epoll_ctl_cmd</span> <span class="p">{</span>
-      <span class="cm">/* Reserved flags for future extension, must be 0. */</span>
-      <span class="kt">int</span> <span class="n">flags</span><span class="p">;</span>
-      <span class="cm">/* The same as epoll_ctl() op parameter. */</span>
-      <span class="kt">int</span> <span class="n">op</span><span class="p">;</span>
-      <span class="cm">/* The same as epoll_ctl() fd parameter. */</span>
-      <span class="kt">int</span> <span class="n">fd</span><span class="p">;</span>
-      <span class="cm">/* The same as the &#34;events&#34; field in struct epoll_event. */</span>
-      <span class="kt">uint32_t</span> <span class="n">events</span><span class="p">;</span>
-      <span class="cm">/* The same as the &#34;data&#34; field in struct epoll_event. */</span>
-      <span class="kt">uint64_t</span> <span class="n">data</span><span class="p">;</span>
-      <span class="cm">/* Output field, will be set to the return code after this
-</span><span class="cm">       * command is executed by kernel */</span>
-      <span class="kt">int</span> <span class="n">result</span><span class="p">;</span>
-<span class="p">};</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl"><span class="k">struct</span> <span class="nc">epoll_ctl_cmd</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">      <span class="cm">/* Reserved flags for future extension, must be 0. */</span>
+</span></span><span class="line"><span class="cl">      <span class="kt">int</span> <span class="n">flags</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="cm">/* The same as epoll_ctl() op parameter. */</span>
+</span></span><span class="line"><span class="cl">      <span class="kt">int</span> <span class="n">op</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="cm">/* The same as epoll_ctl() fd parameter. */</span>
+</span></span><span class="line"><span class="cl">      <span class="kt">int</span> <span class="n">fd</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="cm">/* The same as the &#34;events&#34; field in struct epoll_event. */</span>
+</span></span><span class="line"><span class="cl">      <span class="kt">uint32_t</span> <span class="n">events</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="cm">/* The same as the &#34;data&#34; field in struct epoll_event. */</span>
+</span></span><span class="line"><span class="cl">      <span class="kt">uint64_t</span> <span class="n">data</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">      <span class="cm">/* Output field, will be set to the return code after this
+</span></span></span><span class="line"><span class="cl"><span class="cm">       * command is executed by kernel */</span>
+</span></span><span class="line"><span class="cl">      <span class="kt">int</span> <span class="n">result</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl"><span class="p">};</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>将一个epoll_ctl_cmd数组cmds传入，则epoll_ctl_batch可以在一次系统调用中添加多个fd。</p>
 <p>Fam的第二个系统调用是<em><strong>epoll_pwait1</strong></em></p>
@@ -381,16 +449,16 @@ epoll概述 epoll的功能与select或者poll类似，但是epoll在应对轮询
 </span><span class="lnt">9
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp">    <span class="k">struct</span> <span class="nc">epoll_wait_params</span><span class="p">{</span>
-        <span class="kt">int</span> <span class="n">clockid</span><span class="p">;</span>
-        <span class="k">struct</span> <span class="nc">timespec</span> <span class="n">timeout</span><span class="p">;</span>
-        <span class="n">sigset_t</span> <span class="o">*</span><span class="n">sigmask</span><span class="p">;</span>
-        <span class="n">size_t</span> <span class="n">sigsetsize</span><span class="p">;</span>
-    <span class="p">}</span>
-
-    <span class="kt">int</span> <span class="nf">epoll_pwait</span><span class="p">(</span><span class="kt">int</span> <span class="n">epfd</span><span class="p">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">epoll_event</span> <span class="o">*</span><span class="n">events</span><span class="p">,</span> <span class="kt">int</span> <span class="n">maxevents</span><span class="p">,</span> 
-                                                <span class="k">struct</span> <span class="nc">epoll_wait_params</span> <span class="o">*</span><span class="n">params</span><span class="p">);</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">    <span class="k">struct</span> <span class="nc">epoll_wait_params</span><span class="p">{</span>
+</span></span><span class="line"><span class="cl">        <span class="kt">int</span> <span class="n">clockid</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="k">struct</span> <span class="nc">timespec</span> <span class="n">timeout</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">sigset_t</span> <span class="o">*</span><span class="n">sigmask</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">        <span class="n">size_t</span> <span class="n">sigsetsize</span><span class="p">;</span>
+</span></span><span class="line"><span class="cl">    <span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">    <span class="kt">int</span> <span class="nf">epoll_pwait</span><span class="p">(</span><span class="kt">int</span> <span class="n">epfd</span><span class="p">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">epoll_event</span> <span class="o">*</span><span class="n">events</span><span class="p">,</span> <span class="kt">int</span> <span class="n">maxevents</span><span class="p">,</span> 
+</span></span><span class="line"><span class="cl">                                                <span class="k">struct</span> <span class="nc">epoll_wait_params</span> <span class="o">*</span><span class="n">params</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>本版本的epoll_pwait1()添加了一个flags参数，但是并未定义任何flag值，所以flags置为0即可。其他参数，包括时间控制、信号屏蔽设置，都写在params参数中，目的是为应用程序提供更精细的时间控制。对于epoll_wait()来说，毫秒级的时钟分辨率已经被证明在一些场景中过于粗糙，新的系统供调用提供了纳秒级别的精度，解决了这个问题。</p>
 <h2 id="patch2-多线程环境下更好的性能解决惊群问题">patch2: 多线程环境下更好的性能，解决“惊群”问题</h2>
@@ -404,8 +472,8 @@ epoll概述 epoll的功能与select或者poll类似，但是epoll在应对轮询
 <pre tabindex="0" class="chroma"><code><span class="lnt">1
 </span></code></pre></td>
 <td class="lntd">
-<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp">    <span class="kt">void</span> <span class="nf">add_wait_queue_rr</span><span class="p">(</span><span class="n">wait_queue_head_t</span> <span class="o">*</span><span class="n">q</span><span class="p">,</span> <span class="n">wait_queue_t</span> <span class="o">*</span><span class="n">wait</span><span class="p">);</span>
-</code></pre></td></tr></table>
+<pre tabindex="0" class="chroma"><code class="language-cpp" data-lang="cpp"><span class="line"><span class="cl">    <span class="kt">void</span> <span class="nf">add_wait_queue_rr</span><span class="p">(</span><span class="n">wait_queue_head_t</span> <span class="o">*</span><span class="n">q</span><span class="p">,</span> <span class="n">wait_queue_t</span> <span class="o">*</span><span class="n">wait</span><span class="p">);</span>
+</span></span></code></pre></td></tr></table>
 </div>
 </div><p>使用该函数后，当wait返回时，只有一个进程被唤醒，效果和add_wait_queue_exclusive()一样。但是，这个被唤醒的进程，将被从队列头移到队列尾，直到它前面的所有进程都得到唤醒机会后，才能再次被唤醒。</p>
 <p>Jason的提交patch的同时也提交了一个用于压测的程序，压测结果显示，互斥模式使得执行时间降低了50%，当有大量的唤醒发生时，“惊群”效应带来的性能损耗就不会发生了。</p>
@@ -425,6 +493,18 @@ epoll概述 epoll的功能与select或者poll类似，但是epoll在应对轮询
     </section>
 
 
+    
+    <section class="article-copyright">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-copyright" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <path d="M14.5 9a3.5 4 0 1 0 0 6" />
+</svg>
+
+
+
+        <span>Licensed under CC BY-NC-SA 4.0</span>
+    </section>
     </footer>
 
 
@@ -473,18 +553,62 @@ epoll概述 epoll的功能与select或者poll类似，但是epoll在应对轮询
      
     
         
+    <div class="disqus-container">
+    <div id="disqus_thread"></div>
+<script type="application/javascript">
+    window.disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "hugo-theme-stack" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="https://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div>
+
+<style>
+    .disqus-container {
+        background-color: var(--card-background);
+        border-radius: var(--card-border-radius);
+        box-shadow: var(--shadow-l1);
+        padding: var(--card-padding);
+    }
+</style>
+
+<script>
+    window.addEventListener('onColorSchemeChange', (e) => {
+        if (typeof DISQUS == 'object') {
+            DISQUS.reset({
+                reload: true
+            });
+        }
+    })
+</script>
+
     
 
     <footer class="site-footer">
     <section class="copyright">
         &copy; 
         
-        2022 Bg2bkk Site
+            2020 - 
+        
+        2023 Bg2bkk Site
     </section>
     
     <section class="powerby">
         Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
-        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.15.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.16.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
     </section>
 </footer>
 
